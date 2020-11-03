@@ -1,7 +1,7 @@
-# const,readonly,static readonlyの違い
-https://qiita.com/4_mio_11/items/203c88eb5299e4a45f31
+# const,readonly,static readonlyの違い  
+<https://qiita.com/4_mio_11/items/203c88eb5299e4a45f31>
 
-- const
+- const  
 コンパイル時に定義する。
 なので、メソッドの結果など、実行しなければ確定しないものは定数として定義できない。
 これによって、バージョニング問題が発生するとか。
@@ -19,13 +19,13 @@ class Hoge
  }
  
  
-- readonly
+- readonly  
 
 コンストラクタでのみ書き込み可能。
 それ以降は変更不可。
 
 
-- static readonly
+- static readonly  
 実行時に定まってほしい定数を定義する。
 バージョニング問題的な観点から、constよりstatic readonlyが推奨される。
 ちなみにconstも裏ではstatic扱いになっているので、staticを嫌悪する必要はない。
