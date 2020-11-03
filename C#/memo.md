@@ -1,4 +1,4 @@
-#　const,readonly,static readonlyの違い
+# const,readonly,static readonlyの違い
 https://qiita.com/4_mio_11/items/203c88eb5299e4a45f31
 
 - const
