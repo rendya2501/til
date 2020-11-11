@@ -8,8 +8,11 @@ Gitのコマンドを省略して書けたり、オリジナルのコマンド�
 ``` Git
 [alias]
   hoge = !echo hogehoge
-  anccp = git add -A && git commit -a --allow-empty-message -m '' && git push
+  acp = "!f() { git add -A && git commit -a -m \"$@\" && git push; }; f"
+  anccp = "!f() { git add -A && git commit -a --allow-empty-message -m '' && git push; }; f"
 ```
+
+[参考サイト](https://www.it-swarm-ja.tech/ja/git/git-add%E3%80%81commit%E3%80%81push%E3%82%B3%E3%83%9E%E3%83%B3%E3%83%89%E3%82%921%E3%81%BE%E3%81%A8%E3%82%81%E3%81%A6%E3%81%BE%E3%81%97%E3%81%9F%E3%81%8B%EF%BC%9F/1043252019/)
 
 ## エイリアス追加コマンド
 
@@ -22,6 +25,8 @@ git config --global alias.nccommit 'commit -a --allow-empty-message -m ""'
 ```Git
 git commit -a --allow-empty-message -m ''
 ```
+
+[参考サイト](https://okamerin.com/nc/title/509.htm)
 
 ## エイリアスの設定
 
