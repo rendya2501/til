@@ -2,6 +2,7 @@
 
 <https://qiita.com/kiyodori/items/f66a545a47dc59dd8839#:~:text=B%2Dtree%E3%81%A8%E3%81%AF%E3%80%811,%E3%81%8B%E3%81%8B%E3%81%A3%E3%81%A6%E3%81%97%E3%81%BE%E3%81%86%E3%81%9F%E3%82%81%E3%81%A7%E3%81%99%E3%80%82>
 <https://blog.h13i32maru.jp/entry/2012/07/01/000000>
+<https://yottagin.com/?p=2765>
 
 基本は二分探索木。クイックソートのあれ。
 logの復習もしたくなってきた。
