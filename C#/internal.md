@@ -1,9 +1,14 @@
 # internal
 
-<https://www.fenet.jp/dotnet/column/language/4831/#internal>
-同一アセンブリ内(同一exe/同一dll)のクラスからのみアクセス可能な修飾子です。
-他のプロジェクトからは、参照設定がされていてもinternalの場合はアクセス不可となります。
-publicと違い修正範囲が限定されているため、同じアセンブリ内でのみ使用するならば、こちらを使う方が良いでしょう。
+internal : 内部  
+
+<https://www.fenet.jp/dotnet/column/language/4831/#internal>  
+
+同一アセンブリ内(同一exe/同一dll)のクラスからのみアクセス可能な修飾子です。  
+他のプロジェクトからは、参照設定がされていてもinternalの場合はアクセス不可となります。  
+publicと違い修正範囲が限定されているため、同じアセンブリ内でのみ使用するならば、こちらを使う方が良いでしょう。  
+
+---
 
 ## protected、internal、protected internal と private protected
 
