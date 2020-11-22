@@ -28,14 +28,6 @@ Gitのコマンドを省略して書けたり、オリジナルのコマンド�
 git config --global alias.nccommit 'commit -a --allow-empty-message -m ""'
 ```
 
-## コミットメッセージなしのGitコミット
-
-```Git
-git commit -a --allow-empty-message -m ''
-```
-
-[参考サイト](https://okamerin.com/nc/title/509.htm)
-
 ## エイリアスの設定
 
 `hoge = !echo hogehoge`
