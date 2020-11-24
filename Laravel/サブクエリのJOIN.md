@@ -2,7 +2,7 @@
 
 サブクエリへクエリをJOINするために、joinSub、leftJoinSub、rightJoinSubメソッドを利用できます。  
 各メソッドは３つの引数を取ります。サブクエリ、テーブルのエイリアス、関連するカラムを定義するクロージャです。  
-JoinSubメソッドは5.8から有効な模様。teelaの5.3では存在しないメソッドだった。  
+JoinSubメソッドはVer5.8から有効な模様。teelaの5.3では存在しないメソッドだった。  
 
 ```PHP
 $latestPosts = DB::table('posts')
@@ -21,13 +21,23 @@ $users = DB::table('users')
 ## joinSubの代用
 
 ```PHP
-leftJoin(
-    \DB::raw("({$this->rawSql($demand_level_list)}) as DemandLevelList"),
-    function ($join) {
-        $join->on('DemandLevelList.GolfCode', 'TmCalendar.GolfCode')
-            ->on('DemandLevelList.BusinessDate', 'TmCalendar.BusinessDate');
-    }
-)
+$sub_query = Models\TestTable::
+    join(
+        'TmGeneral as LevelName',
+        function ($join) {
+            $join->on('LevelName.Code', 'TmCalendarDemandLevel.DemandLevelCode')
+                ->where('LevelName.GolfCode', 0)
+        }
+    )
+    ->addSelect(~~~);
+$calendar = Models\TmCalendar::
+    leftJoin(
+        \DB::raw("({$this->rawSql($sub_query)}) as Alias"),
+        function ($join) {
+            $join->on('Alias.ID1', 'Base.ID1')
+                ->on('Alias.ID2', 'Base.ID2');
+        }
+    )
 ```
 
 ```PHP
