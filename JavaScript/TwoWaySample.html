@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <script>
+            var person = ((el) => {
+                return {
+                    set age(v) {
+                        el = v;
+                        document.getElementById("age").textContent = el;
+                    },
+                    get age(){
+                        return el
+                    }
+                };
+            })(document.getElementById("age"));
+
+            function test() {
+                person.age = 15;
+            }
+
+            let vm = {
+                _username: "",
+                get username() {
+                    return this._username;
+                },
+                set username(value) {
+                    this._username = value;
+                },
+                onSubmit: (event, element) => {
+                    console.log(this.username);
+                }
+            }
+        </script>
+    </head>
+    <body>
+        <input id="age">
+        <button onclick="test()">test</button>
+        <form action="#" onsubmit="vm.onSubmit(event, this)">
+            <input onchange="vm.username=this.value" type="text" id="Username">
+            <input type="submit" id="Submit">
+        </form>
+    </body>
+</html>
