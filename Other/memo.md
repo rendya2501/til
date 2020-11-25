@@ -119,72 +119,6 @@ ngIf
 T = 表示
 F = 非表示
 
-
-	■Laravel
-
-●->get()->delete()
-
-Eloquent
-->get()->delete()はエラーになる。
-->get()->each(
-	function($item){
-		$item->delete();
-	}
-);
-ってやらないといけない。
-
-
-●->each null
-
-$test = $this->getOpenPlanGDO(553, 111, 111);
-$test->each(
-    function ($item) {
-        \Log::debug($item);
-    }
-);
-$test->eachでnullのエラーになる。
-->eachはnull判定が必要。
-
-if(!is_null($test)) $test->each(
-    function ($item) {
-        \Log::debug($item);
-    }
-);
-
-
-●Laravelでコレクションをfilterするとインデックスが連続でなくなる
-->filter()や->reject()すると連番が振られてしまう問題。
-小一時間悩んだが、->values()するだけで済む問題だった。
-しかし、知らなければ永遠に調べ続けることになるのだ。
-https://yoshinorin.net/2018/05/26/laravel-filterd-items-key/
-
-
-
-●Eloquent sql出力
-①
-\Log::debug($query->toSql());
-\Log::debug($query->getBindings());
-
-②
-\Log::debug(
-    vsprintf(
-        str_replace('?', '%s', str_replace('?', "'?'", $query->toSql())),
-        $query->getBindings()
-    )
-);
-
-
-	■JavaScript時間比較方法
-
-●日付のみで比較したい場合
-
-①setHoursで時間を0にしてミリ秒で比較
-DateInstance.setHours(0,0,0,) === DateInstance.setHours(0,0,0,0)
-
-②~~.getTime() == ~~.getTime()
-
-
-
 	■内税
 
 内税価格 - 内税 = 本体価格
@@ -198,15 +132,6 @@ DateInstance.setHours(0,0,0,) === DateInstance.setHours(0,0,0,0)
 
 切り捨ての場合
 1000 - 90 = 910
-
-
-
-	■正規表現
-
-●○○を含む、AND（かつ）、○○を含むまない
-^(?=.*'excluded_play_dates')(?!.*'excluded_play_dates' => NULL,).*$
-
-
 
 	■150.41 開発環境
 
