@@ -1,7 +1,6 @@
 ユーザー名とパスワードの省略は個人アクセストークンだ。
 
 
-
 1. 著者：どんな人が書いているのか
 2. 目的：なんのため（誰のため）に書かれた本なのか
 3. 構成：どのような内容か
@@ -9,55 +8,7 @@
 5. まとめ：読者として受け取ったこと、著者の一番言いたかったこと  
 
 
-
-
-
 	■便利機能
-
-・ALT+PrintScreenでその画面だけのスクリーンショットを取ることができる。
-
-・VSCode 矩形選択
-終点を［Shift］＋［Alt］＋左クリック（したままドラッグ）
-
-・整形
-Shift + ALT + F
-
-・VSCodeで言語モードの選択を変更するショートカット
-Ctrl k + m
-
-
-・合体して重複をなくす
-
-// 同組、同予約のListを重複無しで合体させ、検索を行う
-this.sameGroupList.
-    concat(this.sameReservationList).
-    filter((x, i, self) => self.indexOf(x) === i).
-    some(list => {
-        // 名前からVisitListのパラメータを取得
-        list.PlayerList.some(player => {
-            if (player.Name === changedName || player.Kana === changedName) {
-                changedPlayer = player;
-                return true;
-            }
-        })
-        if (changedPlayer) {
-            return true;
-        }
-    });
-
-
-
-	■F12,Json掃き出し
-
-①一番上のログを右クリックでGlobalなんちゃらで掃き出し。
-②JSON.stringify(temp1)でjson掃き出し
-③一番右にcopyボタンがあるので、コピー
-④cntl+nで新規ファイル作成。
-⑤貼り付け
-⑥右下プレーンテキストをクリックしてjsonに変更
-⑦右クリック、フォーマット
-
-
 
 	■git pullのあれ
 
@@ -72,8 +23,6 @@ git pull [リポジトリ] [ブランチ]
 425をやっているうちにbug-fix-develop-alpに適応された変更を425にマージしておきたい。
 そのためのコマンド
 git pull origin bug-fix-develop-alp
-
-
 
 	■gitlabからブランチを削除する方法
 
@@ -104,20 +53,6 @@ git pull origin bug-fix-develop-alp
 	■vim
 
 :wq 保存して閉じる
-
-
-
-	■angular
-
-●hidden ngIf
-
-hidden
-T = 非表示
-F = 表示
-
-ngIf
-T = 表示
-F = 非表示
 
 	■内税
 
@@ -181,5 +116,64 @@ sudo rm -rf opt
 頭にsudo をつけただけだが、これだけで警告もなしに一瞬で消える。
 気をつけないとマジでやばいな。
 
+	●SQL SERVER のトランザクション
+
+BEGIN TRANSACTION
+COMMIT TRANSACTION
+ROLLBACK TRANSACTION
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+
+	●対象カラムが存在するかどうかをチェックする
+
+   ,CASE
+		WHEN EXISTS(
+			SELECT *
+			FROM   [Eco21_Otaru].sys.columns
+			WHERE  Name = N'訂正区分'
+			AND    Object_ID = OBJECT_ID(N'[Eco21_Otaru].[dbo].[TS_請求]')
+		) THEN ISNULL([A].[訂正区分],0)
+		ELSE 0 --0:請求 小樽以外は0:請求しかありえない。 1:訂正
+	END AS [CorrectClassification]
 
 
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------
+		■TypeScript
+-------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------
+
+
+●全角の長さを取得する
+
+    /**
+     * 全角の長さを取得する
+     * 「あ」   = 全角1文字
+     * 「あa」  = 全角2文字
+     * 「あaa」 = 全角2文字
+     * 「あaab」= 全角3文字
+     * @param str 判定文字列
+     */
+    private getZenkakuLength(str: string): number {
+        // 半角0.5 は繰り上げる
+        return Math.ceil(this.zenkakuCount(str));
+    }
+
+    /**
+     * 全角数を判定する処理
+     * 全角:1
+     * 半角:0.5
+     * @param str 判定する文字列
+     */
+    private zenkakuCount(str: string) {
+        let length = 0;
+        for (let i = 0; i < str.length; i++) {
+            if (str[i].match(/[ -~]/)) {
+                length += 0.5;
+            } else {
+                length += 1;
+            }
+        }
+        return length;
+    }

@@ -6,13 +6,13 @@ RNに入る前のサンプルとしては最適だったかもしれないが、
 なんてことはない。改めてサンプルとしてまとめる必要性も皆無だ。
 でも、自分で説明するとなったらあれなんだよなぁ。
 
-### MVVMパターンとは？
+## MVVMパターンとは
 
 プログラムの構成をView(見た目),ViewModel(見た目とデータの制御),Model(データの制御)に分けた物。
 基本的に、View,ViewModel間のやり取りはプロパティのBindingを行う。
 プロパティ変更通知はINotifyPropertyChangedインターフェースを使用するが、Prismは便利なサポート
 
-```C# : ViewModel
+``` C# : ViewModel
 using Microsoft.Practices.Prism.Commands;
 using Microsoft.Practices.Prism.Mvvm;
 
@@ -82,13 +82,13 @@ namespace MVVMSample1
 
 ビルドしてView（XAML）を作成します。ViewModelをXAMLで参照できるように名前空間の定義を行います。
 
-```C# : Xaml
+``` C# : Xaml
 xmlns:l="clr-namespace:MVVMSample01"
 ```
 
 そして、DataContextプロパティに先ほど作成したViewModelクラスを設定します。
 
-```C# : Xaml
+``` C# : Xaml
 <Window.DataContext>
     <l:MainWindowViewModel />
 </Window.DataContext>
@@ -96,7 +96,7 @@ xmlns:l="clr-namespace:MVVMSample01"
 
 画面を作成していきます。入力用のTextBoxと出力用のTextBlockとコマンドを実行するためのButtonを置いて、ViewModelの対応するプロパティとバインディングしています。
 
-```C# : Xaml
+``` C# : Xaml
 <Window
     x:Class="MVVMSample01.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"

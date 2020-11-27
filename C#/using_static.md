@@ -5,7 +5,7 @@
 using static ディレクティブを書くことで、クラス名を省略して、直接静的メソッドを呼べるようになります。  
 例えば、Math クラス(System 名前空間)中のメソッド呼び出しであれば、以下のように書けます。  
 
-```C#
+``` C#
 using System;
 using static System.Math;
 
@@ -23,7 +23,7 @@ class Program
 ちなみに、using static は任意のクラスに対して使えます(静的クラスでないとダメとかの制限はありません)。  
 たとえば以下の例では、TimeSpan構造体やTaskクラスを using static していますが、これらは static 修飾子がついていない普通のクラスです。  
 
-```C#
+``` C#
 using System.Threading.Tasks;
 using static System.Threading.Tasks.Task;
 using static System.TimeSpan;
@@ -45,7 +45,7 @@ class UsingStaticNormalClass
 
 列挙型のメンバーも静的なので、using staticを使って、型名を省略して参照できます。  
 
-```C#
+``` C#
 using static Color;
 
 class UsingStaticEnum
@@ -72,7 +72,7 @@ enum Color
 using static を使う場合でも、そのクラス中の拡張メソッドはあくまで拡張メソッドとしてだけ使えます。  
 using static だけでは、拡張メソッドを普通の静的メソッドと同じ呼び方で呼べません。  
 
-```C#
+``` C#
 using static System.Linq.Enumerable;
 
 class UsingStaticSample

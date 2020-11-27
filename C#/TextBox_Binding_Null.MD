@@ -7,8 +7,8 @@
 
 TargetNullValueプロパティを以下のように書くことで、空文字のときにnullがプロパティに渡ってくるようになります。
 
-~~~ C#
+``` C#
 <TextBox Text="{Binding Path=NumberInput, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}" />
-~~~
+```
 
 TargetNullValueはこの値が来たらnullとして扱うことを設定するためのプロパティの模様。
