@@ -1,7 +1,10 @@
 # Enumを任意の文字列に変換する方法
 
+Enumのメンバーを任意の文字列に変換するため業務中に作った作品。  
+割とうまくできたので、備忘録として乗せておく。  
+方針としてはDisplayアノテーションの内容を変換文字列として使う方法。  
 
-```C#
+```C#:Converter
 using System;
 using System.Globalization;
 using System.Windows.Data;
@@ -48,7 +51,6 @@ namespace RN3.Wpf.Common.Converter
         /// <param name="parameter"></param>
         /// <param name="culture"></param>
         /// <returns></returns>
-        // No need to implement converting back on a one-way binding 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
@@ -57,7 +59,7 @@ namespace RN3.Wpf.Common.Converter
 }
 ```
 
-```C#
+```C#:Enum
 using System.ComponentModel.DataAnnotations;
 
 namespace RN3.Wpf.Common.Data.Enum
@@ -86,14 +88,16 @@ namespace RN3.Wpf.Common.Data.Enum
 }
 ```
 
-```C#
-                        <c1:Column
-                            Width="65"
-                            HorizontalAlignment="Left"
-                            VerticalAlignment="Center"
-                            Binding="{Binding TaxationType, Converter={StaticResource EnumToStringConverter}, Mode=OneWay}"
-                            ColumnName="TaxationTypeName"
-                            Header="課税"
-                            HeaderHorizontalAlignment="Center"
-                            HeaderVerticalAlignment="Center" />
+```C#:XAML
+<c1:Column
+    Width="65"
+    HorizontalAlignment="Left"
+    VerticalAlignment="Center"
+    Binding="{Binding TaxationType,
+              Converter={StaticResource EnumToStringConverter},
+              Mode=OneWay}"
+    ColumnName="TaxationTypeName"
+    Header="課税"
+    HeaderHorizontalAlignment="Center"
+    HeaderVerticalAlignment="Center" />
 ```
