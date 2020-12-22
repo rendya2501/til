@@ -5,6 +5,7 @@ namespace Test
     // https://qiita.com/chocolamint/items/9f13fe7e3c6343f898c2
     // https://qiita.com/RyotaMurohoshi/items/03937297810e7c9aaf8b
     // https://qiita.com/Temarin/items/27614d879e9376421aae
+    // https://stackoverflow.com/questions/4632945/dictionary-with-null-key
     // Dictionary key null
     public class Test{
         public Test()
