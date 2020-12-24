@@ -1,6 +1,6 @@
 # テーブル構造変更系SQL
 
-テーブルのカラム名を変更するSQL
+## テーブルのカラム名を変更するSQL
 
 ```SQL
 -- MariaDB
@@ -13,7 +13,9 @@ EXEC sp_rename 'スキーマ名.テーブル名.現在のカラム名', '新し�
 EXEC sp_rename 'TMa_Product.RevenuTypeCD','RevenueTypeCD','COLUMN'
 ```
 
-テーブルのデータ型を変更するSQL
+---
+
+## テーブルのデータ型を変更するSQL
 
 ```SQL
 -- SQL Server
