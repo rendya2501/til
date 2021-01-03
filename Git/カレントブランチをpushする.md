@@ -1,4 +1,4 @@
-# カレントブランチをpushするコマンド
+# カレントブランチをpushする方法
 
 ```git
 git push origin HEAD
