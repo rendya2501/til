@@ -7,8 +7,9 @@ implode関数を使用する。
 
 ```php
 $some_list = Models\TableModel::
-    where()
-    ->pluck('FiledName')
-    ->toArray();
+    where()
+    // pluckは指定したキーの値だけを取得できる。
+    ->pluck('FiledName')
+    ->toArray();
 $str = implode(",", $some_list);
 ```
