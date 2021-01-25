@@ -23,7 +23,7 @@ $model->get()->each(
 ## ->each null
 
 ```php
-// getの結果がnullとして次のeachでエラーになる。
+// getの結果がnullの場合、eachでエラーになる。
 $test = $this->getOpenPlanGDO(553, 111, 111);
 $test->each(
     function ($item) {
