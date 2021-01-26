@@ -54,55 +54,6 @@ git pull origin bug-fix-develop-alp
 
 :wq 保存して閉じる
 
-
-	■150.41 開発環境
-
-CentOS 7
-CentOSはRedHat系
-
-・OS確認コマンド
-$ cat /etc/redhat-release
-
-・chrome update コマンド
-$ sudo yum install https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm
-
-・chrome version 確認コマンド
-$ google-chrome --version
-
-参考サイト：
-http://www.ajisaba.net/develop/chrome/install_centos7.html
-
-
-●VisualStudioUpdate手順
-
-・rpmをインポート
-　ここはVSCodeのアップデートをしようとすると飛ばされた先のrmpダウンロードを選択した先に書いてあるコマンドをコピペして実行する
-①$ sudo rpm --import [指定されたURL]
-②$ sudo sh -c 'echo -e [なんかとても長い呪文]
-
-・アップデートを確認してyumでインストール
-③$ sudo yum check-update
-④$ sudo yum -y install code
-
-
-
-●管理者権限でフォルダを消す
-rm : remove
--r : 配下のデータも削除する
--f : 確認なしで削除する
-
-普通はこれでいける↓
-rm -rf opt
-
-でも、optフォルダは鍵マークがついていて、明らかに普通では削除できない雰囲気が漂っていた。
-実際、権限がないといわれ削除できなかったので、管理者権限でやるしかない。
-それに対応したコマンドがこちら。
-
-sudo rm -rf opt
-
-頭にsudo をつけただけだが、これだけで警告もなしに一瞬で消える。
-気をつけないとマジでやばいな。
-
 	●SQL SERVER のトランザクション
 
 BEGIN TRANSACTION
@@ -260,21 +211,6 @@ Collectionの動作を確認するためのあれこれをくみ上げた。
 →本人確認→PCの認証の意味合い
 
 
-
-●HTML HEAD
-ページが読み込まれてもウェブブラウザーには表示されない部分。
-構成情報などを記述する場所と覚えて差し支えないか。
-
-例 :
-・ <title> といった情報や CSS へのリンク (もし HTML を CSS で修飾したいならば)
-・独自のファビコンへのリンク
-・メタデータ (HTML を誰が書いたのかとかその HTML を表現する重要なキーワードなど)
-
-※メタデータ : データを説明するデータ
-<meta charset="utf-8">
-
-
-
 ・勉強 : DDoS,GithubとGitlabの違い
 
 
@@ -333,36 +269,6 @@ Linux技術者認定試験（LPIC : Linux Professional Institute Certification�
 これがみんなが言っている切り上げ切り捨ての概念なんだろうなぁ。
 確かに1円の違いが絶対に生じる。
 1円の違いでも間違ったらヤバい。
-
-
-
-〆●開発環境のvscodeを更新してみる
-
-なんかコマンドラインからアップデートを実行するだけで、とてもできる人物であるかのように感じる。
-前にやったchromeのupdateと凡そ同じ感じでvscodeのアップデートも出来た。
-centを使う限り、この流れは一貫しているのだろうなぁ。
-
-
-
-〆●うるさいファイルを消す
-rm : remove
--r : 配下のデータも削除する
--f : 確認なしで削除する
-
-普通はこれでいける↓
-rm -rf opt
-
-でも、optフォルダは鍵マークがついていて、明らかに普通では削除できない雰囲気が漂っていた。
-実際、「権限がない」と言われ削除できなかったので、管理者権限でやることに。
-それに対応したコマンドがこちら↓
-
-sudo rn -rf opt
-
-頭にsudo をつけただけだが、これだけで警告もなしに一瞬で消える。
-気をつけないとマジでやばいな。
-
-因みにsudoはsuperuser do の略でいいだるるぉ。
-
 
 
 ●エクセルのセルを入力モードにするショートカット
@@ -788,12 +694,6 @@ IP パケット送信処理におけるエラーの通知や制御メッセー�
 ●山田康雄 : やまだ　やすお
 ルパンの人だけど、クリントイーストウッドの吹き替えもやってたみたい。
 今日、戦略大作戦見たからね。
-
-
-●借金の利率
-アイフルやアコムの上限金利は年18.0％、プロミスは17.8％と、大手消費者金融の金利相場は年18.0％と、上限金利20.0％よりも下回っています。
-ハルは12%で安いと言っていたが、確かに安いほうかもしれないな。
-しかし、投資の年利が5～9%が現実的な相場だと考えれば、強気の云々で10%行くというのはちょっと言いすぎではないか？
 
 
 ・勉強 : PPP,DNS,HDCP,SDN,NFV
@@ -1288,19 +1188,6 @@ IP
 
 
 ■勉強
-
-●Laravelでコレクションをfilterするとインデックスが連続でなくなる
-->filter()や->reject()すると連番が振られてしまう問題。
-小一時間悩んだが、->values()するだけで済む問題だった。
-しかし、知らなければ永遠に調べ続けることになるのだ。
-https://yoshinorin.net/2018/05/26/laravel-filterd-items-key/
-
-今日、ちょっとこれ以外、勉強できそうにない。
-やることが多すぎる。
-取り合えず、直近で片付けるやつをやる。
-プログラムの勉強に限らなくても、別で勉強しているという言い訳は立つ。
-いいわけだけどね。
-
 
 ・勉強 : クロージャーについて、即時関数について
 
@@ -1805,23 +1692,6 @@ https://elf-mission.net/programming/wpf/episode09/
 ●GROUP_CONCAT
 sqlでgroup byしたときに任意の列の値を連結させる関数。
 mariaDBで使用可能だった。
-
-
-●Laravel : ->get()->delete()
-エラーになる。
-getした後にdeleteしらければeachで回すしかない。
-
-->get()->each(
-    function($item) {
-        $item->delete();
-    }
-);
-
-
-●Laravel : ->each()はnullだとエラーになる
-->get()した値がnullだとエラーになる。
-if (!is_null())で判定が必要。
-
 
 ●php : foreach($item as $value)
 $itemがnullだとエラー。
