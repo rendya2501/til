@@ -45,3 +45,61 @@ print(json_encode($params));
 // 結果
 // {"plans":[{"cat":"meow","dog":"woof"},{"cow":"moo","computer":"beep"}]}
 ```
+
+## PHPのforeachで作った変数はforeach抜けた後も有効
+
+公式のリファレンスにも書いてありました。  
+unsetはマナー的にあってもいいのかもしれないですね。  
+
+---
+
+## 多次元配列をimplode()する最も簡単な方法
+
+案3が一番おすすめ。何よりわかりやすい。  
+
+```php
+$params = array (
+  'plans' => 
+  array (
+    0 => 
+    array (
+      'linkage_plan_id' => '05539999950000020001',
+      'is_searchable' => false,
+    ),
+    1 => 
+    array (
+      'linkage_plan_id' => '05539999950000020002',
+      'is_searchable' => false,
+    ),
+  ),
+);
+// 案1
+print(
+    implode(
+        ",",
+        array_map(
+            fn($el) => $el['linkage_plan_id'], 
+            $params['plans']
+        )
+    )
+);
+// 案2
+print(
+    implode(
+        ',',
+        array_map(
+            'implode',
+            $params['plans'],
+            array_fill(0, count($params['plans']),
+            '')
+        )
+    )
+);
+// 案3
+print(
+    implode(
+        ',',
+        array_column($params['plans'], 'linkage_plan_id')
+    )
+);
+```
