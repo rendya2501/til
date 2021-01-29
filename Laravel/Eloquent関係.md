@@ -145,3 +145,28 @@ Models\TmOpenPlanGORAPrice::
 //     Logger::dataChangeLog(Logger::LOG_TYPE_CREATE, $new_master);
 // }
 ```
+
+---
+
+## DBGetでdecimalがstringでgetされる問題
+
+DB上ではフィールドの型がdecimalで定義されているのに、stringで取得されてしまう問題が発生した。  
+対処法としてはModelにフィールドの型を定義するためのオプションが用意されているっぽいので、見よう見まねでそれを使った。  
+[stack神](https://stackoverflow.com/questions/48288519/eloquent-casts-decimal-as-string)  
+
+```php
+class TmOpenPlanGORAPrice extends Model
+{
+    /**
+     * フィールド型
+     */
+    protected $casts = [
+        'PlayFee' => 'float',
+        'AdditionPrice' => 'float',
+        '3BPrice' => 'float',
+        '2BPrice' => 'float'
+    ];
+}
+```
+
+---
