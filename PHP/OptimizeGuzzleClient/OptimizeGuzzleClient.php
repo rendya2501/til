@@ -1,4 +1,5 @@
 <?php
+
 /**
  * GuzzleClientの最適化のためのサンプル
  *
@@ -156,7 +157,7 @@ use GuzzleHttp\Psr7\Request;
 //         return $response;
 //     }
 
-    
+
 //     /**
 //      * 一連のプラン取得API処理を実行します
 //      *
@@ -272,7 +273,7 @@ use GuzzleHttp\Psr7\Request;
 //             ]
 //         );
 //     }
-    
+
 //     /**
 //      * APIを実行します。
 //      *
@@ -334,7 +335,7 @@ function getLoginHttpClient($base_url)
     return new Client(
         [
             'http_errors' => false,
-            'base_uri' => $base_url.'/',
+            'base_uri' => $base_url . '/',
             'headers' => [
                 'Content-Type' => 'application/json'
             ]
@@ -367,14 +368,6 @@ try {
     // レスポンス分解
     //$response_content = json_decode($response->getBody(), true, 512, 0);
     //$bearer_token = $response_content['data'][0]['access_token'];
-
-    // var_dump($url);
-    // foreach ($request->getHeaders() as $name => $values) {
-    //     echo $name . ': ' . implode(', ', $values) . "\r\n";
-    // }
-    $request = new Request('GET', 'http://httpbin.org');
-    echo $request->getUri()->getScheme(); // http
-    echo $request->getUri(); // http://httpbin.org
 } catch (Exception $e) {
     echo json_encode($e);
 }
