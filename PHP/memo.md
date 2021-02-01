@@ -103,3 +103,44 @@ print(
     )
 );
 ```
+
+---
+
+## コレクションがネストしている項目を取得したい場合
+
+<https://tektektech.com/laravel-pluck/>
+
+```php
+    $collection = collect(
+        array (
+            array (
+                'linkage_plan_id' => '05539999950000020001',
+                'basis_content' => 
+                array (
+                    'name' => '4_伊藤テスト_連携改善_固定_1',
+                    'base_price' => 18400,
+                    'sales_tax' => 1840.0,
+                    'golf_usage_tax' => 1200,
+                    'other_tax' => 60,
+                    '2b_additional_fee' => 2000,
+                    '3b_additional_fee' => 1000,
+                )
+            ),
+            array (
+                'linkage_plan_id' => '05539999950000020002',
+                'basis_content' => 
+                array (
+                    'name' => '4_伊藤テスト_連携改善_固定_1',
+                    'base_price' => 18400,
+                    'sales_tax' => 1840.0,
+                    'golf_usage_tax' => 1200,
+                    'other_tax' => 60,
+                    '2b_additional_fee' => 2500,
+                    '3b_additional_fee' => 1500,
+                )
+            )
+        )
+    );
+    $collection->pluck('basis_content')->pluck('base_price')->unique();
+    $collection->pluck('basis_content.base_price')->unique();
+```
