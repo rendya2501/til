@@ -98,6 +98,10 @@ valueメソッドで済む。
 
 ## コピーと削除
 
+getした後、ifやforeachを挟んでいるところがたくさんあったけど、eachを使えばそんなことする必要がないよという戒め。
+getは何もなければ空配列が帰ってくる。eachは空配列なら実行されない。
+なので、ifで空配列かどうか判定する必要がないし、foreachと同じ動作なんだからeach使おうよというお話。
+
 ```php
 // 削除
 // 公開プランGORA金額マスタ
@@ -170,3 +174,17 @@ class TmOpenPlanGORAPrice extends Model
 ```
 
 ---
+
+## 配列をカンマ区切りの文字列に変換する方法
+
+implode関数を使用する。  
+ちなみにLaravelのEroquent使ってcollectionをカンマ区切りの文字列にするサンプルです。
+
+```php
+$some_list = Models\TableModel::
+    where()
+    // pluckは指定したキーの値だけを取得できる。
+    ->pluck('FiledName')
+    ->toArray()
+    ->implode(',');
+```

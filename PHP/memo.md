@@ -1,19 +1,5 @@
 # php色々
 
-## 配列をカンマ区切りの文字列に変換する方法
-
-implode関数を使用する。  
-ちなみにLaravelのEroquent使ってcollectionをカンマ区切りの文字列にするサンプルです。
-
-```php
-$some_list = Models\TableModel::
-    where()
-    // pluckは指定したキーの値だけを取得できる。
-    ->pluck('FiledName')
-    ->toArray();
-$str = implode(",", $some_list);
-```
-
 ## 連想配列をforeachするときにインデックスも欲しい
 
 ```php
@@ -144,3 +130,15 @@ print(
     $collection->pluck('basis_content')->pluck('base_price')->unique();
     $collection->pluck('basis_content.base_price')->unique();
 ```
+
+---
+
+## PHPのプロセスを止める方法
+
+<https://flashbuilder-job.com/php/635.html>
+
+`ps aux | grep php`  
+これでプロセスID（左から２つ目の値）を調べる。  
+
+ルートユーザー、またはルートになれるユーザーでコマンド実行  
+`sudo kill -9 (プロセスID)`  
