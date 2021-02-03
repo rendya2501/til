@@ -264,7 +264,6 @@ class OptimisationGuzzleClient
         );
     }
 
-    
     /**
      * APIを実行します。
      *

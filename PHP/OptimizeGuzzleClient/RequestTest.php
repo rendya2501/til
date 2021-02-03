@@ -30,6 +30,14 @@ function callLoginAPI()
         ['Content-Type' => 'application/json'],
         json_encode($params)
     );
+
+    echo $request->getUri();
+    echo "\n";
+    echo $request->getMethod();
+    echo "\n";
+    echo $request->getBody();
+    echo "\n";
+
     // クライアント生成
     $client = new Client(['http_errors' => false]);
     // API実行
@@ -40,10 +48,12 @@ function callLoginAPI()
     return $response_content['data'][0]['access_token'];
 }
 
-try {
+/**
+ * GORAGetAPI
+ */
+function callGetAPI(){
     // ログインAPIを実行してトークンを取得
     $token = callLoginAPI();
-    print($token);
     // リクエスト生成
     $request = new Request(
         'GET',
@@ -61,7 +71,12 @@ try {
     $response = $client->send($request);
     // レスポンス分解
     $response_content = json_decode($response->getBody(), true, 512, 0);
-    print_r($response_content);
+    //print_r($response_content);
+    return $response_content;
+}
+
+try {
+    callGetAPI();    
 } catch (Exception $e) {
     echo json_encode($e);
 }

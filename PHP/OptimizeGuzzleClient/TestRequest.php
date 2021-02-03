@@ -124,8 +124,8 @@ function executeClientVer()
 }
 
 try {
-    // executeRequestVer();
-    executeClientVer();
+    executeRequestVer();
+    // executeClientVer();
 } catch (Exception $e) {
     echo json_encode($e);
 }
