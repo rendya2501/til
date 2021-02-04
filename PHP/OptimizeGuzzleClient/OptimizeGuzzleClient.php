@@ -12,12 +12,12 @@ require 'vendor/autoload.php';
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request;
 
- /**
+/**
  * Web連携のプラン連携用サービスクラス
  */
 class OptimisationGuzzleClient
 {
-    
+
     // DB参照エラーメッセージ
     const DB_SHOW_ERROR_MESSAGE_NOT_EXIST_MASTER_PLAN_DATA = '公開プランGORAマスタにデータが存在しません。';
     // DB更新エラーメッセージ
@@ -70,16 +70,16 @@ class OptimisationGuzzleClient
             return $login_response;
         }
         // クライアント生成
-        $client = $this->createHttpClient($web_link->ServiceURL);
+        $client = $this->createHttpClient();
         // リクエスト生成
         $request = new Request(
             'POST',
-            self::API_URI,
-            ['Authorization' => 'Bearer '.$login_response['message']],
+            $web_link->ServiceURL . self::API_URI,
+            ['Authorization' => 'Bearer ' . $login_response['message']],
             json_encode($params)
         );
         // リトライ回数分APIを実行する
-        for ($i=0; $i<self::RETRY_MAX_COUNT; $i++) {
+        for ($i = 0; $i < self::RETRY_MAX_COUNT; $i++) {
             // API実行
             $response = $this->executeAPI($client, $request);
             // 200なら処理終了
@@ -107,16 +107,16 @@ class OptimisationGuzzleClient
             return $login_response;
         }
         // クライアント生成
-        $client = $this->createHttpClient($web_link->ServiceURL);
+        $client = $this->createHttpClient();
         // リクエスト生成
         $request = new Request(
             'PATCH',
-            self::API_URI,
-            ['Authorization' => 'Bearer '.$login_response['message']],
+            $web_link->ServiceURL . self::API_URI,
+            ['Authorization' => 'Bearer ' . $login_response['message']],
             json_encode($params)
         );
         // リトライ回数分APIを実行する
-        for ($i=0; $i<self::RETRY_MAX_COUNT; $i++) {
+        for ($i = 0; $i < self::RETRY_MAX_COUNT; $i++) {
             // API実行
             $response = $this->executeAPI($client, $request);
             // 200なら処理終了
@@ -144,15 +144,15 @@ class OptimisationGuzzleClient
             return $login_response;
         }
         // クライアント生成
-        $client = $this->createHttpClient($web_link->ServiceURL);
+        $client = $this->createHttpClient();
         // リクエスト生成
         $request = new Request(
             'DELETE',
-            self::API_URI.'?linkage_plan_ids='.$params,
-            ['Authorization' => 'Bearer '.$login_response['message']]
+            $web_link->ServiceURL . self::API_URI . '?linkage_plan_ids=' . $params,
+            ['Authorization' => 'Bearer ' . $login_response['message']]
         );
         // リトライ回数分APIを実行する
-        for ($i=0; $i<self::RETRY_MAX_COUNT; $i++) {
+        for ($i = 0; $i < self::RETRY_MAX_COUNT; $i++) {
             // API実行
             $response = $this->executeAPI($client, $request);
             // 200なら処理終了
@@ -180,15 +180,15 @@ class OptimisationGuzzleClient
             return $login_response;
         }
         // クライアント生成
-        $client = $this->createHttpClient($web_link->ServiceURL);
+        $client = $this->createHttpClient();
         // リクエスト生成
         $request = new Request(
             'GET',
-            self::API_URI.'?linkage_plan_ids='.$params,
-            ['Authorization' => 'Bearer '.$login_response['message']]
+            $web_link->ServiceURL . self::API_URI . '?linkage_plan_ids=' . $params,
+            ['Authorization' => 'Bearer ' . $login_response['message']]
         );
         // リトライ回数分APIを実行する
-        for ($i=0; $i<self::RETRY_MAX_COUNT; $i++) {
+        for ($i = 0; $i < self::RETRY_MAX_COUNT; $i++) {
             // API実行
             $response = $this->executeAPI($client, $request);
             // 200なら処理終了
@@ -217,12 +217,12 @@ class OptimisationGuzzleClient
         // リクエスト生成
         $request = new Request(
             'POST',
-            self::LOGIN_API_URI,
+            $web_link->ServiceURL . self::LOGIN_API_URI,
             ['Content-Type' => 'application/json'],
             json_encode($params)
         );
         // クライアント生成
-        $client = $this->createHttpClient($web_link->ServiceURL);
+        $client = $this->createHttpClient();
         // ログインAPI実行
         $login_response = $this->executeAPI($client, $request);
         // ログインがうまくいかなかったら処理を中断する。
@@ -249,16 +249,13 @@ class OptimisationGuzzleClient
     /**
      * HTTPクライアントを生成します
      *
-     * @param string $uri ベースURL
-     *
      * @return \GuzzleHttp\Client
      */
-    private function createHttpClient($uri)
+    private function createHttpClient()
     {
         return new Client(
             [
                 'http_errors' => false,
-                'base_uri' => $uri .'/',
                 'headers' => ['Content-Type' => 'application/json']
             ]
         );
@@ -290,10 +287,10 @@ class OptimisationGuzzleClient
         $response = $client->send($request);
         // OUTPUTログ生成
         SiteControllerWorkerService::writeWebCooperationLog(
-            __CLASS__.'->'.$calling_func_name,
+            __CLASS__ . '->' . $calling_func_name,
             "\n***OUTPUT***\n"
-            .$response->getStatusCode()."\n"
-            .var_export(\GuzzleHttp\json_decode($response->getBody(), true), true),
+                . $response->getStatusCode() . "\n"
+                . var_export(\GuzzleHttp\json_decode($response->getBody(), true), true),
             \Config::get('const.portal.gora'),
             SiteControllerWorkerService::LOG_TYPE_CODE_IO
         );
@@ -382,14 +379,14 @@ try {
 
     // 色々準備
     $method_name = 'post';
-    $path = 'login';
-    $body_type = 'json';
-    $params = [
-        'linkage_vendor_id' => '19',
-        'linkage_golf_course_id' => '19910',
-        'password' => 'miDlmkTSCvD37mwR5X8T'
+    $path = '/login';
+    $payload = [
+        'json' => [
+            'linkage_vendor_id' => '19',
+            'linkage_golf_course_id' => '19910',
+            'password' => 'miDlmkTSCvD37mwR5X8T'
+        ]
     ];
-    $payload = [$body_type => $params];
 
     // API実行
     $response = $client->request(
