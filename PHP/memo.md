@@ -92,47 +92,6 @@ print(
 
 ---
 
-## コレクションがネストしている項目を取得したい場合
-
-<https://tektektech.com/laravel-pluck/>
-
-```php
-    $collection = collect(
-        array (
-            array (
-                'linkage_plan_id' => '05539999950000020001',
-                'basis_content' => 
-                array (
-                    'name' => '4_伊藤テスト_連携改善_固定_1',
-                    'base_price' => 18400,
-                    'sales_tax' => 1840.0,
-                    'golf_usage_tax' => 1200,
-                    'other_tax' => 60,
-                    '2b_additional_fee' => 2000,
-                    '3b_additional_fee' => 1000,
-                )
-            ),
-            array (
-                'linkage_plan_id' => '05539999950000020002',
-                'basis_content' => 
-                array (
-                    'name' => '4_伊藤テスト_連携改善_固定_1',
-                    'base_price' => 18400,
-                    'sales_tax' => 1840.0,
-                    'golf_usage_tax' => 1200,
-                    'other_tax' => 60,
-                    '2b_additional_fee' => 2500,
-                    '3b_additional_fee' => 1500,
-                )
-            )
-        )
-    );
-    $collection->pluck('basis_content')->pluck('base_price')->unique();
-    $collection->pluck('basis_content.base_price')->unique();
-```
-
----
-
 ## PHPのプロセスを止める方法
 
 <https://flashbuilder-job.com/php/635.html>
@@ -142,3 +101,71 @@ print(
 
 ルートユーザー、またはルートになれるユーザーでコマンド実行  
 `sudo kill -9 (プロセスID)`  
+
+---
+
+## 多次元配列中の特定のキーを全て削除する方法
+
+```php
+$plan_params = array (
+  'plans' => 
+  array (
+    0 => 
+    array (
+      'type' => 'regular',
+      'linkage_plan_id' => '05539999950000020001',
+      'basis_content' => 
+      array (
+        'name' => '4_伊藤テスト_連携改善_固定_1',
+        'base_price' => 18400.0,
+      )
+    ),
+    1 => 
+    array (
+      'type' => 'regular',
+      'linkage_plan_id' => '05539999950000020002',
+      'basis_content' => 
+      array (
+        'name' => '4_伊藤テスト_連携改善_固定_1',
+        'base_price' => 18500.0,
+      )
+    ),
+    2 => 
+    array (
+      'type' => 'regular',
+      'linkage_plan_id' => '05539999950000020003',
+      'basis_content' => 
+      array (
+        'name' => '4_伊藤テスト_連携改善_固定_1',
+        'base_price' => 18600.0,
+      )
+    )
+  ),
+);
+
+array_walk(
+    $plan_params['plans'],
+    function(&$v){
+        unset($v['type']);
+        unset($v['linkage_plan_id']);
+        unset($v['basis_content']['name']);
+    }
+);
+print_r($plan_params);
+```
+
+---
+
+## 連想配列への追加の仕方
+
+```php
+ $plan_params = ['type' => 'regular'];
+ $plan_params += ['type2' => 'regular'];
+ 
+ print_r($plan_params);
+//  Array
+// (
+//     [type] => regular
+//     [type2] => regular
+// )
+```
