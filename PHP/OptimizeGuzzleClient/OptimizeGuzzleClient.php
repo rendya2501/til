@@ -45,6 +45,7 @@ class OptimisationGuzzleClient
     const DELETE_TYPE_PHYSICAL = 1;
     // APIのURI
     const API_URI = 'plan';
+    const QUERY_API_URI = '/plan?linkage_plan_ids=';
     const LOGIN_API_URI = 'auth/login';
     // メッセージ類
     const FEE_NOT_FOUND = '料金が見つかりませんでした。';
@@ -55,7 +56,7 @@ class OptimisationGuzzleClient
     const RES_START_TIME_GT_RES_END_TIME = '予約受付開始日を当日以降に設定してください。';
 
     /**
-     * 一連のプラン作成API処理を実行します
+     * プラン作成API処理を実行します
      *
      * @param array     $params   APIパラメータ配列
      * @param TmWebLink $web_link Web連携マスタ
@@ -64,38 +65,26 @@ class OptimisationGuzzleClient
      */
     private function callCreatePlanAPI($params, $web_link)
     {
-        // ログイン処理実行
-        $login_response = $this->callLoginAPI($web_link);
-        // 200以外なら処理終了。レスポンスをそのまま返す
-        if ($login_response['status'] !== self::HTTP_STATUS_CODE_OK) {
-            return $login_response;
-        }
-        // リクエスト生成
-        $request = new Request(
-            'POST',
-            $web_link->ServiceURL . self::API_URI,
-            [
-                'Authorization' => 'Bearer '.$login_response['message'],
-                'Content-Type' => 'application/json'
-            ],
-            json_encode($params)
+        // 一連の共通処理を実行
+        return $this->commonAPIAction(
+            // この関数ではCreateRequestを生成するコールバックを定義するだけ。
+            function ($url, $token) use ($params) {
+                return new Request(
+                    'POST',
+                    $url . self::API_URI,
+                    [
+                        'Authorization' => 'Bearer '.$token,
+                        'Content-Type' => 'application/json'
+                    ],
+                    json_encode($params)
+                );
+            },
+            $web_link
         );
-        // クライアント生成
-        $client = new Client(['http_errors' => false]);
-        // リトライ回数分APIを実行する
-        for ($i=0; $i<self::RETRY_MAX_COUNT; $i++) {
-            // API実行
-            $response = $this->execCommonAPI($client, $request);
-            // 200なら処理終了
-            if ($response['status'] === self::HTTP_STATUS_CODE_OK) {
-                break;
-            }
-        }
-        return $response;
     }
 
     /**
-     * 一連のプラン更新API処理を実行します
+     * プラン更新API処理を実行します
      *
      * @param array     $params   APIパラメータ配列
      * @param TmWebLink $web_link Web連携マスタ
@@ -104,38 +93,26 @@ class OptimisationGuzzleClient
      */
     private function callUpdatePlanAPI($params, $web_link)
     {
-        // ログイン処理実行
-        $login_response = $this->callLoginAPI($web_link);
-        // 200以外なら処理終了。レスポンスをそのまま返す
-        if ($login_response['status'] !== self::HTTP_STATUS_CODE_OK) {
-            return $login_response;
-        }
-        // リクエスト生成
-        $request = new Request(
-            'PATCH',
-            $web_link->ServiceURL . self::API_URI,
-            [
-                'Authorization' => 'Bearer '.$login_response['message'],
-                'Content-Type' => 'application/json'
-            ],
-            json_encode($params)
+        // 一連の共通処理を実行
+        return $this->commonAPIAction(
+            // この関数ではPatchRequestを生成するコールバックを定義するだけ。
+            function ($url, $token) use ($params) {
+                return new Request(
+                    'PATCH',
+                    $url . self::API_URI,
+                    [
+                        'Authorization' => 'Bearer '.$token,
+                        'Content-Type' => 'application/json'
+                    ],
+                    json_encode($params)
+                );
+            },
+            $web_link
         );
-        // クライアント生成
-        $client = new Client(['http_errors' => false]);
-        // リトライ回数分APIを実行する
-        for ($i=0; $i<self::RETRY_MAX_COUNT; $i++) {
-            // API実行
-            $response = $this->execCommonAPI($client, $request);
-            // 200なら処理終了
-            if ($response['status'] === self::HTTP_STATUS_CODE_OK) {
-                break;
-            }
-        }
-        return $response;
     }
 
     /**
-     * 一連のプラン削除API処理を実行します
+     * プラン削除API処理を実行します
      *
      * @param string    $params   APIパラメータ文字列
      * @param TmWebLink $web_link Web連携マスタ
@@ -144,34 +121,22 @@ class OptimisationGuzzleClient
      */
     private function callDeletePlanAPI($params, $web_link)
     {
-        // ログイン処理実行
-        $login_response = $this->callLoginAPI($web_link);
-        // 200以外なら処理終了。レスポンスをそのまま返す
-        if ($login_response['status'] !== self::HTTP_STATUS_CODE_OK) {
-            return $login_response;
-        }
-        // リクエスト生成
-        $request = new Request(
-            'DELETE',
-            $web_link->ServiceURL . self::API_URI . '?linkage_plan_ids=' . $params,
-            ['Authorization' => 'Bearer '.$login_response['message']]
+        // 一連の共通処理を実行
+        return $this->commonAPIAction(
+            // この関数ではDeleteRequestを生成するコールバックを定義するだけ。
+            function ($url, $token) use ($params) {
+                return new Request(
+                    'DELETE',
+                    $url . self::QUERY_API_URI . $params,
+                    ['Authorization' => 'Bearer '.$token]
+                );
+            },
+            $web_link
         );
-        // クライアント生成
-        $client = new Client(['http_errors' => false]);
-        // リトライ回数分APIを実行する
-        for ($i=0; $i<self::RETRY_MAX_COUNT; $i++) {
-            // API実行
-            $response = $this->execCommonAPI($client, $request);
-            // 200なら処理終了
-            if ($response['status'] === self::HTTP_STATUS_CODE_OK) {
-                break;
-            }
-        }
-        return $response;
     }
 
     /**
-     * 一連のプラン取得API処理を実行します
+     * プラン取得API処理を実行します
      *
      * @param string    $params   APIパラメータ文字列
      * @param TmWebLink $web_link Web連携マスタ
@@ -180,34 +145,22 @@ class OptimisationGuzzleClient
      */
     private function callGetPlanAPI($params, $web_link)
     {
-        // ログイン処理実行
-        $login_response = $this->callLoginAPI($web_link);
-        // 200以外なら処理終了。レスポンスをそのまま返す
-        if ($login_response['status'] !== self::HTTP_STATUS_CODE_OK) {
-            return $login_response;
-        }
-        // リクエスト生成
-        $request = new Request(
-            'GET',
-            $web_link->ServiceURL . self::API_URI . '?linkage_plan_ids=' . $params,
-            ['Authorization' => 'Bearer '.$login_response['message']]
+        // 一連の共通処理を実行
+        return $this->commonAPIAction(
+            // この関数ではGetRequestを生成するコールバックを定義するだけ。
+            function ($url, $token) use ($params) {
+                return new Request(
+                    'GET',
+                    $url . self::QUERY_API_URI . $params,
+                    ['Authorization' => 'Bearer '.$token]
+                );
+            },
+            $web_link
         );
-        // クライアント生成
-        $client = new Client(['http_errors' => false]);
-        // リトライ回数分APIを実行する
-        for ($i=0; $i<self::RETRY_MAX_COUNT; $i++) {
-            // API実行
-            $response = $this->execCommonAPI($client, $request);
-            // 200なら処理終了
-            if ($response['status'] === self::HTTP_STATUS_CODE_OK) {
-                break;
-            }
-        }
-        return $response;
     }
 
     /**
-     * 一連のログインAPI処理を実行します。
+     * ログインAPI処理を実行します。
      *
      * @param TmWebLink $web_link Web連携マスタ
      *
@@ -231,16 +184,16 @@ class OptimisationGuzzleClient
         // クライアント生成
         $client = new Client(['http_errors' => false]);
         // ログインAPI実行
-        $login_response = $this->execCommonAPI($client, $request);
+        $response = $this->execAPI($client, $request);
         // ログインがうまくいかなかったら処理を中断する。
-        if (!($login_response['status'] >= 200 && $login_response['status'] < 300)) {
+        if (!($response['status'] >= 200 && $response['status'] < 300)) {
             return [
-                'status' => $login_response['status'],
+                'status' => $response['status'],
                 'message' => self::FAILED_LOGIN
             ];
         }
         // ログイン結果が200でもlinkage_targets配列の中に'plan'文字列がなければ403エラーとなってしまうので処理を中断する。
-        if (!in_array('plan', $login_response['content']['linkage_targets'], true)) {
+        if (!in_array('plan', $response['content']['linkage_targets'], true)) {
             return [
                 'status' => self::HTTP_STATUS_CODE_FORBIDDEN,
                 'message' => self::FORBIDDEN
@@ -248,24 +201,61 @@ class OptimisationGuzzleClient
         }
         // Bearerトークンを抜き出して返却する
         return [
-            'status' => self::HTTP_STATUS_CODE_OK,
-            'message' => $login_response['content']['access_token']
+            'status' => $response['status'],
+            'message' => $response['content']['access_token']
         ];
     }
 
     /**
-     * 共通API実行処理
+     * 一連の共通API実行処理
      *
-     * @param Client  $client  クライアントクラス
-     * @param Request $request リクエストクラス
+     * @param callable  $createRequest リクエスト生成処理コールバック
+     * @param TmWebLink $web_link      Web連携マスタ
+     *
+     * @return array status,messageで構成される連想配列
+     */
+    private function commonAPIAction($createRequest, $web_link)
+    {
+        // ログイン処理実行
+        $login_response = $this->callLoginAPI($web_link);
+        // 200以外なら処理終了。レスポンスをそのまま返す
+        if ($login_response['status'] !== self::HTTP_STATUS_CODE_OK) {
+            return $login_response;
+        }
+        // リクエスト生成(コールバック実行)
+        $request = $createRequest($web_link->ServiceURL, $login_response['message']);
+        // クライアント生成
+        $client = new Client(['http_errors' => false]);
+        // リトライ回数分APIを実行する
+        for ($i=0; $i<self::RETRY_MAX_COUNT; $i++) {
+            // API実行
+            $response = $this->execAPI($client, $request);
+            // 200なら処理終了
+            if ($response['status'] === self::HTTP_STATUS_CODE_OK) {
+                break;
+            }
+        }
+        return $response;
+    }
+
+    /**
+     * APIを実行します
+     *
+     * @param GuzzleHttp\Client       $client  クライアントクラス
+     * @param GuzzleHttp\Psr7\Request $request リクエストクラス
      *
      * @return array status,message,contentで構成される連想配列
      */
-    private function execCommonAPI($client, $request)
+    private function execAPI($client, $request)
     {
         // 呼び出し元の関数名を取得する
         $dbg = debug_backtrace();
-        $calling_func_name = $dbg[1]['function'];
+        // 1つ上の関数名に'call'が含まれていなければ2つ目の関数名を呼び出し関数名とする。
+        // 1つ上はLoginAPI,2つ上はCRUDAPIなのでそう分けている。
+        $calling_func_name = strpos($dbg[1]['function'], 'call') !== false
+            ? $dbg[1]['function']
+            : $dbg[2]['function'];
+
         // INPUTログ生成
         SiteControllerWorkerService::writeWebCooperationLog(
             __CLASS__.'->'.$calling_func_name,

@@ -163,9 +163,50 @@ print_r($plan_params);
  $plan_params += ['type2' => 'regular'];
  
  print_r($plan_params);
+// 結果:
 //  Array
 // (
 //     [type] => regular
 //     [type2] => regular
 // )
+```
+
+---
+
+## コールバック
+
+[いい感じのコールバックサンプル]<https://qiita.com/dublog/items/0eb8bcea2fc452c0b4b2>
+
+```php
+const API_URI = "API_URI";
+const ServiceURL = "https://";
+
+function add()
+{
+    $params = ['1,2,3,4,5'];
+    $try = function ($token) use ($params) {
+        return [
+            'PATCH',
+            ServiceURL . API_URI,
+            [
+                'Authorization' => 'Bearer '.$token,
+                'Content-Type' => 'application/json'
+            ],
+            json_encode($params)
+        ];
+    };
+    retry($try);
+}
+
+// 共通のリトライ処理を別メソッドとして用意しておき、それぞれの処理を噛ませる。
+function retry(callable $try)
+{
+    $token = "tekitou_token";
+
+    $result = $try($token);
+
+    print_r($result);
+}
+
+add();
 ```
