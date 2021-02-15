@@ -14,7 +14,7 @@ function getOpenPlanGORAPrice(
 }
 
 // 4つの連想配列を返す関数
-function rebateMeinKeyFromLinkageID($linkage_plan_id) {
+function rebateMainKeyFromLinkagePlanID($linkage_plan_id) {
     return [
         'golf_code' => (int)substr($linkage_plan_id, 0, 4),
         'plan_code' => (int)substr($linkage_plan_id, 4, 6),
@@ -28,10 +28,12 @@ $linkage_plan_id = '05539999950000020005';
 // これでもいける。
 // call_user_func_array(
 //     'getOpenPlanGORAPrice',
-//     rebateMeinKeyFromLinkageID($linkage_plan_id)
+//     rebateMainKeyFromLinkagePlanID($linkage_plan_id)
 // );
 
 // 4つの連想配列を4つの引き数にセットしたい→[...]キーワードによる引数のアンパックを使う
 // https://stackoverflow.com/questions/40663687/cannot-unpack-array-with-string-keys
-getOpenPlanGORAPrice(...rebateMeinKeyFromLinkageID($linkage_plan_id));
+getOpenPlanGORAPrice(...rebateMainKeyFromLinkagePlanID($linkage_plan_id));
+// Ver7.0まではarray_valuesを挟む必要がある模様。
+getOpenPlanGORAPrice(...array_values(rebateMainKeyFromLinkagePlanID($linkage_plan_id)));
 ?>
