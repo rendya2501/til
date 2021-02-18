@@ -1,7 +1,7 @@
 <?php
 
 // 4つの引き数を受け取る関数に
-function getOpenPlanGORAPrice(
+function getOpenPlanPrice(
     $golf_code,
     $plan_code,
     $open_plan_code,
@@ -27,13 +27,13 @@ $linkage_plan_id = '05539999950000020005';
 
 // これでもいける。
 // call_user_func_array(
-//     'getOpenPlanGORAPrice',
+//     'getOpenPlanPrice',
 //     rebateMainKeyFromLinkagePlanID($linkage_plan_id)
 // );
 
 // 4つの連想配列を4つの引き数にセットしたい→[...]キーワードによる引数のアンパックを使う
 // https://stackoverflow.com/questions/40663687/cannot-unpack-array-with-string-keys
-getOpenPlanGORAPrice(...rebateMainKeyFromLinkagePlanID($linkage_plan_id));
+getOpenPlanPrice(...rebateMainKeyFromLinkagePlanID($linkage_plan_id));
 // Ver7.0まではarray_valuesを挟む必要がある模様。
-getOpenPlanGORAPrice(...array_values(rebateMainKeyFromLinkagePlanID($linkage_plan_id)));
+getOpenPlanPrice(...array_values(rebateMainKeyFromLinkagePlanID($linkage_plan_id)));
 ?>
