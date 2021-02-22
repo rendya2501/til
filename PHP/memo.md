@@ -210,3 +210,17 @@ function retry(callable $try)
 
 add();
 ```
+
+## エルビス演算子の使いどころさん
+
+```php
+// statusCodeが500の時エラーメッセージを取得する
+$status = 500;
+$message = 'err';
+$err = null;
+
+// falseの時だけ実行される。200 === 500でfalse。
+$status === 200 ?: $err .= $message;
+
+print $err ?? 'naiyo';
+```
