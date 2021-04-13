@@ -134,3 +134,14 @@ var diffTimeList = patternDetail
 //    continue;
 //}
 ```
+
+---
+
+## x.Items!=null && x.Items.Any()のショートカット
+
+<https://stackoverflow.com/questions/28903952/a-shortcut-for-c-sharp-null-and-any-checks/28904185>
+
+``` C#
+if(x.Items!=null && x.Items.Any())
+if(x.Items?.Any() == true)
+```
