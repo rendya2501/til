@@ -145,3 +145,15 @@ var diffTimeList = patternDetail
 if(x.Items!=null && x.Items.Any())
 if(x.Items?.Any() == true)
 ```
+
+## LinqでValueTapleを作る方法
+
+<https://stackoverflow.com/questions/33545249/create-a-tuple-in-a-linq-select>
+
+``` C#
+codes = codesRepo.SearchFor(predicate)
+    .Select(c => new { c.Id, c.Flag }) // anonymous type
+    .AsEnumerable()
+    .Select(c => (Id: c.Id, Flag: c.Flag)) // ValueTuple
+    .ToList();
+```

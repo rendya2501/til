@@ -22,3 +22,16 @@ as は変換に失敗するとnullになる。エラーにはならない。
         (1, "airplane")
     };
 ```
+
+## アノテーションを使った、リストに1件もない場合のバリデーション
+
+<https://stackoverflow.com/questions/5146732/viewmodel-validation-for-a-list>  
+画面にエラー状態は表示したくないけど、警告は出したい場合があったのでその備忘録。  
+
+``` C#
+[Range(1, int.MaxValue, ErrorMessage = "At least one item needs to be selected")]
+public int ItemCount
+{
+    get => Items != null ? Items.Length : 0;
+}
+```

@@ -9,7 +9,7 @@
 なんかそうするくらいならMultiBinding使ったほうがいいという記事が散見される。  
 というわけで、MultiBindの概念を勉強する必要がありそうですね。  
 
-```XML
+``` XML
 <Window.Resources>
     <local:HexConverter x:Key="HexConv"/>
 </Window.Resources>
