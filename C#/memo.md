@@ -35,3 +35,16 @@ public int ItemCount
     get => Items != null ? Items.Length : 0;
 }
 ```
+
+## C#のアクセス修飾子
+
+<https://www.fenet.jp/dotnet/column/language/6153/>
+
+`internal`がわからなかったのでついでに調べた。  
+
+- public    : あらゆる所からアクセスできる  
+- private   : 同じクラス内のみアクセスできる  
+- protected : 同じクラスと派生したクラスのみアクセスできる  
+- internal  : 同じアセンブリならアクセスできる  
+- protected internal : 同じアセンブリと別アセンブリの派生クラスでアクセスできる  
+- private protected  : 同じクラスと同じアセンブリの派生したクラスのみアクセスできる  
