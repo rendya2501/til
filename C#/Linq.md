@@ -157,3 +157,47 @@ codes = codesRepo.SearchFor(predicate)
     .Select(c => (Id: c.Id, Flag: c.Flag)) // ValueTuple
     .ToList();
 ```
+
+## SelectMany
+
+``` C#
+    var updateDateTime = DateTime.Now;
+    // Foreachで頑張った場合
+    var SettlementSettingPlayerViewList = GetSettlementSettingPlayerViewList(data.SettlementSetting);
+    List<TFr_Slip> SlipList = new List<TFr_Slip>();
+    foreach (var settingPlayer in SettlementSettingPlayerViewList)
+    {
+        var slipList = _TFr_SlipModel.GetList(
+            new PlayerCondition()
+            {
+                PlayerNo = settingPlayer.SettelementPlayerNo
+            }
+        );
+        foreach (var slip in slipList)
+        {
+            slip.SettlementPlayerNo = slip.PlayerNo;
+            slip.UpdateDateTime = updateDateTime;
+            SlipList.Add(slip);
+        }
+    }
+
+    // Select,SelectだとIEnumerable<IEnumerable<TFr_Slip>>になるけど、
+    // SelectManyすることでIEnumerable<TFr_Slip>にすることができる。平坦化ってやつ。
+    var SlipList
+        = GetSettlementSettingPlayerViewList(data.SettlementSetting)
+        .SelectMany(settingPlayer =>
+            _TFr_SlipModel
+                .GetList(
+                    new PlayerCondition()
+                    {
+                        PlayerNo = settingPlayer.SettelementPlayerNo
+                    }
+                )
+                .Select(slip =>
+                {
+                    slip.SettlementPlayerNo = slip.PlayerNo;
+                    slip.UpdateDateTime = updateDateTime;
+                    return slip;
+                })
+        );
+```
