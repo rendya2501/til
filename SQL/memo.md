@@ -1,11 +1,14 @@
 # メモ
 
-## 横縦変換
+## 横縦変換 : CROSS APPLY
 
 [複数列のデータを縦に並べる方法【SQLServer】](https://qiita.com/sugarboooy/items/0750d0ccb83a2af4dc0e)
+縦横ではない。横縦である。  
+似たような物にUNPIVOTがあるが、あちらは複数行に対応できないので、こちらを推奨された。  
+たぶんSQL Server独自の関数だと思われるが、とても便利な物があるものだ。
 
 ``` SQL
-SELECT 
+SELECT
     CONCAT('ALP', CONVERT(nvarchar,[TU_売掛残高].[営業日], 112), [v].[SlipNumber]) AS [SettlementID],
     [v].[Seq],
     (SELECT TOP 1 OfficeCD FROM [Round3Dat].[dbo].[TMa_CompanyBasicInfo]) AS [OfficeCD],
@@ -14,7 +17,7 @@ SELECT
     [v].[AdjustmentAmount],
     [v].[PaymentCD],
     [v].[AccountCD]
-FROM 
+FROM
     [RoundDatMigrationSource].[dbo].[TU_売掛残高]
 CROSS APPLY(
     VALUES
@@ -24,6 +27,6 @@ CROSS APPLY(
         (伝票番号, 4, 入金日4, 入金額4, 調整額4, 入金CD4, 口座CD4),
         (伝票番号, 5, 入金日5, 入金額5, 調整額5, 入金CD5, 口座CD5)
 ) AS [v] ([SlipNumber], [Seq], [PaymentDay], [DepositAmount], [AdjustmentAmount], [PaymentCD], [AccountCD])
-WHERE 
+WHERE
     [v].[DepositAmount] <> 0
 ```
