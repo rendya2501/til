@@ -48,3 +48,16 @@ public int ItemCount
 - internal  : 同じアセンブリならアクセスできる  
 - protected internal : 同じアセンブリと別アセンブリの派生クラスでアクセスできる  
 - private protected  : 同じクラスと同じアセンブリの派生したクラスのみアクセスできる  
+
+## Taskのラムダ式の定義の仕方
+
+async/await を使った非同期ラムダ式を変数に代入する方法とも言うか。  
+<https://qiita.com/go_astrayer/items/352c34b8db72cf2f6ca5>  
+いつもの癖でAction型に入れようとして少し苦戦したので備忘録として残すことにした。  
+
+``` C#
+    Func<Task> AsyncFunc = async () =>
+    {
+        await Task.Delay(1);
+    };
+```
