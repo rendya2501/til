@@ -1648,10 +1648,6 @@ https://elf-mission.net/programming/wpf/episode09/
 sqlでgroup byしたときに任意の列の値を連結させる関数。
 mariaDBで使用可能だった。
 
-●php : foreach($item as $value)
-$itemがnullだとエラー。
-$item = []だとエラーにならず、処理されずに終わる。
-
 ・勉強 : DevOps
 
 ●DevOps
@@ -1710,7 +1706,15 @@ DXを推進さえるための基盤として、やはりDockerやKubernetesに�
 
 
 
+---
 
+パスワード忘れてしまったけどブラウザには記憶されていて見たい場合、F12のデベロッパーツールでパスワード欄選択してtype="password"をtextに変更することで丸見えになるよ。
+
+---
+
+インターネットが遅くて困ってるなら、ネット回線をIPV4から「IPV6」にする。
+たったこれだけで夜間に1 Mbps未満だったのが、300～500 Mbpsは出るようになった。
+LANケーブルやルーターにお金を掛ける前に、まずは回線（元栓）から改善するべき。
 
 
 
