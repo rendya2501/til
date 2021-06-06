@@ -3,12 +3,14 @@
 $file_name_list = glob('./Log/*.log');
 
 
+// 関数の数字が被ってしまわないようにするためのカウント
 $func_count = 0;
+print "\n";
 print "処理開始\n";
 print "'-------------------------------------------------------------\n";
 // 2.取得したファイルごとのSQLを生成する
 foreach ($file_name_list as $file_name) {
-    // 2.ログ解析
+    // 3.ログ解析
     // 観測行
     $row_cnt = 1;
     $hit_row_count_array = [];
@@ -109,7 +111,7 @@ foreach ($file_name_list as $file_name) {
     gzclose($zh);
 
 
-    // 3.結果発表
+    // 4.結果発表
     print substr($file_name, 6) . "\n";
     if (count($hit_row_count_array) == 0) {
         print "1件も観測できませんでした。\n";
@@ -121,7 +123,7 @@ foreach ($file_name_list as $file_name) {
     }
 
 
-    // 4.結果を一時ファイルに出力
+    // 5.結果を一時関数に出力
     // 検索結果出力ファイル名
     $d_php_file_name = preg_replace("/\.log\.gz$/", "", $file_name) . "_.php";
     // 出力ファイルオープン
@@ -144,7 +146,7 @@ foreach ($file_name_list as $file_name) {
     fclose($fp);
 
 
-    // 5.一時関数ファイルから配列を生成
+    // 6.一時関数ファイルから配列を生成
     // 指定ファイル読み込み
     require_once $d_php_file_name;
     // 配列の生成
@@ -155,7 +157,7 @@ foreach ($file_name_list as $file_name) {
     }
 
 
-    // 6.SQL生成
+    // 7.SQL生成
     $query = '';
     foreach ($source_array as $key => $source) {
         // 基本情報取得
@@ -211,7 +213,7 @@ foreach ($file_name_list as $file_name) {
         $query .= "\n\n";
     }
 
-    // 3.生成したSQLをSQLフォルダーに作成する。
+    // 8.生成したSQLをSQLフォルダーに作成する。
     $d_sql_file_name = substr($file_name, 6) . "_.sql";
     // 出力ファイルオープン
     $fp = fopen("./SQL/" . $d_sql_file_name, "wb");
@@ -224,11 +226,11 @@ foreach ($file_name_list as $file_name) {
     // 出力ファイルクローズ
     fclose($fp);
 
-    // 8.一時関数ファイル削除
+    // 9.一時関数ファイル削除
     unlink($file_name . "_.php");
 
     print "'-------------------------------------------------------------\n";
 }
 
-// 9.処理終了
+// 10.処理終了
 print "処理が完了しました。\n";
