@@ -3,7 +3,9 @@
 $file_name_list = glob('./Log/*.log');
 
 
-$func_count = 1;
+$func_count = 0;
+print "処理開始\n";
+print "'-------------------------------------------------------------\n";
 // 2.取得したファイルごとのSQLを生成する
 foreach ($file_name_list as $file_name) {
     // 2.ログ解析
@@ -26,7 +28,7 @@ foreach ($file_name_list as $file_name) {
     // gzファイルオープン
     $zh = gzopen($file_name, "rb");
     if ($zh == false) {
-        print "指定ファイルのオープンに失敗しました。\n";
+        print $file_name . "のオープンに失敗しました。\n";
         exit;
     }
     // 全行ループ
@@ -108,7 +110,7 @@ foreach ($file_name_list as $file_name) {
 
 
     // 3.結果発表
-    print "\n";
+    print substr($file_name, 6) . "\n";
     if (count($hit_row_count_array) == 0) {
         print "1件も観測できませんでした。\n";
         exit;
@@ -121,9 +123,9 @@ foreach ($file_name_list as $file_name) {
 
     // 4.結果を一時ファイルに出力
     // 検索結果出力ファイル名
-    $d_file_name = preg_replace("/\.log\.gz$/", "", $file_name) . "_.php";
+    $d_php_file_name = preg_replace("/\.log\.gz$/", "", $file_name) . "_.php";
     // 出力ファイルオープン
-    $fp = fopen($d_file_name, "wb");
+    $fp = fopen($d_php_file_name, "wb");
     if ($fp == false) {
         print "出力ファイルのオープンに失敗しました。\n";
         exit;
@@ -144,18 +146,17 @@ foreach ($file_name_list as $file_name) {
 
     // 5.一時関数ファイルから配列を生成
     // 指定ファイル読み込み
-    require_once $d_file_name;
+    require_once $d_php_file_name;
     // 配列の生成
     $source_array = [];
     foreach ($result_array as $value) {
-        print $func_count;
         $func_name = "getArray" . $func_count;
         $source_array[] = $func_name();
     }
 
 
     // 6.SQL生成
-    $result = '';
+    $query = '';
     foreach ($source_array as $key => $source) {
         // 基本情報取得
         $golf_code = (int)substr($source['plans'][0]['linkage_plan_id'], 0, 4);
@@ -164,50 +165,50 @@ foreach ($file_name_list as $file_name) {
         $web_link_code = $golf_code . '3';
         $linkage_plan_id = substr($source['plans'][0]['linkage_plan_id'], 0, 16);
 
-        $result .= '-- ' . ((int)$key + 1) . '番目のクエリ' . "\n";
+        $query .= '-- ' . ((int)$key + 1) . '番目のクエリ' . "\n";
         // UPDATE文
-        $result .= "UPDATE TmOpenPlanTargetSite SET WebPlanID='" . $linkage_plan_id . "',LinkFlag=1 \n";
-        $result .= "WHERE GolfCode=" . $golf_code . " AND PlanCode=" . $plan_code . " AND OpenPlanCode=" . $open_plan_code . " AND WebLinkCode=" . $web_link_code;
-        $result .= "\n\n";
+        $query .= "UPDATE TmOpenPlanTargetSite SET WebPlanID='" . $linkage_plan_id . "',LinkFlag=1 \n";
+        $query .= "WHERE GolfCode=" . $golf_code . " AND PlanCode=" . $plan_code . " AND OpenPlanCode=" . $open_plan_code . " AND WebLinkCode=" . $web_link_code;
+        $query .= "\n\n";
 
         // INSERT文
         foreach ($source['plans'] as $value) {
-            $result .= 'INSERT INTO TmOpenPlanGORAPRice VALUES(';
+            $query .= 'INSERT INTO TmOpenPlanGORAPRice VALUES(';
             // GolfCode
-            $result .= $golf_code . ",";
+            $query .= $golf_code . ",";
             // PlanCode
-            $result .= $plan_code . ",";
+            $query .= $plan_code . ",";
             // OpenPlanCode
-            $result .= $open_plan_code . ",";
+            $query .= $open_plan_code . ",";
             // Seq
-            $result .= (int)substr($value['linkage_plan_id'], -4) . ",";
+            $query .= (int)substr($value['linkage_plan_id'], -4) . ",";
             // PlayFee→base_price
-            $result .= $value['basis_content']['base_price'] . ",";
+            $query .= $value['basis_content']['base_price'] . ",";
             // Tax→sales_tax
-            $result .= $value['basis_content']['sales_tax'] . ",";
+            $query .= $value['basis_content']['sales_tax'] . ",";
             // AdditionPrice→additional_fee
-            $result .= $value['basis_content']['additional_fee'] . ",";
+            $query .= $value['basis_content']['additional_fee'] . ",";
             // GolfUseTax→golf_use_tax
-            $result .= $value['basis_content']['golf_usage_tax'] . ",";
+            $query .= $value['basis_content']['golf_usage_tax'] . ",";
             // OtherTax→other_tax
-            $result .= $value['basis_content']['other_tax'] . ",";
+            $query .= $value['basis_content']['other_tax'] . ",";
             // 3BPrice→3b_additional_fee
-            $result .= $value['basis_content']['3b_additional_fee'] . ",";
+            $query .= $value['basis_content']['3b_additional_fee'] . ",";
             // 2BPrice→2b_additional_fee
-            $result .= $value['basis_content']['2b_additional_fee'] . ",";
+            $query .= $value['basis_content']['2b_additional_fee'] . ",";
             // InsertDateTime→Now()
-            $result .= date("Y-m-d H:i:s") . ",";
+            $query .= date("Y-m-d H:i:s") . ",";
             // InsertStaffCode→'MIGRATION'
-            $result .= "'tool'" . ",";
+            $query .= "'tool'" . ",";
             // UpdateDateTime→Now()
-            $result .= date("Y-m-d H:i:s") . ",";
+            $query .= date("Y-m-d H:i:s") . ",";
             // UpdateStaffCode→'MIGRATION'
-            $result .= "'tool'" . ",";
+            $query .= "'tool'" . ",";
             // OperationLogID→無理
-            $result .= 0;
-            $result .= ")\n";
+            $query .= 0;
+            $query .= ")\n";
         }
-        $result .= "\n\n";
+        $query .= "\n\n";
     }
 
     // 3.生成したSQLをSQLフォルダーに作成する。
@@ -219,12 +220,14 @@ foreach ($file_name_list as $file_name) {
         exit;
     }
     // ファイル出力
-    fputs($fp, $result);
+    fputs($fp, $query);
     // 出力ファイルクローズ
     fclose($fp);
 
     // 8.一時関数ファイル削除
     unlink($file_name . "_.php");
+
+    print "'-------------------------------------------------------------\n";
 }
 
 // 9.処理終了
