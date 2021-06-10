@@ -138,3 +138,32 @@ BEGIN
     SET @counter = @counter + 1
 END
 ```
+
+--
+
+## SQLの結合条件のON句の順番について
+
+<https://detail.chiebukuro.yahoo.co.jp/qa/question_detail/q11166323581>  
+
+SQLのLEFT JOIN とかのONの順番は関係無いらしい。  
+地味に知らなかったので、メモ。  
+
+---
+
+## CROSS JOIN+WHERE と INNER JOIN
+
+<https://qiita.com/zaburo/items/548b3c40fee68cd1e3b7>  
+
+CROSS JOIN して WHERE で絞る方法(等価結合)とINNER JOINの結果は同じ(厳密には違うらしい)  
+まぁ、CROSS JOINしてWHEREで絞るくらいなら素直にINNER JOIN使えって話。  
+RN2.23では結構そういうことしてて、どういう挙動をするのかわからなかったのでやってみた。  
+
+``` SQL
+SELECT depts.dept_name,employees.name
+FROM depts,employees
+WHERE depts.dept_id = employees.dept_id;
+
+SELECT depts.dept_name,employees.name
+FROM depts INNER JOIN employees
+WHERE depts.dept_id = employees.dept_id;
+```
