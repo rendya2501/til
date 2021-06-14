@@ -209,3 +209,65 @@ async void ○○ await △△ みたいな非同期処理を1行で書けない
     }
     Task.Run(Wait1000);
 ```
+
+## const,readonly,static readonlyの違い
+
+<https://qiita.com/4_mio_11/items/203c88eb5299e4a45f31>
+
+- const  
+コンパイル時に定義する。
+なので、メソッドの結果など、実行しなければ確定しないものは定数として定義できない。
+これによって、バージョニング問題が発生するとか。  
+
+``` C#
+    class Hoge
+    {
+        public const double PI = 3.14;     // OK
+        public const double piyo = PI \* PI;     // OK
+        public const double payo = Math.Sqrt(10);   // NG
+
+        void Piyo(){
+        //コンパイルで生成される中間言語では下の条件式はmyData == 3.14となる
+        if(Moge == PI)
+            //処理
+    }
+```
+
+- readonly  
+コンストラクタでのみ書き込み可能。  
+それ以降は変更不可。  
+
+- static readonly  
+コンパイル時ではなく、実行時に値が定まり、以後不変となる。  
+コンパイルした後の話なので、メソッドを実行した結果をプログラム実行中の定数として扱うことができる。  
+バージョニング問題的な観点から、constよりstatic readonlyが推奨される。  
+ちなみにconstは暗黙的にstaticに変換されるので、staticを嫌悪する必要はない。  
+
+## json deserialize object to int
+
+[C# で数字を object 型にキャストした値型の扱いについて](https://cms.shise.net/2014/10/csharp-object-cast/)  
+[【C#】Boxing / Unboxing ってどこで使われてるのか調べてみた](https://mslgt.hatenablog.com/entry/2017/11/18/132025)  
+
+サーチボックスで主キーが2つある場合に、主キーを送る仕組みがなかったので、objectに格納して送信するようにした時に、  
+キャストエラーになったので色々調べた。  
+そもそもobject型に変換されたものはConvert.ToInt32系のメソッドを使って変換しないとエラーになってしまう模様。  
+後は、jsonは数値型しかなく、値の劣化の心配がないlong型(int64)に自動的に変換される模様。  
+Boxing,Unboxingという仕組みもあり、なかなか奥が深かった。  
+実際に、jsonにシリアライズしてデシリアライズしたときにエラーになるので、そういう物と認識したほうがいいかもしれない。  
+
+``` C#
+    int i = 3;
+    object obj = i;
+    // シリアライズして送信してデシリアライズして受け取った体
+    var de_json = JsonConvert.DeserializeObject<object>(JsonConvert.SerializeObject(obj));
+    // System.InvalidCastException: 'Unable to cast object of type 'System.Int64' to type 'System.Int32'.'
+    var de_i = (int)de_json;
+```
+
+こっちだとInvalidCastExceptionになるのでJsonに変換する場合とはまた違うのかもしれない。  
+``` C#
+    double d = 1.23456;
+    object o = d;
+    int i = (int)o;
+    Console.WriteLine(i);
+```
