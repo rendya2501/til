@@ -212,3 +212,46 @@ selectだと配列の中の配列があったときに、`IEnumerable<IEnumerabl
                 })
         );
 ```
+
+---
+
+## LINQを使用して文字列を連結する
+
+<https://www.it-swarm-ja.com/ja/c%23/linq%E3%82%92%E4%BD%BF%E7%94%A8%E3%81%97%E3%81%A6%E6%96%87%E5%AD%97%E5%88%97%E3%82%92%E9%80%A3%E7%B5%90%E3%81%99%E3%82%8B/958428705/>
+
+``` C#
+// Aggregate
+string[] words = { "one", "two", "three" };
+var res = words.Aggregate(
+   "", // start with empty string to handle empty list case.
+   (current, next) => current + "," + next);
+Console.WriteLine(res);
+
+
+// Aggregate+StringBuilder方式
+var res = words.Aggregate(
+         new StringBuilder(), 
+         (current, next) => current.Append(current.Length == 0? "" : ", ").Append(next)
+     )
+     .ToString();
+Console.WriteLine(res);
+
+     
+// string.Join方式
+var sqrts = Enumerable.Range(1, 10).Select(n => Math.Sqrt(n));
+//小数点以下3桁で表示
+var str = string.Join(", ", sqrts.Select(x => x.ToString("0.000")));
+Console.WriteLine(str);
+```
+
+---
+
+## 配列の全ての要素が同じであるか判定したい
+
+<https://teratail.com/questions/140064>
+
+``` C#
+if(rawA.Distinct().Count()==1)
+{
+}
+```
