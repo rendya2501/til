@@ -4,8 +4,7 @@
 
 ```SQL
 -- MariaDB
-ALTER TABLE [TMa_Product]
-RENAME COLUMN [RevenuTypeCD] TO [RevenueTypeCD]
+ALTER TABLE [TMa_Product] RENAME COLUMN [RevenuTypeCD] TO [RevenueTypeCD]
 
 -- SQL Server
 EXEC sp_rename 'スキーマ名.テーブル名.現在のカラム名', '新しいカラム名', 'COLUMN';
@@ -23,6 +22,13 @@ ALTER TABLE (操作対象テーブル) ALTER column (データ型を変更する
 
 -- 例 : TMa_ProductテーブルのRevenueTypeCDカラムの型をintに変更するクエリ
 ALTER TABLE [TMa_Product] ALTER column [RevenueTypeCD] int
+
+--- MariaDB,カラム追加
+-- TmOpenPlanPGMWEBテーブルのHolidayExtraPriceOneBagフィールドの後にTaxSelectionStatusTypeを追加。型はboolで初期値は0。コメント付き。
+ALTER TABLE `TmOpenPlanPGMWEB` ADD COLUMN `TaxSelectionStatusType` TINYINT(1) NOT NULL DEFAULT 0 comment '税選択状態区分 税抜(外税):0 税込(内税):1' AFTER `HolidayExtraPriceOneBag`;
+
+-- TmOpenPlanGDOテーブルからMailPushSendFlagフィールドを削除する
+ALTER TABLE TmOpenPlanGDO DROP COLUMN MailPushSendFlag;
 ```
 
 ## 後でまとめるけど、きっかけは応用の問題から
@@ -96,3 +102,5 @@ where BusinessDate = '20210215'
 
 GROUP BY しなくても合計も止まりました。
 集計関数ってのは別にGROUP BYしなくても、これくらい単純なSQLなら自動的に算出してくれるみたいですね。
+
+---

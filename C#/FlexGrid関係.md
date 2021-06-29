@@ -1,4 +1,6 @@
-# XAML_Sample
+# FlexGridに関して色々
+
+## いつぞやのサンプル
 
 ```C#:XAML
                                     <c1:Column
@@ -82,4 +84,27 @@
                                         Header="商品"
                                         HeaderHorizontalAlignment="Center"
                                         HeaderVerticalAlignment="Center" />-->
+```
+
+---
+
+## キーボードフォーカスを移動させるコードビハインド
+
+``` C#
+private void PaymentMethodFlexGrid_SelectedItemChanged(object sender, System.EventArgs e)
+{
+    if (sender is C1FlexGrid grid)
+    {
+        var cell = grid.Cells.GetCellElement(grid.Selection);
+        if (cell != null)
+        {
+            var input = cell.FindVisualChild<TextBox>();
+            if (input != null)
+            {
+                input.Focus();
+                Keyboard.Focus(input);
+            }
+        }
+    }
+}
 ```
