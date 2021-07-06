@@ -306,3 +306,45 @@ Boxing は雑にまとめると int などの値型を Boxing という仕組み
 [【C#】いろんな型変換（キャスト）Convert vs Parse vs ToString](https://kuroeveryday.blogspot.com/2014/04/convert-vs-parse-vs-tostring.html)
 ついでにこちらもどうぞ。  
 Object型の適切なキャスト方法がまとめられています。
+
+---
+
+## アノテーション
+
+Annotation:注釈  
+https://elf-mission.net/programming/wpf/episode09/  
+恐らくではあるが、属性やバリデーションの為にクラスやフィールドの宣言の上に[]で囲うやつの事全般をこう読んでいるのではないか?  
+調べてもそういうのしか出てこなかった。  
+後は彼らが何を指してそう読んでいるのか、一括にしているのかなど、聞いてみないとわからない。  
+
+---
+
+## 破棄
+
+https://ufcpp.net/study/csharp/cheatsheet/ap_ver7/#discard
+・discard : 破棄
+
+型スイッチや分解では、変数を宣言しつつ何らかの値を受け取るわけですが、 特に受け取る必要のない余剰の値が生まれたりします。
+例えば、分解では、複数の値のうち、1つだけを受け取りたい場合があったとします。 こういう場合に、_を使うことで、値を受け取らずに無視することができます。
+
+static (int quotient, int remainder) DivRem(int dividend, int divisor)
+    => (Math.DivRem(dividend, divisor, out var remainder), remainder);
+static void Deconstruct()
+{
+    // 商と余りを計算するメソッドがあるけども、ここでは商しか要らない
+    // _ を書いたところでは、値を受け取らずに無視する
+    var (q, _) = DivRem(123, 11);
+
+    // 逆に、余りしか要らない
+    // また、本来「var x」とか変数宣言を書くべき場所にも _ だけを書ける
+    (_, var r) = DivRem(123, 11);
+}
+同様の機能は、型スイッチや出力変数宣言でも使えます。
+
+---
+
+## プロパティ
+
+ゲッターセッター→ありすぎるとやばい→それを自動的に提供する仕組みがプロパティ。
+外部からは○○として振る舞い、内部ではメソッド的に振る舞う。
+_変数名で用意しているが、自動実装の場合、内部に生成されるので、まぁどちらでもよい。
