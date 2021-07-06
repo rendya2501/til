@@ -153,8 +153,9 @@ SQLのLEFT JOIN とかのONの順番は関係無いらしい。
 ## CROSS JOIN+WHERE と INNER JOIN
 
 <https://qiita.com/zaburo/items/548b3c40fee68cd1e3b7>  
+<https://stackoverflow.com/questions/17759687/cross-join-vs-inner-join-in-sql>  
 
-CROSS JOIN して WHERE で絞る方法(等価結合)とINNER JOINの結果は同じらしい。(厳密に見ると内部でやっている処理的は違うらしいが)  
+CROSS JOIN して WHERE で絞る方法(等価結合)とINNER JOINの結果は同じらしい。(厳密には内部処理的には違うらしいが)  
 まぁ、CROSS JOINしてWHEREで絞るくらいなら素直にINNER JOIN使えって話。  
 RN2.23では結構そういうことしてて、どういう挙動をするのかわからなかったのでやってみた。  
 
