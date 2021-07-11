@@ -54,6 +54,12 @@ if(!is_null($test)) $test->each(
 
 <https://yoshinorin.net/2018/05/26/laravel-filterd-items-key/>
 
+``` PHP
+$filterd = $collection->filter(function ($v) {
+    return ($v["category"] === "A");
+})->values(); //ここでvaluesを呼ぶ
+```
+
 ---
 
 ## Eloquent SQL出力
@@ -231,4 +237,26 @@ laravel collection where nested
     );
     $collection->pluck('basis_content')->pluck('base_price')->unique();
     $collection->pluck('basis_content.base_price')->unique();
+```
+
+---
+
+## Select集
+
+全てか、1つのフィールドだけど取得する例はたくさんあるけど、  
+複数の特定の列を指定するやり方で迷ったので備忘録として残す。  
+
+``` PHP
+User::select('*')->get();
+
+$getBusinessDate = Models\TdCompetitionPlayer::
+    where('GolfCode', $golf_code)
+    ->where('CompetitionSummaryNo', $competition_summary_no)
+    ->select('BusinessDate')
+    ->first();
+
+->select(
+    'TmGolf.Code as Code',
+    'TmGolf.Name as Name'
+)
 ```
