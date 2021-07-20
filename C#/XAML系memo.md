@@ -117,6 +117,10 @@ MultiDataTriggerはSytleの中に書くのだが、そうすると見た目が�
 見た目を崩したくなかったらMultiBindingとConverterを使ってBindさせたほうがよい。  
 似ているようで微妙に違って、頭が混乱したのでまとめ。  
 
+どっちがいいという議論もちゃんとある。  
+<https://stackoverflow.com/questions/20993293/multidatatrigger-vs-datatrigger-with-multibinding>  
+<https://base64.work/so/wpf/171252>  
+
 ``` XML
 <!-- Style + DataTrigger or MultiDataTrigger -->
 <!-- DataTriggerによる制御。BaseOnするものがあれば見た目を崩さずに済むと思う。 -->
