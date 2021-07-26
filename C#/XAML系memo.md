@@ -52,7 +52,7 @@ DataTrigger（データトリガー）とは、Bindingした値に応じてプ�
 
 ---
 
-## xaml datatrigger or条件 and条件
+## xaml datatrigger and条件or条件
 
 <https://stackoverflow.com/questions/38396419/multidatatrigger-with-or-instead-of-and>  
 <http://gootara.org/library/2017/01/wpfao.html>  
@@ -190,6 +190,31 @@ MultiDataTriggerはSytleの中に書くのだが、そうすると見た目が�
         </MultiBinding>
     </ctrl:CustomFlexGrid.IsTabStop>
 </ctrl:CustomFlexGrid>
+```
+
+---
+
+## XAMLでConstファイルを読み込んで使いたい
+
+<https://www.it-swarm-ja.com/ja/wpf/%E6%96%87%E5%AD%97%E5%88%97%E3%82%92%E9%9D%99%E7%9A%84%E3%83%AA%E3%82%BD%E3%83%BC%E3%82%B9%E3%81%A8%E3%81%97%E3%81%A6%E5%AE%9A%E7%BE%A9%E3%81%99%E3%82%8B/971295591/>  
+
+意外と探すのに苦労した。  
+
+``` C#
+    public class ColumnName
+    {
+        public const string IsSelected = "IsSelected";
+        public const string DutchTreatAmount = "DutchTreatAmount";
+    }
+```
+
+``` XML
+<metro:MetroWindow
+    xmlns:localresource="clr-namespace:RN3.Wpf.Front.DutchTreat.Resouce">
+
+    <c1:Column
+        ColumnName="{x:Static localresource:ColumnName.DutchTreatAmount}"/>
+</metro:MetroWindow>
 ```
 
 ---

@@ -29,6 +29,8 @@
     };
 ```
 
+---
+
 ## アノテーションを使った、リストに1件もない場合のバリデーション
 
 <https://stackoverflow.com/questions/5146732/viewmodel-validation-for-a-list>  
@@ -41,6 +43,8 @@ public int ItemCount
     get => Items != null ? Items.Length : 0;
 }
 ```
+
+---
 
 ## C#のアクセス修飾子
 
@@ -55,18 +59,7 @@ public int ItemCount
 - protected internal : 同じアセンブリと別アセンブリの派生クラスでアクセスできる  
 - private protected  : 同じクラスと同じアセンブリの派生したクラスのみアクセスできる  
 
-## Taskのラムダ式の定義の仕方
-
-async/await を使った非同期ラムダ式を変数に代入する方法とも言うか。  
-<https://qiita.com/go_astrayer/items/352c34b8db72cf2f6ca5>  
-いつもの癖でAction型に入れようとして少し苦戦したので備忘録として残すことにした。  
-
-``` C#
-    Func<Task> AsyncFunc = async () =>
-    {
-        await Task.Delay(1);
-    };
-```
+---
 
 ## is演算子によるnullチェック
 
@@ -117,18 +110,20 @@ if (x is string)
 }
 ```
 
+---
+
 ## SignalR
 
 非同期でリアルタイムな双方向通信を実現するライブラリ。  
-WebSocketのASP.Netバージョンみたい。  
+要はサーバーからの通知を実現する技術の.Net版だ。  
+
+通常、サーバーとクライアントのやり取りはクライアントからのリクエストがトリガーとなる。  
+それだけしかないので、サーバーからクライアントへ通知する手段は存在しない。  
+システムの性質上、どうしてもサーバーからの状態を通知したい場合はクライアントから定期的にリクエストを飛ばすしかない。  
+それに対応するための技術といえるだろう。  
 2012年あたりから記事が見つかるので、結構古い技術なのかもしれない。  
 
-概要はそれだけなので、そこから先は実際にサンプルを組んで実践していくしかない。  
-そもそも、WebSocketプログラミングすらしたことないからな。  
-一番身近な例が株価出はなかろうか。  
-あれは更新せずとも刻一刻とチャートが変化する。  
-それはサーバー側からプッシュ通信がされるからだろう。  
-それのASP.Netバージョンでしか本当にないのだろう。  
+---
 
 ## DataGrid – アクティブセルの枠線を消す（C# WPF)
 
@@ -151,6 +146,8 @@ WebSocketのASP.Netバージョンみたい。
 </DataGrid.CellStyle>
 ```
 
+---
+
 ## シリアライズとデシリアライズを繰り返すと？
 
 <https://www.jpcert.or.jp/java-rules/ser10-j.html>  
@@ -170,30 +167,7 @@ WebSocketのASP.Netバージョンみたい。
 もちろんこの時、メモリーのアドレスやポインタ等は新しくなっている。  
 しかし、これを延々と繰り返すと、同じデータが無限に増やせるので、メモリリークの原因になるらしい。  
 
-## async voidのラムダ式
-
-<https://stackoverflow.com/questions/61827597/async-void-lambda-expressions>  
-
-async void ○○ await △△ みたいな非同期処理を1行で書けないか探したが、全然そんなこと書いてるところがない。  
-「async void lambda c#」で調べてようやくそれっぽいところにたどり着いたが、本当にあってるのかはわからない。  
-
-``` C#
-    private async void Hoge()
-    {
-        await Task.Delay(1000);
-    }
-    private void Main()
-    {
-        // async void HogeはTask.Runのように書いても動くけど、厳密には少し違うみたい。
-        Hoge();
-        // これは正確にはWait1000みたいな意味合いらしい。
-        Task.Run(async () => await Task.Delay(1000));
-    }
-    private async Task Wait1000() {
-        await Task.Delay(1000);
-    }
-    Task.Run(Wait1000);
-```
+---
 
 ## const,readonly,static readonlyの違い
 
@@ -227,6 +201,8 @@ async void ○○ await △△ みたいな非同期処理を1行で書けない
 コンパイルした後の話なので、メソッドを実行した結果をプログラム実行中の定数として扱うことができる。  
 バージョニング問題的な観点から、constよりstatic readonlyが推奨される。  
 ちなみにconstは暗黙的にstaticに変換されるので、staticを嫌悪する必要はない。  
+
+---
 
 ## json deserialize object to int
 
@@ -348,14 +324,6 @@ static void Deconstruct()
 
 ---
 
-## 謎の呪文。後で調べたい。
-
-``` C#
-Application.Current.Dispatcher.Invoke(() =>
-```
-
----
-
 ## セマフォ
 
 <https://e-words.jp/w/%E3%82%BB%E3%83%9E%E3%83%95%E3%82%A9.html#:~:text=%E3%82%BB%E3%83%9E%E3%83%95%E3%82%A9%E3%81%A8%E3%81%AF%E3%80%81%E3%82%B3%E3%83%B3%E3%83%94%E3%83%A5%E3%83%BC%E3%82%BF%E3%81%A7,%E3%82%92%E8%A1%A8%E3%81%99%E5%80%A4%E3%81%AE%E3%81%93%E3%81%A8%E3%80%82>
@@ -387,5 +355,24 @@ xaml resourcedictionary コード 参照
 勝手に見た目が変わってどうしようもなかったのでTriggerAction使って直接カラムを操作することにした。  
 その時、背景色をResourceDictionaryから取得したほうがいいよな～と思って調べた内容。  
 以下の1文で問題なく取得できたので備忘録として残しておく。  
+`Application.Current.Resources["resourceName"];`  
 
-`Application.Current.Resources["resourceName"];`
+``` C#
+    // 使用例
+    dutchTreatAmount.Background = (Brush)Application.Current.Resources["IsReadOnlyBackGroundColor"];
+```
+
+---
+
+## virtual
+
+virtualは継承先でoverride修飾子を使うことで処理を上書きできることを明示するための修飾子。  
+
+---
+
+## abstractとinterfaceの棲み分け
+
+interfaceは外部向け。abstractは内部向け。  
+interfaceはpublicしか記述できない。  
+abstractはprotectedが使える。  
+なので、外部に公開するわけでは無い処理において、実装を強制する際に用いるといいかも。  

@@ -15,6 +15,7 @@
 - Ctrl + W : ウィンドウを閉じる
 - Ctrl + Z : 元に戻す
 - Ctrl + Shift + Esc : タスクマネージャー
+- Ctrl + Shift + N : フォルダの作成
 
 - Win + D（Win + M） : デスクトップ表示
 - Win + E : エクスプローラーを開く
