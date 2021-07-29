@@ -212,3 +212,50 @@ SELECT GETDATE()
 -- SYSDATETIME(),
 -- CURRENT_TIMESTAMP
 ```
+
+---
+
+## SELECT GROUPで1件目を取得
+
+<https://oshiete.goo.ne.jp/qa/3819843.html>  
+「group by 先頭1件」で検索。  
+Rank() Over構文を使うらしい。  
+
+``` sql
+INSERT INTO
+    TMa_SubjectSummary
+SELECT
+    (SELECT TOP 1 OfficeCD FROM TMa_CompanyBasicInfo) AS OfficeCD,
+    x.集計CD AS SubjectSummaryCD,
+    '' AS SubjectSummaryName,
+    '' AS SubjectSummaryShortName,
+    - 16777216 AS Color,
+    - 1 AS BackgroundColor,
+    x.集計CD AS Sort,
+    1 AS ValidFlag,
+    '' AS SearchKey,
+    x.作成日 AS InsertDateTime,
+    '' AS InsertStaffCD,
+    '' AS InsertStaffName,
+    x.更新Prg AS InsertProgram,
+    x.ComputerName AS InsertTerminal,
+    x.更新日 AS UpdateDateTime,
+    '' AS UpdateStaffCD,
+    '' AS UpdateStaffName,
+    x.更新Prg AS UpdateProgram,
+    x.ComputerName AS UpdateTerminal
+FROM
+(
+    SELECT
+        Rank() over(partition by CONVERT(int, 集計CD) order by 科目分類CD) as rk,
+        CONVERT(int, 集計CD) AS 集計CD,
+        作成日,
+        更新日,
+        更新Prg,
+        ComputerName
+    FROM 
+        [RoundDatMigrationSource].[dbo].[TM_科目分類]
+) AS x
+WHERE 
+    rk=1
+```

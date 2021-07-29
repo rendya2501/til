@@ -376,3 +376,29 @@ interfaceは外部向け。abstractは内部向け。
 interfaceはpublicしか記述できない。  
 abstractはprotectedが使える。  
 なので、外部に公開するわけでは無い処理において、実装を強制する際に用いるといいかも。  
+
+---
+
+## 親クラスの全プロパティの値を子クラスにコピーする方法
+
+<https://qiita.com/microwavePC/items/54f0082f3d76922a6259>  
+
+``` C#
+    /// <summary>
+    /// コンストラクタ
+    /// </summary>
+    /// <param name="parent"></param>
+    public ExtendSearchCondition(SearchCondition parent)
+    {
+        // 親クラスのプロパティ情報を一気に取得して使用する。
+        List<PropertyInfo> props = parent
+            .GetType()
+            .GetProperties(BindingFlags.Instance | BindingFlags.Public)
+            ?.ToList();
+        foreach (var prop in props)
+        {
+            var propValue = prop.GetValue(parent);
+            typeof(SearchCondition).GetProperty(prop.Name).SetValue(this, propValue);
+        }
+    }
+```
