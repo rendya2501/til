@@ -219,6 +219,55 @@ MultiDataTriggerはSytleの中に書くのだが、そうすると見た目が�
 
 ---
 
+## TextBlockのFormatの指定の仕方と2つの文字を繋げる方法
+
+TextBlockで日付を表示するとyyyy/mm/dd hh:mm:ssの表示になってしまうので、(金額(decimal)も小数点が表示されてしまう)  
+Formatがないか調べたらあったのでまとめる。  
+BindingのStringFormatを使うことで実現可能であった。
+<https://qiita.com/koara-local/items/815eb5146b3ddc48a8c3>  
+
+また、MultiBindingを使用することで、  
+2つのTextBlockで表示していたものを1つTextBlockで表示することが出来ることも発見したので同時にまとめる。  
+<http://nineworks2.blog.fc2.com/blog-entry-10.html>  
+
+``` XML
+<!-- StringFormat={}{0:yyyy/MM/dd}で日付の表示を操作可能 -->
+<StackPanel HorizontalAlignment="Left" Orientation="Horizontal">
+    <TextBlock
+        Width="90"
+        VerticalAlignment="Center"
+        Background="AliceBlue"
+        Text="{Binding Context.AccountsReceivableDate, StringFormat={}{0:yyyy/MM/dd}, ElementName=AccountNoInputDialogControl, Mode=OneWay}" />
+    <TextBlock
+        Width="300"
+        Margin="10,0,0,0"
+        VerticalAlignment="Center"
+        Background="AliceBlue"
+        Text="{Binding Context.AccountsReceivableName, ElementName=AccountNoInputDialogControl, Mode=OneWay}" />
+</StackPanel>
+
+<!-- MultiBindingを使うことで1つのTextBlockで2つの内容を表示することができる -->
+<TextBlock
+    Width="300"
+    HorizontalAlignment="Left"
+    VerticalAlignment="Center">
+    <TextBlock.Text>
+        <MultiBinding StringFormat="{}{0:yyyy/MM/dd}  {1}">
+            <Binding
+                ElementName="AccountNoInputDialogControl"
+                Mode="OneWay"
+                Path="Context.AccountsReceivableDate" />
+            <Binding
+                ElementName="AccountNoInputDialogControl"
+                Mode="OneWay"
+                Path="Context.AccountsReceivableName" />
+        </MultiBinding>
+    </TextBlock.Text>
+</TextBlock>
+```
+
+---
+
 ## 予約枠のいつぞやのやつ
 
 ``` XML
