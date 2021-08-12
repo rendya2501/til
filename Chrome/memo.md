@@ -1,4 +1,6 @@
-# F12,Json掃き出し
+# GoogleChromeメモ
+
+## F12,Json掃き出し
 
 1. 一番上のログを右クリックでGlobalなんちゃらで掃き出し。
 2. JSON.stringify(temp1)でjson掃き出し
@@ -7,3 +9,18 @@
 5. 貼り付け
 6. 右下プレーンテキストをクリックしてjsonに変更
 7. 右クリック、フォーマット
+
+`JSON.stringify()`  
+JavaScript のオブジェクトや値を JSON 文字列に変換します。  
+
+---
+
+## Chrome開発者ツールのコンソールに表示したObjectをクリップボードにコピーする
+
+<https://dackdive.hateblo.jp/entry/2015/09/10/100117>  
+
+`copy(temp1)`  
+
+これだけでいける。すごいぞ。  
+temp1がObjectで素直にjsonになってくれるならいいけど、そうじゃないなら、JSON.stringify()と合わせて出力すればいけるかも。  
+`copy(JSON.stringify(temp1))`  
