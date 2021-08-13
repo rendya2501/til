@@ -264,9 +264,23 @@ Boxing は雑にまとめると int などの値型を Boxing という仕組み
 ```
 
 [オブジェクトをintにキャストするより良い方法](https://www.it-swarm-ja.com/ja/c%23/%E3%82%AA%E3%83%96%E3%82%B8%E3%82%A7%E3%82%AF%E3%83%88%E3%82%92int%E3%81%AB%E3%82%AD%E3%83%A3%E3%82%B9%E3%83%88%E3%81%99%E3%82%8B%E3%82%88%E3%82%8A%E8%89%AF%E3%81%84%E6%96%B9%E6%B3%95/957907480/)  
-[【C#】いろんな型変換（キャスト）Convert vs Parse vs ToString](https://kuroeveryday.blogspot.com/2014/04/convert-vs-parse-vs-tostring.html)
+[【C#】いろんな型変換（キャスト）Convert vs Parse vs ToString](https://kuroeveryday.blogspot.com/2014/04/convert-vs-parse-vs-tostring.html)  
 ついでにこちらもどうぞ。  
-Object型の適切なキャスト方法がまとめられています。
+Object型の適切なキャスト方法がまとめられています。  
+
+2021/08/13 Fri 追記  
+<https://ufcpp.net/study/csharp/RmBoxing.html>  
+やはり未確認飛行C。わかりやすい。  
+
+・int型等、値型をobjectに代入するとbox化  
+・代入したobjectから(int)objectってやって値を取り出すのがunbox化  
+・スタックとヒープがある。スタックが値型、ヒープが参照型。  
+・基本的にスタックのほうが軽い。  
+・box化をするとヒープに領域が生成され、スタックにポインタを持つことで結びつく。  
+・ヒープに領域が確保される処理は思い。  
+・そこから(int)Objectで取り出した時、新しくスタックが詰まれるので、更にメモリを消費する。  
+・コピーされて生成されるので、中身的には別物扱い。  
+簡単にいうとそういうことらしい。  
 
 ---
 
