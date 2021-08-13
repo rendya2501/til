@@ -259,3 +259,50 @@ FROM
 WHERE 
     rk=1
 ```
+
+---
+
+## 2つの表を比較して存在しない行をINSERTする
+
+<https://www.projectgroup.info/tips/SQLServer/SQL/SQL000001.html>
+
+完全にExistsの使い片のサンプルではある。  
+存在するカラムを指定したいなら大抵INやJOINを使うので、EXISTSを使う機会はあまりない。  
+唯一、IDを比較して存在しないIDのみINSERTしたい場合等は役に立つ。  
+LEFT JOIN してIDがNULLってやり方でもいいかもしれないが、まぁまぁ。  
+というわけで、いい機会なのでまとめることにする。  
+
+【サンプル】  
+「CODE」項目で比較し、「商品マスタ」に存在しないデータを「購入リスト」からINSERTします。  
+
+商品マスタ   購入リスト     商品マスタ
+CODE NAME   CODE NAME     CODE NAME
+0001 りんご  0001 りんご   0001 りんご
+0003 みかん  0002 ぶどう → 0002 ぶどう
+0004 ばなな  0003 みかん   0003 みかん
+            0004 ばなな   0004 ばなな
+
+EXISTSが返すのはboolなのでEXISTS内におけるSELECTは何でもいい。  
+EXISTSにおいて重要なのはWHEREでテーブルAとBを結びつけるフィールドを指定すること。  
+
+EXISTSステートメントは本来「trueかfalse（存在するかしないか）」を返すためのものなので、  
+上記のように「codeが合致するかどうか」という条件を付け加えなければ出力結果を絞ることはできない。  
+
+<https://itsakura.com/sql-exists>  
+外側のフィールドと連携させた場合、外側のSQL(主問い合わせ）を実行し、そこで取得した行でexists句内(副問い合わせ)のSQLを実行するらしい。  
+そのコードが「あるかないか」の判定になる。値同士の比較を行わない。  
+
+``` SQL
+insert into 商品マスタ
+select * 
+from   購入リスト TAB_B
+where not exists(
+    select 'X' 
+    from   商品マスタ TAB_A
+    where  TAB_A.CODE = TAB_B.CODE
+)
+```
+
+---
+
+## 相関副問合せ
