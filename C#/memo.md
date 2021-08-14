@@ -424,3 +424,24 @@ abstractはprotectedが使える。
 ①2行に変更するとき漏れが生じる  
 ②returnを見落としがちになる。  
 ③条件が長いと後ろの文章が見えなくなる。  
+
+---
+
+## string.CompareTo
+
+文字列のBETWEEN比較をするのに便利そうだなと思ってまとめ。  
+とりあえずサンプルのように大小関係を取ればBETWEENになる。  
+
+``` C#
+// a.CompareTo(b)とした時
+// aがbより小さい : -1 : ("9000").CompareTo("9001"),
+// aとbが同じ     :  0 : ("9000").CompareTo("9000"),
+// aがbより大きい :  1 : ("9000").CompareTo("8999"),
+// 8999 9000 9001 ~~~ 9998 9999 10000
+//  -1    0    1        1    0    -1
+{
+    if (accountNoRange.AccountNoFrom.CompareTo(accountNo) <= 0 && accountNoRange.AccountNoTo.CompareTo(accountNo) >= 0)
+    {
+    }
+}
+```
