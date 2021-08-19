@@ -11,3 +11,16 @@
 
 <https://math.nakaken88.com/textbook/basic-inequality-property/#i-4>  
 
+---
+
+## n次式、n次方程式
+
+方程式は左右を＝で結んだ関係。
+
+n次は式において使われている文字の数。
+
+x+2 : 1次式
+x+2 = 0 : 1次方程式
+x^2+2 : 2次式
+ax+2 : 2次式
+ax+2=0 : 2次方程式
