@@ -11,6 +11,20 @@
 
 <https://math.nakaken88.com/textbook/basic-inequality-property/#i-4>  
 
+``` txt
+a>bならば、次が成り立つ。
+a+c > b+c
+a-c > b-c
+
+a>b,c>0ならば次が成り立つ。
+ac>bc
+a/c>b/c
+
+a>b,c<0ならば次が成り立つ。
+ac<bc
+a/c<b/c
+```
+
 ---
 
 ## n次式、n次方程式
