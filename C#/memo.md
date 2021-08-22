@@ -125,29 +125,6 @@ if (x is string)
 
 ---
 
-## DataGrid – アクティブセルの枠線を消す（C# WPF)
-
-<http://once-and-only.com/programing/c/datagrid-%E3%82%A2%E3%82%AF%E3%83%86%E3%82%A3%E3%83%96%E3%82%BB%E3%83%AB%E3%81%AE%E6%9E%A0%E7%B7%9A%E3%82%92%E6%B6%88%E3%81%99%EF%BC%88c-wpf/>  
-
-支払方法変更処理の単体テスト戻りでScrollViewerにフォーカスが当たって点線の枠が表示されてしまう問題が発生した。  
-この点線をどう表現して調べたらいいかわからなかったところ、ドンピシャな記事があったので、備忘録として残す。  
-因みに「wpf scrollviewer　点線」で調べた模様。  
-
-``` XML
-<DataGrid.CellStyle>
-    <Style TargetType="DataGridCell">
-        <Setter Property="BorderThickness" Value="0"/>
-        <!-- 
-            点線の枠→FocusVisualStyle : キーボードから操作した時にfocusが当たった時のスタイル
-            FocusVisualStyle に Value="{x:Null}"を設定すると消せる
-        -->
-        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-    </Style>
-</DataGrid.CellStyle>
-```
-
----
-
 ## シリアライズとデシリアライズを繰り返すと？
 
 <https://www.jpcert.or.jp/java-rules/ser10-j.html>  
@@ -443,5 +420,59 @@ abstractはprotectedが使える。
     if (accountNoRange.AccountNoFrom.CompareTo(accountNo) <= 0 && accountNoRange.AccountNoTo.CompareTo(accountNo) >= 0)
     {
     }
+}
+```
+
+---
+
+## プロパティーを参照渡ししてメソッド先で値を変更したい場合
+
+<https://takap-tech.com/entry/2014/08/13/143232>  
+
+施設売上報告書を作っている時に体験した事。  
+SearchSimple○○系の処理はどれも似ている。  
+FromToで使いまわしたいが、プロパティは固定で指定しないといけないので、本来ならFrom用、To用と作らないといけない。  
+そんなことしたくないので、プロパティを渡そうとしたらエラーになった。  
+`プロパティ、インデクサー、または動的メンバー アクセスを out または ref のパラメーターとして渡すことはできません。`  
+参考URLでは「この挙動は自動実装プロパティが実際はsetter/getterメソッドを隠ぺいした存在という事に起因する。」ということらしい。  
+
+仕方がないので、Actionを渡すことで対応出来た。  
+参考にしたURLでは拡張メソッドで対応しているっぽいが、影響範囲がでかすぎるのでActionで済ませた。  
+いいかは知らない。多分よくないはず。  
+リフレクション使ってプロパティ名を渡して動的に対応してもらうってのもいいかも。  
+
+<https://atmarkit.itmedia.co.jp/fdotnet/csharp30/csharp30_04/csharp30_04_01.html>  
+まとめ終わった後に見つけた。  
+似たようなことしてる。やっぱり苦肉の策っぽいですね。  
+
+``` C#
+// 自動実装プロパティ
+public int No { get; set; }
+
+// 呼び出し元
+private Hoge() {
+    Fuga(No);
+}
+
+// 参照渡し
+// プロパティ、インデクサー、または動的メンバー アクセスを out または ref のパラメーターとして渡すことはできません。
+private Fuga(ref int no){
+    no = 1;
+}
+```
+
+``` C#
+// 自動実装プロパティ
+public int No { get; set; }
+
+// 呼び出し元
+private Hoge() {
+    Fuga((no) => No = no);
+}
+
+// Actionで実現
+// プロパティ、インデクサー、または動的メンバー アクセスを out または ref のパラメーターとして渡すことはできません。
+private Fuga(Action<int> action){
+    action(1);
 }
 ```

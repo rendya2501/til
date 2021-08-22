@@ -242,6 +242,28 @@ var sqrts = Enumerable.Range(1, 10).Select(n => Math.Sqrt(n));
 //小数点以下3桁で表示
 var str = string.Join(", ", sqrts.Select(x => x.ToString("0.000")));
 Console.WriteLine(str);
+
+// 中々うまくまとめれたのでまとめる。
+// 精算済みプレーヤーの警告を出すためメッセージを生成(精算済みプレーヤーのアナウンス)
+var warningMessage = _TRe_ReservationPlayerModel
+    .GetList(
+        new PlayerNoListCondition()
+        {
+            PlayerNoList = playerNoList,
+            ReservationCancelFlag = false,
+        }
+    )
+    .Where(w => w.SettlementFlag == true)
+    ?.Select(s => s != null
+        ? (!string.IsNullOrEmpty(s.AccountNo) ? "【" + s.AccountNo + "】　" : string.Empty)
+            + (!string.IsNullOrEmpty(s.Name) ? "【" + s.Name + "】様" : string.Empty)
+            + "は精算済みです。"
+        : null
+    )
+    ?.Aggregate(
+        "",
+        (a, b) => a + Environment.NewLine + b
+    );
 ```
 
 ---

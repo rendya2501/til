@@ -17,6 +17,29 @@ TargetNullValueはこの値が来たらnullとして扱うことを設定する�
 
 ---
 
+## DataGrid – アクティブセルの枠線を消す（C# WPF)
+
+<http://once-and-only.com/programing/c/datagrid-%E3%82%A2%E3%82%AF%E3%83%86%E3%82%A3%E3%83%96%E3%82%BB%E3%83%AB%E3%81%AE%E6%9E%A0%E7%B7%9A%E3%82%92%E6%B6%88%E3%81%99%EF%BC%88c-wpf/>  
+
+支払方法変更処理の単体テスト戻りでScrollViewerにフォーカスが当たって点線の枠が表示されてしまう問題が発生した。  
+この点線をどう表現して調べたらいいかわからなかったところ、ドンピシャな記事があったので、備忘録として残す。  
+因みに「wpf scrollviewer　点線」で調べた模様。  
+
+``` XML
+<DataGrid.CellStyle>
+    <Style TargetType="DataGridCell">
+        <Setter Property="BorderThickness" Value="0"/>
+        <!-- 
+            点線の枠→FocusVisualStyle : キーボードから操作した時にfocusが当たった時のスタイル
+            FocusVisualStyle に Value="{x:Null}"を設定すると消せる
+        -->
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+    </Style>
+</DataGrid.CellStyle>
+```
+
+---
+
 ## DataTrigger
 
 <https://threeshark3.com/wpf-binding-datatrigger/>  
