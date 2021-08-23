@@ -291,6 +291,23 @@ BindingのStringFormatを使うことで実現可能であった。
 
 ---
 
+## WPFのコードビハインドを介したリソースへのアクセス
+
+<https://www.it-swarm-ja.com/ja/c%23/wpf%E3%81%AE%E3%82%B3%E3%83%BC%E3%83%89%E3%83%93%E3%83%8F%E3%82%A4%E3%83%B3%E3%83%89%E3%82%92%E4%BB%8B%E3%81%97%E3%81%9F%E3%83%AA%E3%82%BD%E3%83%BC%E3%82%B9%E3%81%B8%E3%81%AE%E3%82%A2%E3%82%AF%E3%82%BB%E3%82%B9/968279150/>
+
+xaml resourcedictionary コード 参照  
+割り勘の戻り修正をしている時に、FlexGridのセルテンプレート使ってチェックボックスを配置して実装していたが、  
+勝手に見た目が変わってどうしようもなかったのでTriggerAction使ってコードビハインドで直接カラムを操作することにした。  
+その時、背景色をResourceDictionaryから取得したほうがいいよな～と思って調べた内容。  
+以下の1文で問題なく取得できたので備忘録として残しておく。  
+`Application.Current.Resources["resourceName"];`  
+
+``` C#:使用例
+    dutchTreatAmount.Background = (Brush)Application.Current.Resources["IsReadOnlyBackGroundColor"];
+```
+
+---
+
 ## 予約枠のいつぞやのやつ
 
 ``` XML
