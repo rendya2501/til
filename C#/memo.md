@@ -505,3 +505,9 @@ private Fuga(Action<int> action){
     action(1);
 }
 ```
+
+---
+
+## var
+
+var の意味→型を同じにしてくれる  

@@ -44,9 +44,10 @@ TargetNullValueはこの値が来たらnullとして扱うことを設定する�
 
 <https://threeshark3.com/wpf-binding-datatrigger/>  
 
+XAMLにおけるif文。  
+DataTrigger（データトリガー）とは、Bindingした値に応じてプロパティを変化させる仕組みです。  
 Styleでは、通常、「Setter」というオブジェクトを配置してプロパティの値を定義します。  
 「Setter」に対し「Triggers」では、条件を記述し、その条件にマッチしたときのみ設定される値を定義できます。  
-DataTrigger（データトリガー）とは、Bindingした値に応じてプロパティを変化させる仕組みです。  
 
 ``` XML
 <CheckBox
@@ -70,6 +71,19 @@ DataTrigger（データトリガー）とは、Bindingした値に応じてプ�
             </Style.Triggers>
         </Style>
     </CheckBox.Style>
+    <!-- if文見たく書きたいならこうする -->
+    <DockPanel.Style>
+        <Style TargetType="DockPanel">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding ReservationPlayerRemarks, Mode=OneWay, Converter={StaticResource NullOrEmptyToBoolConverter}}" Value="true">
+                    <Setter Property="Background" Value="Transparent" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding ReservationPlayerRemarks, Mode=OneWay, Converter={StaticResource NullOrEmptyToBoolConverter}}" Value="false">
+                    <Setter Property="Background" Value="IndianRed" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </DockPanel.Style>    
 </CheckBox>
 ```
 
@@ -105,23 +119,23 @@ MultiDataTriggerなるものを使えば、複数条件は指定できるが、O
                     <Setter Property="IsEnabled" Value="False" />
                     <Setter Property="IsChecked" Value="False" />
                 </DataTrigger>
-
-                <!-- and条件 -->
-                <Style.Triggers>
-                    <MultiDataTrigger>
-                        <MultiDataTrigger.Conditions>
-                            <!-- 部門コードが入力されていて、セット商品にチェックが付いていなかったら -->
-                            <Condition Binding="{Binding IsChecked, ElementName=SetProductCheckBox}" Value="False" />
-                            <Condition Binding="{Binding Value, ElementName=DepartmentCDBox, Converter={StaticResource NotNullOrEmptyToBoolConverter}}" Value="True" />
-                        </MultiDataTrigger.Conditions>
-                        <Setter Property="IsEnabled" Value="True" />
-                        <Setter Property="IsTabStop" Value="True" />
-                    </MultiDataTrigger>
-                </Style.Triggers>
-                <!-- And条件に合わない場合の状態も記述する -->
-                <Setter Property="IsEnabled" Value="False" />
-                <Setter Property="IsTabStop" Value="False" />
             </Style.Triggers>
+
+            <!-- and条件 -->
+            <Style.Triggers>
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <!-- 部門コードが入力されていて、セット商品にチェックが付いていなかったら -->
+                        <Condition Binding="{Binding IsChecked, ElementName=SetProductCheckBox}" Value="False" />
+                        <Condition Binding="{Binding Value, ElementName=DepartmentCDBox, Converter={StaticResource NotNullOrEmptyToBoolConverter}}" Value="True" />
+                    </MultiDataTrigger.Conditions>
+                    <Setter Property="IsEnabled" Value="True" />
+                    <Setter Property="IsTabStop" Value="True" />
+                </MultiDataTrigger>
+            </Style.Triggers>
+            <!-- And条件に合わない場合の状態も記述する -->
+            <Setter Property="IsEnabled" Value="False" />
+            <Setter Property="IsTabStop" Value="False" />
         </Style>
     </CheckBox.Style>
 </CheckBox>
