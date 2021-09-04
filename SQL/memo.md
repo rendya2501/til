@@ -1,16 +1,5 @@
 # メモ
 
-## CASCADE
-
-削除するテーブルに依存しているオブジェクト（ビューなど）を自動的に削除します。  
-
-DROP TABLEは、削除対象のテーブル内に存在するインデックス、ルール、トリガ、制約を全て削除します。  
-しかし、ビューや他のテーブルから外部キー制約によって参照されているテーブルを削除するにはCASCADEを指定する必要があります  
-（CASCADEを指定すると、テーブルに依存するビューは完全に削除されます。  
-しかし、外部キー制約によって参照されている場合は、外部キー制約のみが削除され、その外部キーを持つテーブルそのものは削除されません）。  
-
----
-
 ## 横縦変換 : CROSS APPLY
 
 [複数列のデータを縦に並べる方法【SQLServer】](https://qiita.com/sugarboooy/items/0750d0ccb83a2af4dc0e)
@@ -175,12 +164,11 @@ WHERE depts.dept_id = employees.dept_id;
 
 ---
 
-## SQLのGroupで、文字列を集計
+## GroupByで文字列を集計
 
-<https://qiita.com/nuller/items/01813da7f7d60b65c220>
+[SQLのGroupで、文字列を集計](https://qiita.com/nuller/items/01813da7f7d60b65c220)  
 
-``` SQL
--- sql server
+``` SQL:sql serverの場合
 SELECT
     SlipID,
     (
@@ -199,18 +187,32 @@ GROUP BY SlipID
 -- ALP20200725001000018001431  ALP2020072500654,ALP2020072500654,ALP2020072500654,ALP2020072500654,ALP2020072500654,
 ```
 
+[【MySQL】GROUP_CONCAT()を使ってみる](https://www.softel.co.jp/blogs/tech/archives/3154)  
+GROUP_CONCAT関数 : group byしたときに任意の列の値を連結させる関数。  
+mysql系独自の関数見たいなので、他では使えない。  
+
+``` SQL:mariaDBの場合
+SELECT
+    SlipID,
+    GROUP_CONCAT(PlayerNo,',') as PlayerNo
+FROM TFr_Slip
+GROUP BY SlipID
+```
+
+---
+
 ## 本日の日付
 
 ``` SQL
--- ●MARIA DB
-SELECT CURDATE();
-SELECT DATE(NOW());
-
 -- ●SQL SERVER
 SELECT GETDATE()
 -- 他
 -- SYSDATETIME(),
 -- CURRENT_TIMESTAMP
+
+-- ●MARIA DB
+SELECT CURDATE();
+SELECT DATE(NOW());
 ```
 
 ---
@@ -305,4 +307,62 @@ where not exists(
 
 ---
 
-## 相関副問合せ
+## 相関副問合せ(相関サブクエリ)
+
+<https://atmarkit.itmedia.co.jp/ait/articles/1703/01/news187.html>  
+副問合せの文中で、副問合せの外側の属性（検索結果）を利用して検索している問合せを、相関副問合せと呼びます。  
+一般的には、パフォーマンスは悪くなる見たい。  
+
+``` SQL
+SELECT 社員番号,社員名 FROM 社員 AS S1
+WHERE 生年月日 > (SELECT MIN(生年月日) FROM 社員 AS S2 WHERE S1.性別 = S2.性別)
+-- サブクエリ中でメインクエリのS1テーブルを参照している。
+
+-- EXISTSを使えば自動的に相関副問い合わせになる。
+SELECT * FROM USER_MASTER A
+WHERE EXISTS (SELECT * FROM AUTHORIZATION B WHERE A.USER_ID = B.USER_ID )
+```
+
+処理の流れ  
+（1）外側のSELECT文を1行分だけ実行  
+（2）取り出した表を副問合せに代入して実行  
+（3）外側のSELECT文における、1行目のWHERE句の判定を行う  
+
+---
+
+## union について
+
+``` SQL
+SELECT 1 AS NUM
+UNION
+SELECT 2 AS NUM;
+```
+
+union系は出力テーブルの構造が同じでないといけない。  
+union は重複チェックする。  
+union all は重複チェックしない。  
+なので、速度的にはunion all のほうが早い。  
+
+---
+
+## SQL SERVER のトランザクション
+
+BEGIN TRANSACTION
+COMMIT TRANSACTION
+ROLLBACK TRANSACTION
+
+---
+
+## 対象カラムが存在するかどうかをチェックする
+
+``` SQL
+    ,CASE
+        WHEN EXISTS(
+            SELECT *
+            FROM   [Eco21_Otaru].sys.columns
+            WHERE  Name = N'訂正区分'
+            AND    Object_ID = OBJECT_ID(N'[Eco21_Otaru].[dbo].[TS_請求]')
+        ) THEN ISNULL([A].[訂正区分],0)
+        ELSE 0 --0:請求 小樽以外は0:請求しかありえない。 1:訂正
+    END AS [CorrectClassification]
+```
