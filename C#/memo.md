@@ -500,6 +500,23 @@ private Fuga(Action<int> action){
 
 ---
 
-## var
+## varの意味
 
-var の意味→型を同じにしてくれる  
+型を同じにしてくれる  
+
+---
+
+## ObservableCollection
+
+[【WPF】ItemsSourceにObservableCollectionを選ぶのはなぜ](https://itwebmemory.com/itemssource-observablecollection-explanation)  
+なんとなく使ってはいるが、なぜ使うのか、どういうものなのかずっとわからなかったのでまとめることにした。  
+
+```
+項目が追加または削除されたとき、あるいはリスト全体が更新されたときに通知を行う動的なデータ コレクションを表します。
+https://docs.microsoft.com/ja-jp/dotnet/api/system.collections.objectmodel.observablecollection-1?view=netcore-3.1
+```
+
+ざっくりいうと、INotifyPropertyChangedを実装したリストっぽい。  
+正確には、INotifyCollectionChangedインターフェイスを実装したデータコレクションの組み込み実装クラス。  
+というわけで、View側からの項目の追加、削除、内容の変更を観測できるし、ViewModel側からView側へ逆に反映させることができるわけだ。  
+だから、項目の追加や削除が必要な場合には、ObservableCollectionを採用するというわけね。  
