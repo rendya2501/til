@@ -87,9 +87,7 @@ Styleでは、通常、「Setter」というオブジェクトを配置してプ
 </CheckBox>
 ```
 
----
-
-## xaml datatrigger and条件or条件
+### and条件とor条件の書き方
 
 <https://stackoverflow.com/questions/38396419/multidatatrigger-with-or-instead-of-and>  
 <http://gootara.org/library/2017/01/wpfao.html>  
@@ -168,8 +166,8 @@ MultiDataTriggerはSytleの中に書くのだが、そうすると見た目が�
     RelativeSource="{RelativeSource FindAncestor,AncestorType={x:Type metro:MetroWindow}}" />
     <c1:C1FlexGrid.Style>
         <Style TargetType="c1:C1FlexGrid">
+            <!-- or条件 -->
             <Style.Triggers>
-                <!-- or条件 -->
                 <!-- 部門コードが入力されていない、または、セット商品にチェックが付いている-->
                 <DataTrigger Binding="{Binding IsChecked, ElementName=SetProductCheckBox}" Value="True">
                     <Setter Property="IsEnabled" Value="False" />
@@ -179,16 +177,20 @@ MultiDataTriggerはSytleの中に書くのだが、そうすると見た目が�
                     <Setter Property="IsEnabled" Value="False" />
                     <Setter Property="IsTabStop" Value="False" />
                 </DataTrigger>
+            </Style.Triggers>
 
-                <!-- and条件 -->
+            <!-- and条件 -->
+            <Style.Triggers>
                 <MultiDataTrigger>
                     <MultiDataTrigger.Conditions>
                         <!-- 部門コードが入力されていて、セット商品にチェックが付いていなかったら -->
                         <Condition Binding="{Binding IsChecked, ElementName=SetProductCheckBox}" Value="False" />
                         <Condition Binding="{Binding Value, ElementName=DepartmentCDBox, Converter={StaticResource NotNullOrEmptyToBoolConverter}}" Value="True" />
                     </MultiDataTrigger.Conditions>
-                    <Setter Property="IsEnabled" Value="True" />
-                    <Setter Property="IsTabStop" Value="True" />
+                    <MultiDataTrigger.Setters>
+                        <Setter Property="IsEnabled" Value="True" />
+                        <Setter Property="IsTabStop" Value="True" />
+                    </MultiDataTrigger.Setters>
                 </MultiDataTrigger>
                 <!-- And条件に合わない場合の状態も記述する -->
                 <Setter Property="IsEnabled" Value="False" />
