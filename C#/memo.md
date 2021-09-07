@@ -523,3 +523,40 @@ https://docs.microsoft.com/ja-jp/dotnet/api/system.collections.objectmodel.obser
 正確には、INotifyCollectionChangedインターフェイスを実装したデータコレクションの組み込み実装クラス。  
 というわけで、View側からの項目の追加、削除、内容の変更を観測できるし、ViewModel側からView側へ逆に反映させることができるわけだ。  
 だから、項目の追加や削除が必要な場合には、ObservableCollectionを採用するというわけね。  
+
+---
+
+## プレースホルダー(文字列補完)
+
+まさかこんな基本的な事がわかっていなかったなんて・・・  
+割とショックである。  
+
+基本は`{インデックス}`で置き換え場所を指定する事。  
+中かっこ自体を表示する方法も地味にわからなかったが、それは`{{`でエスケープすればよかった。  
+
+<https://buralog.jp/csharp-string-interpolation/>  
+
+``` C# 5.0以前
+string stationaries = "Pen";
+string fruits = "Pineapple Apple";
+// 表示するインデックスが多すぎると、わけわからなくなる。
+MessageBox.Show(string.Format("PPAPとは{0} {1} {2}の略である。", stationaries, fruits, stationaries));
+// string.Formatを噛まさなくても、Console.Write直でいける。
+Console.Write("PPAPとは{0} {1} {2}の略である。", stationaries, fruits, stationaries));
+```
+
+``` C# 6.0以降
+string stationaries = "Pen";
+string fruits = "Pineapple Apple";
+// ${}で補完を行う。業務で使ってる形がこれ。こちらのほうが直観的でよい。
+// これができるならインデックスで指定する方法は使わなくていいだろう。
+// もちろんConsole.Writeでも同じように記述可能。
+MessageBox.Show($"PPAPとは{stationaries} {fruits} {stationaries}の略である。");
+```
+
+``` C# {}を文字列内に含める
+// {{、または}}とする。
+string ppap = "Pen Pineapple Apple Pen ";
+MessageBox.Show($"{{{ppap}}}");
+// 結果は{Pen Pineapple Apple Pen}と表示されます。
+```
