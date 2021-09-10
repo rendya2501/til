@@ -371,44 +371,37 @@ public class HexConverter : IValueConverter
     public object ConvertBack(object value, Type type, object parameter, CultureInfo culture)
     {
         string s = (string)value;
-        return int.TryParse(s, NumberStyles.AllowHexSpecifier, null, out int v)
-            ? v
-            : 0;
+        return int.TryParse(s, NumberStyles.AllowHexSpecifier, null, out int v) ? v : 0;
     }
 }
 ```
 
 ---
 
-<https://qiita.com/koara-local/items/02d214f0b6fbf26866ec>
+## WPF + MVVM でキーイベントを定義する
 
-wpf function key
+<https://qiita.com/koara-local/items/02d214f0b6fbf26866ec>  
 
-[WPF][XAML][MVVM] WPF + MVVM でキーイベントを定義する
-WPF
-Xaml
-MVVM
-WPF + MVVM でキーイベントを扱う方法のメモ
+会計NoでF8押しても保存されないって課題を治すときに調べた内容。  
+会計NoでF8を観測してしまえないかと思った次第でしたが、ダメでした。  
+結果的にCustomBusyIndicatorのプロパティとIMEを抑制するBehaivorを実装する事で解決できましたが、  
+これはこれで普通にキーイベントによるコマンドの発火ができることがわかったので参考としてまとめておきます。  
 
-もちろん旧来通りKeyDownのイベントハンドラを利用してもいいんでしょうけど、MVVM的な実装をしたいので調べたら簡単な方法がありました。
-
-実装例
-Ctrl + S でViewModelの特定の内容を保存するコマンドを呼び出したい場合。
-
-実装例1(Gestureを利用)
+``` XML Ctrl + S でViewModelの特定の内容を保存するコマンドを呼び出したい場合。
+    <!-- 実装例1(Gestureを利用) -->
     <Grid>
         <Grid.InputBindings>
             <KeyBinding Gesture="Ctrl+S" Command="{Binding SaveFileCommand}"/>
         </Grid.InputBindings>
     </Grid>
-実装例2(KeyとModifiersを利用)
+    <!-- 実装例2(KeyとModifiersを利用) -->
+    <!-- Gesture の場合の利点としては Ctrl+Alt+S などの２つ以上でもそのまま書けるところです。 -->
     <Grid>
         <Grid.InputBindings>
             <KeyBinding Key="S" Modifiers="Control" Command="{Binding SaveFileCommand}"/>
         </Grid.InputBindings>
     </Grid>
-上記の方法はどちらでも良いですが、複数キーの組み合わせの場合は１つ目の Gesture のほうが簡単そうです。
-Gesture の場合の利点としては Ctrl+Alt+S などの２つ以上でもそのまま書けるところです。
+```
 
 ---
 

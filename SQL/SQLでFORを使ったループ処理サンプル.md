@@ -9,13 +9,54 @@ SELECTした結果をループしながら計算して別テーブルにINSERT�
 1クエリでやるにはやばすぎたので、SQLで変数とForやwhileなどのループを使って実現した。  
 複数のテーブルにINSERTできる`INSERT ALL`なるものも存在する見たいだが、ループ中の計算を再現しながらそれは困難だった。  
 
-以下使った技術
+最小のサンプル作りたいと思ったけど、これが既に最小のサンプルだった。  
+とりあえず、コメント書きまくって補完する。  
+
+``` SQL : 最小サンプル
+-- カーソルの値を取得する変数宣言
+DECLARE @W_COL1 varchar(50)
+DECLARE @W_COL2 decimal(18,0)
+
+-- カーソル定義 & SQL実行
+DECLARE CUR_AAA CURSOR FOR
+    SELECT COL1,COL2
+    FROM   TAB_A
+    WHERE  TAB_A.COL1 = ＜条件値＞
+
+-- カーソルオープン
+OPEN CUR_AAA;
+
+-- 最初の1行目を取得
+FETCH NEXT FROM CUR_AAA
+-- 変数へ値をセット
+INTO @W_COL1,@W_COL2;
+
+--データの行数分ループ処理を実行する
+WHILE @@FETCH_STATUS = 0
+BEGIN
+    -- ========= ループ内の実際の処理 ここから===
+
+    -- ========= ループ内の実際の処理 ここまで===
+
+    -- 次の行のデータを取得
+    FETCH NEXT FROM CUR_AAA
+    -- 変数へ値をセット
+    INTO @W_COL1,@W_COL2;
+END
+
+-- カーソルを閉じる
+CLOSE CUR_AAA;
+-- カーソルを破棄する
+DEALLOCATE CUR_AAA;
+```
+
+単純なFor出はなく、色々組み合わせたのでまとめる。
 ・selectした結果を変数に代入  
 ・中身がなくなるまでWHILEでカーソル移動  
 ・2重ループ  
 ・直前で発番されたINDENTITY値を取得
 
-``` SQL
+``` SQL : 実務で作ったサンプル
 -- 売掛入金と売掛入金精算IDリスト
 DECLARE @SettlementID NVARCHAR(18)
 DECLARE @AccountsReceivable Decimal(18,0)

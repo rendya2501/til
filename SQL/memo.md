@@ -8,8 +8,7 @@
 たぶんSQL Server独自の関数だと思われるが、とても便利な物があるものだ。  
 使い方はサンプルを見れば大体わかる。  
 
-``` SQL
--- 実際に業務で使用したSQL
+``` SQL : 実際に業務で使用したSQL
 SELECT
     CONCAT('ALP', CONVERT(nvarchar,[TU_売掛残高].[営業日], 112), [v].[SlipNumber]) AS [SettlementID],
     [v].[Seq],
@@ -223,7 +222,7 @@ SELECT DATE(NOW());
 「group by 先頭1件」で検索。  
 Rank() Over構文を使うらしい。  
 
-``` sql
+``` SQL
 INSERT INTO
     TMa_SubjectSummary
 SELECT
