@@ -237,7 +237,9 @@ MultiDataTriggerはSytleの中に書くのだが、そうすると見た目が�
 
 <https://www.it-swarm-ja.com/ja/wpf/%E6%96%87%E5%AD%97%E5%88%97%E3%82%92%E9%9D%99%E7%9A%84%E3%83%AA%E3%82%BD%E3%83%BC%E3%82%B9%E3%81%A8%E3%81%97%E3%81%A6%E5%AE%9A%E7%BE%A9%E3%81%99%E3%82%8B/971295591/>  
 
-意外と探すのに苦労した。  
+FlexGrid操作用のTriggerActionで列名を指定する必要があったので、
+XAML上の列名とTriggerActionで指定する列名をConstで定義して参照したほうがいいだろうということで探して見た。  
+そしたら意外と探すのに苦労した。  
 
 ``` C#
     public class ColumnName
@@ -376,6 +378,37 @@ public class HexConverter : IValueConverter
 }
 ```
 
+---
+
+<https://qiita.com/koara-local/items/02d214f0b6fbf26866ec>
+
+wpf function key
+
+[WPF][XAML][MVVM] WPF + MVVM でキーイベントを定義する
+WPF
+Xaml
+MVVM
+WPF + MVVM でキーイベントを扱う方法のメモ
+
+もちろん旧来通りKeyDownのイベントハンドラを利用してもいいんでしょうけど、MVVM的な実装をしたいので調べたら簡単な方法がありました。
+
+実装例
+Ctrl + S でViewModelの特定の内容を保存するコマンドを呼び出したい場合。
+
+実装例1(Gestureを利用)
+    <Grid>
+        <Grid.InputBindings>
+            <KeyBinding Gesture="Ctrl+S" Command="{Binding SaveFileCommand}"/>
+        </Grid.InputBindings>
+    </Grid>
+実装例2(KeyとModifiersを利用)
+    <Grid>
+        <Grid.InputBindings>
+            <KeyBinding Key="S" Modifiers="Control" Command="{Binding SaveFileCommand}"/>
+        </Grid.InputBindings>
+    </Grid>
+上記の方法はどちらでも良いですが、複数キーの組み合わせの場合は１つ目の Gesture のほうが簡単そうです。
+Gesture の場合の利点としては Ctrl+Alt+S などの２つ以上でもそのまま書けるところです。
 
 ---
 

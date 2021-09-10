@@ -366,3 +366,46 @@ ROLLBACK TRANSACTION
         ELSE 0 --0:請求 小樽以外は0:請求しかありえない。 1:訂正
     END AS [CorrectClassification]
 ```
+
+---
+
+## ある列の値が最大もしくは最小の値のレコードを取得する
+
+働かない頭で「sql minれこーど」で調べたらやりたいことが出てきてくれた。  
+
+[SQLで同一グループの中で最大/最小のレコードを取得する](https://qiita.com/inouet/items/4f1d7f299725597d8407)  
+[SQL ある列の値が最大もしくは最小の値のレコードを取得する](https://zukucode.com/2017/08/sql-row_number-technique.html)  
+[特定のカラムのグループごとの最大値が格納されている行](https://dev.mysql.com/doc/refman/5.6/ja/example-maximum-column-group-row.html)  
+
+SQLServerなら`ROW_NUMBER関数`を使っていい感じに実現できた。  
+愚直にやるならMAXかMINで抽出して、そのサブクエリの中でさらに条件を絞って、最終定期に出力するみたいな感じになるみたい。  
+またはEXITSのような相関副問い合わせやJEFT JOIN を組み合わせるやり方など、やり方はたくさんあるみたい。  
+
+``` SQL
+    SELECT
+        [A].[SlipID],
+        [A].[AccountNo],
+        [A].[Name]
+    FROM(
+        SELECT
+            -- SlipIDでまとめて、AccountNoを昇順で並べる。
+            -- Whereで1番目を取れば、同一グループの中の最小値レコードを取得できる。
+            ROW_NUMBER() OVER(PARTITION BY [TFr_Slip].[SlipID] ORDER BY [TRe_ReservationPlayer].[AccountNo]) [MinAccountNo],
+            [TFr_Slip].[SlipID],
+            [TRe_ReservationPlayer].[AccountNo],
+            [TRe_ReservationPlayer].[Name]
+        FROM
+            [TFr_Slip]
+            LEFT OUTER JOIN [TRe_ReservationPlayer]
+            ON [TFr_Slip].[OfficeCD] = [TRe_ReservationPlayer].[OfficeCD]
+            AND [TFr_Slip].[BusinessDate] = [TRe_ReservationPlayer].[BusinessDate]
+            AND [TFr_Slip].[PlayerNo] = [TRe_ReservationPlayer].[PlayerNo]
+        WHERE
+            [TFr_Slip].[OfficeCD] = 'ALP'
+            AND [TFr_Slip].[BusinessDate] = '2020/07/25'
+            AND [TFr_Slip].[SlipType] = '150'
+            AND [TFr_Slip].[DetailType] <> 99
+        ) AS [A]
+    WHERE
+        [A].[MinAccountNo] = 1
+```
