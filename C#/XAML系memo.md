@@ -385,9 +385,9 @@ public class HexConverter : IValueConverter
 会計NoでF8押しても保存されないって課題を治すときに調べた内容。  
 会計NoでF8を観測してしまえないかと思った次第でしたが、ダメでした。  
 結果的にCustomBusyIndicatorのプロパティとIMEを抑制するBehaivorを実装する事で解決できましたが、  
-これはこれで普通にキーイベントによるコマンドの発火ができることがわかったので参考としてまとめておきます。  
+各コントロールにおいて、キーイベントによるコマンドの発火ができることがわかったので、これはこれで参考としてまとめておきます。  
 
-``` XML Ctrl + S でViewModelの特定の内容を保存するコマンドを呼び出したい場合。
+``` XML : Ctrl + S でViewModelの特定の内容を保存するコマンドを呼び出したい場合。
     <!-- 実装例1(Gestureを利用) -->
     <Grid>
         <Grid.InputBindings>
