@@ -19,6 +19,9 @@
 ・キュー  
 ・スタック  
 
+[データ構造](https://qiita.com/AckyFc3/items/7ce74598c4fd82206c1a)
+[うさぎでもわかる配列と連結リスト](https://www.momoyama-usagi.com/entry/info-algo-list)
+
 ---
 
 ## アルゴリズム
@@ -44,6 +47,8 @@
 隣接していない遠く離れた2要素を交換するため。
 
 ### マージソート
+
+<https://daeudaeu.com/merge_sort/>
 
 最悪計算量 $O(n log n)$
 平均計算量 $O(n log n)$
