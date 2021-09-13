@@ -26,9 +26,6 @@ https://www.geekpage.jp/blog/?id=2017-2-23-1
 https://elf-mission.net/programming/wpf/mvvm-labo/phase05/
 
 
-https://www.lifeboat.jp/newblog2/?p=2252
-
-
 
 https://ferret-plus.com/words/929
 インタラクションとは英語の「 inter（相互に）」と「action（作用）」を合成したもので、その基本は「人間が何かアクション(操作や行動)をした時、そのアクションが一方通行にならず、相手側のシステムなり機器がそのアクションに対応したリアクションをする」
