@@ -1,73 +1,59 @@
-・仕事
-・til:
-・筋トレ:
-・出社前に5%オフ買い物
-・ワクチンの案内確認
 
 
-備忘録
-
-1時間で標準入力からじゃんけんプログラムを作れ。
-30分でfizzbuzz問題を作れ。
-オブジェクト指向とは何かを初心者でもわかるように説明しなさい。
-DIとはなにか？
-ORマッパーとはなにか？
-知っているデザインパターンを教えてください。
-5年後の姿を教えてください。
-
-
-連休中
-〆・メッシュトレーを取り付ける
-〆・カーテンを洗濯する
-〆・写真の整理
-〆・ツイッター整理
-〆・パイソン出品
-〆・さっさんのキーボード紹介
-→G913とApexProの比較だった。ApexProは優先なので論外。
-〆・エバンゲリオン見る
-
-〆・基本情報の勉強する
-→とりあえず、キリがいいところまではやった。個人的には全然足りない。
-
-・タブの消化をする
-
-・102のコンテンツをすべて吸い上げる
-→無理だ。忙しすぎる。
-
-〆・ワクチンについて調べる
-→明日の昼休みにでも読む。
-→出社前の時間で確認出来た。既に予約満杯で次の予約開始は9月6日からみたい。
+https://techblog.kayac.com/trap-around-struct-in-csharp
+https://freelifetech.com/class-address-placement/
+http://www.geisya.or.jp/~mwm48961/kou2/def_log1.html
+https://qiita.com/soi/items/12ceea4efcf31c1a7b93
+https://hidari-lab.hatenablog.com/entry/wpf_relativesource_self_and_findancestor
+https://qiita.com/tera1707/items/73cda312b7cd9c4df40d
+https://days-of-programming.blogspot.com/2018/08/interactionmessageaction.html
+https://threeshark3.com/wpf-binding-datacontext/
+https://marikooota.hatenablog.com/entry/2017/05/30/002059
+https://qiita.com/tera1707/items/7ecde6e97a19437cbf72
+https://demi-urge.com/mvc-mvvm-features/
+https://qiita.com/tshinsay/items/5b1724baf32b8b5113c2
+https://blog.okazuki.jp/entry/2014/12/22/235048
+https://blog.okazuki.jp/entry/2014/10/29/220236
+https://days-of-programming.blogspot.com/2018/01/livetwpf.html
+https://news.mynavi.jp/article/20210126-1657191/
+sqlserver rownum
+https://qiita.com/ramuneru/items/db43589551dd0c00fef9
+https://bells.hateblo.jp/entry/2015/04/11/143047
+https://products.sint.co.jp/topsic/blog/object-oriented
+https://qiita.com/iTakahiro/items/353a11f6c9d2a927158d
+https://mebee.info/2019/11/02/post-3365/
+https://www.geekpage.jp/blog/?id=2017-2-23-1
+https://elf-mission.net/programming/wpf/mvvm-labo/phase05/
 
 
-    ■雑駁
+https://www.lifeboat.jp/newblog2/?p=2252
 
 
-走っているときに自分の好きなことを考えてみたが、ランニングしたり、自転車に乗るのは好きだと思った。
-自然とやりたいと思ってやってるからね。
-勉強は必要性に駆られてやっている部分はあるが、嫌いではない。
-本当に好きな連中と比べることはできないが、自然とできる程度には好きだ。
+
+https://ferret-plus.com/words/929
+インタラクションとは英語の「 inter（相互に）」と「action（作用）」を合成したもので、その基本は「人間が何かアクション(操作や行動)をした時、そのアクションが一方通行にならず、相手側のシステムなり機器がそのアクションに対応したリアクションをする」
+
+インタラクショントリガー
+ウィンドウがアクティブな状態でF8が押下されたときに実行しますよ。
+上から順に実行しますよ。
+1行1行がTrrigerAction。
+Invokeを必ず持つ。
+
+Invokeは実行する関数。
 
 
-六尾旅館のタオルよかったわ。
-これでちょっとしたタオル問題は解決ですね。
+インタラクショントリガー
+→
+イベントトリガー
+→
+アクショントリガー
 
 
 
 
-●基本情報
+特定行から特定行までの文字列を置換するサンプル作りたい・・・。
+休憩時間にやりたい。
 
 
-●体調・筋トレ
-7時起床。眠すぎる。
-睡眠薬を飲んだはいいが、夜中に腕がムズムズしすぎて暫く悶絶していたのを覚えている。
-多分、副作用だろう。
-おかげで寝不足である。
-あの薬飲めないな。
 
-
-●天気
-晴れ。湿気多め。
-朝は寒かった。
-
-
-    ■日記
+InteractionMessage
