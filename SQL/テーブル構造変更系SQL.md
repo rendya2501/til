@@ -18,9 +18,15 @@ DROP TABLEは、削除対象のテーブル内に存在するインデックス�
 ALTER TABLE [TMa_Product] RENAME COLUMN [RevenuTypeCD] TO [RevenueTypeCD]
 
 -- SQL Server
+-- https://docs.microsoft.com/ja-jp/sql/relational-databases/system-stored-procedures/sp-rename-transact-sql?view=sql-server-ver15
+-- 珍しく公式サイトが参考になった。
 EXEC sp_rename 'スキーマ名.テーブル名.現在のカラム名', '新しいカラム名', 'COLUMN';
 
-EXEC sp_rename 'TMa_Product.RevenuTypeCD','RevenueTypeCD','COLUMN'
+-- テーブルを指定したい場合はUSEでテーブルを切り替えて実行するしかないみたい。
+USE Round3Dat_Test;
+GO
+EXEC sp_rename 'TMa_Supplier.ValidFalg','ValidFlag','COLUMN';
+GO
 ```
 
 ---

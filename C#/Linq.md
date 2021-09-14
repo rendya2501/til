@@ -280,6 +280,27 @@ if(rawA.Distinct().Count()==1)
 
 ---
 
+## 重複を確認したい
+
+[【C#】List中の重複する要素を抽出する方法](https://qiita.com/nkojima/items/c927255b8d621d714f0a)  
+[C#, LINQのGroupByで重複した要素と重複した要素が何個あるかを得る](https://hayaup.hatenablog.com/entry/2020/04/16/012501)  
+
+商品台帳の修正中にフロント側で重複のチェックをしたほうがだろうというバグを見つけたので、  
+Linqで重複チェックくらいできるだろう、ということで探したのでまとめ。  
+Linq万歳。  
+
+``` C#
+// GroupByしてWhereとやると、まとめた要素がレコードごとにループされるっぽいので、Countってやると、そのまとめた件数が何件あるか取れる。
+// なので、1レコードが2件以上あるということは、どこかしら重複があると見なせるのでAnyで取得する。
+if (Data.ProductUnitPriceList
+        .GroupBy(g => new { g.PrivilegeTypeCD, g.SeasonCD, g.FeeTypeCD, g.UseTimeZoneCD })
+        .Any(a => a.Count() > 1)
+)
+if (Data.ProductJanList.GroupBy(g => g.JanCD).Any(w => w.Count() > 1))
+```
+
+---
+
 ## GroupJoinSample
 
 日次帳票のサンプルを掲載。  

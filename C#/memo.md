@@ -560,3 +560,14 @@ string ppap = "Pen Pineapple Apple Pen ";
 MessageBox.Show($"{{{ppap}}}");
 // 結果は{Pen Pineapple Apple Pen}と表示されます。
 ```
+
+---
+
+## インターフェースのインスタンス
+
+東さんの小話で出てきた話題。  
+Javaだと匿名クラスでのみInterfaceのインスタンスを作成できるって話だったが、聞いているだけではちょっとイメージできなかったのでまとめてみた。  
+
+[[Java] インターフェースをnewする違和感が解決した](https://qiita.com/imanishisatoshi/items/f73abc8206f405970d4f)  
+
+ネタばれすると「インターフェースを継承した名前の無いクラスをnewしていただけ」という落ちだったが、面白い発見だった。  
