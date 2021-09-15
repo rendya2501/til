@@ -1,5 +1,21 @@
 # 雑記
 
+---
+
+## git pull
+
+git push pgmweb fix-366
+git pull pgmweb fix-366
+
+git pull [リポジトリ] [ブランチ]
+         [リモート]   [ローカル]
+
+425をやっているうちにbug-fix-develop-alpに適応された変更を425にマージしておきたい。
+そのためのコマンド
+git pull origin bug-fix-develop-alp
+
+---
+
 ## merge
 
 gitのマージはマージしたいブランチに行ってから、マージ元を指定するしかないみたい。  
