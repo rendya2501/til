@@ -578,3 +578,29 @@ Javaだと匿名クラスでのみInterfaceのインスタンスを作成でき�
 
 java5以降改善されたらしい。その前までは同様の現象が起こっていた模様。  
 C#も今後改善されるのかな。  
+
+---
+
+## ASP.NetのWeb APIのパラメーターでタプルを渡す
+
+予約枠台帳の修正やってる時に、事業者コードと日付だけのパラメーターのためにクラスを用意するのが面倒で、タプルとか匿名型を渡せないか調べた。  
+匿名型は型が分からないのであれだが、せめてタプルと思ったら行けたのでまとめる。いいかどうかはしらん。  
+
+``` C#
+    /// <summary>
+    /// フロント側
+    /// </summary>
+    public async Task<TRe_ReservationBasicInfo> GetBasicInfo(string officeCD, DateTime businessDate)
+    {
+        return await _Accessor.GetResultAsync<TRe_ReservationBasicInfo>(PATH + "/get/basic_info", new ValueTuple<string, DateTime>(officeCD, businessDate));
+    }
+
+    /// <summary>
+    /// API側
+    /// </summary>
+    [HttpPost("get/basic_info")]
+    public TRe_ReservationBasicInfo GetBasicInfo([FromBody] (string OfficeCD, DateTime BusinessDate) key)
+    {
+        return _ReservationFrameModel.GetBasicInfo(key.OfficeCD, key.BusinessDate);
+    }
+```

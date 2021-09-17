@@ -40,11 +40,10 @@ TargetNullValueはこの値が来たらnullとして扱うことを設定する�
 
 ---
 
-## DataTrigger
+## XAMLにおけるif文
 
 <https://threeshark3.com/wpf-binding-datatrigger/>  
 
-XAMLにおけるif文。  
 DataTrigger（データトリガー）とは、Bindingした値に応じてプロパティを変化させる仕組みです。  
 Styleでは、通常、「Setter」というオブジェクトを配置してプロパティの値を定義します。  
 「Setter」に対し「Triggers」では、条件を記述し、その条件にマッチしたときのみ設定される値を定義できます。  
@@ -55,7 +54,7 @@ Styleでは、通常、「Setter」というオブジェクトを配置してプ
     VerticalAlignment="Center"
     VerticalContentAlignment="Center"
     IsChecked="{Binding Data.Product.SetProductFlag, Mode=TwoWay}">
-    <!-- どうでもいいがチェックボックスの大きさを変えたかったらLayoutTransformするしかないみたい -->
+    <!-- 今回の本題ではないが、チェックボックスの大きさを変えたかったらLayoutTransformするしかないみたい -->
     <CheckBox.LayoutTransform>
         <ScaleTransform ScaleX="1.2" ScaleY="1.2"/>
     </CheckBox.LayoutTransform>
@@ -71,7 +70,7 @@ Styleでは、通常、「Setter」というオブジェクトを配置してプ
             </Style.Triggers>
         </Style>
     </CheckBox.Style>
-    <!-- if文見たく書きたいならこうする -->
+    <!-- TrueとFalse、両方定義する場合 -->
     <DockPanel.Style>
         <Style TargetType="DockPanel">
             <Style.Triggers>
@@ -83,9 +82,39 @@ Styleでは、通常、「Setter」というオブジェクトを配置してプ
                 </DataTrigger>
             </Style.Triggers>
         </Style>
-    </DockPanel.Style>    
+    </DockPanel.Style>
 </CheckBox>
 ```
+
+
+---
+
+## GrapeCityコンポーネントのDataTriggerにおけるTargetTypeの指定の仕方
+
+Labelとかは`<Style TargetType="Label">`でいいんだけど、C1系の指定はどうしたらいいかわからなかったので調べた。  
+
+<https://docs.grapecity.com/help/c1/xaml/xaml_gettingstarted/html/ImplicitandExplicitStyles.htm>  
+
+公式にちゃんと書いてあった。  
+予約枠台帳作成処理において遭遇したパターンでまとめる。  
+
+``` XML
+     <c1:C1Calendar.Style>
+        <!-- {x:Type c1:○○}で指定する -->
+        <Style TargetType="{x:Type c1:C1Calendar}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsEditMode}" Value="False">
+                    <Setter Property="SelectionMode" Value="Multiple" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding IsEditMode}" Value="True">
+                    <Setter Property="SelectionMode" Value="Single" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </c1:C1Calendar.Style>
+```
+
+---
 
 ### and条件とor条件の書き方
 
@@ -402,6 +431,26 @@ public class HexConverter : IValueConverter
         </Grid.InputBindings>
     </Grid>
 ```
+
+---
+
+
+InteractionMessage
+
+インタラクショントリガー
+ウィンドウがアクティブな状態でF8が押下されたときに実行しますよ。
+上から順に実行しますよ。
+1行1行がTrrigerAction。
+Invokeを必ず持つ。
+
+Invokeは実行する関数。
+
+
+インタラクショントリガー
+→
+イベントトリガー
+→
+アクショントリガー
 
 ---
 

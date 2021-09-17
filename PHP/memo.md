@@ -1,98 +1,55 @@
-# php色々
-
-## 連想配列をforeachするときにインデックスも欲しい
-
-```php
-$array = array( 
-    'cat' => 'meow', 
-    'dog' => 'woof', 
-    'cow' => 'moo', 
-    'computer' => 'beep' 
-);
-
-foreach( array_keys( $array ) as $index => $key ) {
-    // display the current index + key + value
-    echo 'index:' . $index . ' key:' . $key . ' value:' . $array[$key] . "\n";
-}
-// 結果
-// index:0 key:cat value:meow
-// index:1 key:dog value:woof
-// index:2 key:cow value:moo
-// index:3 key:computer value:beep
-```
-
-## 多重配列への追加
-
-```php
-$params['plans'][] = ['cat' => 'meow', 'dog' => 'woof'];
-$params['plans'][] = ['cow' => 'moo','computer' => 'beep' ];
-print_r($params);
-print(json_encode($params));
-// 結果
-// {"plans":[{"cat":"meow","dog":"woof"},{"cow":"moo","computer":"beep"}]}
-```
-
-## PHPのforeachで作った変数はforeach抜けた後も有効
-
-公式のリファレンスにも書いてありました。  
-unsetはマナー的にあってもいいのかもしれないですね。  
-
-## foreach($item as $value)
-
-$itemがnullだとエラー。
-$item = []だとエラーにならず、処理されずに終わる。
+# PHPメモ
 
 ---
 
-## 多次元配列をimplode()する最も簡単な方法
+## 変数
 
-全部結果は同じ。でも案3が一番おすすめ。短くてわかりやすい。  
+・型の宣言は不要  
+・実行時に判定される  
+・最初の文字列を格納した変数に後から数字をセットしても問題ない→型の相互変換
 
-```php
-$params = array (
-  'plans' => 
-  array (
-    0 => 
-    array (
-      'linkage_plan_id' => '05539999950000020001',
-      'is_searchable' => false,
-    ),
-    1 => 
-    array (
-      'linkage_plan_id' => '05539999950000020002',
-      'is_searchable' => false,
-    ),
-  ),
-);
-// 案1
-print(
-    implode(
-        ",",
-        array_map(
-            fn($el) => $el['linkage_plan_id'], 
-            $params['plans']
-        )
-    )
-);
-// 案2
-print(
-    implode(
-        ',',
-        array_map(
-            'implode',
-            $params['plans'],
-            array_fill(0, count($params['plans']),
-            '')
-        )
-    )
-);
-// 案3
-print(
-    implode(
-        ',',
-        array_column($params['plans'], 'linkage_plan_id')
-    )
-);
+---
+
+## foreach
+
+・`foreach(引数 as 要素名)`  
+・配列とオブジェクトだけ使用可能。それ以外はエラーになる。  
+・PHPの文字列はC#と違い、Char型の配列という扱いではないのでエラーになる。  
+　またPHPにCHAR型は存在しない。String型のみである。  
+
+``` PHP
+<?php
+    $str = "aaaa";
+    foreach ($str as $a){
+        echo $a;
+    }
+    // PHP Warning:  foreach() argument must be of type array|object, string given in /workspace/Main.php on line 4
+
+    $null = null;
+    foreach ($null as $a){
+        echo $a;
+    }
+    // PHP Warning:  foreach() argument must be of type array|object, null given in /workspace/Main.php on line 14
+
+    $num = 1;
+    foreach ($num as $a){
+        echo $a;
+    }
+    // PHP Warning:  foreach() argument must be of type array|object, int given in /workspace/Main.php on line 19
+?>
+```
+
+### invalid argument supplied for foreach()
+
+[Warning: Invalid argument supplied for foreach() とでたら。。。](https://hacknote.jp/archives/19783/)  
+
+萬君に、何をしたらforeachでこのようなエラーが出るのか答えられなかったのでまとめ。  
+PaizaIOで確かめてもこのエラーにならなかった。
+
+``` php
+// $itemがnullだとエラー。
+// $item = []だとエラーにならず、処理されずに終わる。
+foreach($item as $value)
 ```
 
 ---
@@ -106,75 +63,6 @@ print(
 
 ルートユーザー、またはルートになれるユーザーでコマンド実行  
 `sudo kill -9 (プロセスID)`  
-
----
-
-## 多次元配列中の特定のキーを全て削除する方法
-
-```php
-$plan_params = array (
-  'plans' => 
-  array (
-    0 => 
-    array (
-      'type' => 'regular',
-      'linkage_plan_id' => '05539999950000020001',
-      'basis_content' => 
-      array (
-        'name' => '4_伊藤テスト_連携改善_固定_1',
-        'base_price' => 18400.0,
-      )
-    ),
-    1 => 
-    array (
-      'type' => 'regular',
-      'linkage_plan_id' => '05539999950000020002',
-      'basis_content' => 
-      array (
-        'name' => '4_伊藤テスト_連携改善_固定_1',
-        'base_price' => 18500.0,
-      )
-    ),
-    2 => 
-    array (
-      'type' => 'regular',
-      'linkage_plan_id' => '05539999950000020003',
-      'basis_content' => 
-      array (
-        'name' => '4_伊藤テスト_連携改善_固定_1',
-        'base_price' => 18600.0,
-      )
-    )
-  ),
-);
-
-array_walk(
-    $plan_params['plans'],
-    function(&$v){
-        unset($v['type']);
-        unset($v['linkage_plan_id']);
-        unset($v['basis_content']['name']);
-    }
-);
-print_r($plan_params);
-```
-
----
-
-## 連想配列への追加の仕方
-
-```php
- $plan_params = ['type' => 'regular'];
- $plan_params += ['type2' => 'regular'];
- 
- print_r($plan_params);
-// 結果:
-//  Array
-// (
-//     [type] => regular
-//     [type2] => regular
-// )
-```
 
 ---
 
@@ -216,6 +104,8 @@ function retry(callable $try)
 add();
 ```
 
+---
+
 ## エルビス演算子の使いどころさん
 
 ```php
@@ -230,6 +120,8 @@ $status === 200 ?: $err .= $message;
 print $err ?? 'naiyo';
 ```
 
+---
+
 ## cURL error 56: TCP connection reset by peer
 
 <https://deep-blog.jp/engineer/5443/>  
@@ -242,6 +134,8 @@ GORAで発生した現象だと、管理サイトにはプランが出ていた�
 完全にインフラ側の問題。  
 GORAからの回答を待つしかない。  
 応用で勉強したので状況がわかる。初めての問題だったので備忘録に残す。  
+
+---
 
 ## nullと文字列結合演算子
 
