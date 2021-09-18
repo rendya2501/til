@@ -55,7 +55,7 @@ public int ItemCount
 - public    : あらゆる所からアクセスできる  
 - private   : 同じクラス内のみアクセスできる  
 - protected : 同じクラスと派生したクラスのみアクセスできる  
-- internal  : 同じアセンブリならアクセスできる  
+- internal  : 同じアセンブリならアクセスできる。つまり同一プロジェクト内部。  
 - protected internal : 同じアセンブリと別アセンブリの派生クラスでアクセスできる  
 - private protected  : 同じクラスと同じアセンブリの派生したクラスのみアクセスできる  
 
@@ -592,6 +592,7 @@ C#も今後改善されるのかな。
     /// </summary>
     public async Task<TRe_ReservationBasicInfo> GetBasicInfo(string officeCD, DateTime businessDate)
     {
+        // 多分普通に(officeCD,businessDate)でいいと思う。
         return await _Accessor.GetResultAsync<TRe_ReservationBasicInfo>(PATH + "/get/basic_info", new ValueTuple<string, DateTime>(officeCD, businessDate));
     }
 
@@ -602,5 +603,31 @@ C#も今後改善されるのかな。
     public TRe_ReservationBasicInfo GetBasicInfo([FromBody] (string OfficeCD, DateTime BusinessDate) key)
     {
         return _ReservationFrameModel.GetBasicInfo(key.OfficeCD, key.BusinessDate);
+    }
+```
+
+---
+
+## Tuple?ValueTuple?引数に渡す方法は?
+
+WebAPIに渡すパラメーターでタプルを使ったのはいいけれど、これって本当にタプルなのか？バリュータプルと何が違う？  
+そもそも渡し方と受け取り型ってこれでいいの？ってのがわからなかったのでまとめて見た。  
+だけど、もっとまとめる必要がありそう。まだ全然まとめきれていない。  
+とりあえず、下の渡し方は全てOKだった。  
+他にもやらないといけないから、今はこれで勘弁して。  
+
+``` C#
+    ValueTupleArgumentTest(("a", 1));
+    ValueTupleArgumentTest((str: "b", i: 2));
+    ValueTupleArgumentTest(new ValueTuple<string, int>("c", 3));
+    ValueTupleArgumentTest(ValueTuple.Create("d", 4));
+    // これはダメ
+    // ValueTupleArgumentTest(Tuple.Create("d", 4));
+
+    // 引数はValueTuple<string,int>型
+    private static void ValueTupleArgumentTest((string str, int i) key)
+    {
+        Console.WriteLine(key.str);
+        Console.WriteLine(key.i);
     }
 ```

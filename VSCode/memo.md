@@ -11,7 +11,7 @@
 
 ---
 
-## vscode grep 特定行から特定行まで
+## grepで複数行の検索の仕方
 
 [VS Codeで複数行に渡って正規表現を利用する](https://qiita.com/birdwatcher/items/dee34a11619b11e1fe81)  
 
@@ -24,3 +24,10 @@ GORAのログを調べる時に備考が長すぎて、arrayを折りたため�
 ``` regexp
 'remarks' => '[\s\S\n]*?',
 ```
+
+---
+
+## Remote-SSH でサーバ上のファイルを直接編集する方法
+
+[[VSCode] Remote-SSH でサーバ上のファイルを直接編集する方法](https://webbibouroku.com/Blog/Article/vscode-remote-ssh)  
+この記事を実際にやってみて、行けたならこれで改めてまとめる。  
