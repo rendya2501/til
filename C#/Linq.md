@@ -1,6 +1,30 @@
 # Linqのあれこれ
 
----
+## Linqのサンプル用タプルリスト
+
+いつもやっているような、whereで要素にアクセスするのを簡単に実現出来ないかやってみた奴。  
+2,3個のフィールドのためにわざわざクラスは作りたくない。  
+ValueTupeを使えばいつもの感じでフィールド名でアクセスできるので、ちょっとやる分にはこれでいいでしょう。  
+
+``` C#
+    // TupleのList
+    var tt = new List<(int, string)>
+    {
+        (3, "first"),
+        (6, "second")
+    };
+    // ValueTupleのListその１
+    List<(int example, string descrpt)> list = Enumerable.Range(0, 10)
+        .Select(i => (example: i, descrpt: $"{i}"))
+        .ToList();
+    // ValueTupleのListその2
+    var tupleList = new List<(int Index, string Name)>
+    {
+        (1, "cow"),
+        (5, "chickens"),
+        (1, "airplane")
+    };
+```
 
 ## C＃で特定の月のすべての日付を取得する方法
 
@@ -26,7 +50,9 @@ public static List<DateTime> GetDates(int year, int month)
 }
 ```
 
-## 【IN】と【NOT IN】
+---
+
+## IN と NOT IN
 
 <https://www.kazukiio.com/entry/2019/01/29/000919>
 
@@ -50,6 +76,36 @@ var results = shops.Where(x => inCause.Contains(x.ShopId));
 // NOT IN
 var results = shops.Where(x => !inCause.Contains(x.ShopId));
 ```
+
+### Contains
+
+[配列やコレクション内に指定された要素があるか調べる](https://dobon.net/vb/dotnet/programing/arraycontains.html)  
+LinqのIN,NOT INでしれっとContainsを使っているけど、どういうメソッドなのか、実は知らないのでしらべた。  
+
+というわけで、上のINとNOT INでは、Whereで1レコード引っ張って、それをそのコレクションのContainsで回すって流れるなるわけか。  
+で、あればTrueが返却されるので、そのレコードは取得され、それを繰り返していくわけだ。  
+
+``` C#
+// 指定した値と同じ要素がコレクション内に存在するかを調べるメソッド
+// 存在すればtrueを、しなければfalseを返します。
+// 順次検索のため、O(n)操作です。
+// IList<T> or LINQ（Enumerable.Contains<TSource>メソッド）のメソッド
+
+//検索元のArrayListを作成する
+System.Collections.ArrayList al = new System.Collections.ArrayList();
+al.Add("b");
+al.Add("aaaaa");
+al.Add("cc");
+
+//al内に"cc"があるか調べる
+//あるので、"true"を返す
+bool b1 = al.Contains("cc");
+//al内に"a"があるか調べる
+//ないので、"false"を返す
+bool b2 = al.Contains("a");
+```
+
+---
 
 ## 差集合を取得
 
@@ -139,12 +195,16 @@ var diffTimeList = patternDetail
 
 ## x.Items!=null && x.Items.Any()のショートカット
 
-<https://stackoverflow.com/questions/28903952/a-shortcut-for-c-sharp-null-and-any-checks/28904185>
+<https://stackoverflow.com/questions/28903952/a-shortcut-for-c-sharp-null-and-any-checks/28904185>  
 
 ``` C#
+// この2つの比較は
 if(x.Items!=null && x.Items.Any())
+// このように1つにすることができる
 if(x.Items?.Any() == true)
 ```
+
+---
 
 ## LinqでValueTapleを作る方法
 
@@ -157,6 +217,8 @@ codes = codesRepo.SearchFor(predicate)
     .Select(c => (Id: c.Id, Flag: c.Flag)) // ValueTuple
     .ToList();
 ```
+
+---
 
 ## SelectMany
 
@@ -274,8 +336,6 @@ var warningMessage = _TRe_ReservationPlayerModel
 
 ``` C#
 if(rawA.Distinct().Count()==1)
-{
-}
 ```
 
 ---

@@ -1,7 +1,8 @@
 <?php
 
+use App\Services;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Collection;
+use App\Http\Controllers\TestController;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,22 +19,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/test', function () {
-    $collection = collect([
-        ['product' => 'Desk', 'price' => 200],
-        ['product' => 'Chair', 'price' => 100],
-        ['product' => 'Bookcase', 'price' => 150],
-        ['product' => 'Door', 'price' => 100],
-    ]);
-    $filtered = $collection->where('price', 20000);
-    var_dump($filtered->all());
-
-    $test = collect()->first();
-    var_dump($test);
-
-    foreach(collect()->first() as $a){
-        
-    }
-
-    return view('welcome');
-});
+Route::resource('/test', TestController::class);
+// Route::get('/test', function () {
+//     $TestService->hoge();
+// });

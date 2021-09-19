@@ -24,6 +24,27 @@ Laravel development server started: <http://127.0.0.1:8000>
 
 `Control + C`  
 
+## バージョン確認
+
+[Laravelのバージョンを確認するコマンド](https://qiita.com/shosho/items/a7ea8198f8923b08e1dd)  
+
+`php artisan --version`  
+もしくは  
+`php artisan -V`  
+
+因みに書かれている場所はここ  
+`vendor/laravel/framework/src/Illuminate/Foundation/Application.php`  
+`Ctrl + P`で飛べ  
+
+---
+
+## Controller→WorkerServiceのサンプル
+
+[Laravel でサービス(Service)クラスの作り方](https://qiita.com/ntm718/items/14751e6d52b4bebde810)  
+[Laravel ルーティング[web.php][Route] 8.x](https://noumenon-th.net/programming/2019/09/25/route/)  
+https://daiki-sekiguchi.com/2018/08/31/laravel-how-to-make-service-class/
+https://himakuro.com/laravel-service-class-guide
+
 ---
 
 ## LaravelのDB接続情報

@@ -631,3 +631,37 @@ WebAPIに渡すパラメーターでタプルを使ったのはいいけれど�
         Console.WriteLine(key.i);
     }
 ```
+
+---
+
+## Tuple,ValueTuple
+
+ValueTupleがある今、Tupleを使う意味はないけれど、知れば知るほどValueTupleとの違いがわからなくなったので、今のうちにまとめておく。  
+正直ValueTupleだけ知っていれば十分だ。  
+Tupleはまとめるのだるいのでリンクだけ貼っておく。  
+いちいち「Tuple.」って付けないといけないからわかりやすいだろう。  
+
+[C# - ValueTuple](https://www.tutorialsteacher.com/csharp/valuetuple)  
+[C# - Tuple](https://www.tutorialsteacher.com/csharp/csharp-tuple)  
+
+``` C# : ValueTuple初期化
+// 要素が全てitemになるタイプの初期化
+var person = (1, "Bill", "Gates");
+
+ValueTuple<int, string, string> person = (1, "Bill", "Gates");
+
+(int, string, string) person = (1, "Bill", "Gates");
+
+
+// 要素名を付けるタイプの初期化
+(int Id, string FirstName, string LastName) person = (1, "Bill", "Gates");
+
+var person = (Id:1, FirstName:"Bill", LastName: "Gates");
+
+(int Id, string FirstName, string LastName) person = (PersonId:1, FName:"Bill", LName: "Gates");
+
+(string, string, int) person = (PersonId:1, FName:"Bill", LName: "Gates");
+
+string firstName = "Bill", lastName = "Gates";
+var per = (FirstName: firstName, LastName: lastName);
+```
