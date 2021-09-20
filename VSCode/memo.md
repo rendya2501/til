@@ -31,3 +31,15 @@ GORAのログを調べる時に備考が長すぎて、arrayを折りたため�
 
 [[VSCode] Remote-SSH でサーバ上のファイルを直接編集する方法](https://webbibouroku.com/Blog/Article/vscode-remote-ssh)  
 この記事を実際にやってみて、行けたならこれで改めてまとめる。  
+→  
+大体この記事の通りでよかった。  
+
+エラー発生  
+Could not establish connection to "<サーバーのホスト名>"  
+
+[VS Code Remote Development SSHセットアップ中にハマったこと](https://qiita.com/igrep/items/3a3ba8e9089885c3c9f6)  
+
+設定→Remoteで検索→「Remote - SSH」を選択→Remote.SSH: Config Fileに以下の文言を設定  
+`C:\Users\s.ito\.ssh\config`  
+
+自分はここまででつながった。  

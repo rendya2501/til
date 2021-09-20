@@ -421,3 +421,18 @@ LIKE句は、指定したパターンと文字列比較を行うための演算�
 との事。  
 
 ---
+
+## SQLでTrue,Falseだけの判定を返す方法
+
+IsExist系の検索する時は、True,Falseだけわかればいいので、それをやる方法をまとめる。  
+COUNTが2以上の場合でもTrue扱いになる。
+CONVERT,BITとは。
+やってることは単純だが、補足が必要。
+後TOP1って必要あるのか？
+
+``` SQL
+-- 1件の有無で判定は十分なのでTOP1する。
+SELECT TOP 1 CONVERT(BIT,COUNT([TRe_ReservationFrame].[ReservationFrameNo]))
+FROM [TRe_ReservationFrame]
+WHERE [TRe_ReservationFrame].[OfficeCD] = @officeCD
+```

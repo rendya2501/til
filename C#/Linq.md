@@ -328,6 +328,9 @@ var warningMessage = _TRe_ReservationPlayerModel
     );
 ```
 
+どうもAggregateは遅いので、String.Joinを使ったほうがいいみたいですね。
+<https://www.exceedsystem.net/2020/08/29/how-to-join-multiple-strings-with-delimiter/>  
+
 ---
 
 ## 配列の全ての要素が同じであるか判定したい
