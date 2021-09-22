@@ -7,17 +7,17 @@
 ValueTupeを使えばいつもの感じでフィールド名でアクセスできるので、ちょっとやる分にはこれでいいでしょう。  
 
 ``` C#
-    // TupleのList
+    // ValueTupleのListその1
     var tt = new List<(int, string)>
     {
         (3, "first"),
         (6, "second")
     };
-    // ValueTupleのListその１
+    // ValueTupleのListその2
     List<(int example, string descrpt)> list = Enumerable.Range(0, 10)
         .Select(i => (example: i, descrpt: $"{i}"))
         .ToList();
-    // ValueTupleのListその2
+    // ValueTupleのListその3
     var tupleList = new List<(int Index, string Name)>
     {
         (1, "cow"),

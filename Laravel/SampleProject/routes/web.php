@@ -1,6 +1,5 @@
 <?php
 
-use App\Services;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TestController;
 
@@ -20,6 +19,4 @@ Route::get('/', function () {
 });
 
 Route::resource('/test', TestController::class);
-// Route::get('/test', function () {
-//     $TestService->hoge();
-// });
+Route::get('/test2', [TestController::class, 'index2']);

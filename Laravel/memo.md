@@ -22,7 +22,7 @@ Laravel development server started: <http://127.0.0.1:8000>
 [php artisan serveを停止させる方法](https://qiita.com/janet_parker/items/9bac1173b33175cc54df)  
 起動があるならもちろん停止も知っておかないとね。  
 
-`Control + C`  
+`Ctrl + C`  
 
 ## バージョン確認
 
@@ -38,12 +38,81 @@ Laravel development server started: <http://127.0.0.1:8000>
 
 ---
 
-## Controller→WorkerServiceのサンプル
+## Controller→WorkerServiceを実現する最小のサンプル
 
-[Laravel でサービス(Service)クラスの作り方](https://qiita.com/ntm718/items/14751e6d52b4bebde810)  
+①WorkerServiceの作成  
+\appにServicesフォルダを作成する。  
+そのフォルダの中にTestService.phpを作成する。  
+
+``` php : TestService.php
+namespace App\Services;
+// 書いた後整形しろ。短くしたいから1文で書いてる
+class TestService{ public function Hoge() { echo 'hoge2'; } }
+```
+
+②Controllerの作成  
+\app\Http\ControllersにTestController.phpを作成する  
+
+``` php : TestController.php
+namespace App\Http\Controllers;
+
+use App\Services\TestService;
+
+class TestController extends Controller
+{
+    private $test;
+    public function __construct(TestService $test_service)
+    {
+        $this->test = $test_service;
+    }
+    public function index(TestService $test_service)
+    {
+        $this->test->hoge();
+        $test_service->hoge();
+    }
+}
+```
+
+③Routeを通す  
+\Routes\web.phpに2文追加  
+
+``` php : web.php
+use App\Http\Controllers\TestController;
+Route::resource('/test', TestController::class);
+```
+
+④アクセス  
+Laravel立ち上げて、`/test`でアクセスすると`hoge2hoge2`と表示される  
+
+総評  
+サンプルはごまんとあるが、DIの設定したり、色々やっていて、すぐにできるものはなかった。  
+もう少し余裕が出来たら、DIも含めた設定とかもやりたいが、とりあえず最小サンプルはこれで。  
+これさえ出来れば「Laravelプロジェクトを作って、collection,Eloquentのテスト環境を作る」の案件もクリアしたようなものだろう。  
+Collection使うだけならワーカーサービスに`use Illuminate\Support\Collection;`を書けばCollectionは使えるようになるので、後は適当なメソッド作ってそこにアクセスできるようにすればよいだけだ。  
+
+一番参考になったサイト  
 [Laravel ルーティング[web.php][Route] 8.x](https://noumenon-th.net/programming/2019/09/25/route/)  
-https://daiki-sekiguchi.com/2018/08/31/laravel-how-to-make-service-class/
-https://himakuro.com/laravel-service-class-guide
+`routes/web.php`の`Route::resource('/sample', SampleController::class);`の書き方がDIを通さず実現する一番手っ取り早い書き方で、他のサイトでは説明されていなかった。  
+useしないといけないので、実用的では使ってはいけないだろうけど、とりあえず動かすだけならこれで十分  
+
+他参考サイト  
+こいつらはDIからファサードの登録まで実用的で必要最低限の設定をしているので、できるならこっちでやったほうがいい。  
+[Laravel でサービス(Service)クラスの作り方](https://qiita.com/ntm718/items/14751e6d52b4bebde810)  
+[【Laravel】サービスクラス作成手順](https://daiki-sekiguchi.com/2018/08/31/laravel-how-to-make-service-class/)  
+[LaravelでServiceクラスを作成する手順まとめ！](https://himakuro.com/laravel-service-class-guide)  
+
+---
+
+## LaravelのVender機能だけをダウンロードするやり方
+
+[【php】Laravelで/vendor以下のディレクトリが見つからない時](https://mokabuu.com/it/php/%E3%80%90php%E3%80%91laravel%E3%81%A7-vendor%E4%BB%A5%E4%B8%8B%E3%81%AE%E3%83%87%E3%82%A3%E3%83%AC%E3%82%AF%E3%83%88%E3%83%AA%E3%81%8C%E8%A6%8B%E3%81%A4%E3%81%8B%E3%82%89%E3%81%AA%E3%81%84%E6%99%82)  
+[git pullコマンドを実行したらvendorのファイルが開けなくなってエラー（Failed opening required）](https://laraweb.net/practice/7129/)  
+
+`composer update`か`composer install`をやってみればいいっぽい。  
+実際に会社でやってみて、その結果を後で書く。
+composer.jsonとかcomposer.lockとかあるので、ダウンロードすべき情報はそちらに乗っていて、それを基にcomposerが必要なダウンロードを行ってくれるっぽいので、
+そうしたらvenderフォルダが出来上がるっぽいです。  
+全部ぽいだ。  
 
 ---
 
@@ -70,13 +139,13 @@ staticメソッドのようにメソッドを実行できる仕組み。
 
 Collection : 配列のラッパークラスらしい。  
 
-Laravel 標準の ORM である Eloquent で複数レコードを取得する際に、この Collection のインスタンス (正確には Collection を継承したクラスのインスタンス) で返ってきたりしますが、もちろん、アプリケーション内で自由に使うことができます。  
-→  
-だからそのままLinq的記述が出来たわけね。  
-
 どうもCollectionはLaravelに含まれている機能というだけで、Collection自体がパッケージとして提供されているわけではなさそうだ。  
 なのでCollectionを使うならLaravelを使わないとダメみたい。  
 というわけで、次は適当にLaravelプロジェクトを作成して、Collectionを使ってみるだけのサンプルをやってみる事かな。  
+
+Laravel 標準の ORM である Eloquent で複数レコードを取得する際に、この Collection のインスタンス (正確には Collection を継承したクラスのインスタンス) で返ってきたりしますが、もちろん、アプリケーション内で自由に使うことができます。  
+→  
+だからそのままLinq的記述が出来たわけか。  
 
 ---
 
@@ -97,8 +166,6 @@ Laravel 標準の ORM である Eloquent で複数レコードを取得する際
    <https://www.microsoft.com/ja-jp/download/details.aspx?id=7435>  
 
 ---
-
-・Laravelプロジェクトを作って、collection,Eloquentのテスト環境を作る
 
 ・cronとLaravel
 app/Console/Commands
