@@ -175,3 +175,18 @@ Kernel.phpのCommand配列とCommandメソッドに色々登録すると、
 各種コマンドクラスのhandleメソッドが実行される。
 これが最低限のcronとLaravelの連携。
 
+---
+
+会社のルーティング
+
+``` PHP
+    // プラン連携メンテナンス
+    Route::group(['prefix' => 'web-cooperation'], function () {
+        Route::group(['prefix' => 'plan-cooperation'], function () {
+            Route::group(['prefix' => 'maintenance'], function () {
+                Route::get('/list/{golfcode}', 'Api\WebCooperation\PlanCooperationController@getMaintenanceList');
+                Route::put('/', 'Api\WebCooperation\PlanCooperationController@maintenancePlan');
+            });
+        });
+    });
+```
