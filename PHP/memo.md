@@ -1,7 +1,5 @@
 # PHPメモ
 
----
-
 ## 変数
 
 ・型の宣言は不要  
@@ -95,9 +93,7 @@ function add()
 function retry(callable $try)
 {
     $token = "tekitou_token";
-
     $result = $try($token);
-
     print_r($result);
 }
 
@@ -132,7 +128,6 @@ GORAで発生した現象だと、管理サイトにはプランが出ていた�
 その後の切断処理がうまくいかなかったと思われる。  
 ここはプログラムでどうにかできる問題では無い。  
 完全にインフラ側の問題。  
-GORAからの回答を待つしかない。  
 応用で勉強したので状況がわかる。初めての問題だったので備忘録に残す。  
 
 ---
@@ -172,3 +167,18 @@ print is_null($ee) ? 1 : 0; // 0
 時間がなさすぎる。  
 
 [PHPでのオーバーロード（引数ちがいの同名関数）](https://qiita.com/yasumodev/items/cf3da2a2f5547358e780)  
+
+---
+
+## 最後の文字を消す
+
+[PHP で文字列から最後の文字を削除する](https://www.delftstack.com/ja/howto/php/php-remove-last-character-from-string/)  
+別にまとめる程のことでもないかもしれないが、色々方法があるので、一番手っ取り早い奴だけまとめておく  
+
+``` php
+// 対象文字列、スタート位置、長さ
+// substr($string, $start, $length)
+$mystring = "This is a PHP program.";
+echo substr($mystring, 0, -1);
+// 出力：This is a PHP program
+```

@@ -133,22 +133,6 @@ staticメソッドのようにメソッドを実行できる仕組み。
 
 ---
 
-## LaravelのCollection
-
-[【5.5対応】Laravel の Collection を使い倒してみたくなった 〜 サンプルコード 115 連発 1/3](https://qiita.com/nunulk/items/9e0c4a371e94d763aed6)  
-
-Collection : 配列のラッパークラスらしい。  
-
-どうもCollectionはLaravelに含まれている機能というだけで、Collection自体がパッケージとして提供されているわけではなさそうだ。  
-なのでCollectionを使うならLaravelを使わないとダメみたい。  
-というわけで、次は適当にLaravelプロジェクトを作成して、Collectionを使ってみるだけのサンプルをやってみる事かな。  
-
-Laravel 標準の ORM である Eloquent で複数レコードを取得する際に、この Collection のインスタンス (正確には Collection を継承したクラスのインスタンス) で返ってきたりしますが、もちろん、アプリケーション内で自由に使うことができます。  
-→  
-だからそのままLinq的記述が出来たわけか。  
-
----
-
 ## IISを使ってLaravelのプロジェクトをwebとして公開するまで
 
 1. IISマネージャーを立ち上げる。  

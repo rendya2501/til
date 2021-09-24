@@ -1,4 +1,6 @@
-# hidden ngIf
+# Angularまとめ
+
+## hidden ngIf
 
 hidden  
 T = 非表示  

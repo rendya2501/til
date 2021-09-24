@@ -1,4 +1,36 @@
-# Eloquent関係
+# Eloquent,Collection関係まとめ
+
+---
+
+## LaravelのCollection
+
+[【5.5対応】Laravel の Collection を使い倒してみたくなった 〜 サンプルコード 115 連発 1/3](https://qiita.com/nunulk/items/9e0c4a371e94d763aed6)  
+
+Collection : 配列のラッパークラス  
+
+どうもCollectionはLaravelに含まれている機能というだけで、Collection自体がパッケージとして提供されているわけではなさそうだ。  
+なのでCollectionを使うならLaravelを使わないとダメみたい。  
+というわけで、次は適当にLaravelプロジェクトを作成して、Collectionを使ってみるだけのサンプルをやってみる事かな。  
+
+Laravel 標準の ORM である Eloquent で複数レコードを取得する際に、この Collection のインスタンス (正確には Collection を継承したクラスのインスタンス) で返ってきたりしますが、もちろん、アプリケーション内で自由に使うことができます。  
+→  
+だからそのままLinq的記述が出来たわけか。  
+
+---
+
+## ->get() ->first() でそれぞれ何もなかった場合のreturn値
+
+・get → 空Collection  
+一見すると空配列のように見えるが、Eloquentの戻り値なのでCollection型。  
+`$test = collect()`をやった時と同じ状態だと思われる。  
+ちなみにgettypeで型を調べてみると`object`といわれる。  
+
+``` log : \Log::debug(gettype($open_plan_target_site_list)),\Log::debug($open_plan_target_site_list);の結果
+[2021-09-24 08:48:49 GolfCode: 553 OperationLogID: 5166737] local.DEBUG: object  
+[2021-09-24 08:48:49 GolfCode: 553 OperationLogID: 5166737] local.DEBUG: []  
+```
+
+・first → null  
 
 ---
 
@@ -18,17 +50,15 @@ $model->get()->each(
 );
 ```
 
-## ->get() ->first() でそれぞれ何もなかった場合のreturn値
-
-get → 空配列  
-first → null  
-
 ---
 
-## ->each null
+## nullのcollectionをeachした場合
+
+nullをeachするとエラーになる。  
+foreachと考え方は同じかと思う。  
 
 ```php
-// getの結果がnullの場合、eachでエラーになる。
+// first使って結果がnullの場合、eachでエラーになる。
 $test = $this->getOpenPlanGDO(553, 111, 111);
 $test->each(
     function ($item) {
@@ -36,7 +66,7 @@ $test->each(
     }
 );
 
-// getの結果がnullの場合も想定してeachの前にnull判定が必要。
+// 結果がnullの場合も想定してeachの前にnull判定が必要。
 if(!is_null($test)) $test->each(
     function ($item) {
         \Log::debug($item);
@@ -62,7 +92,7 @@ $filterd = $collection->filter(function ($v) {
 
 ---
 
-## Eloquent SQL出力
+## Eloquent SQL出力方法まとめ
 
 ②がおすすめ。
 
@@ -88,7 +118,7 @@ $answer->details($id);  // ②クエリを実行する
 
 ## LaravelでDBからデータを取得するとき、1つのカラムの情報だけを取得したい場合
 
-valueメソッドで済む。  
+valueメソッドがおすすめ  
 [いつものところ](https://blog.capilano-fw.com/?p=665#select)  
 
 ```php
@@ -241,7 +271,7 @@ laravel collection where nested
 
 ---
 
-## Select集
+## Selectのやり方
 
 全てか、1つのフィールドだけど取得する例はたくさんあるけど、  
 複数の特定の列を指定するやり方で迷ったので備忘録として残す。  
