@@ -1,7 +1,5 @@
 # js色々
 
----
-
 ## JSON(JavaScript Object Nation)
 
 基本はキーとバリューの組み合わせ。  
@@ -67,7 +65,6 @@ var person = {
 
 <https://sbfl.net/blog/2018/07/04/javascript-array/>  
 スプレッド演算子という見たい。  
-
 
 ```js
 const array1 = [1, 2, 3];

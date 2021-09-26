@@ -4,9 +4,18 @@
 
 いつもやっているような、whereで要素にアクセスするのを簡単に実現出来ないかやってみた奴。  
 2,3個のフィールドのためにわざわざクラスは作りたくない。  
-ValueTupeを使えばいつもの感じでフィールド名でアクセスできるので、ちょっとやる分にはこれでいいでしょう。  
+ValueTupeを使えばいつもの感じでフィールドにアクセスできるので、ちょっとやる分にはこれでいいでしょう。  
 
-``` C#
+``` C# : これ使え
+    var tupleList = new List<(int Index, string Name)>
+    {
+        (1, "cow"),
+        (2, "chickens"),
+        (3, "airplane")
+    };
+```
+
+``` C# : 他の書き方
     // ValueTupleのListその1
     var tt = new List<(int, string)>
     {
@@ -17,14 +26,9 @@ ValueTupeを使えばいつもの感じでフィールド名でアクセスで�
     List<(int example, string descrpt)> list = Enumerable.Range(0, 10)
         .Select(i => (example: i, descrpt: $"{i}"))
         .ToList();
-    // ValueTupleのListその3
-    var tupleList = new List<(int Index, string Name)>
-    {
-        (1, "cow"),
-        (5, "chickens"),
-        (1, "airplane")
-    };
 ```
+
+---
 
 ## C＃で特定の月のすべての日付を取得する方法
 
@@ -512,4 +516,18 @@ if (Data.ProductJanList.GroupBy(g => g.JanCD).Any(w => w.Count() > 1))
                 };
             }
         );
+```
+
+---
+
+## とりあえず、指定の要素数を持つListを作成する方法
+
+[C#の配列を同じ値で初期化する](https://www.paveway.info/entry/2019/07/**15_csharp_initarray**)  
+Janコードの検索対応で調べたのでまとめ。  
+検索処理が複雑だったので、1件の時はいつも通りにするけど、2件以上あったら、適当に2件作って、
+フロント側で判断してごにょごにょするって感じで作った。  
+
+``` C#
+    // List<SimpleProduct> Count() = 2にする
+    Enumerable.Repeat(new SimpleProduct(), 2).ToList();
 ```

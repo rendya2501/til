@@ -1,0 +1,101 @@
+# Java基本まとめ
+
+## final
+
+・クラスに付ける場合→継承の禁止  
+・メソッドにつける場合→オーバーライドの禁止  
+・変数に付ける場合→再代入の禁止(定数)  
+
+---
+
+## throws
+
+メソッドの宣言に追加するキーワード。  
+指定した例外を発生させることを宣言する。  
+throwsがついたメソッドを呼び出す場合は例外の対策をしないといけない。  
+それだけの宣言みたいだ。  
+実際あまり使われないみたいだし、インターフェースと組み合わせた場合、  
+抽象が実装に引っ張られるから失敗作だとどこかで効いたことがある。  
+
+---
+
+## HashMap
+
+C#でいうListっぽいことしてるのがこれ。  
+Listではaddメソッドで要素を追加するが、JavaのHashMapはput(置く)がそれに当たるらしい。  
+直観的にそうだろうとは思ったが、確証がなかったので後学のためにまとめておく。  
+
+---
+
+## import static 命令
+
+クラスのメンバーをクラス名を指定せずに呼び出せるようになる。  
+
+``` Java
+// Mathクラスの全てのメンバ指定
+import static java.lang.Math.*;
+public class Sample{
+    public static void main(String[] args) {
+        // 普通Math.absって呼び出すけどそうする必要がない。
+        System.println(abs(-10));
+    }
+}
+```
+
+---
+
+## toStringが実行されるタイミングは？
+
+``` txt
+図1「メソッドmainの出力結果」の通り、"(2 + 5)"と表示するコードです。
+Addition クラスの toString メソッドが正解なので add.toString() としたいですが、選択肢にはありません。
+Javaの言語仕様上、System.out.println() の引数にオブジェクトを渡すと、内部ではそのオブジェクトの toString() メソッドが呼び出されます。
+このため、add オブジェクトのみでも同様の動作となり、整形式が出力されます。よって、解答は「ア」です。
+```
+
+Javaの言語仕様上、System.out.println() の引数にオブジェクトを渡すと、内部ではそのオブジェクトの toString() メソッドが呼び出されます。  
+なるほどね。まぁ、選択肢をヒントにして考えてみても、そういう動作してくれないと答えにならないからね。  
+実行されるタイミングというよりも、何が実行するのかってのが適切かな。  
+
+---
+
+## ==とEqualsの比較の違いは？
+
+オブジェクトの同一性、同値性に関する設問です。  
+
+**同一性**  
+同じオブジェクトを参照していることです。「==」で比較します。  
+
+**同値性**  
+オブジェクトの値が等しいことです。比較する値は各クラスによって独自に実装します。  
+全てのクラスの親であるObjectクラスが実装しているequalsメソッドでのチェックは同一性チェック。  
+
+問題文に「二つのインスタンスを表す値が等しいので true になるべきだが、今のクラス Constant の実装では false になる」という記述があります。  
+「値」なので同値性チェックとなる。  
+同値性チェックで true にしたい場合、Javaでは equals() メソッドをオーバーライドします。  
+equals() メソッドは、java.lang.Object クラスに実装されており、全てのクラスは Object クラスのサブクラスです。  
+よって、オーバーライドしない場合、Object クラスの equals() メソッドが呼ばれます。  
+そして、Objectクラスのequalsメソッドでのチェックは同一性チェックです。  
+
+new Constant(9) == new Constant(9)
+同一性チェックのため問題文に合いません。
+
+new Constant(9).equals(new Constant(9))
+正しい。
+
+new Constant(9).evaluate() == new Constant(9).evaluate()
+同一性チェックのため問題文に合いません。
+
+new Constant(9).evaluate().equals(new Constant(9).evaluate())
+コンパイルエラーです。evaluate() メソッドの戻り値はプリミティブ型(int型)です。
+
+``` Java : Constantクラスにequalsメソッドを実装する場合の例
+@Override
+public boolean equals(Object obj) {
+　　if (obj instanceof Constant) {
+　　　　return this.evaluate() == ((Constant)obj).evaluate();
+　　} else {
+　　　　return false;
+　　}
+}
+```

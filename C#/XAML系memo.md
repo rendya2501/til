@@ -501,3 +501,186 @@ Invokeは実行する関数。
     </DataTrigger>
 </ControlTemplate.Triggers>
 ```
+
+---
+
+## 幅いっぱいのやつと中央のやつの違い
+
+### 中央のやつ
+
+#### チェックイン入力F7伝票入力
+
+こっちはたくさん設定しないと行きつかないやつだ。  
+
+``` C# : Front.CheckInTSheet.ViewModels\EditWindowViewModels.cs
+    ShowSlipDialogCommand = new DelegateCommand(
+        () => Messenger.Raise(new InteractionModalDialogMessage("ShowSlipDialog", "伝票入力", this)), 
+        () => !IsBusy
+    );
+```
+
+``` XML : Front.CheckInTSheet.Views\EditWindow.xaml
+    <!--#region 伝票入力表示-->
+    <l:InteractionMessageTrigger MessageKey="ShowSlipDialog" Messenger="{Binding Messenger, Mode=OneWay}">
+        <local_ctrl:ShowModalDialogAction DialogWidth="1240" IsBusy="{Binding IsBusy, Mode=OneWay}" />
+    </l:InteractionMessageTrigger>
+    <!--#endregion-->
+```
+
+``` C# : Control\ShowModalDialogAction.cs
+    /// <summary>
+    /// ModalDialogを開くTrrigerAction
+    /// </summary>
+    public class ShowModalDialogAction : TriggerAction<MetroWindow>
+    {
+        
+        /// <summary>
+        /// CustomDialogを開きます
+        /// </summary>
+        /// <param name="parameter"></param>
+        protected override async void Invoke(object parameter)
+        {
+            var setting = new MetroDialogSettings()
+            {
+                AnimateHide = false,
+                AnimateShow = false
+            };
+            _Dialog = new SlipDialog(setting)
+            {
+                Content = message.DataContext,
+                Title = message.Title,
+                Padding = new Thickness(30),
+            };
+            await AssociatedObject.ShowMetroDialogAsync(_Dialog);
+        }
+    }
+```
+
+``` C# : Control\SlipDialog.xaml.cs
+    /// <summary>
+    /// SlipDialog.xaml の相互作用ロジック
+    /// </summary>
+    public partial class SlipDialog : CustomDialog
+    {
+    }
+```
+
+### 幅いっぱいのやつ
+
+#### チェックイン入力F3会計No変更の場合の幅いっぱいのやつ
+
+他にも必要項目を入力しない場合のバリデートエラーも幅いっぱいに広がるタイプのやつ。  
+
+``` C# :  Front.CheckInTSheet.ViewModel.EditWindow.cs
+    // 会計No入力ダイアログ表示
+    ShowAccountNoInputDialogCommand = new DelegateCommand(
+        () => Messenger.Raise(
+            new InteractionInputTextDialogMessage(
+                "ShowAccountNoInputDialog",
+                "会計No変更",
+                string.Format(Message.RequestInput, "会計No"),
+                null,
+                4,
+                InputMethodType.ImeOff,
+                null,
+                async value =>
+                {
+                }
+            )
+        ),
+        () => !IsBusy && !string.IsNullOrEmpty(Data?.AccountNo)
+    );
+```
+
+``` XML : Front.CheckInTSheet.Views.EditWindow.xaml
+    <l:InteractionMessageTrigger MessageKey="ShowAccountNoInputDialog" Messenger="{Binding Messenger, Mode=OneWay}">
+        <action:ShowInputTextDialogAction />
+    </l:InteractionMessageTrigger>
+```
+
+``` C# : Common.TriggerAction
+    /// <summary>
+    /// テキスト入力Dialogを開くTrrigerAction
+    /// </summary>
+    public class ShowInputTextDialogAction : TriggerAction<MetroWindow>
+    {        
+        /// <summary>
+        /// Dialogを開きます
+        /// </summary>
+        /// <param name="parameter"></param>
+        protected override async void Invoke(object parameter)
+        {
+            var dialog = new CustomDialog
+            {
+                Title = message.Title
+            };
+            await AssociatedObject.ShowMetroDialogAsync(
+                dialog,
+                new MetroDialogSettings()
+                {
+                    AnimateHide = false,
+                    AnimateShow = false
+                }
+            );
+        }
+    }
+```
+
+#### 商品台帳のF8保存のバリデーションエラーの時に表示される幅いっぱいのやつ
+
+``` C# : Common.Util.DialogUtil
+    /// <summary>
+    /// エラーダイアログを表示します。
+    /// </summary>
+    /// <param name="messenger">メッセンジャー</param>
+    /// <param name="message">メッセージ</param>
+    public static void ShowWarning(InteractionMessenger messenger, string message)
+    {
+        messenger.Raise(
+            new InteractionDialogMessage(
+                "MessageDialog",
+                "エラー",
+                message,
+                MessageDialogStyle.Affirmative,
+                response => { }
+            )
+        );
+    }
+```
+
+``` XML : Master.Product.Views.EditWindow.xaml
+    <i:Interaction.Triggers>
+        <l:InteractionMessageTrigger MessageKey="MessageDialog" Messenger="{Binding Messenger}">
+            <action:ShowDialogAction />
+        </l:InteractionMessageTrigger>
+    </i:Interaction.Triggers>
+```
+
+``` C# : RN3.Wpf.Common.TriggerAction
+    /// <summary>
+    /// Dialogを開くTrrigerAction
+    /// </summary>
+    public class ShowDialogAction : TriggerAction<MetroWindow>
+    {
+        /// <summary>
+        /// Dialogを開きます
+        /// </summary>
+        /// <param name="parameter"></param>
+        protected override void Invoke(object parameter)
+        {
+            Dispatcher.Invoke(
+                async () =>
+                {
+                    var result = await AssociatedObject.ShowMessageAsync(message.Title, message.Message, message.Style, settings);
+                    if (content != null)
+                    {
+                        content.IsEnabled = contentIsEnabled;
+                    }
+                    message.Callback(result);
+                    settings = null;
+                }, 
+                System.Windows.Threading.DispatcherPriority.Render
+            );
+        }
+    }
+```
