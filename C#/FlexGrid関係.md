@@ -1,89 +1,70 @@
 # FlexGridに関して色々
 
-## いつぞやのサンプル
+## FlexGridの縦横の大きさを動的に変動する方法
 
-```C#:XAML
-                                    <c1:Column
-                                        Width="290"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        AllowMerging="True"
-                                        ColumnName="Product"
-                                        Foreground="Black"
-                                        Header="商品"
-                                        HeaderHorizontalAlignment="Center"
-                                        HeaderVerticalAlignment="Center">
-                                        <c1:Column.CellTemplate>
-                                            <!--<DataTemplate DataType="{x:Type entity:SetProductView}">
-                                                <StackPanel Orientation="Horizontal">
-                                                    <ctrl:CustomTextBox
-                                                        Width="70"
-                                                        Height="22"
-                                                        BorderThickness="0"
-                                                        Foreground="Black"
-                                                        Style="{StaticResource CustomTextBoxImeOff}"
-                                                        Text="{Binding ProductCD, Mode=TwoWay}" />
-                                                    <ctrl:SearchBox
-                                                        Width="220"
-                                                        Height="22"
-                                                        VerticalContentAlignment="Center"
-                                                        BorderThickness="0"
-                                                        DropDownWidth="750"
-                                                        Foreground="Black"
-                                                        IsBusy="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Window}, Path=DataContext.IsBusyProductList, Mode=OneWay}"
-                                                        IsTabStop="False"
-                                                        ItemsSource="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Window}, Path=DataContext.SimpleProductList, Mode=OneWay}"
-                                                        SearchCommand="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Window}, Path=DataContext.ProductSearchCommand, Mode=OneWay}"
-                                                        SearchText="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Window}, Path=DataContext.ProductSearchText, Mode=TwoWay}"
-                                                        SelectedItem="{Binding SelectedProduct, Mode=TwoWay}"
-                                                        Text="{Binding ProductName, Mode=TwoWay}" />
-                                                </StackPanel>
-                                            </DataTemplate>-->
-                                            <DataTemplate>
-                                                <StackPanel Orientation="Horizontal">
-                                                    <ctrl:CustomTextBox
-                                                        Width="70"
-                                                        Height="22"
-                                                        BorderThickness="0"
-                                                        Foreground="Black"
-                                                        Style="{StaticResource CustomTextBoxImeOff}"
-                                                        Text="{Binding ProductCD, Mode=TwoWay}" />
-                                                    <im:GcTextBox
-                                                        Width="200"
-                                                        Height="23"
-                                                        Padding="3,0,0,0"
-                                                        VerticalAlignment="Center"
-                                                        HorizontalContentAlignment="Left"
-                                                        Background="{StaticResource IsReadOnlyBackGroundColor}"
-                                                        BorderThickness="0"
-                                                        Foreground="Black"
-                                                        IsEnabled="False"
-                                                        IsReadOnly="True"
-                                                        Text="{Binding ProductName}" />
-                                                    <Button
-                                                        Width="23"
-                                                        Height="23"
-                                                        HorizontalContentAlignment="Center"
-                                                        VerticalContentAlignment="Center"
-                                                        Background="Transparent"
-                                                        BorderThickness="0"
-                                                        Command="{Binding ShowProductListCommand, Mode=OneWay}">
-                                                        <Image Source="{StaticResource Black_Search_16}" Stretch="None" />
-                                                    </Button>
-                                                </StackPanel>
-                                            </DataTemplate>
-                                        </c1:Column.CellTemplate>
-                                    </c1:Column>
-                                    <!--<c1:Column
-                                        Width="220"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Center"
-                                        AllowMerging="True"
-                                        Binding="{Binding ProductCD, Mode=TwoWay}"
-                                        ColumnName="ProductList"
-                                        Header="商品"
-                                        HeaderHorizontalAlignment="Center"
-                                        HeaderVerticalAlignment="Center" />-->
+[WPF ScrollViewer with Grid inside and dynamic size](https://stackoverflow.com/questions/48529723/wpf-scrollviewer-with-grid-inside-and-dynamic-size)  
+
+RN3のどのプログラムを見ても、FlexGridの大きさが画面の大きさに連動して変わる奴がなかったので、何とかならないか探してみたらそれっぽいものがあった。  
+やっぱりGrid先輩が強すぎる。  
+とりあえずGridで囲んでおけみたいなところあるな。  
+
+``` XML
+<Window x:Class="WpfTest.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Width="200"
+        Height="300">
+
+  <!-- Layout Root -->
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+      <RowDefinition Height="Auto" />
+    </Grid.RowDefinitions>
+
+    <!-- Header Panel -->
+    <Border Grid.Row="0" Background="#CCCCCC" Padding="11">
+      <!-- Replace this TextBlock with your header content. -->
+      <TextBlock Text="Header Content" TextAlignment="Center" />
+    </Border>
+
+    <!-- Body Panel -->
+    <Grid Grid.Row="1" Background="#CCCCFF">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="*" />
+      </Grid.RowDefinitions>
+
+      <Border Grid.Row="0" Background="#FFCCCC" Padding="11">
+        <!-- Replace this TextBlock with your upper body content. -->
+        <TextBlock Text="Upper Body Content" TextAlignment="Center" />
+      </Border>
+
+      <ScrollViewer Grid.Row="1" Padding="11"
+                    VerticalScrollBarVisibility="Auto">
+
+        <!-- Replace this Border with your scrollable content. -->
+        <Border MinHeight="200">
+          <Border.Background>
+            <RadialGradientBrush RadiusY="1" RadiusX="1" Center="0.5,0.5">
+              <GradientStop Color="White" Offset="0" />
+              <GradientStop Color="Black" Offset="1" />
+            </RadialGradientBrush>
+          </Border.Background>
+        </Border>
+
+      </ScrollViewer>
+    </Grid>
+
+    <!-- Footer Panel -->
+    <Border Grid.Row="2" Background="#CCFFCC" Padding="11">
+      <!-- Replace this TextBlock with your footer content. -->
+      <TextBlock Text="Footer Content" TextAlignment="Center" />
+    </Border>
+  </Grid>
+
+</Window>
 ```
 
 ---
@@ -114,7 +95,7 @@ private void PaymentMethodFlexGrid_SelectedItemChanged(object sender, System.Eve
 ## FlexGridのRowHeaderに番号を付ける方法とCellFactoryサンプル
 
 FlexGridのRowHeaderに番号を付ける方法を聞かれたがわからなかった。  
-CellFactoryを使ったやり方で萬君が実現していたので、拝借した。  
+萬君がCellFactoryを使ったやり方で実現していたので拝借した。  
 そのほかにも、チェックアウトで疑似的に実現していたのでそれも拝借する。  
 
 ``` XML : Front.CheckOut.Views.SelfCheckOutWindow.xaml
@@ -122,6 +103,7 @@ CellFactoryを使ったやり方で萬君が実現していたので、拝借し
         CellFactory="{StaticResource RowHeaderNumberingCellFactory}">
         <c1:C1FlexGrid.Columns>
             <c1:Column>
+                <!-- 色々 -->
             </c1:Column>
         </c1:C1FlexGrid.Columns>
     </c1:C1FlexGrid
@@ -192,3 +174,93 @@ public class RowHeaderNumberingCellFactory : CellFactory
             </ContextMenu>
         </ctrl:CustomFlexGrid.ContextMenu>
 ```
+
+---
+
+## いつぞやのサンプル
+
+``` XML
+    <c1:Column
+        Width="290"
+        HorizontalAlignment="Center"
+        VerticalAlignment="Center"
+        AllowMerging="True"
+        ColumnName="Product"
+        Foreground="Black"
+        Header="商品"
+        HeaderHorizontalAlignment="Center"
+        HeaderVerticalAlignment="Center">
+        <c1:Column.CellTemplate>
+            <!--<DataTemplate DataType="{x:Type entity:SetProductView}">
+                <StackPanel Orientation="Horizontal">
+                    <ctrl:CustomTextBox
+                        Width="70"
+                        Height="22"
+                        BorderThickness="0"
+                        Foreground="Black"
+                        Style="{StaticResource CustomTextBoxImeOff}"
+                        Text="{Binding ProductCD, Mode=TwoWay}" />
+                    <ctrl:SearchBox
+                        Width="220"
+                        Height="22"
+                        VerticalContentAlignment="Center"
+                        BorderThickness="0"
+                        DropDownWidth="750"
+                        Foreground="Black"
+                        IsBusy="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Window}, Path=DataContext.IsBusyProductList, Mode=OneWay}"
+                        IsTabStop="False"
+                        ItemsSource="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Window}, Path=DataContext.SimpleProductList, Mode=OneWay}"
+                        SearchCommand="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Window}, Path=DataContext.ProductSearchCommand, Mode=OneWay}"
+                        SearchText="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=Window}, Path=DataContext.ProductSearchText, Mode=TwoWay}"
+                        SelectedItem="{Binding SelectedProduct, Mode=TwoWay}"
+                        Text="{Binding ProductName, Mode=TwoWay}" />
+                </StackPanel>
+            </DataTemplate>-->
+            <DataTemplate>
+                <StackPanel Orientation="Horizontal">
+                    <ctrl:CustomTextBox
+                        Width="70"
+                        Height="22"
+                        BorderThickness="0"
+                        Foreground="Black"
+                        Style="{StaticResource CustomTextBoxImeOff}"
+                        Text="{Binding ProductCD, Mode=TwoWay}" />
+                    <im:GcTextBox
+                        Width="200"
+                        Height="23"
+                        Padding="3,0,0,0"
+                        VerticalAlignment="Center"
+                        HorizontalContentAlignment="Left"
+                        Background="{StaticResource IsReadOnlyBackGroundColor}"
+                        BorderThickness="0"
+                        Foreground="Black"
+                        IsEnabled="False"
+                        IsReadOnly="True"
+                        Text="{Binding ProductName}" />
+                    <Button
+                        Width="23"
+                        Height="23"
+                        HorizontalContentAlignment="Center"
+                        VerticalContentAlignment="Center"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Command="{Binding ShowProductListCommand, Mode=OneWay}">
+                        <Image Source="{StaticResource Black_Search_16}" Stretch="None" />
+                    </Button>
+                </StackPanel>
+            </DataTemplate>
+        </c1:Column.CellTemplate>
+    </c1:Column>
+    <!--<c1:Column
+        Width="220"
+        HorizontalAlignment="Left"
+        VerticalAlignment="Center"
+        AllowMerging="True"
+        Binding="{Binding ProductCD, Mode=TwoWay}"
+        ColumnName="ProductList"
+        Header="商品"
+        HeaderHorizontalAlignment="Center"
+        HeaderVerticalAlignment="Center" />-->
+```
+
+---
