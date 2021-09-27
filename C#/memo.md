@@ -203,6 +203,7 @@ Boxing,Unboxingという仕組みもあり、なかなか奥が深かった。
 ```
 
 こっちだとInvalidCastExceptionになるのでJsonに変換する場合とはまた違うのかもしれない。  
+
 ``` C#
     double d = 1.23456;
     object o = d;
