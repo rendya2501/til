@@ -1,34 +1,5 @@
 # 雑記
 
-## キャスト
-
-「is」,「as」「前かっこ」による変換の違い。  
-
-・前かっこは変換に失敗するとエラー(System.InvalidCastException)になる。  
-・as は変換に失敗するとnullになる。エラーにはならない。  
-・is はif文で使うので、失敗したらelseに流れるだけ。  
-
-## タプルのリストを簡単に初期化する方法
-
-<https://cloud6.net/so/c%23/1804197>
-
-``` C#
-    // List ver
-    var tupleList = new List<(int Index, string Name)>
-    {
-        (1, "cow"),
-        (5, "chickens"),
-        (1, "airplane")
-    };
-    // 配列 ver
-    var tupleList = new (int Index, string Name)[]
-    {
-        (1, "cow"),
-        (5, "chickens"),
-        (1, "airplane")
-    };
-```
-
 ---
 
 ## アノテーションを使った、リストに1件もない場合のバリデーション
@@ -43,21 +14,6 @@ public int ItemCount
     get => Items != null ? Items.Length : 0;
 }
 ```
-
----
-
-## C#のアクセス修飾子
-
-<https://www.fenet.jp/dotnet/column/language/6153/>
-
-`internal`がわからなかったのでついでに調べた。  
-
-- public    : あらゆる所からアクセスできる  
-- private   : 同じクラス内のみアクセスできる  
-- protected : 同じクラスと派生したクラスのみアクセスできる  
-- internal  : 同じアセンブリならアクセスできる。つまり同一プロジェクト内部。  
-- protected internal : 同じアセンブリと別アセンブリの派生クラスでアクセスできる  
-- private protected  : 同じクラスと同じアセンブリの派生したクラスのみアクセスできる  
 
 ---
 
@@ -109,19 +65,6 @@ if (x is string)
     Console.WriteLine("ここは絶対通らない");
 }
 ```
-
----
-
-## SignalR
-
-非同期でリアルタイムな双方向通信を実現するライブラリ。  
-要はサーバーからの通知を実現する技術の.Net版だ。  
-
-通常、サーバーとクライアントのやり取りはクライアントからのリクエストがトリガーとなる。  
-それだけしかないので、サーバーからクライアントへ通知する手段は存在しない。  
-システムの性質上、どうしてもサーバーからの状態を通知したい場合はクライアントから定期的にリクエストを飛ばすしかない。  
-それに対応するための技術といえるだろう。  
-2012年あたりから記事が見つかるので、結構古い技術なのかもしれない。  
 
 ---
 
@@ -272,97 +215,6 @@ Box化解除(Unboxing)はポインタの参照先から値を取り出してス�
 
 ---
 
-## アノテーション
-
-Annotation:注釈  
-https://elf-mission.net/programming/wpf/episode09/  
-恐らくではあるが、属性やバリデーションの為にクラスやフィールドの宣言の上に[]で囲うやつの事全般をこう読んでいるのではないか?  
-調べてもそういうのしか出てこなかった。  
-後は彼らが何を指してそう読んでいるのか、一括にしているのかなど、聞いてみないとわからない。  
-
----
-
-## 破棄
-
-https://ufcpp.net/study/csharp/cheatsheet/ap_ver7/#discard  
-・discard : 破棄  
-
-型スイッチや分解では、変数を宣言しつつ何らかの値を受け取るわけですが、 特に受け取る必要のない余剰の値が生まれたりします。  
-例えば、分解では、複数の値のうち、1つだけを受け取りたい場合があったとします。 こういう場合に、_を使うことで、値を受け取らずに無視することができます。  
-
-``` C#
-static (int quotient, int remainder) DivRem(int dividend, int divisor)
-    => (Math.DivRem(dividend, divisor, out var remainder), remainder);
-static void Deconstruct()
-{
-    // 商と余りを計算するメソッドがあるけども、ここでは商しか要らない
-    // _ を書いたところでは、値を受け取らずに無視する
-    var (q, _) = DivRem(123, 11);
-
-    // 逆に、余りしか要らない
-    // また、本来「var x」とか変数宣言を書くべき場所にも _ だけを書ける
-    (_, var r) = DivRem(123, 11);
-}
-```
-
-同様の機能は、型スイッチや出力変数宣言でも使えます。  
-
----
-
-## プロパティ
-
-### プロパティってそもそも何？
-
-そのクラスのプライベートフィールドの値の読み取り、書き込み等を行うメンバー。  
-Javaにはプロパティは存在しないらしい。  
-なので、クラスのプライベートフィールドへのアクセスはGetterとSetterを自分で実装しないといけない。  
-そうすると、コード量がすごいことになるのでそれを軽減するための仕組みがプロパティという印象を受けた。  
-
-<https://teratail.com/questions/304645>  
-
-``` txt
-(1) オブジェクト指向の概念の一つ「カプセル化」を実現するため、通常クラス内の各フィールドへの直接アクセスは禁止するようにしておき、
-外部からはパブリックプロパティで各フィールドの値を取得したり設定したりするということがもともとのプロパティの目的です。 
-
-(2) プロパティを使う目的には、開発者が意図した規則に基づいてフィールドを正しく使用できるよう保証するということもあります。
-
-(3) プロパティでなければダメというケースもあります。
-例えば、Entity Framework Code First でのモデルを定義を行う場合はフィールドではダメで、プロパティの定義が必要です。
-他には、ASP.NET Web Forms アプリのデータバインド式でもプロパティでないとダメです。
-```
-
-<https://qiita.com/toshi0607/items/801a0d37fb48313cbdbd>  
-1. フィールド
-- オブジェクト指向について「クラスは、データと振る舞いをカプセル化したものである」と説明されるときの「データ」の部分です。
-- オブジェクトが持つデータをフィールドとして定義します。
-- フィールドはクラスのメンバ（クラスなど、型を構成する内部要素の総称）として宣言された変数で、インスタンスと直接結び付けられます。
-- メンバ変数とも呼ばれます。
-- フィールドはインスタンスからアクセスします。
-- **非公開にし、プロパティで操作するのが原則です。**
-- フィールドと3.プロパティの混乱を避けるためにアンダースコア（_）をつけて定義することがあります。
-→  
-答えがあったぞ。特に理由が無ければプロパティ経由でアクセスしておけって話か。  
-
-3. プロパティ
-- オブジェクト内にあるフィールドの値を取得、または設定するための手段です。
-- クラス外部から見るとメンバー変数のように振る舞い、 クラス内部から見るとメソッドのように振舞います。
-- メンバー変数の値の取得・変更を行うためのメソッドのことをアクセサー(accessor)といいます。
-- setterに渡す値にはsetter内からvalueという変数でアクセスできます。
-
-### 内部で使用する場合、メンバ変数に直接アクセスしていいのか、プロパティからアクセスすればいいのかどっちがいいの？
-
-<https://teratail.com/questions/304645>  
-「クラス内からであっても、private のメンバー変数には直接アクセスせず、 プロパティを通してアクセスする方が後々の保守がしやすかったりします」  
-→  
-クラスの内側でも「プロパティ」による抽象化の恩恵に与りたいのか否か，程度の話なんじゃないかな，と。  
-→  
-日次帳票でやった、内部クラス(印刷データ生成クラス)なら、直接フィールドでやり取りしていいのではないだろうか。  
-外部に公開するわけでもないし、内部で使うだけだし、抽象化する必要性もないし、そういう場合はフィールドでよさそうな気はする。  
-それ以外はプロパティ自体をprivateで宣言して使えば、フィールドを使っているのと同じ様なものでは無かろうか。  
-しかし、プロパティのほうが参照元を表示してくれるので、プロパティを使ったほうが便利といえば便利。  
-
----
-
 ## セマフォ
 
 <https://e-words.jp/w/%E3%82%BB%E3%83%9E%E3%83%95%E3%82%A9.html#:~:text=%E3%82%BB%E3%83%9E%E3%83%95%E3%82%A9%E3%81%A8%E3%81%AF%E3%80%81%E3%82%B3%E3%83%B3%E3%83%94%E3%83%A5%E3%83%BC%E3%82%BF%E3%81%A7,%E3%82%92%E8%A1%A8%E3%81%99%E5%80%A4%E3%81%AE%E3%81%93%E3%81%A8%E3%80%82>
@@ -382,12 +234,6 @@ Javaにはプロパティは存在しないらしい。
 
 要約すると、A、B、Cってプロセスが並行してて、  
 ある資源が全然解放されないって時にセマフォがタイムアウトエラーを発生させるってことらしい。  
-
----
-
-## virtual
-
-virtualは継承先でoverride修飾子を使うことで処理を上書きできることを明示するための修飾子。  
 
 ---
 
@@ -501,21 +347,12 @@ private Fuga(Action<int> action){
 
 ---
 
-## varの意味
-
-型を同じにしてくれる。  
-暗黙の型指定
-コンパイラは右側の値からデータ型を推測して決定します。
-この仕組みを「型推論」と呼びます。
-
----
-
 ## ObservableCollection
 
 [【WPF】ItemsSourceにObservableCollectionを選ぶのはなぜ](https://itwebmemory.com/itemssource-observablecollection-explanation)  
 なんとなく使ってはいるが、なぜ使うのか、どういうものなのかずっとわからなかったのでまとめることにした。  
 
-```
+``` txt
 項目が追加または削除されたとき、あるいはリスト全体が更新されたときに通知を行う動的なデータ コレクションを表します。
 https://docs.microsoft.com/ja-jp/dotnet/api/system.collections.objectmodel.observablecollection-1?view=netcore-3.1
 ```
@@ -595,6 +432,8 @@ C#も今後改善されるのかな。
     {
         // 多分普通に(officeCD,businessDate)でいいと思う。
         return await _Accessor.GetResultAsync<TRe_ReservationBasicInfo>(PATH + "/get/basic_info", new ValueTuple<string, DateTime>(officeCD, businessDate));
+        // こっちでも普通にいけた
+        // return await _Accessor.GetResultAsync<TRe_ReservationBasicInfo>(PATH + "/get/basic_info", (officeCD, businessDate));
     }
 
     /// <summary>
@@ -604,32 +443,6 @@ C#も今後改善されるのかな。
     public TRe_ReservationBasicInfo GetBasicInfo([FromBody] (string OfficeCD, DateTime BusinessDate) key)
     {
         return _ReservationFrameModel.GetBasicInfo(key.OfficeCD, key.BusinessDate);
-    }
-```
-
----
-
-## Tuple?ValueTuple?引数に渡す方法は?
-
-WebAPIに渡すパラメーターでタプルを使ったのはいいけれど、これって本当にタプルなのか？バリュータプルと何が違う？  
-そもそも渡し方と受け取り型ってこれでいいの？ってのがわからなかったのでまとめて見た。  
-だけど、もっとまとめる必要がありそう。まだ全然まとめきれていない。  
-とりあえず、下の渡し方は全てOKだった。  
-他にもやらないといけないから、今はこれで勘弁して。  
-
-``` C#
-    ValueTupleArgumentTest(("a", 1));
-    ValueTupleArgumentTest((str: "b", i: 2));
-    ValueTupleArgumentTest(new ValueTuple<string, int>("c", 3));
-    ValueTupleArgumentTest(ValueTuple.Create("d", 4));
-    // これはダメ
-    // ValueTupleArgumentTest(Tuple.Create("d", 4));
-
-    // 引数はValueTuple<string,int>型
-    private static void ValueTupleArgumentTest((string str, int i) key)
-    {
-        Console.WriteLine(key.str);
-        Console.WriteLine(key.i);
     }
 ```
 
@@ -665,4 +478,224 @@ var person = (Id:1, FirstName:"Bill", LastName: "Gates");
 
 string firstName = "Bill", lastName = "Gates";
 var per = (FirstName: firstName, LastName: lastName);
+```
+
+### Tuple?ValueTuple?引数に渡す方法
+
+WebAPIに渡すパラメーターでタプルを使ったのはいいけれど、本当にタプルなのか？バリュータプルと何が違うのか？  
+そもそも渡し方と受け取り型ってこれでいいの？ってのがわからなかったのでまとめた。  
+だけど、もっとまとめる必要がありそう。まだ全然まとめきれていない。  
+とりあえず、下の渡し方は全てOKだった。  
+他にもやらないといけないから、今はこれで勘弁して。  
+
+``` C#
+    ValueTupleArgumentTest(("a", 1));
+    ValueTupleArgumentTest((str: "b", i: 2));
+    ValueTupleArgumentTest(new ValueTuple<string, int>("c", 3));
+    ValueTupleArgumentTest(ValueTuple.Create("d", 4));
+    // これはダメ
+    // ValueTupleArgumentTest(Tuple.Create("d", 4));
+
+    // 引数はValueTuple<string,int>型
+    private static void ValueTupleArgumentTest((string str, int i) key)
+    {
+        Console.WriteLine(key.str);
+        Console.WriteLine(key.i);
+    }
+```
+
+---
+
+## Switch式でメソッドを実行できないか色々やった結果
+
+<https://stackoverflow.com/questions/59729459/using-blocks-in-c-sharp-switch-expression>
+
+if elseif でがりがり書くなら、switchの出番なんじゃないかと思ってやってみた。  
+結果的に出来なかった。  
+文法上は怒られないのだが、実際に動かしてみると"Operation is not valid due to the current state of the object."と言われて動かない。  
+
+switch式は絶対にreturnがないといけない形式なので、Actionとして受け取る必要がある。  
+若干わかりにくいけど、スマートだから妥協できないかと思ったけど、そもそも動かないのであれば、switchの1行表示で妥協するしかなさそうだ。  
+
+``` C#
+/// <summary>
+/// データプロパティ変更時イベント
+/// </summary>
+/// <param name="sender"></param>
+/// <param name="e"></param>
+private void DataPropertyChanged(object sender, PropertyChangedEventArgs e)
+{
+    // 元のコード。{}がない分まだすっきりしているが、e.PropertyNameを毎回書かないといけないなら,それはswitchを使うべき。
+    // 部門コード
+    if (e.PropertyName == nameof(Data.DepartmentCD))
+        SetDepartmentCD();
+    // 商品コード
+    else if (e.PropertyName == nameof(Data.ProductCD))
+        SetProductCD();
+    // 商品分類コード
+    else if (e.PropertyName == nameof(Data.ProductClsCD))
+        SearchProductCls();
+
+    // 1行にまとめたswitch。普通のよりは断然いいが、breakを毎回書かないといけない。
+    // 言語仕様的に仕方がないが・・・。
+    switch (e.PropertyName)
+    {
+        // 部門コード
+        case nameof(Data.DepartmentCD): SetDepartmentCD(); break;
+        // 商品コード
+        case nameof(Data.ProductCD): break;
+        // 商品分類コード
+        case nameof(Data.ProductClsCD): break;
+        default: break;
+    }
+
+    // 本命。文法上は怒られないけど実行するとエラーになる。
+    // 実行するのではなく,Actionデリゲートとして受け取り、最後に実行する。
+    Action result = e.PropertyName switch
+    {
+        // 部門コード
+        nameof(Data.DepartmentCD) => SetDepartmentCD,
+        // 商品コード
+        nameof(Data.ProductCD) => SetProductCD,
+        // 商品分類コード
+        nameof(Data.ProductClsCD) => SearchProductCls,
+        _ => throw new InvalidOperationException()
+    };
+    result();
+}
+```
+
+後日。改めてやったら出来たのでまとめる。
+
+``` C#
+    /// <summary>
+    /// スイッチ式サンプル1
+    /// スイッチ式使ってActionを受け取って実行って事ができると、処理をifで切り替えずに済むのでは？と思ってやってみた。
+    /// 昔やったときは出来かったはずだが、できるようになってるっぽい。
+    /// </summary>
+    /// <param name="args"></param>
+    static void Main(string[] args)
+    {
+        // 適当な分岐のつもり
+        int flag = 1;
+
+        // 1.Actionデリゲートとして受け取るタイプ
+        Action result = flag switch
+        {
+            1 => Test1,
+            2 => Test2,
+            _ => throw new InvalidOperationException()
+        };
+        result.Invoke();
+
+        // 2.そもそも関数として切り離したタイプ
+        Action(flag).Invoke();
+
+        // 3.どれか1つでもキャストするとvarでもいけることがわかった。
+        // でもって、こっちだと.Invoke()で起動できる。
+        // 勘違いだ。a()とするかa.Invoke()とするかの違いでしかなかった。
+        var a = flag switch
+        {
+            1 => (Action)Test1,
+            2 => Test2,
+            _ => throw new InvalidOperationException()
+        };
+        a.Invoke();
+
+        // 4.そもそもActionとして受け取らないで即時実行するタイプ
+        (flag switch
+        {
+            1 => (Action)Test1,
+            2 => Test2,
+            _ => throw new InvalidOperationException()
+        }).Invoke();
+        // 何とか1行に出来なくはないが・・・。ないだろうなぁ。
+        (flag switch { 1 => (Action)Test1, 2 => Test2, _ => throw new Exception() }).Invoke();
+    }
+
+    /// <summary>
+    /// 2.そもそも関数として切り離したタイプ
+    /// </summary>
+    /// <param name="flag"></param>
+    /// <returns></returns>
+    static Action Action(int flag) => flag switch
+    {
+        1 => Test1,
+        2 => Test2,
+        _ => throw new InvalidOperationException()
+    };
+
+    /// <summary>
+    /// テストメソッド1
+    /// </summary>
+    static void Test1() => Console.WriteLine("test1");
+    /// <summary>
+    /// テストメソッド2
+    /// </summary>
+    static void Test2() => Console.WriteLine("test2");
+```
+
+---
+
+## コールバックサンプル
+
+``` C#
+// Form側
+private void EditFormModel_Inquire(string message, Action yesAction, Action noAction)
+{
+   var dialogResult = MessageBox.Show(
+       message,
+       "確認",
+       MessageBoxButtons.YesNo, MessageBoxIcon.Question
+    );
+   switch (dialogResult)
+   {
+       case DialogResult.Yes:
+           yesAction();
+           break;
+       case DialogResult.No:
+           noAction();
+           break;
+       case DialogResult.None:
+       case DialogResult.Abort:
+       case DialogResult.Retry:
+       case DialogResult.Ignore:
+       case DialogResult.OK:
+       case DialogResult.Cancel:
+       default:
+           break;
+   }
+}
+
+// MODEL側
+this.OnInquire(
+   "保存処理を実行しますか？",
+   () =>
+   {
+       try
+       {
+           var result = new ServiceClient.EditServiceClient().Save(this._Data);
+       }
+       catch (Exception ee)
+       {
+           MessageBox.Show(ee.Message, "エラー", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+           this.OnStatusMessage("保存に失敗しました。");
+           return;
+       }
+       //オプションで編集が有効の場合、編集モードにする
+       var tmpOptionMode = true;
+       if (tmpOptionMode)
+       {
+           //編集モード
+           this.SerachBankBranch();
+       }
+       else
+       {
+           //初期化モード
+           this.Initialize();
+       }
+       this.OnStatusMessage("データを保存しました。");
+   },
+   () => {}
+);
 ```

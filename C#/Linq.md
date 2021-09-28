@@ -1,6 +1,6 @@
 # Linqのあれこれ
 
-## Linqのサンプル用タプルリスト
+## Linqのサンプル用タプルリスト(タプルのリストを簡単に初期化する方法)
 
 いつもやっているような、whereで要素にアクセスするのを簡単に実現出来ないかやってみた奴。  
 2,3個のフィールドのためにわざわざクラスは作りたくない。  
@@ -26,6 +26,13 @@ ValueTupeを使えばいつもの感じでフィールドにアクセスでき�
     List<(int example, string descrpt)> list = Enumerable.Range(0, 10)
         .Select(i => (example: i, descrpt: $"{i}"))
         .ToList();
+    // 配列 もいけるよ
+    var tupleList = new (int Index, string Name)[]
+    {
+        (1, "cow"),
+        (5, "chickens"),
+        (1, "airplane")
+    };
 ```
 
 ---
