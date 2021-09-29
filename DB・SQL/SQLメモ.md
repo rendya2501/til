@@ -436,3 +436,53 @@ SELECT TOP 1 CONVERT(BIT,COUNT([TRe_ReservationFrame].[ReservationFrameNo]))
 FROM [TRe_ReservationFrame]
 WHERE [TRe_ReservationFrame].[OfficeCD] = @officeCD
 ```
+
+---
+
+## Substring
+
+最後の文字を削除する時に`substring([ReservationNo], 1, len(ReservationNo)-1)`ってやったらエラーになったけど何かわかる？って萬君に質問されたのでまとめ。  
+答えられなかったのだが、Len(空白) = 0になって 0-1 = -1 で、マイナスを第3引数に指定するとエラーになるってのが原因だった。  
+気になって調べたらいろいろわかったので沼にはまってしまった。  
+
+SUBSTRING ( expression ,start , length )  
+SUBSTRING (抜き出す文字列, 開始地点, 切り取り文字数)  
+
+対象の文字列  
+切り取る対象の文字列を指定します。  
+
+開始位置  
+切り取りの開始位置を指定します。  
+勘違いしやすいですが、「1」スタートなので、「0」を指定すると何も取得できません。なお、マイナスにしても何も取得できません。  
+
+取得する文字数  
+正の整数または bigint 式を指定する。  
+負の場合はエラーが生成され、ステートメントは終了する。  
+start と length の合計が 対象の文字列 の文字数を上回る場合は、start の先頭から値式全体が返されます。  
+
+``` SQL
+select
+-- 右1文字を削除する方法
+substring([ReservationNo], 1, len(ReservationNo)-1),
+-- 右1文字だけを抜き出す方法
+substring([ReservationNo], len(ReservationNo), len(ReservationNo)),
+-- 先頭1文字だけを抜き出す方法
+substring([ReservationNo], 1, 1),
+-- これでも先頭を取れる
+substring([ReservationNo], 0, 1),
+-- 全部空白になる
+substring([ReservationNo], 0, 0),
+-- 基本的に、lengthに0を指定すると空白になる。
+substring([ReservationNo], 2, 0),
+-- 超過しても全文表示されるだけ
+substring([ReservationNo], 1, 1000),
+-- 何も表示されない。
+substring([ReservationNo], -100, 100),
+-- 全部NULLになる
+-- len(null) = null . null - 1 = null なのでnull
+substring([ReservationNo], len(ReservationNo), NULL),
+-- エラーになる
+-- len(空白)の結果は0になる。この状態で-1するとエラーになる。
+substring([ReservationNo], 1, -1),
+from TRe_Reservation
+```
