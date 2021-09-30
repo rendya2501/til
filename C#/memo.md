@@ -699,3 +699,14 @@ this.OnInquire(
    () => {}
 );
 ```
+
+---
+
+## アトリビュートに設定されている文字列の長さを取得する方法
+
+``` C#
+/// <summary>
+/// ProductCDの桁数を取得
+/// </summary>
+private static readonly int ProductCDLength = (Attribute.GetCustomAttribute(typeof(TMa_Product).GetProperty(nameof(TMa_Product.ProductCD)), typeof(StringLengthAttribute)) as StringLengthAttribute)?.MaximumLength ?? 20;
+```

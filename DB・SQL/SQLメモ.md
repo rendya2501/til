@@ -432,7 +432,9 @@ CONVERT,BITとは。
 
 ``` SQL
 -- 1件の有無で判定は十分なのでTOP1する。
-SELECT TOP 1 CONVERT(BIT,COUNT([TRe_ReservationFrame].[ReservationFrameNo]))
+SELECT TOP 1
+CONVERT(BIT,COUNT([TRe_ReservationFrame].[ReservationFrameNo])),
+CAST (COUNT([TRe_ReservationFrame].[ReservationFrameNo])) AS BIT)
 FROM [TRe_ReservationFrame]
 WHERE [TRe_ReservationFrame].[OfficeCD] = @officeCD
 ```
