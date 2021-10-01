@@ -3,9 +3,6 @@
 ・variable : 変数
 ・argument : 引数
 
-・LGTM(Looks good to me)
-「良さそうだ」「問題ないと思う」という意味。
-
 ・federation : 連合、同盟
 
 ・particular : 特に
@@ -57,12 +54,17 @@ Android開発環境の異なるアプリケーションのコード間で実行�
 レプリケーション
 複製
 
+・directive : 指令，命令
+
 ・surrogate : 代理
 
 ・peer : 同等の人、対等者
 ネットワーク通信において、現在接続している相手のコンピュータや通信機器のことをピアという。
 
 ・discard : 破棄  
+
+
+Allowed : 許可された  
 
 ●redundancy : 冗長性
 コンピュータシステムにおいては、耐障害性を高めるためにネットワークを含むシステム全体を二重化して予備システムを準備することを冗長化といい、
@@ -120,11 +122,8 @@ Android開発環境の異なるアプリケーションのコード間で実行�
 
 物やデータをどける的なニュアンスを感じる。
 
+
 ---
 
-## 趣味
-
-・QED : Quod Erat Demonstrandum : かく示された
-
-●ALL WILL BE ONE
-New phyrexia
+・LGTM(Looks good to me)
+「良さそうだ」「問題ないと思う」という意味。

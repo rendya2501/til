@@ -19,14 +19,6 @@ throwsがついたメソッドを呼び出す場合は例外の対策をしな�
 
 ---
 
-## HashMap
-
-C#でいうListっぽいことしてるのがこれ。  
-Listではaddメソッドで要素を追加するが、JavaのHashMapはput(置く)がそれに当たるらしい。  
-直観的にそうだろうとは思ったが、確証がなかったので後学のためにまとめておく。  
-
----
-
 ## implements
 
 javaのインターフェース実装命令。  
@@ -53,6 +45,50 @@ public class Sample{
     }
 }
 ```
+
+---
+
+## Enum
+
+[【初心者向け】JavaのEnum型について解説！基本的なメソッドも紹介！](https://www.tech-teacher.jp/blog/java-enum/)  
+基本情報でEnumのメソッドを知らないために1問間違えたのでまとめ。  
+
+JavaにおいてはEnumはClassの一種っぽい。  
+Objectクラスを継承している。  
+とりあえず、JavaのEnumにはOrdinalメソッドなるものが実装されているらしい。  
+他にも4つくらいあるが、これはJavaの仕様でそう実装されているみたい。  
+この際なので全部まとめる。  
+
+・ordinalメソッド  
+Enum型の宣言された順番を取得するメソッド。  
+→  
+基本情報で出たのはこれ。  
+電卓の数字の定義くらいなら順番に取得すれば、その通りになるって寸法か。  
+
+・valueOfメソッド  
+指定した文字列と列挙型を比較するときに使います。  
+
+``` Java
+public class Test {
+    protected enum Name {Tanaka, Sato, Kimura};
+    public static void main(String[] args) {
+        if(Name.valueOf("Tanaka") == Name.Tanaka) {
+            System.out.println("同じ");
+        }
+    }
+}
+```
+
+・valuesメソッド  
+列挙型のデータすべてを取得する場合に使います。  
+
+---
+
+## HashMap
+
+C#でいうListっぽいことしてるのがこれ。  
+Listではaddメソッドで要素を追加するが、JavaのHashMapはput(置く)がそれに当たるらしい。  
+直観的にそうだろうとは思ったが、確証がなかったので後学のためにまとめておく。  
 
 ---
 
@@ -104,11 +140,11 @@ new Constant(9).evaluate().equals(new Constant(9).evaluate())
 ``` Java : Constantクラスにequalsメソッドを実装する場合の例
 @Override
 public boolean equals(Object obj) {
-　　if (obj instanceof Constant) {
-　　　　return this.evaluate() == ((Constant)obj).evaluate();
-　　} else {
-　　　　return false;
-　　}
+    if (obj instanceof Constant) {
+        return this.evaluate() == ((Constant)obj).evaluate();
+    } else {
+        return false;
+    }
 }
 ```
 
