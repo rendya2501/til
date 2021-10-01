@@ -151,6 +151,14 @@ if (Boolean(strValue)) {
 // !!str.trim()も同様。
 ```
 
+## JavaScriptもしくはTypeScriptにstring.IsNullOrEmptyに相当する関数は存在するか？
+
+結論から言うとない。  
+けど、言語使用上、必要ないみたい。  
+そんなものを使わなくても !stringで全部わかるんだとか。  
+
+<https://codereview.stackexchange.com/questions/5572/string-isnullorempty-in-javascript>  
+
 ---
 
 ## 配列をカンマ区切りの文字列に変換する方法

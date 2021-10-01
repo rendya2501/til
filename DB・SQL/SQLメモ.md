@@ -488,3 +488,28 @@ substring([ReservationNo], len(ReservationNo), NULL),
 substring([ReservationNo], 1, -1),
 from TRe_Reservation
 ```
+
+---
+
+## mariaDBで0埋めして文字列結合するサンプル
+
+意外と調べるのに苦労したのでまとめる。  
+GORAPriceに20とか30レコードもあるようなプランがあるか調べたかったので、  
+IDを作る要領で3つのキーを0埋めして文字列結合して、GroupByしてCOUNT取ってHAVINGで20以上のIDを表示ってやつ。  
+
+左0埋め→LPAD  
+文字列結合→CONCAT  
+数値→文字列変換→CAST(数値 AS CHAR)  
+数値文字列変換に関してはLPADしてCONCATしたらそのまま行けたので別に必要ないのかも。  
+
+``` SQL
+SELECT
+    CONCAT(LPAD(GolfCode, 4, '0'),LPAD(PlanCode, 6, '0'),LPAD(OpenPlanCode, 6, '0')),
+    COUNT(CONCAT(LPAD(GolfCode, 4, '0'),LPAD(PlanCode, 6, '0'),LPAD(OpenPlanCode, 6, '0')))
+FROM
+    TmOpenPlanGORAPrice
+GROUP BY
+    CONCAT(LPAD(GolfCode, 4, '0'),LPAD(PlanCode , 6, '0'),LPAD(OpenPlanCode, 6, '0'))
+HAVING
+    COUNT(CONCAT(LPAD(GolfCode, 4, '0'),LPAD(PlanCode, 6, '0'),LPAD(OpenPlanCode, 6, '0'))) > 30
+```
