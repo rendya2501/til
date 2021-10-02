@@ -17,6 +17,7 @@
 
 ・Aggregation : 集約
 
+・supplied : 供給
 
 ・Probider : 供給者
 

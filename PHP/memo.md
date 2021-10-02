@@ -41,13 +41,26 @@
 
 [Warning: Invalid argument supplied for foreach() とでたら。。。](https://hacknote.jp/archives/19783/)  
 
+supplied : 供給  
+違法な引数をforeachに供給した  
+
 萬君に、何をしたらforeachでこのようなエラーが出るのか答えられなかったのでまとめ。  
-PaizaIOで確かめてもこのエラーにならなかった。
+PaizaIOで確かめてもこのエラーにならなかった。  
+結局、foreachにnullを渡せばこのエラーになるのはわかったけど、なぜエラー内容が違うのかわからないままだ。  
 
 ``` php
 // $itemがnullだとエラー。
 // $item = []だとエラーにならず、処理されずに終わる。
 foreach($item as $value)
+
+// 関数に渡したらエラーになるかと思ったけど、ならなかった。最後まで謎だった。
+function aa($str) {
+    foreach ($str as $a){
+        echo $a;
+    }
+}
+$str = null;
+aa($str);
 ```
 
 ---

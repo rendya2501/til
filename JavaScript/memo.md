@@ -122,42 +122,39 @@ console.log(result);
 
 ---
 
-## javascriptにおけるIsNullOrEmpty
-
-直接判定してくれる関数は存在しないが判定する方法はいくらでもある模様。  
-
-[Stack雑談](https://stackoverflow.com/questions/154059/how-can-i-check-for-an-empty-undefined-null-string-in-javascript)  
-[JavascriptにIsNullOrEmptyは必要ない](http://jmqys.hatenablog.com/entry/2015/06/21/223005)
-
-```js
-// 値があるかどうかを確認したいだけの場合
-if (strValue) {
-    //do something
-}
-
-// nullを超える空の文字列を具体的にチェックする必要がある場合、
-// [""]は、[===]演算子を使用してチェックするのが最善の策だと思います。
-//（実際には、比較対象の文字列であることがわかります）。  
-if (strValue === "") {
-    //...
-}
-
-// 型キャストを使用する  
-if (Boolean(strValue)) {
-    // Code here
-}
-
-// str.lengthではstrがnullの場合機能しない。
-// !!str.trim()も同様。
-```
-
 ## JavaScriptもしくはTypeScriptにstring.IsNullOrEmptyに相当する関数は存在するか？
 
 結論から言うとない。  
 けど、言語使用上、必要ないみたい。  
 そんなものを使わなくても !stringで全部わかるんだとか。  
 
-<https://codereview.stackexchange.com/questions/5572/string-isnullorempty-in-javascript>  
+[jquery - JavaScriptのstring.isnullorempty（）のような関数はありますか](https://try2explore.com/questions/jp/10503360)  
+Javascriptでは、null, undefined, 空文字, 0, NaN、およびfalseすべて「偽」であり、条件付きで失敗します。  
+
+[String.IsNullOrEmpty in JavaScript](https://codereview.stackexchange.com/questions/5572/string-isnullorempty-in-javascript)  
+[javascriptでの空文字判定](https://teratail.com/questions/49848)  
+
+```js
+var a;
+
+a = '';
+if (!a) { /* ここが実行される */ }
+
+a = null;
+if (!a) { /* ここが実行される */ }
+
+a = undefined;
+if (!a) { /* ここが実行される */ }
+
+a = 1;
+if (!a) { /* ここは実行されない */ }
+if (!a.length){ /* 数字に「length」というプロパティはないのでここが実行される */ }
+
+a = "1";
+if (!a) { /* ここは実行されない */ }
+if (!a.length){ /* ここは実行されない */  }
+if (a.length == 1) { /* ここが実行される */ }
+```
 
 ---
 
@@ -167,7 +164,6 @@ if (Boolean(strValue)) {
 
 ```js
 let badPlansName = this.gdoData.GDOGotPlanMasterInfoList
-    .filter(f => f.hoge > 0)
     .map(m => m.PlanMasterName)
     .join(',');
 ```

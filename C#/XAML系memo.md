@@ -86,7 +86,6 @@ Styleでは、通常、「Setter」というオブジェクトを配置してプ
 </CheckBox>
 ```
 
-
 ---
 
 ## GrapeCityコンポーネントのDataTriggerにおけるTargetTypeの指定の仕方
@@ -346,10 +345,9 @@ xaml resourcedictionary コード 参照
 割り勘の戻り修正をしている時に、FlexGridのセルテンプレート使ってチェックボックスを配置して実装していたが、  
 勝手に見た目が変わってどうしようもなかったのでTriggerAction使ってコードビハインドで直接カラムを操作することにした。  
 その時、背景色をResourceDictionaryから取得したほうがいいよな～と思って調べた内容。  
-以下の1文で問題なく取得できたので備忘録として残しておく。  
-`Application.Current.Resources["resourceName"];`  
 
 ``` C#:使用例
+    // Application.Current.Resources["resourceName"]
     dutchTreatAmount.Background = (Brush)Application.Current.Resources["IsReadOnlyBackGroundColor"];
 ```
 
@@ -430,56 +428,6 @@ public class HexConverter : IValueConverter
             <KeyBinding Key="S" Modifiers="Control" Command="{Binding SaveFileCommand}"/>
         </Grid.InputBindings>
     </Grid>
-```
-
----
-
-## 予約枠のいつぞやのやつ
-
-``` XML
-<ControlTemplate.Triggers>
-    <!--<DataTrigger Binding="{Binding Text, ElementName=DayOfWeek}" Value="土">
-        <Setter Property="Foreground" Value="blue" />
-    </DataTrigger>
-    <DataTrigger Binding="{Binding Text, ElementName=DayOfWeek}" Value="日">
-        <Setter Property="Foreground" Value="red" />
-    </DataTrigger>-->
-    <DataTrigger Binding="{Binding DayOfWeek}" Value="Saturday">
-        <Setter TargetName="DayOfWeek" Property="Foreground" Value="blue" />
-    </DataTrigger>
-    <DataTrigger Binding="{Binding DayOfWeek}" Value="Sunday">
-        <Setter TargetName="DayOfWeek" Property="Foreground" Value="red" />
-    </DataTrigger>
-</ControlTemplate.Triggers>
-
-<ControlTemplate.Triggers>
-    <!--<DataTrigger Binding="{Binding Empty}" Value="True">
-        <Setter Property="Visibility" Value="Hidden" />
-    </DataTrigger>
-    <DataTrigger Binding="{Binding Text, ElementName=Day}" Value="土">
-        <Setter Property="Foreground" Value="blue" />
-        <Setter TargetName="Border" Property="BorderThickness" Value="1,0,1,1" />
-    </DataTrigger>
-    <DataTrigger Binding="{Binding Text, ElementName=Day}" Value="日">
-        <Setter Property="Foreground" Value="red" />
-    </DataTrigger>
-    <DataTrigger Binding="{Binding IsSelected}" Value="True">
-        <Setter TargetName="Base" Property="Background" Value="{StaticResource MahApps.Brushes.Accent4}" />
-    </DataTrigger>-->
-    <DataTrigger Binding="{Binding Empty}" Value="True">
-        <Setter TargetName="Count" Property="Visibility" Value="Hidden" />
-    </DataTrigger>
-    <DataTrigger Binding="{Binding DayOfWeek}" Value="Saturday">
-        <Setter TargetName="Day" Property="Foreground" Value="blue" />
-        <Setter TargetName="Border" Property="BorderThickness" Value="1,0,1,1" />
-    </DataTrigger>
-    <DataTrigger Binding="{Binding DayOfWeek}" Value="Sunday">
-        <Setter TargetName="Day" Property="Foreground" Value="red" />
-    </DataTrigger>
-    <DataTrigger Binding="{Binding IsSelected}" Value="True">
-        <Setter TargetName="Base" Property="Background" Value="{StaticResource MahApps.Brushes.Accent4}" />
-    </DataTrigger>
-</ControlTemplate.Triggers>
 ```
 
 ---
@@ -813,3 +761,25 @@ OKボタンしかないタイプのもの。一番よく見かけるやつ。
     {
     }
 ```
+
+---
+
+## XAMLでBoolを反転するには?
+
+[bool を反転して Binding したかっただけなんだ](https://usagi.hatenablog.jp/entry/2018/12/05/211311)  
+
+``` XML
+<!-- なぜこれがデフォルトで出来ないのか -->
+<CheckBox IsChecked="{Binding Awabi}"/>
+<CheckBox IsEnabled="{Binding !Awabi}"/>
+```
+
+---
+
+## GetOnlyプロパティのバインド
+
+[OneWayToSource binding from readonly property in XAML](https://stackoverflow.com/questions/658170/onewaytosource-binding-from-readonly-property-in-xaml)  
+C# wpf dependencyobject getonly bind  
+
+C1MultiSelectコントロールの選択項目のバインド方法がわからなくて調べた。  
+そもそもget onlyプロパティをバインドする方法って単純にget onlyにすればいいだけじゃないかと思った。  
