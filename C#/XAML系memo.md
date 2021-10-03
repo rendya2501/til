@@ -1,4 +1,85 @@
-# XAML勉強
+# XAMLまとめ
+
+## XAMLでNULLの指定の仕方
+
+``` XML
+    <!-- "{x:Null}"って指定する -->
+    <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+```
+
+---
+
+## x:Typeのありなしの違い
+
+[when to use {x:Type …}?](https://stackoverflow.com/questions/11167536/when-to-use-xtype)  
+
+x:Type マークアップ拡張機能には、C# の typeof() 演算子や Microsoft Visual Basic の GetType 演算子に似た関数があります。
+
+x:Type マークアップ拡張機能は、Type 型を受け取るプロパティに対して、文字列変換動作を提供します。
+
+---
+
+## イベントをViewModel側で観測する方法
+
+割り勘のマルチセレクトコントロールで選択した値を観測するのに難儀したのでまとめ  
+・SelectedItemsはDependencyProperyに登録されていないのでXAMLのマークアップ上ではバインド不可  
+・他のSelected系のプロパティでどうにかならないかやってみたが無理。  
+・公式を見て方法を探すが、まともな文献が1件しかなくて、しかも面倒くさいやつしかない。  
+・SelectionChangedイベントなるものはあるので、コードビハインドで実装して動作を確かめてみたら複数の値を観測できることを確認  
+・イベントをDelegateCommandを使ってViemModel側で観測できないかやってみる  
+・行けたし、値も観測できたので勝ち  
+
+てか、複数選択されるんだからSelectedItemsのプロパティくらい登録しておけって思うんだけどな。  
+
+Trigger関係はPrismの機能らしい。  
+
+``` XML
+<!-- i:Interaction.Triggers、i:EventTrigge、i:InvokeCommandActionの順に設定する -->
+<i:Interaction.Triggers>
+    <i:EventTrigger EventName="SelectionChanged">
+        <i:InvokeCommandAction Command="{Binding TestSelectedChanged, Mode=OneWay}" PassEventArgsToCommand="True" />
+    </i:EventTrigger>
+</i:Interaction.Triggers>
+<!-- 
+EventArgsParameterPath
+EventArgsParameterPathプロパティにはListViewが持つプロパティのうち、Commandに渡したいプロパティの名前を指定します。
+この例では選択されたアイテムが格納されるSelectedItemを指定します。
+EventNameもEventArgsParameterPathも、指定した文字列のイベントやプロパティをPrismが探して使用してくれます。
+
+今回の例では、あると逆にエラーになってしまうので外した。
+EventArgsの中だけで十分な情報が入っているので、今回は使わないことにする。
+
+PassEventArgsToCommand
+PassEventArgsToCommandはEventArgsをViewModelに渡してくれるオプション
+ -->
+```
+
+---
+
+## ViewModelからコントロールのメソッドを実行する方法
+
+[ビューモデルからビューのメソッドを呼ぶ](https://qiita.com/tera1707/items/d184c85d0c181e6563ea)
+CallMethodActionという、まさしくな仕組みがあったのでまとめ。  
+
+``` XML : View
+<i:Interaction.Triggers>
+    <l:InteractionMessageTrigger MessageKey="SubjectLargeTypeListUnselectAll" Messenger="{Binding Messenger}">
+        <i:CallMethodAction MethodName="UnselectAll" />
+    </l:InteractionMessageTrigger>
+</i:Interaction.Triggers>
+```
+
+``` C# : ViewModel
+    /// <summary>
+    /// 科目大区分一覧の選択をすべて解除します。
+    /// </summary>
+    private void SubjectLargeTypeListUnselectAll()
+    {
+        Messenger.Raise(new InteractionMessage("SubjectLargeTypeListUnselectAll"));
+    }
+```
+
+---
 
 ## TextBoxで未入力の場合にBindingしてるソースのプロパティにnullを入れたい
 
@@ -8,12 +89,11 @@
 テキストボックスの空文字をNULLにしたい場合はどうすればいいのか分からなかったから調べたらドンピシャのがあったので、メモ。  
 
 TargetNullValueプロパティを以下のように書くことで、空文字のときにnullがプロパティに渡ってくるようになります。
+TargetNullValueはこの値が来たらnullとして扱うことを設定するためのプロパティの模様。  
 
 ``` XML
 <TextBox Text="{Binding Path=NumberInput, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}" />
 ```
-
-TargetNullValueはこの値が来たらnullとして扱うことを設定するためのプロパティの模様。  
 
 ---
 
