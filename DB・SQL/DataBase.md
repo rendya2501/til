@@ -15,9 +15,8 @@ A 1対多 中間 多対1 B
 
 ## 正規化
 
-<https://www.momoyama-usagi.com/entry/info-database-seikika>  
-[うさぎでもわかる](https://rikulogger.com/db/nomalization/)  
-[](https://rikulogger.com/db/nomalization/)
+[うさぎでもわかる](https://www.momoyama-usagi.com/entry/info-database-seikika)  
+[[DataBase]で行う正規化の手順についてわかりやすく解説します](https://rikulogger.com/db/nomalization/)
 
 **正規化**  
 データとかを使いやすいように整理したり変形したりすること  

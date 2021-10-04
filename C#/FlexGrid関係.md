@@ -172,6 +172,7 @@ public class RowHeaderNumberingCellFactory : CellFactory
         <i:Interaction.Behaviors>
             <behavior:C1FlexGridMouseRightButtonDownToSelectRowBehavior />
         </i:Interaction.Behaviors>
+        <!-- チェックアウトで実装されていたバージョン -->
         <ctrl:CustomFlexGrid.ContextMenu>
             <ContextMenu>
                 <MenuItem Command="{Binding ShowPlayerDialogCommand}" Header="プレーヤー詳細を表示" />
@@ -182,6 +183,7 @@ public class RowHeaderNumberingCellFactory : CellFactory
                     HeaderStringFormat="{}{0:N0} 行目を削除" />
             </ContextMenu>
         </ctrl:CustomFlexGrid.ContextMenu>
+        <!-- ConverterParameterを指定することでXAML上で1行目から始めることができる -->
         <ctrl:CustomFlexGrid.ContextMenu>
             <ContextMenu>
                 <MenuItem
@@ -192,7 +194,7 @@ public class RowHeaderNumberingCellFactory : CellFactory
             </ContextMenu>
         </ctrl:CustomFlexGrid.ContextMenu>
         <!-- 親をたどってSelectedIndexの値を使うタイプ -->
-        <!-- 行けたと思ったんだけど、 -->
+        <!-- 行けたと思ったんだけど、起動する時にエラーになる。どうやら親が生成されていない状況が発生してしまう模様。 -->
         <ctrl:CustomFlexGrid.ContextMenu>
             <ContextMenu>
                 <MenuItem

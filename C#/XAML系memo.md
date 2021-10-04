@@ -11,11 +11,20 @@
 
 ## x:Typeのありなしの違い
 
+東さん的には文字列として認識させるか、型情報として認識させるかの違いって言っていた気がする。  
+
 [when to use {x:Type …}?](https://stackoverflow.com/questions/11167536/when-to-use-xtype)  
 
-x:Type マークアップ拡張機能には、C# の typeof() 演算子や Microsoft Visual Basic の GetType 演算子に似た関数があります。
+効果に違いはありません。どちらの場合もTargetTypeプロパティはtypeof(Border)に設定されます。  
+最初のバージョン{x:Type Border}は、WPFの最初のバージョンで必要とされたもので、  
+コンパイラが文字列をTypeオブジェクトに変換するためにTypeConverterクラスを使用せず、  
+それを行うためにTypeExtensionクラスを指定する必要があったためです。  
 
-x:Type マークアップ拡張機能は、Type 型を受け取るプロパティに対して、文字列変換動作を提供します。
+これを考えれば、今は文字列での指定もできるようになったということか。  
+まぁ、単純な文字列としてよりは型として認識してもらったほうがより厳密でいいだろうから、そうしてるって程度だろうな。  
+
+x:Type マークアップ拡張機能には、C# の typeof() 演算子や Microsoft Visual Basic の GetType 演算子に似た関数があります。  
+x:Type マークアップ拡張機能は、Type 型を受け取るプロパティに対して、文字列変換動作を提供します。  
 
 ---
 
@@ -863,3 +872,35 @@ C# wpf dependencyobject getonly bind
 
 C1MultiSelectコントロールの選択項目のバインド方法がわからなくて調べた。  
 そもそもget onlyプロパティをバインドする方法って単純にget onlyにすればいいだけじゃないかと思った。  
+
+---
+
+## 虫眼鏡アイコンをセットしたボタンの実装方法
+
+何のことはない。ただのボタンでスタイルは共通で定義されているものを使っているだけ。  
+
+``` XML : Front.DutchTreat.Views.EditWindow.xaml
+<Button : 
+    Command="{Binding ShowAttendeeListCommand}"
+    IsTabStop="False"
+    Style="{StaticResource SearchButton}" />
+```
+
+``` XML : Common\Resource\DesignResourceDictionary.xaml
+<Style
+    x:Key="SearchButton"
+    BasedOn="{StaticResource {x:Type Button}}"
+    TargetType="{x:Type Button}">
+    <Setter Property="ContentTemplate">
+        <Setter.Value>
+            <DataTemplate>
+                <Image Source="{StaticResource Black_Search_24}" Stretch="None" />
+            </DataTemplate>
+        </Setter.Value>
+    </Setter>
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="Height" Value="30" />
+    <Setter Property="Width" Value="30" />
+</Style>
+```
