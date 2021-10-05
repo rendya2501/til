@@ -6,11 +6,15 @@
 画面にエラー状態は表示したくないけど、警告は出したい場合があったのでその備忘録。  
 
 ``` C#
+// 最小値、最大値、エラーメッセージ
 [Range(1, int.MaxValue, ErrorMessage = "At least one item needs to be selected")]
-public int ItemCount
-{
-    get => Items != null ? Items.Length : 0;
-}
+// GetOnlyの省略形の書き方
+public int ItemCount => Items != null ? Items.Length : 0;
+
+// boolの判定もいける
+// こっちは型の指定、最小値、最大値、エラーメッセージ
+[Range(typeof(bool), "true", "true", ErrorMessage = "残高は0で保存してください。")]
+public bool IsZeroBalanceAmount => BalanceAmount == 0;
 ```
 
 ---
@@ -235,15 +239,6 @@ Box化解除(Unboxing)はポインタの参照先から値を取り出してス�
 
 ---
 
-## abstractとinterfaceの棲み分け
-
-interfaceは外部向け。abstractは内部向け。  
-interfaceはpublicしか記述できない。  
-abstractはprotectedが使える。  
-なので、外部に公開するわけでは無い処理において、実装を強制する際に用いるといいかも。  
-
----
-
 ## 親クラスの全プロパティの値を子クラスにコピーする方法
 
 <https://qiita.com/microwavePC/items/54f0082f3d76922a6259>  
@@ -342,23 +337,6 @@ private Fuga(Action<int> action){
     action(1);
 }
 ```
-
----
-
-## ObservableCollection
-
-[【WPF】ItemsSourceにObservableCollectionを選ぶのはなぜ](https://itwebmemory.com/itemssource-observablecollection-explanation)  
-なんとなく使ってはいるが、なぜ使うのか、どういうものなのかずっとわからなかったのでまとめることにした。  
-
-``` txt
-項目が追加または削除されたとき、あるいはリスト全体が更新されたときに通知を行う動的なデータ コレクションを表します。
-https://docs.microsoft.com/ja-jp/dotnet/api/system.collections.objectmodel.observablecollection-1?view=netcore-3.1
-```
-
-ざっくりいうと、INotifyPropertyChangedを実装したリストっぽい。  
-正確には、INotifyCollectionChangedインターフェイスを実装したデータコレクションの組み込み実装クラス。  
-というわけで、View側からの項目の追加、削除、内容の変更を観測できるし、ViewModel側からView側へ逆に反映させることができるわけだ。  
-だから、項目の追加や削除が必要な場合には、ObservableCollectionを採用するというわけね。  
 
 ---
 
@@ -631,71 +609,6 @@ private void DataPropertyChanged(object sender, PropertyChangedEventArgs e)
     /// テストメソッド2
     /// </summary>
     static void Test2() => Console.WriteLine("test2");
-```
-
----
-
-## コールバックサンプル
-
-``` C#
-// Form側
-private void EditFormModel_Inquire(string message, Action yesAction, Action noAction)
-{
-   var dialogResult = MessageBox.Show(
-       message,
-       "確認",
-       MessageBoxButtons.YesNo, MessageBoxIcon.Question
-    );
-   switch (dialogResult)
-   {
-       case DialogResult.Yes:
-           yesAction();
-           break;
-       case DialogResult.No:
-           noAction();
-           break;
-       case DialogResult.None:
-       case DialogResult.Abort:
-       case DialogResult.Retry:
-       case DialogResult.Ignore:
-       case DialogResult.OK:
-       case DialogResult.Cancel:
-       default:
-           break;
-   }
-}
-
-// MODEL側
-this.OnInquire(
-   "保存処理を実行しますか？",
-   () =>
-   {
-       try
-       {
-           var result = new ServiceClient.EditServiceClient().Save(this._Data);
-       }
-       catch (Exception ee)
-       {
-           MessageBox.Show(ee.Message, "エラー", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-           this.OnStatusMessage("保存に失敗しました。");
-           return;
-       }
-       //オプションで編集が有効の場合、編集モードにする
-       var tmpOptionMode = true;
-       if (tmpOptionMode)
-       {
-           //編集モード
-           this.SerachBankBranch();
-       }
-       else
-       {
-           //初期化モード
-           this.Initialize();
-       }
-       this.OnStatusMessage("データを保存しました。");
-   },
-   () => {}
-);
 ```
 
 ---

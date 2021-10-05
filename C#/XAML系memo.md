@@ -904,3 +904,48 @@ C1MultiSelectコントロールの選択項目のバインド方法がわから�
     <Setter Property="Width" Value="30" />
 </Style>
 ```
+
+---
+
+## 自分自身のItemsSourceのCountをXAML上で使用する方法
+
+自分自身の要素が1件も無かったらDataTriggerでEnableをFalseにしたくて調べた。  
+やっぱりそれなりに需要はあるみたいで、実現できたのでまとめる。  
+
+[Bind Count of ItemsSource of an ItemsControl in a TextBlock using WPF](https://stackoverflow.com/questions/39482829/bind-count-of-itemssource-of-an-itemscontrol-in-a-textblock-using-wpf)  
+
+``` XML : Wpf.Front.DutchTreat.Views.EditWindow.xaml
+<c1:C1MultiSelect.Style>
+    <Style TargetType="{x:Type c1:C1MultiSelect}">
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type metro:MetroWindow}}, Path=DataContext.CanEditDutchTreat, Mode=OneWay}" Value="false">
+                <Setter Property="IsEnabled" Value="False" />
+            </DataTrigger>
+            <!-- C1MultiSelectは内部にItemsプロパティがあって、ItemsのクラスにはCountがある -->
+            <!-- それをRelativeSource Selfを指定することでアクセスできるようになる模様 -->
+            <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=Items.Count}" Value="0">
+                <Setter Property="IsEnabled" Value="False" />
+            </DataTrigger>
+        </Style.Triggers>
+        <Setter Property="IsEnabled" Value="true" />
+    </Style>
+</c1:C1MultiSelect.Style>
+```
+
+---
+
+## 左右に分けて配置するテク
+
+``` XML
+    <Grid Grid.Row="1">
+        <!-- 左のまとまり -->
+        <StackPanel HorizontalAlignment="Left" Orientation="Horizontal">
+            <!-- 内容 -->
+        </StackPanel>
+        
+        <!-- 右のまとまり -->
+        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+            <!-- 内容 -->
+        </StackPanel>
+    </Grid>
+```
