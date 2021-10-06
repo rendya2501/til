@@ -929,7 +929,7 @@ C1MultiSelectのカスタムコントロールが全然できないので、そ�
 
 ---
 
-## XAMLでBoolを反転するには?
+## XAMLでBoolを反転するには？
 
 [bool を反転して Binding したかっただけなんだ](https://usagi.hatenablog.jp/entry/2018/12/05/211311)  
 
@@ -1028,6 +1028,8 @@ C1MultiSelectコントロールの選択項目のバインド方法がわから�
         </StackPanel>
     </Grid>
 ```
+
+---
 
 ## RelativeSource
 
