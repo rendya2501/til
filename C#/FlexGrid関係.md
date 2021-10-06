@@ -206,3 +206,42 @@ public class RowHeaderNumberingCellFactory : CellFactory
         </ctrl:CustomFlexGrid.ContextMenu>
 
 ```
+
+---
+
+## XAML上でソートをクリアする命令を実行する方法
+
+2021/10/06 Fri  
+最近、ViewModelからコントロールのメソッドを実行する方法を見つけたので、  
+「伝票一括入力でやってるソートをクリアするだけのトリガーアクションあるじゃん。あれ、これで実現できないか？」と思ってやったら行けたのでまとめる。  
+
+``` XML : Front.SlipBulkInput.Views.EditWindow.xaml
+ <i:Interaction.Triggers>
+    <l:InteractionMessageTrigger MessageKey="FlexGridClearSortAction" Messenger="{Binding Messenger}">
+        <!-- CallMethodActionの存在を知らなかった時は、わざわざTriggerActionを定義してそれを叩いていた。しかも1行しかない。 -->
+        <!--<localaction:C1FlexGridClearSortAction />-->
+
+        <!-- TargetObjectを適切に指定することで、そのオブジェクトに属するメソッドを呼び出すことができる。 -->
+        <!-- TriggerActionに記述していた1行だけの命令はこれで実行できる。 -->
+        <i:CallMethodAction MethodName="Clear" TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ctrl:CustomFlexGrid}}, Path=CollectionView.SortDescriptions}" />
+    </l:InteractionMessageTrigger>
+</i:Interaction.Triggers>
+```
+
+``` C#
+    /// <summary>
+    /// C1FlexGridのソートを解除するトリガーアクション
+    /// </summary>
+    public class C1FlexGridClearSortAction : TriggerAction<C1FlexGrid>
+    {
+        /// <summary>
+        /// 入力モードにします。
+        /// </summary>
+        /// <param name="parameter"></param>
+        protected override void Invoke(object parameter)
+        {
+            // FlexGridのソートを解除します。
+            AssociatedObject.CollectionView.SortDescriptions.Clear();
+        }
+    }
+```

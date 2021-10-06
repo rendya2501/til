@@ -41,6 +41,8 @@ x:Type マークアップ拡張機能は、Type 型を受け取るプロパテ�
 てか、複数選択されるんだからSelectedItemsのプロパティくらい登録しておけって思うんだけどな。  
 
 Trigger関係はPrismの機能らしい。  
+[EventToCommandを使って、ViewModelへEventArgs渡す](https://qiita.com/takanemu/items/efbe7ab1b1272251720a)  
+[WPFのMVVMでイベントを処理する方法いろいろ](https://whitedog0215.hatenablog.jp/entry/2020/03/15/173935)  
 
 ``` XML
 <!-- i:Interaction.Triggers、i:EventTrigge、i:InvokeCommandActionの順に設定する -->
@@ -67,25 +69,18 @@ PassEventArgsToCommandはEventArgsをViewModelに渡してくれるオプショ�
 
 ## ViewModelからコントロールのメソッドを実行する方法
 
+C1MultiSelectコントロールの実装中において、選択状態を初期化をしたいなーって時にUnselectAllというメソッドが用意されているのは分かったので、  
+それを直接呼び出せないか調べていたら、CallMethodActionという、まさしくな仕組みがあったのでまとめ。  
 [ビューモデルからビューのメソッドを呼ぶ](https://qiita.com/tera1707/items/d184c85d0c181e6563ea)
-CallMethodActionという、まさしくな仕組みがあったのでまとめ。  
 
 ``` XML : View
 <i:Interaction.Triggers>
     <l:InteractionMessageTrigger MessageKey="SubjectLargeTypeListUnselectAll" Messenger="{Binding Messenger}">
+        <!-- C1MultiSelectというコントロールにはUnselectAllという選択状態を全て解除するメソッドが用意されており、それをXAML上から直接呼び出せる -->
+        <!-- 呼び出しはいつものアレ→Messenger.Raise(new InteractionMessage("SubjectLargeTypeListUnselectAll")); -->
         <i:CallMethodAction MethodName="UnselectAll" />
     </l:InteractionMessageTrigger>
 </i:Interaction.Triggers>
-```
-
-``` C# : ViewModel
-    /// <summary>
-    /// 科目大区分一覧の選択をすべて解除します。
-    /// </summary>
-    private void SubjectLargeTypeListUnselectAll()
-    {
-        Messenger.Raise(new InteractionMessage("SubjectLargeTypeListUnselectAll"));
-    }
 ```
 
 ---
@@ -118,10 +113,8 @@ TargetNullValueはこの値が来たらnullとして扱うことを設定する�
 <DataGrid.CellStyle>
     <Style TargetType="DataGridCell">
         <Setter Property="BorderThickness" Value="0"/>
-        <!-- 
-            点線の枠→FocusVisualStyle : キーボードから操作した時にfocusが当たった時のスタイル
-            FocusVisualStyle に Value="{x:Null}"を設定すると消せる
-        -->
+        <!-- 点線の枠→FocusVisualStyle : キーボードから操作した時にfocusが当たった時のスタイル -->
+        <!-- FocusVisualStyle に Value="{x:Null}"を設定すると消せる -->
         <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
     </Style>
 </DataGrid.CellStyle>
@@ -853,6 +846,89 @@ OKボタンしかないタイプのもの。一番よく見かけるやつ。
 
 ---
 
+## TriggerActionに値を渡すサンプル
+
+2021/10/06 Wed  
+C1MultiSelectのカスタムコントロールが全然できないので、そもそも本当に選択状態を反映させることができるのか実験するために、TriggerAction方式でやってみることにした。  
+単純な値を渡すだけでもInteractionが必要だったので、ついでにまとめることにした。  
+ちなみに選択状態の反映はうまくいった。  
+
+``` C# : Front.DutchTreat.ViewModels.cs
+{
+    // 科目大区分の選択状態を反映させる
+    await Messenger.RaiseAsync(
+        new InteractionSetSelectedItemsOfSubjectLargeType(
+            "SetSelectedItemsOfSubjectLargeTypeAction",
+            SubjectLargeTypeList
+                .Where(w => settlementSet.SubjectLargeTypeCDList
+                    .Contains(w.SubjectLargeTypeCD))
+        )
+    );
+}
+```
+
+``` XML : Front.DutchTreat.Views.EditWindow.xaml
+    <i:Interaction.Triggers>
+        <l:InteractionMessageTrigger MessageKey="SetSelectedItemsOfSubjectLargeTypeAction" Messenger="{Binding Messenger}">
+            <localaction:SetSelectedItemsOfSubjectLargeTypeAction />
+        </l:InteractionMessageTrigger>
+    </i:Interaction.Triggers>
+```
+
+``` C# : Front.DutchTreat.Interaction.cs
+    /// <summary>
+    /// C1MultiSelectに選択状態を反映させるためのインタラクション
+    /// </summary>
+    public class InteractionSetSelectedItemsOfSubjectLargeType : InteractionMessage
+    {
+        /// <summary>
+        /// コンテキスト
+        /// </summary>
+        public IEnumerable<SubjectLargeTypeWithSubjectCDList> List { get; set; }
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        /// <param name="messageKey"></param>
+        public InteractionSetSelectedItemsOfSubjectLargeType(string messageKey) : base(messageKey) { }
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        /// <param name="messageKey"></param>
+        /// <param name="list"></param>
+        public InteractionSetSelectedItemsOfSubjectLargeType(string messageKey, IEnumerable<SubjectLargeTypeWithSubjectCDList> list) : this(messageKey) => List = list;
+        /// <summary>
+        /// 派生クラスでは必ずオーバーライドしてください。Freezableオブジェクトとして必要な実装です。
+        /// 通常このメソッドは、自身の新しいインスタンスを返すように実装します。
+        /// </summary>
+        /// <returns>自身の新しいインスタンス</returns>
+        protected override Freezable CreateInstanceCore() => new InteractionSetSelectedItemsOfSubjectLargeType(MessageKey, List);
+    }
+```
+
+``` C# : Front.DutchTreat.TriggerAction.cs
+    /// <summary>
+    /// C1MultiSelectに選択状態を反映させるためのアクション
+    /// </summary>
+    public class SetSelectedItemsOfSubjectLargeTypeAction : TriggerAction<C1MultiSelect>
+    {
+        /// <summary>
+        /// 選択状態を反映させます。
+        /// </summary>
+        /// <param name="parameter"></param>
+        protected override void Invoke(object parameter)
+        {
+            if (parameter is InteractionSetSelectedItemsOfSubjectLargeType message)
+            {
+                // 値が重複したらエラーになるので念のため消してからセットする。
+                AssociatedObject.ListBox.SelectedItems.Clear();
+                foreach (var item in message.List) AssociatedObject.ListBox.SelectedItems.Add(item);
+            }
+        }
+    }
+```
+
+---
+
 ## XAMLでBoolを反転するには?
 
 [bool を反転して Binding したかっただけなんだ](https://usagi.hatenablog.jp/entry/2018/12/05/211311)  
@@ -911,6 +987,7 @@ C1MultiSelectコントロールの選択項目のバインド方法がわから�
 
 自分自身の要素が1件も無かったらDataTriggerでEnableをFalseにしたくて調べた。  
 やっぱりそれなりに需要はあるみたいで、実現できたのでまとめる。  
+ここら辺はRelativeSourceの話になってくるが、そっちでも1記事レベルなのでそれは別でまとめる。1  
 
 [Bind Count of ItemsSource of an ItemsControl in a TextBlock using WPF](https://stackoverflow.com/questions/39482829/bind-count-of-itemssource-of-an-itemscontrol-in-a-textblock-using-wpf)  
 
@@ -936,6 +1013,8 @@ C1MultiSelectコントロールの選択項目のバインド方法がわから�
 
 ## 左右に分けて配置するテク
 
+結構需要はあるのだが、毎回忘れるのでメモすることにした。  
+
 ``` XML
     <Grid Grid.Row="1">
         <!-- 左のまとまり -->
@@ -949,3 +1028,17 @@ C1MultiSelectコントロールの選択項目のバインド方法がわから�
         </StackPanel>
     </Grid>
 ```
+
+## RelativeSource
+
+[WPFのRelativeSourceのはなし](https://hidari-lab.hatenablog.com/entry/wpf_relativesource_self_and_findancestor)  
+
+---
+
+## 純正のWPFでコマンドを実装する方法
+
+こっちがおすすめ。  
+[MVVM:とにかく適当なICommandを実装したい時のサンプル](https://running-cs.hatenablog.com/entry/2016/09/03/211015)  
+
+まったくおすすめしないが、ライブラリ使わないとここまで大変というサンプル  
+[WPFのMVVMでコマンドをバインディングする利点](https://takamints.hatenablog.jp/entry/why-using-commands-in-wpf-mvvm)  

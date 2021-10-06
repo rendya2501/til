@@ -96,3 +96,7 @@ ROLLBACK TRANSACTION
 	スクリプトを作成するデータの種類をデータのみに設定
 ・クリップボードにコピーか新しいクエリウィンドウに保存
 ・次へを押していけば完了
+
+---
+
+[SQL Serverチートシート](https://qiita.com/esflat/items/7885e53737163eb955fe)  
