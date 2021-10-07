@@ -1,7 +1,5 @@
 # SQL基本
 
----
-
 ## INSERT
 
 <https://itsakura.com/sql-insert>  
@@ -142,4 +140,152 @@ WHERE User.UserId = 1
 
 ```sql
 Truncate table テーブル名;
+```
+
+---
+
+## union について
+
+``` SQL
+SELECT 1 AS NUM
+UNION
+SELECT 2 AS NUM;
+```
+
+union系は出力テーブルの構造が同じでないといけない。  
+union は重複チェックする。  
+union all は重複チェックしない。  
+なので、速度的にはunion all のほうが早い。  
+
+---
+
+## LIKE句
+
+基本情報技術者過去問題 平成31年春期 午後問3より。  
+
+LIKE句は、指定したパターンと文字列比較を行うための演算子で、次の特殊記号を用いて文字列のパターンを指定します。  
+・`_` … 任意の1文字  
+・`%` … 0文字以上の任意の文字列  
+
+`_`が任意の1文字だとは知らなかった。  
+つまり、普段よく使っている`LIKE '%○○%'`は、どこでもいいから○○があるかどうかを調べているってわけか。  
+
+エ : `= '201%'`  
+を選択したけど、ワイルドカードを使用した文字列は、LIKE句と同時に使用しなければ効果を生じません。年度が"201%"の行は存在しませんので結果は0行になります。  
+との事。  
+
+---
+
+## COUNT(*)の意味とNULLのCOUNT
+
+[COUNT(*)　が何を意味しているのかわからない](https://ja.stackoverflow.com/questions/42915/count-%E3%81%8C%E4%BD%95%E3%82%92%E6%84%8F%E5%91%B3%E3%81%97%E3%81%A6%E3%81%84%E3%82%8B%E3%81%AE%E3%81%8B%E3%82%8F%E3%81%8B%E3%82%89%E3%81%AA%E3%81%84)  
+→  
+**COUNT(*)は行数を数えてくれる**  
+COUNT()は、行数を数えて出力する集計関数です。→平成27年秋期 午後問3の解説より  
+
+``` txt
+OracleではCOUNT(*)とCOUNT(age)の結果は異なります。
+ageにnullが入っているとCOUNT(age)では件数にカウントされません。
+グループ化していても同様で、ageがnullのグループのみ0件となります。
+COUNT(*)ではageにnullが入っていてもレコードの件数をカウントします。
+
+COUNT(*)ではレコードの内容を取得するため、COUNT('X')やSUM(1)を使った方が高速化できると教わったことがあります。(10年ほど前に聞いたノウハウなので現在も適用されるのかは不明ですが…)
+```
+
+なるほど。COUNTはNULLはカウントしないのね。  
+動作的にCOUNT(name)見たいにフィールド名を指定したほうが高速化できるっぽいけど、単純にレコード数を取得したいならCOUNT(*)でいいのか。  
+
+## ANY句
+
+平成27年秋午後のデータベースより。  
+ANY句なんて見慣れない句が出てきたのでまとめた。
+
+最初はIN句と何が違うのかわからなかったが、副問い合わせの結果を条件として使うことができることがわかった。  
+わかれば以外に便利そう。  
+まぁ、使ったことないんだけどね。  
+
+[ANY(SOME)句を用いた副問合せ](https://www.sql-reference.com/select/subquery_any.html)  
+例としてANY句を使用して受注テーブルからレコードを抽出します．  
+
+``` txt : 受注テーブル
+注文番号,商品コード,受注個数
+01-101,A001,100
+01-102,A002,200
+01-103,B001,300
+01-104,B002,400
+02-101,A001,150
+02-102,A002,350
+```
+
+``` SQL
+SELECT * FROM 受注
+WHERE 受注個数 > ANY (
+    SELECT 受注個数
+    FROM 受注
+    WHERE 商品コード = 'A002' (
+)
+```
+
+``` txt 結果
+注文番号,商品コード,受注個数
+01-103,B001,300
+01-104,B002,400
+02-102,A002,350
+```
+
+---
+
+## 相関副問合せ(相関サブクエリ)
+
+<https://atmarkit.itmedia.co.jp/ait/articles/1703/01/news187.html>  
+副問合せの文中で、副問合せの外側の属性（検索結果）を利用して検索している問合せを、相関副問合せと呼びます。  
+一般的には、パフォーマンスは悪くなる見たい。  
+
+``` SQL
+SELECT 社員番号,社員名 FROM 社員 AS S1
+WHERE 生年月日 > (SELECT MIN(生年月日) FROM 社員 AS S2 WHERE S1.性別 = S2.性別)
+-- サブクエリ中でメインクエリのS1テーブルを参照している。
+
+-- EXISTSを使えば自動的に相関副問い合わせになる。
+SELECT * FROM USER_MASTER A
+WHERE EXISTS (SELECT * FROM AUTHORIZATION B WHERE A.USER_ID = B.USER_ID )
+```
+
+処理の流れ  
+（1）外側のSELECT文を1行分だけ実行  
+（2）取り出した表を副問合せに代入して実行  
+（3）外側のSELECT文における、1行目のWHERE句の判定を行う  
+
+---
+
+## SQLの結合条件のON句の順番について
+
+<https://detail.chiebukuro.yahoo.co.jp/qa/question_detail/q11166323581>  
+
+SQLのLEFT JOIN とかのONの順番は関係無いらしい。  
+地味に知らなかったので、メモ。  
+
+---
+
+## CROSS JOIN+WHERE と INNER JOIN
+
+<https://qiita.com/zaburo/items/548b3c40fee68cd1e3b7>  
+<https://stackoverflow.com/questions/17759687/cross-join-vs-inner-join-in-sql>  
+
+CROSS JOIN して WHERE で絞る方法(等価結合)とINNER JOINの結果は同じらしい。(厳密には内部処理的には違うらしいが)  
+まぁ、CROSS JOINしてWHEREで絞るくらいなら素直にINNER JOIN使えって話。  
+RN2.23では結構そういうことしてて、どういう挙動をするのかわからなかったのでやってみた。  
+
+``` SQL
+-- どちらも結果は同じになる
+
+-- CROSS JOIN + WHERE
+SELECT depts.dept_name,employees.name
+FROM depts,employees
+WHERE depts.dept_id = employees.dept_id;
+
+-- INNER JOIN
+SELECT depts.dept_name,employees.name
+FROM depts INNER JOIN employees
+WHERE depts.dept_id = employees.dept_id;
 ```
