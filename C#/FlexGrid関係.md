@@ -228,20 +228,16 @@ public class RowHeaderNumberingCellFactory : CellFactory
 </i:Interaction.Triggers>
 ```
 
-``` C#
+``` C# : Front.SlipBulkInput.TriggerAction.C1FlexGridClearSortAction.cs
     /// <summary>
     /// C1FlexGridのソートを解除するトリガーアクション
     /// </summary>
     public class C1FlexGridClearSortAction : TriggerAction<C1FlexGrid>
     {
         /// <summary>
-        /// 入力モードにします。
+        ///  FlexGridのソートを解除します。
         /// </summary>
         /// <param name="parameter"></param>
-        protected override void Invoke(object parameter)
-        {
-            // FlexGridのソートを解除します。
-            AssociatedObject.CollectionView.SortDescriptions.Clear();
-        }
+        protected override void Invoke(object parameter) => AssociatedObject.CollectionView.SortDescriptions.Clear();
     }
 ```

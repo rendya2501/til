@@ -51,8 +51,22 @@ C1MultiSelectコントロールの実装中において、選択状態を初期�
         <!-- C1MultiSelectというコントロールにはUnselectAllという選択状態を全て解除するメソッドが用意されており、それをXAML上から直接呼び出せる -->
         <!-- 呼び出しはいつものアレ→Messenger.Raise(new InteractionMessage("SubjectLargeTypeListUnselectAll")); -->
         <i:CallMethodAction MethodName="UnselectAll" />
+
+        <!-- FlexGrid関連にもまとめたが、自分自身のプロパティが持つメソッドをたどって実行させることもできる -->
+        <i:CallMethodAction MethodName="Clear" TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ctrl:CustomFlexGrid}}, Path=CollectionView.SortDescriptions}" />
     </l:InteractionMessageTrigger>
 </i:Interaction.Triggers>
+```
+
+CallMethodActionはWPF側が用意しているものらしい。  
+当然の如く、LivetにもLivetCallMethodActionなるものが用意されているので、機会があったらこっちも使うかも。  
+こっちは簡単な引数も渡せる模様。  
+
+``` XML
+<l:LivetCallMethodAction
+    MethodName="Add"
+    MethodParameter="{Binding SelectedIndex}"
+    MethodTarget="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type c1:C1MultiSelect}}, Path=ListBox.SelectedItems}" />
 ```
 
 ---
@@ -942,11 +956,9 @@ Enumのメンバーを任意の文字列に変換するため業務中に作っ�
             {
                 FieldInfo field = value?.GetType().GetField(value?.ToString());
                 DisplayAttribute attr = field.GetCustomAttribute<DisplayAttribute>();
-                if (attr != null)
-                {
-                    return attr.Name;
-                }
-                return value.ToString();
+                return attr != null
+                    ? attr.Name
+                    : value.ToString();
             }
             catch
             {
@@ -954,17 +966,14 @@ Enumのメンバーを任意の文字列に変換するため業務中に作っ�
             }
         }
         /// <summary>
-        /// 
+        /// 使わない
         /// </summary>
         /// <param name="value"></param>
         /// <param name="targetType"></param>
         /// <param name="parameter"></param>
         /// <param name="culture"></param>
         /// <returns></returns>
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
     }
 }
 ```
@@ -998,9 +1007,7 @@ Enumのメンバーを任意の文字列に変換するため業務中に作っ�
     Width="65"
     HorizontalAlignment="Left"
     VerticalAlignment="Center"
-    Binding="{Binding TaxationType,
-              Converter={StaticResource EnumToStringConverter},
-              Mode=OneWay}"
+    Binding="{Binding TaxationType, Converter={StaticResource EnumToStringConverter}, Mode=OneWay}"
     ColumnName="TaxationTypeName"
     Header="課税"
     HeaderHorizontalAlignment="Center"
