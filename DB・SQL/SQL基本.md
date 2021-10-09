@@ -136,14 +136,6 @@ WHERE User.UserId = 1
 
 ---
 
-## Truncate
-
-```sql
-Truncate table テーブル名;
-```
-
----
-
 ## union について
 
 ``` SQL
@@ -289,3 +281,63 @@ SELECT depts.dept_name,employees.name
 FROM depts INNER JOIN employees
 WHERE depts.dept_id = employees.dept_id;
 ```
+
+---
+
+## COUNT(*)とCOUNT(カラム名)の違い
+
+基本情報27年春の問題にて遭遇。  
+なんだかんだわかってなかったのでまとめ。  
+
+[【SQL】COUNT(*)とCOUNT(カラム名)の違い](https://qiita.com/TomoProg/items/5ba5779b3015ac02f577)  
+すげードンピシャな記事があった。  
+正直会社では恥ずかしくて聞けない内容だな。  
+
+・COUNT(*)はNULL値かどうかに関係なく、取得された行の数を返す  
+・COUNT(カラム名)はNULL値でない値の行数を返す  
+
+``` txt
++----+--------+-------+
+| id | name   | price |
++----+--------+-------+
+|  1 | apple  |   100 |
+|  2 | banana |   120 |
+|  3 | grape  |   140 |
+|  4 | melon  |  NULL |
+|  5 | kiwi   |   120 |
++----+--------+-------+
+```
+
+select count(*) from shohin; → 5  
+select count(price) from shohin; → 4  
+
+---
+
+## COUNT句内でDISTINCTを使う
+
+これも基本情報27年春の問題にて遭遇。  
+
+[SQL | COUNT(DISTINCT column_name) は「同じ値の種類数」をカウントする](https://qiita.com/YumaInaura/items/1a1123ed4f33d30d9548)  
+初歩だって。トホホ・・・。  
+[COUNT句内でDISTINCTを使う／重複を排除したカウント](https://nyoe3.hatenadiary.org/entry/20100313/1268468670)  
+
+つまり、重複行を除いたカウントをしたい場合に有効な構文というわけだ。  
+そうなると次はDISTINCTとはどこまで含めることができるのか気になってきたぞ。  
+
+``` txt
++-------+--------+-------+
+| name  | sex    | score |
++-------+--------+-------+
+| Alice | female |    60 |
+| Bob   | male   |    70 |
+| Carol | female |    70 |
+| David | male   |    80 |
+| Eric  | male   |    80 |
++-------+--------+-------+
+```
+
+sex には male / famale の二種類がある。  
+SELECT COUNT(DISTINCT(sex)) AS sex_kind FROM scores; → 2  
+
+score には 60点 / 70点 / 80点の三種類がある。  
+SELECT COUNT(DISTINCT(score)) AS score_kind FROM scores; → 3  

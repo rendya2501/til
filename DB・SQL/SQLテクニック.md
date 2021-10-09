@@ -1,4 +1,4 @@
-# SQLテクニックメモ
+# SQLテクニック
 
 ## 横縦変換 : CROSS APPLY
 
