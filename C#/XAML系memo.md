@@ -431,6 +431,8 @@ xaml resourcedictionary コード 参照
     </Grid>
 ```
 
+interactionTriggerにKeyTriggerなるものもあるので、そっちも場合によっては使えるかも。
+
 ---
 
 ## 幅いっぱいのやつと中央のやつの違い
@@ -945,11 +947,6 @@ Enumのメンバーを任意の文字列に変換するため業務中に作っ�
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="value"></param>
-        /// <param name="targetType"></param>
-        /// <param name="parameter"></param>
-        /// <param name="culture"></param>
-        /// <returns></returns>
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             try
@@ -968,11 +965,6 @@ Enumのメンバーを任意の文字列に変換するため業務中に作っ�
         /// <summary>
         /// 使わない
         /// </summary>
-        /// <param name="value"></param>
-        /// <param name="targetType"></param>
-        /// <param name="parameter"></param>
-        /// <param name="culture"></param>
-        /// <returns></returns>
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
     }
 }
