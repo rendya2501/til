@@ -8,14 +8,20 @@
 -- ●INSERT文 (列名を書かない)  
 INSERT INTO テーブル名 VALUES ( ‘値1′ [ , ‘値2’ ]・・・);
 
-
 -- ●INSERT文 (列名を書く)
 INSERT INTO テーブル名 ( テーブルの列名1 [ , テーブルの列名2 ]・・・) VALUES ( ‘値1′ [ , ‘値2’ ]・・・);
-
 
 -- ●INSERT文 (select文の結果をinsertする)
 INSERT INTO テーブル名 SELECT 項目名 FROM テーブル名
 INSERT INTO syain1 ( id, name ) SELECT id, name FROM syain2
+
+-- SELECTした結果をINSERTできたよなぁーと思ってやったら一発で行けたので備忘録として載せておく。
+INSERT INTO Round3SysC3.dbo.TSm_ReportFileSetting
+(WindowName,TemplateName,ReportName,ValidFlag,Sort,ApiUri,Remarks)
+SELECT WindowName,TemplateName,ReportName,ValidFlag,Sort,ApiUri,Remarks
+FROM Round3Sys_Test.dbo.TSm_ReportFileSetting
+WHERE WindowName = 'RN3.Wpf.Front.CheckOut.Views.CheckOutWindow'
+AND TemplateName = 'RN3.Wpf.Front.CheckOut.SettlementH.rdlx'
 ```
 
 ---
@@ -187,6 +193,8 @@ COUNT(*)ではレコードの内容を取得するため、COUNT('X')やSUM(1)�
 なるほど。COUNTはNULLはカウントしないのね。  
 動作的にCOUNT(name)見たいにフィールド名を指定したほうが高速化できるっぽいけど、単純にレコード数を取得したいならCOUNT(*)でいいのか。  
 
+---
+
 ## ANY句
 
 平成27年秋午後のデータベースより。  
@@ -341,3 +349,25 @@ SELECT COUNT(DISTINCT(sex)) AS sex_kind FROM scores; → 2
 
 score には 60点 / 70点 / 80点の三種類がある。  
 SELECT COUNT(DISTINCT(score)) AS score_kind FROM scores; → 3  
+
+こんな感じでも書ける  
+SELECT COUNT(*),COUNT(DISTINCT(sex)) AS sex_kind FROM scores; → 5,2  
+
+---
+
+## NULLのLIKE検索
+
+LIKE検索には引っかからない。  
+NULLを検索したかったからISNULLを使うこと。  
+
+## NULLのORDERBY
+
+[NULLと戯れる: ORDER BYとNULL](https://qiita.com/SVC34/items/c23341c79325a0a95979)  
+どうにも、NULLを最小値とするか最大値とするかは、RDBMS毎に違ったり、設定で変更出来たりするみたい。  
+Oracleは最大値扱いだが、SQLServerは最小値扱い見たい。  
+まぁ、どちらにせよ、先頭か末尾であることに違いはないということですね。  
+
+## NULLをキャスト
+
+(NULL AS CHAR)→NULLのまま
+NULL -1 = NULL

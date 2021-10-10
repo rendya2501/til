@@ -170,6 +170,35 @@ let badPlansName = this.gdoData.GDOGotPlanMasterInfoList
 
 ---
 
+## 時間の比較方法
+
+これまた色々文献があるので、とりあえず、手っ取り早い奴だけまとめる。
+
+``` js
+// ①日付で比較したい場合、setHoursで時間を0にしてミリ秒で比較する
+DateInstance.setHours(0,0,0,0) === DateInstance.setHours(0,0,0,0)
+
+// ②getTimeで比較する方法
+// ミリ秒単位で比較するので、厳密に同じであることを比較したい場合に用いる
+DateTime1.getTime() == DateTime2.getTime()
+
+```
+
+---
+
+## JavaScriptってなんでJavaってつくの？
+
+コラムです。  
+
+最初はLiveScriptって名前だったけど、この当時(1995年)はJavaが注目されており、その人気にあやかるためにJavaScriptに改名したんだとか？  
+それか開発元のネットスケープ社とJavaの開発元のサン・マイクロシステムズが提携していたからJavaScriptになったとか？  
+まぁ、諸説は諸々あるみたいだ。  
+
+[JavaScriptって、なんで名前に「Java」がつくのだろうか？](https://www.javalife.jp/2018/01/02/post-250/)  
+[JavaScriptはJavaとは全く違うのに、こんな似ている名前になったのはなぜですか？](https://jp.quora.com/JavaScript-ha-Java-to-ha-mattaku-chigau-no-ni-konna-ji-te-iru-namae-ni-na-tsu-ta-no-ha-naze-desu-ka)  
+
+---
+
 
 
 

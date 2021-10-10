@@ -24,6 +24,30 @@ MultiSelectComboBoxを実装するにあたって、C1MultiSelectとかXceedのC
 
 ---
 
+## オーバーロード
+
+引数の型の違いでは、オーバーロード出来ないと思ってたけど、普通に出来たわ。  
+わざわざまとめる必要はないだろうけど、一応ね。  
+
+``` C#
+public class Hello{
+    public static void Main(){
+       Print pri = new Print( ); //オブジェクト作成
+       pri.maisu( 5 ); //メソッド(1)呼び出し
+       pri.maisu( 'a' ); //メソッド(2)呼び出し
+    }
+}
+public class Print
+{
+    // メソッド(1)の処理
+    public void maisu( int a ) => System.Console.WriteLine(a);
+    // メソッド(2)の処理
+    public void maisu( char a ) => System.Console.WriteLine(a);
+}
+```
+
+---
+
 ## インデクサ(indexer)
 
 <https://ufcpp.net/study/csharp/oo_indexer.html#definition>  
