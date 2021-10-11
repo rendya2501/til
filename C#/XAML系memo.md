@@ -1005,3 +1005,98 @@ Enumのメンバーを任意の文字列に変換するため業務中に作っ�
     HeaderHorizontalAlignment="Center"
     HeaderVerticalAlignment="Center" />
 ```
+
+---
+
+## KeyValuePairConverter
+
+いつぞや、ディクショナリーの値をコンボボックスに配置するために作ったコンバーター。  
+うまくできたので置いておく。  
+
+``` C# : KeyValuePairConverter
+    /// <summary>
+    /// KeyValuePairのKeyをValueに変換するコンバーター
+    /// </summary>
+    public class KeyValuePairConverter : IValueConverter
+    {
+        /// <summary>
+        /// KeyValuePairのKeyをValueに変換します。
+        /// </summary>
+        /// <param name="value">バインディング ソースによって生成された値</param>
+        /// <param name="targetType">バインディング ターゲット プロパティの型</param>
+        /// <param name="parameter">使用するコンバーター パラメーター</param>
+        /// <param name="culture">コンバーターで使用するカルチャ</param>
+        /// <returns></returns>
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            // null判定
+            if (parameter == null) throw new Exception(string.Format(Message.Invalid, "値"));
+            // 型の判定とIListへ変換
+            if (!(parameter is IList list)) throw new Exception(string.Format(Message.Invalid, "型"));
+            // 要素をループ
+            foreach (var item in list)
+            {
+                // 値が一般的であることを確認
+                Type valueType = item.GetType();
+                if (valueType.IsGenericType)
+                {
+                    // ジェネリック型の定義を抽出
+                    Type baseType = valueType.GetGenericTypeDefinition();
+                    // KeyValuePair型の判定
+                    if (baseType == typeof(KeyValuePair<,>))
+                    {
+                        // KeyとValueの取得
+                        var kvpKey = valueType.GetProperty("Key")?.GetValue(item, null);
+                        var kvpValue = valueType.GetProperty("Value")?.GetValue(item, null);
+                        // Keyと引数valueの比較
+                        if (kvpKey?.Equals(value) ?? kvpKey == value)
+                        {
+                            return kvpValue;
+                        }
+                    }
+                }
+            }
+            // Keyに合致するものがなければnullを返却。
+            return null;
+        }
+
+        /// <summary>
+        /// OneWayでのBindingでしか使用しません。
+        /// </summary>
+        /// <param name="value">バインディング ソースによって生成された値</param>
+        /// <param name="targetType">バインディング ターゲット プロパティの型</param>
+        /// <param name="parameter">使用するコンバーター パラメーター</param>
+        /// <param name="culture">コンバーターで使用するカルチャ</param>
+        /// <returns></returns>
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+```
+
+---
+
+## DependencyProperyのSetterの値がNullになってしまう問題
+
+[Why does my Dependency Property send null to my view model?](https://stackoverflow.com/questions/38958177/why-does-my-dependency-property-send-null-to-my-view-model)  
+[MVVMのDataGridまたはListBoxからSelectedItemsにバインド](https://www.webdevqa.jp.net/ja/c%23/mvvm%E3%81%AEdatagrid%E3%81%BE%E3%81%9F%E3%81%AFlistbox%E3%81%8B%E3%82%89selecteditems%E3%81%AB%E3%83%90%E3%82%A4%E3%83%B3%E3%83%89/942024865/amp/)  
+
+MultiSelectComboBoxのSelectedItemsの2WayBindingを実装している時に出くわした問題。  
+コントロール側はIList,ViewModel側はIEnumerable<T>で実装していたのだが、コントロール側のSetterまでは値が入っているのに、ViewModelのSetterにはNullが入ってしまう現象に遭遇した。  
+コントロール側の型とViewModel側の型を合わせれば値は届くが、2Wayにしたい以上、コントロールはIList,ViewModelはIEnumerableで受け取りたい願望がある。  
+その線でいろいろ探してみたが、どうやら無理らしい。  
+
+XAMLはジェネリックのバインドをサポートしてないっぽい。  
+なので非ジェネリックIListとIListを同じ意味で使用はできない模様。  
+どのサンプルでもObservableCollectionを使っていたり、イベントやビヘイビアで実現している。  
+現状では、ジェネリックのバインディングは実現できない模様。  
+実質的には疑似的な2wayどまりで、ViewModelからの通知はOneWayになってしまうだろう。  
+
+対処法  
+1.コントロールの型とViewModelの型を合わせる→IListで受け取ってOfTypeで変換して使う。  
+2.ObservableCollectionのCollectionChangedイベントを観測する。  
+3.イベントやビヘイビアで観測する。  
+
+いろいろな実現方法もまとめておく  
+[ListBoxやDataGridなどのItemsControlでSelectedItemsやIsSelectedをBindingする](https://qiita.com/mkuwan/items/7372b4b602fdabc3358c)  
