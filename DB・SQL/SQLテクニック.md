@@ -152,6 +152,11 @@ GROUP BY SlipID
 -- ALP20200725001000018001431  ALP2020072500654,ALP2020072500654,ALP2020072500654,ALP2020072500654,ALP2020072500654,
 ```
 
+FOR XML PATHは指定したフィールドの要素をXMLタグで囲う動作をするらしい。  
+なので仮に`SELECT TOP 3 PlayerNo + ',' FROM TFr_Slip FOR xml path('a')`と書いた場合、  
+`<a>ALP202007250541,</a><a>ALP202007250541,</a><a>ALP202007250541,</a>`となる。  
+PATH('')とするのは、空白のタグで前後を囲う動作というわけだ。  
+
 [【MySQL】GROUP_CONCAT()を使ってみる](https://www.softel.co.jp/blogs/tech/archives/3154)  
 GROUP_CONCAT関数 : group byしたときに任意の列の値を連結させる関数。  
 mysql系独自の関数見たいなので、他では使えない。  
@@ -162,6 +167,25 @@ SELECT
     GROUP_CONCAT(PlayerNo,',') as PlayerNo
 FROM TFr_Slip
 GROUP BY SlipID
+```
+
+---
+
+## FOR XML PATH で文字列を結合した後に前後のつなぎ文字を削除していい感じにするサンプル
+
+2021/10/12 Tue  
+居林さんと編み出したサンプル。  
+`SELECT TOP 3 PlayerNo + ',' FROM TFr_Slip FOR xml path('')`だと`ALP202007250541,ALP202007250541,ALP202007250541,`となり、  
+最後にコロンがついてしまうので、消したいなってことでやった。  
+
+STUFF関数なるものを使うことで解決することができた。  
+`STUFF(置換対象文字列、開始位置、終了位置、置換文字)`  
+XML PATHのコロンの位置を先頭に持ってきて、先頭のコロンを消すことで実現した訳である。  
+
+``` SQL
+-- 置換対象,開始位置、終了位置、置換文字
+SELECT STUFF( (SELECT TOP 3 ',' + PlayerNo FROM TFr_Slip FOR xml path('')) , 1 , 1 , '')
+-- ALP202007250541,ALP202007250541,ALP202007250541
 ```
 
 ---
