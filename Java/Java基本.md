@@ -403,3 +403,9 @@ int i = 0x20BB7;
 String s3 = String.format("%c", i); // → "?"
 String s4 = Character.toString(i); // → "?"、Java 11より使用可能
 ```
+
+---
+
+## ジェネリック
+
+[総称型 (Generics type)とは？TとかEについて学ぶ！ Java初心者の勉強](https://programmer-life.work/java/generics-type)  

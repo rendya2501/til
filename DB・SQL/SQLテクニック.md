@@ -190,6 +190,47 @@ SELECT STUFF( (SELECT TOP 3 ',' + PlayerNo FROM TFr_Slip FOR xml path('')) , 1 ,
 
 ---
 
+## FOR XML PATH の TYPE .valueとは何か？
+
+for xml pathは、なんかインテリセンスが働かないけど、`,TYPE).value(,)`なるオプション？が使える模様。  
+結論からいうと、型を変換するための命令っぽい。  
+今回のサンプルに関しては別にそこまで厳密に型指定しなくても動く。  
+しかし、型の変換が必要な場合もあるのだろう。  
+
+``` SQL
+-- このSQLを実行しても上でやったSQLの結果と違うことはない。
+-- ALP202007250541,ALP202007250541,ALP202007250541
+SELECT STUFF(
+    (SELECT TOP 3 ',' + PlayerNo FROM TFr_Slip FOR xml path(''),TYPE).value('.', 'NVARCHAR(MAX)'),
+    1,
+    1,
+    ''
+)
+```
+
+[Please explain what does "for xml path(''), TYPE) .value('.', 'NVARCHAR(MAX)')" do in this code](https://dba.stackexchange.com/questions/207371/please-explain-what-does-for-xml-path-type-value-nvarcharmax)  
+
+私は人々が時々`, TYPE).value('.', 'NVARCHAR(MAX)')`のテクニックを使うのを省略しているのを見ます。  
+これに伴う問題は、一部の文字をXMLエンティティ参照（引用符など）でエスケープする必要があるため、その場合、結果の文字列が期待どおりにならないことです。  
+→  
+まぁ、やっておいて損はないということだな。  
+省略せず書くべし!!  
+
+[SQLServerで複数レコードの文字列を結合](http://icoctech.icoc.co.jp/blog/?p=998)  
+FOR XML句で出力した値はXML形式で出力されるため、他のフィールドとは扱いが異なりますので、value()メソッドを使い、通常のSQL型に変換します。  
+サブクエリを表す()の後に「.value(‘.’, ‘VARCHAR(MAX)’)」と記述しております。  
+value()メソッドの第一引数はXQuery式で、第二引数はSQL型となります。  
+第一引数の「'.'」はXQuery式「self::node()」の省略形、  
+第二引数では、ユーザー名を扱い、出力文字数の制限をしたくないので、VARCHAR(MAX)としており、  
+出力されたXML形式のデータからvalue値を取得するため、  
+属性が指定されていようが関係なく、「・アイチャン・ワークン」といったvalue値を取得し、  
+第二引数で指定されたVARCHARとして、SQL型の結果を返します。  
+
+[value() メソッド (xml データ型)](https://docs.microsoft.com/ja-jp/sql/t-sql/xml/value-method-xml-data-type?redirectedfrom=MSDN&view=sql-server-ver15)  
+意外と奥が深かった。  
+
+---
+
 ## 本日の日付
 
 ``` SQL
