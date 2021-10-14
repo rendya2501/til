@@ -409,3 +409,7 @@ String s4 = Character.toString(i); // → "?"、Java 11より使用可能
 ## ジェネリック
 
 [総称型 (Generics type)とは？TとかEについて学ぶ！ Java初心者の勉強](https://programmer-life.work/java/generics-type)  
+
+総称型がないときは、全部Objectで受け取っていた。
+だけど、これだと毎回キャストしたりしないといけなかったので不便だった。
+それを解消するために<T>が生まれた。
