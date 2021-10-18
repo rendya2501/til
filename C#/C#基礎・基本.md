@@ -782,3 +782,24 @@ class Program
 // bはChildClass型？      = False
 // bはGrandChildClass型？ = True
 ```
+
+---
+
+## 範囲アクセス
+
+`a[i..j]` という書き方で「i番目からj番目の要素を取り出す」というような操作ができるようになりました。
+
+``` C#
+class Program
+{
+    static void Main()
+    {
+        var a = new[] { 1, 2, 3, 4, 5 };
+         // 前後1要素ずつ削ったもの
+        var middle = a[1..^1];
+         // 2, 3, 4 が表示される
+        foreach (var x in middle)
+            Console.WriteLine(x);
+    }
+}
+```
