@@ -274,6 +274,19 @@ IT分野ではプログラムの中身を人間様が分かる言葉（人間語
 ・prevention
 防止
 
+・Distributed
+Distributeの過去形
+ITの分野では分散の意味になるらしい。
+
+・Distribute
+分配する。配る。配布する。流通させる。供給する。
+
+・denial : 否認、否定
+denialは名詞
+
+・deny : 拒否する
+denialの動詞
+
 ---
 
 ## Delete,Erase,Remove,Eliminate
