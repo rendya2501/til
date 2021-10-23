@@ -83,7 +83,7 @@ Android開発環境の異なるアプリケーションのコード間で実行�
 斜めのギザギザ  
 
 ・Facilitator :
-ファシリテータ、進行役
+進行役
 
 ・Facility : 施設  
 
@@ -286,6 +286,10 @@ denialは名詞
 
 ・deny : 拒否する
 denialの動詞
+
+・Instruction  
+命令
+
 
 ---
 
