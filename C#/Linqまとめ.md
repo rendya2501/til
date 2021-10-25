@@ -145,7 +145,7 @@ public static class Hello{
             new Parameter() { ID = 3, Name = "誠三郎" },
             new Parameter() { ID = 9, Name = "征史郎" },
         };
-        var dataB = new List<Parameter>()      
+        var dataB = new List<Parameter>()
         {
             new Parameter() { ID = 5, Name = "清次郎" },
             new Parameter() { ID = 3, Name = "誠三郎" },
@@ -213,6 +213,14 @@ var diffTimeList = patternDetail
 if(x.Items!=null && x.Items.Any())
 // このように1つにすることができる
 if(x.Items?.Any() == true)
+
+// ちなみにnullまたは1件もない場合をはじきたい場合はこう書かないといけない。
+// null == false は falseになるので、if文の中に入らないので、nullだったらfalseに変換してあげる。
+if(x.Items?.Any() ?? false == false)
+// こっちでもよかった。単純なのに奥が深い。
+// そりゃそうだよな。nullはtrueでもfalseでもない。
+// わざわざnullをfalseにしてfalseと比較するのではなく、trueではないってやればいいだけの話だった。
+if(x.Items?.Any() != true)
 ```
 
 ---

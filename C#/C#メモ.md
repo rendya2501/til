@@ -377,6 +377,23 @@ MessageBox.Show($"{{{ppap}}}");
 
 ---
 
+## プレースホルダー中におけるToStringFormatの指定
+
+[【C#6.0～】文字列補間（$を使った文字列書式設定）](https://imagingsolution.net/program/string_interpolation/)  
+
+いつぞや、いつも`.ToString("N0")`ってフォーマット書くところ`:N0`で書けることを発見したのでまとめ。  
+プレースホルダー中でのフォーマットの指定はコロン指定ができるができるらしい。便利。  
+C#Ver6からの機能みたい。結構実装されてから経っているのね。  
+
+因みにToStringするときに文字列で指定するこれは、「書式設定」というらしい。  
+
+``` C#
+// SettlementAmount.ToString("N0") → SettlementAmount:N0
+$"支払額{SettlementAmount:N0}円を人数{TargetPlayerCount}人で均等に割り付けます。{Environment.NewLine}よろしいですか？"
+```
+
+---
+
 ## インターフェースのインスタンス
 
 東さんの小話で出てきた話題。  
@@ -385,6 +402,8 @@ Javaだと匿名クラスでのみInterfaceのインスタンスを作成でき�
 [[Java] インターフェースをnewする違和感が解決した](https://qiita.com/imanishisatoshi/items/f73abc8206f405970d4f)  
 
 ネタばれすると「インターフェースを継承した名前の無いクラスをnewしていただけ」という落ちだったが、面白い発見だった。  
+後日、基本情報の勉強をしているとこれが出てきた。  
+普通に基礎レベルの内容だったらしい。  
 
 ---
 
@@ -621,3 +640,15 @@ private void DataPropertyChanged(object sender, PropertyChangedEventArgs e)
 /// </summary>
 private static readonly int ProductCDLength = (Attribute.GetCustomAttribute(typeof(TMa_Product).GetProperty(nameof(TMa_Product.ProductCD)), typeof(StringLengthAttribute)) as StringLengthAttribute)?.MaximumLength ?? 20;
 ```
+
+---
+
+## インスタンスの状態
+
+[[C# 入門] クラスのインスタンスについて](https://yaspage.com/prog/csharp/cs-instance/)  
+
+DependencyPropertyのBindingの件で東さんがインスタンスの状態なんて事を言っていたので調べたわけだが、  
+それとは別にインスタンスについての基礎を紹介しているページがわかりやすかったのでまとめる。  
+
+後日、東さんがまた使っていたので、意味合いから想像すると、例えばLinqで.Where()を実行したときと、.ToList()を実行したときでは、戻ってくる値が違うわけで、  
+東さんはどうやら帰ってくる型の事をインスタンスの状態と言っている見たいだ。  
