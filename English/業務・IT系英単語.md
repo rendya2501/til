@@ -67,6 +67,10 @@ Android開発環境の異なるアプリケーションのコード間で実行�
 
 ・directive : 指令，命令
 
+・trait
+可算名詞
+特徴、特色
+
 ・surrogate : 代理
 
 ・peer : 同等の人、対等者
@@ -292,6 +296,10 @@ ITの分野では分散の意味になるらしい。
 ・Distribute
 分配する。配る。配布する。流通させる。供給する。
 
+・distribution
+不可算名詞。
+配分、供給、流通、分配。
+
 ・denial : 否認、否定
 denialは名詞
 
@@ -323,11 +331,18 @@ ACID特性でおなじみ。C担当。
 
 ・integer
 整数。
-数学記号ではZとなる。これはZahlen[ツァーレン]が当たっているからっぽい。
+数学記号ではZとなる。ドイツ語Zahlen[ツァーレン]から来てるみたい。
 
 ・parse
 解析する。int.Parse()
 
+・constructive
+形容詞
+建築的な
+
+・constructor
+可算名詞
+建設者
 
 ---
 
