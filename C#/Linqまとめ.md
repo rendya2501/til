@@ -298,32 +298,38 @@ selectだと配列の中の配列があったときに、`IEnumerable<IEnumerabl
 
 ## LINQを使用して文字列を連結する
 
-<https://www.it-swarm-ja.com/ja/c%23/linq%E3%82%92%E4%BD%BF%E7%94%A8%E3%81%97%E3%81%A6%E6%96%87%E5%AD%97%E5%88%97%E3%82%92%E9%80%A3%E7%B5%90%E3%81%99%E3%82%8B/958428705/>
+[なんか外国のよく見るところ](https://www.it-swarm-ja.com/ja/c%23/linq%E3%82%92%E4%BD%BF%E7%94%A8%E3%81%97%E3%81%A6%E6%96%87%E5%AD%97%E5%88%97%E3%82%92%E9%80%A3%E7%B5%90%E3%81%99%E3%82%8B/958428705/)  
+[複数の文字列をセパレータ文字で区切って結合する方法(LINQ編)](https://www.exceedsystem.net/2020/08/29/how-to-join-multiple-strings-with-delimiter/)  
+
+主にAggregateとString.joinを使う方法があるけれど、String.joinを使うことをおすすめする。  
+理由は速度だそうだ。  
 
 ``` C#
-// Aggregate
-string[] words = { "one", "two", "three" };
-var res = words.Aggregate(
-   "", // start with empty string to handle empty list case.
-   (current, next) => current + "," + next);
-Console.WriteLine(res);
+var data = new[] { "a", "b", "c" };
 
-
-// Aggregate+StringBuilder方式
-var res = words.Aggregate(
-         new StringBuilder(), 
-         (current, next) => current.Append(current.Length == 0? "" : ", ").Append(next)
-     )
-     .ToString();
-Console.WriteLine(res);
-
-     
 // string.Join方式
-var sqrts = Enumerable.Range(1, 10).Select(n => Math.Sqrt(n));
-//小数点以下3桁で表示
-var str = string.Join(", ", sqrts.Select(x => x.ToString("0.000")));
-Console.WriteLine(str);
+// 出力は「a,b,c」
+Console.WriteLine(string.Join(",", data));
 
+// Aggregate方式
+// "a"
+// "a" + "," + "b"
+// "a,b" + "," + "c"
+// のような文字列の結合となるため結合文字数が増えると大きなパフォーマンス低下が生じる。
+Console.WriteLine(data.Aggregate((x, y) => $"{x},{y}"));
+
+
+// おまけ : Aggregate+StringBuilder方式
+// チェーンしすぎてわけわからんので、自己満足以外で使うことはないだろう。
+var res = words.Aggregate(
+        new StringBuilder(), 
+        (current, next) => current.Append(current.Length == 0? "" : ", ").Append(next)
+    )
+    .ToString();
+Console.WriteLine(res);
+```
+
+```C#
 // 中々うまくまとめれたのでまとめる。
 // 精算済みプレーヤーの警告を出すためメッセージを生成(精算済みプレーヤーのアナウンス)
 var warningMessage = _TRe_ReservationPlayerModel
@@ -346,9 +352,6 @@ var warningMessage = _TRe_ReservationPlayerModel
         (a, b) => a + Environment.NewLine + b
     );
 ```
-
-どうもAggregateは遅いので、String.Joinを使ったほうがいいみたいですね。
-<https://www.exceedsystem.net/2020/08/29/how-to-join-multiple-strings-with-delimiter/>  
 
 ---
 
@@ -611,4 +614,56 @@ OfType<T>は挙動の一貫性があり、予想外の値が来た時も安定�
 ``` C#
 string.Join(",", DutchTreatList.SelectMany(s2 => s2.SlipList.Select(s3 => s3.SubjectCD)).Distinct())
 // "20,120,900,131,800,900,20,120,900,110"
+```
+
+---
+
+## Take,Skip
+
+[Take, Skip](https://symfoware.blog.fc2.com/blog-entry-1927.html)  
+
+割り勘で、入力した人より下の人を割り勘したかったんですよ。  
+つまり、そこより上の人は飛ばして、残った人で割り勘をするので、Linqでなんかないか探したらありました。  
+
+最初はTakeしか見つけられなくて、一番上を飛ばすために、Reserse().Take().Reverse()なんてくそ面倒くさいことをする始末だった。  
+そこで見つけたSkip。まさに神だったね。  
+
+Take:指定した数だけ要素をより出します。
+Skip:指定した数だけ読み飛ばします。
+
+``` C#
+// 単純なTakeの例。
+// 先頭から2つの要素を取得する。
+int[] src = new int[]{1, 2, 3, 4, 5};
+foreach(int item in src.Take(2)) {
+    Console.WriteLine(item);
+}
+// →1,2
+
+
+// 単純なSkipの例。
+// 先頭から2つの要素を読み飛ばす。Skipした以降の全要素が取得できます。
+int[] src = new int[]{1, 2, 3, 4, 5};
+foreach(int item in src.Skip(2)) {
+    Console.WriteLine(item);
+}
+// →3,4,5
+
+
+// 実際には値を読み飛ばすSkipと合わせて使用することになると思います。
+// 1つ読み飛ばし、先頭から2つの要素を取得。
+int[] src = new int[]{1, 2, 3, 4, 5};
+foreach(int item in src.Skip(1).Take(2)) {
+    Console.WriteLine(item);
+}
+// →2,3
+
+
+// TakeしたあとにSkipすることも可能。
+// 先頭から2つの要素を取得し、1つ読み飛ばす。
+int[] src = new int[]{1, 2, 3, 4, 5};
+foreach(int item in src.Take(2).Skip(1)) {
+    Console.WriteLine(item);
+}
+// →2
 ```
