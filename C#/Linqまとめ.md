@@ -667,3 +667,37 @@ foreach(int item in src.Take(2).Skip(1)) {
 }
 // →2
 ```
+
+---
+
+## 特定の値を先頭にして、後はそのままの順番にするやり方
+
+[C# LINQで特定の値を先頭にして並び替え](https://teratail.com/questions/120228)  
+
+チェックアウトの割り勘呼び出しで必要になったのでまとめ。  
+100,546を割り勘→100をチェックアウトで呼び出す→割り勘起動→546も引っ張られて表示される。  
+この時、もう一つ割り勘を開いて、546と入力すると、割り勘で排他を取っているはずなのに、「チェックアウトで精算中です」って言われてしまう。  
+原因は100,546の順で排他を取るので、100はチェックアウトで排他中なので、546と打ってもそうなってしまうから。  
+というわけで、排他を取る順番を指定した会計Noを先頭にして、後はそのままってやりたかったわけです。  
+そしたらドンピシャなモノがありました。  
+おかげで無事解決しましたが、後日エラーになって、それも解決したのでまとめます。  
+
+``` C#
+    var result = Enumerable
+        // 10,11,12,13,14
+        .Range(10, 5)
+        // A,B,C,D,E
+        .Select(a => a.ToString("X"))
+        // C,A,B,D,E
+        .OrderBy(a => a == "C" ? 0 : 1);
+        // サンプルではThenByがあるが、なくても想定した動作になる。
+        // .ThenBy(a => a);
+
+    // 成果物
+    IEnumerable<SettlementDetailView> dutchTreatExclusive = settlementSet.SettlementDetailList
+        .Where(w => outerEditPlayerNoList?.Any() != true || !outerEditPlayerNoList.Contains(w.ReservationPlayerNo))
+        ?.OrderBy(a => a.AccountNo == accountNo ? 0 : 1)
+        // サンプルの通り、ThenBy(a => a)と書いていたが、それだと「failed to compare two elements in the array」とかいうエラーになってしまう。
+        // 単純に消したらうまく行ったし、順番に影響もなかった。
+        ?.ToList();
+```
