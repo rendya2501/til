@@ -370,6 +370,10 @@ EDINETのD担当
 潜伏、潜在
 レイテンシー
 
+・assembly
+名詞
+組み立て
+
 ---
 
 ## Delete,Erase,Remove,Eliminate
