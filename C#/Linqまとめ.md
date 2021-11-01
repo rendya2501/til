@@ -275,22 +275,22 @@ selectだと配列の中の配列があったときに、`IEnumerable<IEnumerabl
     // 変数なんて用意する必要はない。とてもすっきりしてまとまっている。Linq最高。
     // SelectだとIEnumerable<IEnumerable<TFr_Slip>>になるけど、
     // SelectManyすることでIEnumerable<TFr_Slip>にすることができる。平坦化ってやつ。
-    var SlipList
-        = GetSettlementSettingPlayerViewList(data.SettlementSetting)
-        .SelectMany(settingPlayer =>
-            _TFr_SlipModel
-                .GetList(
-                    new PlayerCondition()
+    var SlipList = GetSettlementSettingPlayerViewList(data.SettlementSetting)
+        .SelectMany(
+            settingPlayer =>
+                _TFr_SlipModel
+                    .GetList(
+                        new PlayerCondition()
+                        {
+                            PlayerNo = settingPlayer.SettelementPlayerNo
+                        }
+                    )
+                    .Select(slip =>
                     {
-                        PlayerNo = settingPlayer.SettelementPlayerNo
-                    }
-                )
-                .Select(slip =>
-                {
-                    slip.SettlementPlayerNo = slip.PlayerNo;
-                    slip.UpdateDateTime = updateDateTime;
-                    return slip;
-                })
+                        slip.SettlementPlayerNo = slip.PlayerNo;
+                        slip.UpdateDateTime = updateDateTime;
+                        return slip;
+                    })
         );
 ```
 
@@ -700,4 +700,98 @@ foreach(int item in src.Take(2).Skip(1)) {
         // サンプルの通り、ThenBy(a => a)と書いていたが、それだと「failed to compare two elements in the array」とかいうエラーになってしまう。
         // 単純に消したらうまく行ったし、順番に影響もなかった。
         ?.ToList();
+```
+
+---
+
+## GroupByした要素の内、先頭のものだけ取得する
+
+[selectMany](https://www.urablog.xyz/entry/2018/05/28/070000#SelectMany%E3%82%92%E4%BD%BF%E3%81%86)  
+[groupby](https://www.urablog.xyz/entry/2018/07/07/070000)  
+[groupbyして先頭1](https://entityframework.net/knowledge-base/3850429/get-the-first-record-of-a-group-in-linq-)  
+[groupbyして先頭2]<https://stackoverflow.com/questions/19012986/how-to-get-first-record-in-each-group-using-linq/39932057>  
+
+やりたいこと割り勘の伝票IDを取得して、重複を排除して、それが2件以上あれば、別々で割り勘を実行した人がいるという事なので、呼び出せないようにしたい。  
+ついでに、誰と誰が別々に割り勘しているのかをアナウンスしたいので、求めた伝票IDを持っている人の中でそれぞれ先頭の人だけを抜き出したい。  
+意外と難しかった。SelectManyとGroupByを組み合わせてうまい事出来たので、まとめる。  
+
+``` C#
+var count = SettlementDetailList
+   // 割り勘の伝票IDを取得
+   .Select(s => s.SlipList.FirstOrDefault(w => w.SlipType == SlipType.DutchTreat)?.SlipID)
+   // 同じ伝票IDはカウントしない。
+   .Distinct()
+   // nullを除いた結果が2以上なら、別々の割り勘伝票の人をセットしているのでダメ。
+   .Count(c => c != null);
+
+if (count >= 2)
+{
+    MessageDialogUtil.ShowWarning(Messenger,"dame");
+    return;
+};
+
+// 組み合わせ始め。何がしたいかわからないね。
+IEnumerable<string> targetPlayerList = SettlementDetailList
+    .SelectMany(
+        p => p.SlipList,
+        (s, slip) => new { s.AccountNo, s.ReservationPlayerName, slip }
+    )
+    .Where(w => dutchTreatSlipIDList.Contains(w.slip.SlipID))
+    .Select(s => $"【{s.AccountNo}】【{s.ReservationPlayerName}】様")
+    .ToList();
+
+
+// とりあえず完成形。
+// IDだけは別で抜き出さないといけないのがちょっとあれだけど、頑張ればいけそうな気もする。
+IEnumerable<string> dutchTreatSlipIDList = SettlementDetailList
+    // 割り勘の伝票IDを取得
+    .Select(s => s.SlipList.FirstOrDefault(w => w.SlipType == SlipType.DutchTreat)?.SlipID)
+    .Distinct()
+    .Where(w => w != null)
+    .ToList();
+if (dutchTreatSlipIDList.Count() >= 2)
+{
+    IEnumerable<string> targetPlayerList = SettlementDetailList
+        .SelectMany(
+            p => p.SlipList,
+            (s, slip) => (s.AccountNo, s.ReservationPlayerName, slip.SlipID)
+        )
+        .Where(w => dutchTreatSlipIDList.Contains(w.SlipID))
+        .GroupBy(
+            p => p.SlipID,
+            // SlipIDでグループ化したうち、先頭のデータのみ取得する
+            (k, v) => (key: k, value: v.FirstOrDefault())
+        )
+        .Select(s => $"【{s.value.AccountNo}】【{s.value.ReservationPlayerName}】様")
+        .ToList();
+    var msg = string.Join(" と ", targetPlayerList) + " はそれぞれで既に割り勘済みのため、割り勘を開くことができません。";
+    MessageDialogUtil.ShowWarning(Messenger, msg);
+    return;
+}
+```
+
+---
+
+## 遅延実行とIQueryable
+
+[2種類のLINQ](https://csharptan.wordpress.com/2011/12/09/2%E7%A8%AE%E9%A1%9E%E3%81%AElinq/)  
+[結局IEnumerable<T>とIQueryable<T>はどう違うの？](https://qiita.com/momotaro98/items/7be27447f5f4a5c8bac9)  
+[What is the difference between IQueryable<T> and IEnumerable<T>?](https://stackoverflow.com/questions/252785/what-is-the-difference-between-iqueryablet-and-ienumerablet)  
+[IEnumerable vs IQueryable](https://samueleresca.net/the-difference-between-iqueryable-and-ienumerable/)  
+
+``` C# : 遅延実行サンプル
+    var aa = new List<int>() { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+    var res1 = aa.Where(w => w > 7);
+    var res2 = aa.Where(w => w > 7).ToList();
+    
+    // 8,9
+    foreach (var item in res1) Console.WriteLine(item);
+    // 8,9
+    foreach (var item in res2) Console.WriteLine(item);
+
+    aa.Add(10);
+    // 8,9,10
+    foreach (var item in res1) Console.WriteLine(item);
+    // 8,9
+    foreach (var item in res2) Console.WriteLine(item);
 ```
