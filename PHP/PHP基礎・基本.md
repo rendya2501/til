@@ -4,7 +4,7 @@
 
 ・型の宣言は不要  
 ・実行時に判定される  
-・最初の文字列を格納した変数に後から数字をセットしても問題ない→型の相互変換
+・最初の文字列を格納した変数に後から数字をセットしても問題ない→型の相互変換  
 
 ---
 
@@ -45,7 +45,8 @@ PHP5の後、当初はPHP6のリリースが予定されており、実行エン
 ・PHPの文字列はC#と違い、Char型の配列という扱いではないのでエラーになる。  
 　またPHPにCHAR型は存在しない。String型のみである  
 
-・**foreachで作った変数はforeach抜けた後も有効**  
+### foreachで作った変数はforeach抜けた後も有効
+
 割と罠。  
 公式のリファレンスにも書いてありました。  
 unsetはマナー的にあってもいいのかもしれないですね。  
@@ -102,38 +103,53 @@ aa($str);
 
 ## コールバック
 
-[いい感じのコールバックサンプル]<https://qiita.com/dublog/items/0eb8bcea2fc452c0b4b2>
+phpのコールバックは3種類ある。  
 
-```php
-const API_URI = "API_URI";
-const ServiceURL = "https://";
+可変関数なるものを使う方法とcall_user_func関数なるものを使う方法と無名関数を使う方法だ。  
+GORAでは無名関数を使う方法でうまくいった。  
+call_user_func関数は文字列で指定するのでなんかいやだ。  
+できれば、関数名を文字列に変換するしてくれるnameofみたいなのがあればいいのだが、あるのだろうか。  
+次から次へと気になるものがでてくるな。  
 
-function add()
+軽く調べてみたけど、なさそうですね。  
+現在実行している関数名を取得する方法はあるけど、クラスの中のこの関数を文字列に変換するみたいな処理はないっぽい。  
+まぁ、優先は無名関数で次にcall_user_func使えばいいと思うよ。  
+
+[いい感じのコールバックサンプル](https://qiita.com/dublog/items/0eb8bcea2fc452c0b4b2)  
+[PHPでコールバック関数を利用する](https://qiita.com/tricogimmick/items/23fb5958b6ea914bbfb5)  
+とりあえず、困ったらここ見ればいいんじゃないかな。  
+
+``` PHP : うまくいった無名関数を使ったAPI実行サンプル
+function callGetAPI()
 {
-    $params = ['1,2,3,4,5'];
-    $try = function ($token) use ($params) {
-        return [
-            'PATCH',
-            ServiceURL . API_URI,
-            [
-                'Authorization' => 'Bearer '.$token,
-                'Content-Type' => 'application/json'
-            ],
-            json_encode($params)
-        ];
+    // パラメータ生成
+    $params = 'linkage_plan_ids=';
+    // リクエスト生成コールバック生成
+    $createRequest = function ($token) use ($params) {
+        return new Request(
+            'GET',
+            SERVICE_URL . API_URI . '?' . $params,
+            ['Authorization' => 'Bearer ' . $token]
+        );
     };
-    retry($try);
+    // API実行
+    return commonAPIAction($createRequest);
 }
 
-// 共通のリトライ処理を別メソッドとして用意しておき、それぞれの処理を噛ませる。
-function retry(callable $try)
+// 引数にcallableを指定すると、引数がコールバック関数であることを明示できるみたい
+// タイプヒンティングっていうらしいみたい。
+function commonAPIAction(callable $createRequest)
 {
-    $token = "tekitou_token";
-    $result = $try($token);
-    print_r($result);
+    // ログインAPIを実行してトークンを取得
+    $token = callLoginAPI();
+    // リクエスト生成
+    $request = $createRequest($token);
+    // クライアント生成
+    $client = new Client(['http_errors' => false, 'function' => 'functionfunction']);
+    // API実行
+    $response = executeAPI($client, $request);
+    return $response;
 }
-
-add();
 ```
 
 ---

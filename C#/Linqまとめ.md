@@ -706,14 +706,66 @@ foreach(int item in src.Take(2).Skip(1)) {
 
 ## GroupByした要素の内、先頭のものだけ取得する
 
-[selectMany](https://www.urablog.xyz/entry/2018/05/28/070000#SelectMany%E3%82%92%E4%BD%BF%E3%81%86)  
-[groupby](https://www.urablog.xyz/entry/2018/07/07/070000)  
-[groupbyして先頭1](https://entityframework.net/knowledge-base/3850429/get-the-first-record-of-a-group-in-linq-)  
-[groupbyして先頭2]<https://stackoverflow.com/questions/19012986/how-to-get-first-record-in-each-group-using-linq/39932057>  
-
-やりたいこと割り勘の伝票IDを取得して、重複を排除して、それが2件以上あれば、別々で割り勘を実行した人がいるという事なので、呼び出せないようにしたい。  
+やりたいこと  
+割り勘の伝票IDを取得して、重複を排除して、それが2件以上あれば、別々で割り勘を実行した人がいるという事なので、呼び出せないようにしたい。  
 ついでに、誰と誰が別々に割り勘しているのかをアナウンスしたいので、求めた伝票IDを持っている人の中でそれぞれ先頭の人だけを抜き出したい。  
 意外と難しかった。SelectManyとGroupByを組み合わせてうまい事出来たので、まとめる。  
+
+とりあえずSelectManyで第1引数と第2引数を使った場合の動作はどういうモノになるのかについて。  
+
+[SelectMany の使い方](https://qiita.com/youmts/items/97aab4fb9322746964c6)  
+このページのやり方がやばいくらい分かりやすい。  
+
+``` C# : SelectMany で上位と下位をまとめて処理
+// 上位の要素（例だとAuthor)と、下位の結果の要素（例だとbookName）をまとめて処理するラムダ式を追加できます。
+// １つ目のラムダ式の結果の要素一つ一つに対して、２つ目のラムダ式が呼び出されます。
+var bookNames = authors.SelectMany(
+    // 第1引数のラムダでbookNameの一覧を取得。
+    // 例では7冊あるので、第2引数のラムダ式は7回実行される。
+    author => author.Books.Select(book => book.Name),
+    // 第2引数のラムダではラムダの第2引数に上位の結果が格納された状態で処理を実行できる。bookNameがそれにあたる。
+    // 上位の結果が7冊なので、7回実行される。
+    (author, bookName) => $"{bookName}/{author.Name}"
+);
+// 羅生門/芥川龍之介, 蜘蛛の糸/芥川龍之介, 河童/芥川龍之介, 人間椅子/江戸川乱歩, 怪人二十面相/江戸川乱歩, 雪国/川端康成, 伊豆の踊り子/川端康成
+```
+
+[LINQでグルーピングした最大の要素を取得する](https://shinsuke789.hatenablog.jp/entry/2019/09/14/114009)  
+次にGroupByでの第1引数と第2引数がある場合についてまとめ。  
+
+・第1引数：元の値を何でグループ化するかを指定する  
+・第2引数：元の値をグループ化したものに対して、キーと値の2つの引数が使え、値に対しての処理を指定する  
+
+``` C#
+    // Key = 1, Dt = "20190101"
+    // Key = 1, Dt = "20190102"
+    // Key = 2, Dt = "20190101"
+    // Key = 3, Dt = "20190310"
+    // Key = 3, Dt = "20190305"
+    // Key = 3, Dt = "20190301"
+    // Key = 4, Dt = "20190101"
+    // Key = 4, Dt = "20190102"
+    // Key = 5, Dt = "20190103"
+
+    // Key毎にDtが最大の要素を取得
+    List<Hoge> retList = list
+        .GroupBy(
+            h => h.Key,
+            // SelectManyと同じならラムダの第2引数に上位の結果が来るはず。
+            (k, v) => v.OrderByDescending(o => o.Dt).First())
+        .ToList();
+    retList.ForEach(f => Console.WriteLine($"{f.ley} {f.Dt}"));
+
+    // 1 20190102
+    // 2 20190101
+    // 3 20190310
+    // 4 20190102
+    // 5 20190103
+```
+
+[groupbyして先頭1](https://entityframework.net/knowledge-base/3850429/get-the-first-record-of-a-group-in-linq-)  
+[groupbyして先頭2]<https://stackoverflow.com/questions/19012986/how-to-get-first-record-in-each-group-using-linq/39932057>  
+親戚もおいておく。  
 
 ``` C#
 var count = SettlementDetailList
@@ -723,23 +775,11 @@ var count = SettlementDetailList
    .Distinct()
    // nullを除いた結果が2以上なら、別々の割り勘伝票の人をセットしているのでダメ。
    .Count(c => c != null);
-
 if (count >= 2)
 {
     MessageDialogUtil.ShowWarning(Messenger,"dame");
     return;
 };
-
-// 組み合わせ始め。何がしたいかわからないね。
-IEnumerable<string> targetPlayerList = SettlementDetailList
-    .SelectMany(
-        p => p.SlipList,
-        (s, slip) => new { s.AccountNo, s.ReservationPlayerName, slip }
-    )
-    .Where(w => dutchTreatSlipIDList.Contains(w.slip.SlipID))
-    .Select(s => $"【{s.AccountNo}】【{s.ReservationPlayerName}】様")
-    .ToList();
-
 
 // とりあえず完成形。
 // IDだけは別で抜き出さないといけないのがちょっとあれだけど、頑張ればいけそうな気もする。
@@ -752,6 +792,12 @@ IEnumerable<string> dutchTreatSlipIDList = SettlementDetailList
 if (dutchTreatSlipIDList.Count() >= 2)
 {
     IEnumerable<string> targetPlayerList = SettlementDetailList
+        // 上の例に即せば、ここではこのようなレコードが出来上がる。
+        // AccountNo:0001 , name:A , SlipID AAA
+        // AccountNo:0001 , name:A , SlipID BBB
+        // AccountNo:0001 , name:A , SlipID CCC
+        // AccountNo:0002 , name:B , SlipID DDD
+        // AccountNo:0002 , name:B , SlipID EEE
         .SelectMany(
             p => p.SlipList,
             (s, slip) => (s.AccountNo, s.ReservationPlayerName, slip.SlipID)
@@ -770,14 +816,30 @@ if (dutchTreatSlipIDList.Count() >= 2)
 }
 ```
 
+``` C# : 失敗作
+// 何がしたいかわからないね。
+IEnumerable<string> targetPlayerList = SettlementDetailList
+    .SelectMany(
+        p => p.SlipList,
+        (s, slip) => new { s.AccountNo, s.ReservationPlayerName, slip }
+    )
+    .Where(w => dutchTreatSlipIDList.Contains(w.slip.SlipID))
+    .Select(s => $"【{s.AccountNo}】【{s.ReservationPlayerName}】様")
+    .ToList();
+```
+
 ---
 
 ## 遅延実行とIQueryable
 
-[2種類のLINQ](https://csharptan.wordpress.com/2011/12/09/2%E7%A8%AE%E9%A1%9E%E3%81%AElinq/)  
-[結局IEnumerable<T>とIQueryable<T>はどう違うの？](https://qiita.com/momotaro98/items/7be27447f5f4a5c8bac9)  
-[What is the difference between IQueryable<T> and IEnumerable<T>?](https://stackoverflow.com/questions/252785/what-is-the-difference-between-iqueryablet-and-ienumerablet)  
-[IEnumerable vs IQueryable](https://samueleresca.net/the-difference-between-iqueryable-and-ienumerable/)  
+[LINQの遅延実行&即時実行とforeach+遅延実行の問題【C#】【LINQ】](https://kan-kikuchi.hatenablog.com/entry/LINQ_Delay)  
+
+IQueryableのヒントになるかどうか知らないが、このサイトのある一文がほぼ全てな気がした。  
+`whereは呼び出された時点で処理をして、その結果を返しているわけではなく、どういう処理をするかの命令(クエリ)を返している`  
+つまり`Whereは配列を作ってるわけではなくクエリを作っている`  
+
+IQueryableは外部実行が何たらかんたらって言ってたから、つまりそういうことなのかなーと思ったり。  
+とりあえず、即時実行の動作確認。  
 
 ``` C# : 遅延実行サンプル
     var aa = new List<int>() { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
@@ -790,8 +852,31 @@ if (dutchTreatSlipIDList.Count() >= 2)
     foreach (var item in res2) Console.WriteLine(item);
 
     aa.Add(10);
-    // 8,9,10
+    // 実際に値が必要になった時に処理を実行(遅延実行)
+    // 8,9,10 
     foreach (var item in res1) Console.WriteLine(item);
     // 8,9
     foreach (var item in res2) Console.WriteLine(item);
 ```
+
+[2種類のLINQ](https://csharptan.wordpress.com/2011/12/09/2%E7%A8%AE%E9%A1%9E%E3%81%AElinq/)  
+[結局IEnumerable<T>とIQueryable<T>はどう違うの？](https://qiita.com/momotaro98/items/7be27447f5f4a5c8bac9)  
+[What is the difference between IQueryable<T> and IEnumerable<T>?](https://stackoverflow.com/questions/252785/what-is-the-difference-between-iqueryablet-and-ienumerablet)  
+[IEnumerable vs IQueryable](https://samueleresca.net/the-difference-between-iqueryable-and-ienumerable/)  
+
+``` txt
+IQueryable<T>は外部リソースを扱うLinqプロバイダのために提供されているもの。
+外部クエリ方式: クエリを投げて、外部のサーバー上で処理してもらって、結果だけ受け取る。
+```
+
+なんか頻繁に外部がどうだの言ってるけど、んなわけなくね？  
+データベースなんてまったく関係ないでしょ。  
+正直、こいつらが何言ってるかわからないんだけど。  
+
+``` txt
+IQueryable<T>はLinqメソッド実行時はあくまでクエリが構築されるだけのようです。
+foreachなどの評価で初めてクエリが外部ソースに発行され結果が取得されるので、IQueryable<T>は遅延"読み込み"(lazy loading)の特徴があると説明されます。
+```
+
+「クエリを構築するだけ。」「問い合わせ可能」って認識程度でいいのかもねぇ。  
+本質は「即時実行されない」「評価が必要になった時に実行される」で充分だと思う。  
