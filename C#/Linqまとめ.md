@@ -730,8 +730,9 @@ var bookNames = authors.SelectMany(
     // 順を追うと、まず芥川で3冊。羅生門をピックアップした地点で2つ目のラムダを実行する。以降の本も同様。
     // 芥川の本全てのループが終わったら、次の著者の本1つ1つに対して2つ目のラムダを実行。後は同じ。
     author => author.Books.Select(book => book.Name),
-    // 第2引数のラムダはラムダの第2引数に上位の結果が格納された状態で処理を開始する。bookNameに第1引数の結果の要素が入ってくる。
-    // authorは芥川{本2冊}の構成で、次の著者のループになるまで値は変わらない。
+    // 第2引数のラムダはラムダの第2引数に上位の結果が格納された状態で処理を開始する。
+    // bookNameに第1引数の結果の要素が入ってくる。
+    // authorは芥川{本3冊}の構成で、次の著者のループになるまで値は変わらない。
     // bookNameが{羅生門, 蜘蛛の糸, 河童}の順でやってきて、芥川に関してはは3回処理が実行されることになる。
     (author, bookName) => $"{bookName}/{author.Name}"
 );
@@ -814,20 +815,30 @@ if (dutchTreatSlipIDList.Count() >= 2)
     IEnumerable<string> targetPlayerList = SettlementDetailList
         // 上の例に即せば、ここではこのようなレコードが出来上がる。
         // AccountNo:0001 , name:A , SlipID AAA
+        // AccountNo:0001 , name:A , SlipID AAA
         // AccountNo:0001 , name:A , SlipID BBB
-        // AccountNo:0001 , name:A , SlipID CCC
         // AccountNo:0002 , name:B , SlipID DDD
+        // AccountNo:0002 , name:B , SlipID EEE
         // AccountNo:0002 , name:B , SlipID EEE
         .SelectMany(
             p => p.SlipList,
             (s, slip) => (s.AccountNo, s.ReservationPlayerName, slip.SlipID)
         )
+        // AAA,DDDだけにする。
+        // AccountNo:0001 , name:A , SlipID AAA
+        // AccountNo:0001 , name:A , SlipID AAA
+        // AccountNo:0002 , name:B , SlipID DDD
         .Where(w => dutchTreatSlipIDList.Contains(w.SlipID))
+        // GroupByした時のキーとバリューの構成
+        // k=SlipID:AAA, v={AccountNo:0001 , name:A , SlipID AAA},{AccountNo:0001 , name:A , SlipID AAA}
+        // k=SlipID:DDD, v={AccountNo:0002 , name:B , SlipID DDD}
         .GroupBy(
             p => p.SlipID,
-            // SlipIDでグループ化したうち、先頭のデータのみ取得する
             (k, v) => (key: k, value: v.FirstOrDefault())
         )
+        // 最終結果
+        // v={AccountNo:0001 , name:A , SlipID AAA}
+        // v={AccountNo:0002 , name:B , SlipID DDD}
         .Select(s => $"【{s.value.AccountNo}】【{s.value.ReservationPlayerName}】様")
         .ToList();
     var msg = string.Join(" と ", targetPlayerList) + " はそれぞれで既に割り勘済みのため、割り勘を開くことができません。";
