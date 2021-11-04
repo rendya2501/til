@@ -35,6 +35,6 @@ Linux技術者認定試験（LPIC : Linux Professional Institute Certification�
 ③あずき本⇔Ping-tで知識を頭に叩き込む  
 ④模擬試験にチャレンジ  
 
-lpic 102 コマンド
+lpic 102 コマンド  
 [LPIC 102 チートシート](https://qiita.com/kyohmizu/items/d5d6fedc527efa9f649c)  
 [LINUX(LPIC102)の試験でとりあえずこれ覚えておこうって思うものを27の項目にまとめてみた](https://genchan.net/it/server/7713/)  
