@@ -1100,3 +1100,26 @@ XAMLはジェネリックのバインドをサポートしてないっぽい。
 
 いろいろな実現方法もまとめておく  
 [ListBoxやDataGridなどのItemsControlでSelectedItemsやIsSelectedをBindingする](https://qiita.com/mkuwan/items/7372b4b602fdabc3358c)  
+
+---
+
+## アノテーションによるValidationの抑制
+
+[How to suppress validation when nothing is entered](https://stackoverflow.com/questions/1502263/how-to-suppress-validation-when-nothing-is-entered)  
+
+いつぞや、商品台帳でIsEnableにDataのDepartmentをバインドしてF8を実行した時に、Requireのエラーが出て困ったことがあった。  
+その時はどうやって調べたいいかわからなかったので、仕方なくDataではなくコントロールのValueをバインドして解決したが、
+今回はバリデートを抑制したいということで、`wpf validation suppress`で調べたらいい感じのが出てきた。  
+BindingクラスにValidation関係のプロパティがたくさんあったので、それっぽいやつを指定したら、実現できたのでまとめる。  
+
+今回は`ValidatesOnNotifyDataErrors`をFalseにしたらうまく行った。  
+読んで字のごとく、Dataにおけるエラー通知をどうするかって意味だと思われる。  
+調べてもこのプロパティはこういうものです！って解説をしているところがまったくない。  
+まぁ、解決したからいいか。  
+
+``` XML
+<im:GcTextBox
+    IsReadOnly="{Binding Data.BankCD, Mode=OneWay, Converter={StaticResource NullOrEmptyToBoolConverter}, ValidatesOnNotifyDataErrors=False}"
+    IsTabStop="{Binding Data.BankCD, Mode=OneWay, Converter={StaticResource NotNullOrEmptyToBoolConverter}, ValidatesOnNotifyDataErrors=False}"
+/>
+```

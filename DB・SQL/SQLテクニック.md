@@ -487,3 +487,19 @@ GROUP BY
 HAVING
     COUNT(CONCAT(LPAD(GolfCode, 4, '0'),LPAD(PlanCode, 6, '0'),LPAD(OpenPlanCode, 6, '0'))) > 30
 ```
+
+---
+
+## 空白を除去する→複数のREPLACEを実行する
+
+[REPLACE関数・CASE式 複数の文字列を置換する方法](https://buralog.jp/sql-using-replace-function-update-column/)  
+REPLACEの中にREPLACEを記述する。  
+それで全角の空白と半角の空白を空文字にすることができる。  
+単純だけど、すぐに思いつかなかったので、まとめる。  
+
+``` SQL
+CASE WHEN REPLACE(REPLACE([A].[銀行CD], ' ',''), '　','') = '' 
+    THEN NULL 
+    ELSE [A].[銀行CD] 
+END AS [BankCD],
+```
