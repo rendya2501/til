@@ -574,9 +574,9 @@ int Sum(int x = 0 , int y = 0, int z = 0) => x + y + z;
 ・Overrideしたイベントは 「-=」や「+=」で登録、解除はできない。  
 なので発動させたくなかったらフラグ使って、returnしたりして実行されないようにする必要がある。  
 
+[C# eventのオーバーライドと基底クラスで発生するイベントの処理](https://opcdiary.net/c-event%E3%81%AE%E3%82%AA%E3%83%BC%E3%83%90%E3%83%BC%E3%83%A9%E3%82%A4%E3%83%89%E3%81%A8%E5%9F%BA%E5%BA%95%E3%82%AF%E3%83%A9%E3%82%B9%E3%81%A7%E7%99%BA%E7%94%9F%E3%81%99%E3%82%8B%E3%82%A4%E3%83%99/)  
 もしかしてこの方法の通りにやればそんなことする必要ないかも？  
 余裕があれば次の機会に照らし合わせて見てみたい。  
-[C# eventのオーバーライドと基底クラスで発生するイベントの処理](https://opcdiary.net/c-event%E3%81%AE%E3%82%AA%E3%83%BC%E3%83%90%E3%83%BC%E3%83%A9%E3%82%A4%E3%83%89%E3%81%A8%E5%9F%BA%E5%BA%95%E3%82%AF%E3%83%A9%E3%82%B9%E3%81%A7%E7%99%BA%E7%94%9F%E3%81%99%E3%82%8B%E3%82%A4%E3%83%99/)  
 
 ---
 
@@ -896,4 +896,50 @@ int[ ][ ]  array ={ {1,2,3},{1,2} };
 bool? aa = true ? false : null;
 // C#9以前はこのように書くしかない。
 var aa = true ? (bool?)false : null;
+```
+
+---
+
+## C# 構造体
+
+値型なので、newする必要はない。でもnewもできる。  
+newはコンストラクタを呼ぶ。  
+newしない場合コンストラクタを呼ばない。  
+そういう棲み分けができる。  
+
+言語仕様に近いので中々濃い内容になっている。  
+とりあえず、ざっくりとした特徴と宣言の仕方くらいをまとめられれば十分かな。  
+実務ではまず使わないからガッツリやったところでねぇって感じはする。  
+
+- 構造体は値型、クラスは参照型  
+- 構造体はスタック領域に展開され、クラスはヒープ領域に展開される。  
+- int等と同じなので、メソッドを抜けたらメモリから解放される。  
+- もちろんクラスより軽量。newの処理も早いし、メモリも食わない。  
+- 構造体の初期状態は0初期化状態という。→構造体の既定値(default value)と呼ぶ。クラスの初期状態はnull。  
+- newできる。でもint等と同じなので、newしなくても使える。  
+
+``` C#
+    public struct Circle
+    {
+        public double r;
+        public double CalcCircum(double r) => 3.14 * 2 * r;
+        public double CalcArea(double r) => 3.14 * r * r;
+    }
+    
+    // 方法1.new演算子を使う方法
+    Circle c1 = new Circle();
+    c1.r = 10.0;
+    Console.WriteLine("半径{0}の円周は{1}、面積は{2}", c1.r, c1.CalcCircum(c1.r), c1.CalcArea(c1.r));
+    
+    // 方法2.new演算子を使わない方法
+    Circle c2;
+    c2.r = 20.0;
+    Console.WriteLine("半径{0}の円周は{1}、面積は{2}", c2.r, c2.CalcCircum(c2.r), c2.CalcArea(c2.r));
+    
+    // 方法3.インスタンス化と同時に初期化
+    Circle c3 = new Circle() {r = 30.0};
+    Console.WriteLine("半径{0}の円周は{1}、面積は{2}", c3.r, c3.CalcCircum(c3.r), c3.CalcArea(c3.r));
+
+    // 方法4.default演算子を使った方法 C# 2.0～9.0 まで、p1と同じ意味っぽい
+    var p4 = default(Circle);
 ```
