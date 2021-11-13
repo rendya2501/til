@@ -241,3 +241,37 @@ public class RowHeaderNumberingCellFactory : CellFactory
         protected override void Invoke(object parameter) => AssociatedObject.CollectionView.SortDescriptions.Clear();
     }
 ```
+
+---
+
+## FlexGridのセルを選択する時に色々あったのでまとめ
+
+個人売上ムーブで新しく伝票を追加したら、追加した伝票にフォーカスが当たってほしいっていう修正をした時の話。  
+この修正をしたときは、セルで編集する機能がバグにより実現不可能な状態だったので、セル選択をやめて行選択にしてもよかったんだけど、  
+それだとフォーカスが当たった部分の色が、黒に寒色がかぶって見えにくくなって、違和感がすごかったので、  
+セル選択のままにして、何とか数量列を指定できないか色々やる方向にした。  
+まぁ、色々あったので、その時のまとめ。  
+
+### CallMethodActionでFlexGridのSelectメソッドを呼び出したい
+
+前にCallMethodActionでViewから直接メソッドを実行できることを発見した。  
+今回も使えないかと思って調べた。  
+
+FlexGridのSelectメソッドは行と列の2つの引数を必要とする。  
+CommandParameterとかで複数の引数を渡すことができるのか？  
+→できない。  
+渡すとしてもObject型になるので、受け取る側もObject型でなければいけない。  
+受け取った後に、内部でキャストして順次取り出す感じ。  
+
+CommandParameterに複数のパラメーターを指定したければ、MultiBindingとMultiConverterを使う必要がある。  
+だけど、これだけのためにMultiConverter作るのは面倒くさい。  
+さらに、項目が追加されたら毎回、最終行の3列目を指定したいので、毎回MessengerをRaiseすることになる。  
+となれば、ビヘイビアにしたほうがいいのでは？となった。  
+普通にビヘイビアで解決した。  
+
+### FlexGridの項目の追加・削除を観測するイベント
+
+→`FlexGrid.Rows.CollectionChangedイベント`  
+ItemsSourceChanging、ItemsSourceChangedではない。  
+バインド先がItemsSourceなので、なんでできないのか小一時間悩んでしまった。  
+正解はRowsでした。  
