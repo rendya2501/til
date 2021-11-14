@@ -50,73 +50,88 @@ public class Print
 
 ## インデクサ(indexer)
 
-<https://ufcpp.net/study/csharp/oo_indexer.html#definition>  
+大昔にまとめたんですけど、結局どういう機能かわからないままなんですよね。  
+というわけで、そういう基本的なところからまとめていこうと思います。  
+まぁ、ほとんどwikiの内容なんですけどね。  
 
-クラスや構造体のインスタンスに配列と同様の添字を指定してアクセスするための構文。  
-ユーザー定義型が配列型と同様に`[]`を用いた要素の読み書きが行えるようにしたもの。  
-インデックスでアクセスするのでインデクサーだって。  
-インデクサー自体はプロパティの拡張でしかない。  
+### とりあえず言葉の意味から
 
-```C#
-アクセスレベル 戻り値の型 this[添字の型 添字]
-{
-  set
-  {
-    // setアクセサ
-    //  ここに値の変更時の処理を書く。
-    //  value という名前の変数に代入された値が格納される。
-    //  添字が使える以外はプロパティと同じ。
-  }
-  get
-  {
-    // getアクセサ
-    //  ここに値の取得時の処理を書く。
-    //  メソッドの場合と同様に、値はreturnキーワードを用いて返す。
-    //  こっちも添字が使える以外はプロパティと同じ。
-  }
-}
+indexer  
+①索引作成者  
+②データベースの索引を作るプログラムや人の事。  
+
+indexって付くくらいなので、まぁ、そうなるよねって感じ。  
+容易に添え字が使われるのだろう事は予想できる。  
+
+### とりあえず定義から
+
+``` txt : wiki
+クラスや構造体のインスタンスに配列を同様に沿え字を指定してアクセスするための構文
 ```
 
-```C#
-using System;
+配列って添え字でアクセスするじゃん？  
+インスタンスも同じように添え字でアクセスできるようにすると便利なんじゃね？って機能  
+まぁ、やればわかるけど、本当にクラスも配列見たいに添え字でアクセスできるんだ  
 
-/// <summary>
-/// 添字の下限と上限を指定できる配列。
-/// </summary>
-class BoundArray
-{
-    int[] array;
-    int lower;   // 配列添字の下限
+### 実装例
 
-    public BoundArray(int lower, int upper)
-    {
-        this.lower = lower;
-        array = new int[upper - lower + 1];
-    }
-    /// <summary>
-    /// インデクサー
-    /// </summary>
-    public int this[int i]
-    {
-        set { this.array[i - lower] = value; }
-        get { return this.array[i - lower]; }
-    }
-}
+インデクサーをサポートしていないJavaにおいて、配列リストを表すコレクションの要素へのアクセスは、Listインターフェースのget/setメソッドによって提供される。  
 
-class Program
-{
-    static void Main()
-    {
-        BoundArray a = new BoundArray(1, 9);
-
-        for (int i = 1; i <= 9; ++i)
-            a[i] = i;
-
-        for (int i = 1; i <= 9; ++i)
-            Console.Write("a[{0}] = {1}\n", i, a[i]);
-    }
-}
+``` Java
+var list = new java.util.ArrayList<Integer>(java.util.Collections.nCopies(10, 0));
+// index 番目の要素に値を設定。
+// void set(int index, E element)
+list.set(2, 100);
+// index 番目の要素を取得。
+// E get(int index)
+int val = list.get(2);
 ```
+
+C#のインデクサでは、配列リストの要素へのアクセスを配列のアクセスと同じように記述することができる。  
+
+``` C#
+var list = new System.Collections.Generic.List<int>(new int[10]);
+list[2] = 100;
+int val = list[2];
+```
+
+あれ？もしかしてindexofとかでアクセスしてたけどそんなことする必要なかったのか？  
+いや、indexofは用途が違う。  
+stringで値を検索して、その場所をインデックスで返してくれる関数だから違う。  
+
+インデクサを定義する際、インデックスとして整数以外の値 (文字列やオブジェクトなど) も使用することができ、ハッシュテーブルなどの連想配列を表すコレクションに使用されている。  
+
+``` C#
+var map = new System.Collections.Generic.Dictionary<string, double>();
+map["key1"] = 0.1;
+double val = map["key1"];
+```
+
+一番恩恵がディクショナリーかもしれない。  
+キーでバリューにアクセスできるのはインデクサのおかげだったんだな。  
+割と感動した。  
+
+因みにインデクサを提供するインターフェースはIListらしい。→
+[列挙可能から完全なるモノまで – IEnumerableの探索 – C# Advent Calendar 2014](https://www.kekyo.net/2014/12/14/4587)  
+
+``` txt
+IListインターフェイスには「インデクサ」が定義されています。このインデクサを使用可能にするため、敢えてIListインターフェイスを実装しているのではないかと推測しています。
+```
+
+萬君がそういってた。よくそんなこと知ってるね。  
+まぁ、調べたらそういう文献がちらほら見つかるので、本当のことなのだろう。  
+DictionaryはIDctionaryが提供していたので、厳密にIListで無ければいけないというわけではないみたいだ。  
+
+### 他参考にしたサイト等  
+
+[Java使いがC#を勉強する　その④　インデクサ](https://shironeko.hateblo.jp/entry/2017/02/09/202843)
+
+### 結論？
+
+これがなかったらDictionaryは使い物にならなさそうなことわかった。  
+Listでも、配列のようにアクセスできるのはインデクサーのおかげということがわかった。  
+実装する機会があるかどうかは知らないけど、作る時は調べながら作るでしょう。  
+本当に、配列のようにアクセスできる仕組みを提供する機能なんだなーってことがわかりました。  
 
 ---
 
