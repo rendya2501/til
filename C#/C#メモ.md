@@ -718,3 +718,73 @@ Framerwork4.8の7.3どまりのフロントではもちろんエラーになる�
     test = (decimal?)2.5252525252;
     test = test * 1;
 ```
+
+---
+
+## シリアライズしたデータを見てみたい
+
+<https://social.msdn.microsoft.com/Forums/vstudio/ja-JP/4fb1e972-c19b-4bbd-b828-82cb783c13e8/12458125021247212455124631248812434124711252212450125211245212?forum=csharpgeneralja>  
+<http://funini.com/kei/java/serialize.shtml>  
+
+シリアル化。  
+XMLの他にJsonもある。多分バイト列にするやつもある。  
+なるほど。  
+参照先の情報をXMLやJsonにまとめるのね。  
+そうすれば、通信相手にデータを送ることができる。  
+
+参照情報だけでは、参照先のアドレスしかわからない。ただの数字でしかないからね。  
+シリアル化は、そういった参照先の情報を全て持ってきて、XMLなり、Jsonなり、バイトなりに変換する。  
+そうすることで、全てのデータをそれらファイルにまとめることができる。  
+極端な話、全て文字列にするわけだ。  
+
+そうしてしまえば、まぁただのデータなので、相手に送ることもできるし、参照なんて関係なく文字列として扱うことが出来る。  
+もちろん、受け取ったデータから複合する事で新しい参照にそいつらデータをぶち込んで、元のように使うことが出来るわけだ。  
+まぁ、参照先は違って当然だけど、別にそれが本質ではないしね。  
+
+だから、JsonSerializerでJson化してDeserializeするとディープコピーができるわけか。  
+納得。  
+
+だからシリアル化、一連のデータとするって意味でシリアル化っていうわけか。  
+なるほど。なるほど。  
+
+``` C#
+    //シリアライズ対象のクラス
+    public class SampleClass
+    {
+        public int Number;
+        public string Message;
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            SampleClass cls = new SampleClass
+            {
+                Message = "テスト",
+                Number = 123
+            };
+
+            var serializer = new XmlSerializer(typeof(SampleClass));
+            var sw = new StringWriter();
+            serializer.Serialize(sw, cls);
+            Console.WriteLine(sw.ToString());
+            sw.Close();
+
+            var ms = new MemoryStream();
+            serializer.Serialize(ms, cls);
+            ms.Position = 0;
+            var i = (SampleClass)serializer.Deserialize(ms);
+            Console.WriteLine(i.ToString());
+            ms.Close();
+        }
+    }
+```
+
+``` XML : Console.WriteLineした結果
+<?xml version="1.0" encoding="utf-16"?>
+<SampleClass xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Number>123</Number>
+  <Message>テスト</Message>
+</SampleClass>
+```
