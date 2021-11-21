@@ -916,7 +916,60 @@ foreachなどの評価で初めてクエリが外部ソースに発行され結�
 
 ## OrderBy,ThenBy
 
-LinqのOrderByを複数で調べても何も出てこなかった記憶がある。
-改めて調べても出てこないし、よく考えればOrderByって1つのキーで絞らないとソートも何もあったものじゃないよな。
-でもって、またOrderByすると、さっきまでソートした結果を無視して新しくソートしなおしてしまう。
-だからThenByでどんどんソートした結果を保持したままソートする。
+笹田さんから`list.ThenBy(o => true ? o.ID : o.name);`この構文がエラーになるのだが、分からないかと聞かれたのでまとめ。  
+よく考えたら、OrderByって複数のキーを指定できたっけ？みたいなこともあいまいだったので復習も兼ねる。  
+
+「OrderBy 複数」で調べても何も出てこなかった記憶がある。  
+改めて調べても出てこないし、よく考えればOrderByって1つのキーで絞らないとソートも何もあったものじゃないよな。  
+でもって、またOrderByすると、さっきまでソートした結果を無視して新しくソートしなおしてしまう。  
+だからThenByでどんどんソートした結果を保持したままソートする。  
+
+まとめ
+・OrderBy,ThenByはキーは1つしか指定できない。(例外はある模様。詳しくは下で)  
+・OrderByした結果に対してThenByを行う。  
+・ThenByした結果にOrderByをすると、今までの結果は考慮せず一からソートし直す。  
+
+``` C#
+    var list = new List<(int Data1, int Data2)>
+    {
+        (11, 20),
+        (12, 20),
+        (10, 22),
+        (10, 21),
+        (10, 20),
+    };
+
+    // これはコーディングの段階でエラーになる。
+    // 実行する時にならないと型が確定しないからだと思われる。
+    list.OrderBy(o => true ? o.ID : o.name);
+
+    // こちらはコーディング段階でエラーにはならないが実行するとエラーになる。
+    // System.InvalidOperationException: 'Failed to compare two elements in the array.'
+    var aa = order_list3.OrderBy(o => new { o.Data1, o.Data2 });
+    
+    // なんと行ける
+    // data1=10, data2=20
+    // data1=10, data2=21
+    // data1=10, data2=22
+    // data1=11, data2=20
+    // data1=12, data2=20
+    var a2 = order_list3.OrderBy(o => (o.Data1, o.Data2));
+    // data1=10, data2=20
+    // data1=11, data2=20
+    // data1=12, data2=20
+    // data1=10, data2=21
+    // data1=10, data2=22
+    var a2 = order_list3.OrderBy(o => (o.Data2, o.Data1));
+    // data1=10, data2=20
+    // data1=10, data2=21
+    // data1=10, data2=22
+    // data1=11, data2=20
+    // data1=12, data2=20
+    var order_list3 = list.OrderBy(d => d.Data1).ThenBy(d => d.Data2);
+    // data1=10, data2=20
+    // data1=11, data2=20
+    // data1=12, data2=20
+    // data1=10, data2=21
+    // data1=10, data2=22
+    var order_list33 = list.OrderBy(d => d.Data2).ThenBy(d => d.Data1);
+```
