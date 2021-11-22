@@ -5,6 +5,8 @@
 400系 : クライアント側のエラー
 500系 : サーバー側のエラー
 
+<https://postd.cc/choosing-an-http-status-code/>  
+
 ---
 
 ## 401 Unauthorized
