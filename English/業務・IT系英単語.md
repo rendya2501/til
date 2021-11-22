@@ -413,6 +413,31 @@ pathは通り道や細い道など、小さめな意味合い。
 名詞はRepresentative。  
 Representerではない。  
 
+・exceed  
+[動詞]  
+～を超える。  
+
+[追い越す、上回るの「exceed」と「surpass」の意味の違い]<https://talking-english.net/exceed-surpass/>  
+
+``` txt
+exceedはルールで定められた「限界、規制、限度、制限」あるいは「予測」などを超えることによく使われます。
+決められた数字・数値で表せる概念の限度・限界であることが多いです。
+また限界（limit）を超えるという意味から、スピード違反やクレジットカードの上限を超えるなど悪い出来事が起こっているといった文脈でよく使われます。
+```
+
+・confidencial
+[形容詞]  
+信任の厚い。  
+機密の  
+
+機密文書 : confidential documents  
+
+印刷した裏紙にconfidencialって書いてあって、大丈夫なのかと思ってしまった。  
+
+・confidence
+[名詞]  
+信頼  
+マビノギでお世話になったよねぇ。  
 
 ---
 
