@@ -31,3 +31,16 @@ WindowsのPathは面倒臭い・・・。
 `インストーラーでNode.jsをインストールした場合、パッケージのグローバルインストール先として C:\Users\ユーザー名\AppData\Roaming\npm が使用されます。`
 
 node_modules インストール
+
+
+---
+
+## ESlint
+
+JavaScript,TypeScriptなどの静的解析ツール。  
+
+## Babel.js
+
+次世代JavaScriptの標準機能をブラウザのサポートを待たずに使えるようにするNode.js製のツール。  
+Babelが最新のJavaScriptを古いブラウザでも動かせるようにトランスパイルしてくれるなら、TypeScriptとの兼ね合いはどうなるのか？  
+TypeScriptもJavaScriptをラップした言語であり、コンパイル時にはある程度古いブラウザでも動かせるようにJavaScriptに変換してくれるはずだが。  

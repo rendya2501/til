@@ -1,5 +1,16 @@
 # C#基本まとめ
 
+## C#のバージョン早見表
+
+[.NET Framework のバージョン対応表](https://qiita.com/nskydiving/items/3af8bab5a0a63ccb9893)  
+公式を見るよりよっぽどいい。  
+
+- .NetFramework 4.8 : C# 7.3  
+- .NetCore3.0 : C# 8.0
+- .NetCore5 : C#9.0
+
+---
+
 ## varの意味
 
 型を同じにしてくれる。  
