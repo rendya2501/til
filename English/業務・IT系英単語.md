@@ -491,6 +491,12 @@ configuration of the system
 
 2進数は「binary number」
 
+・scaffolding  
+[不可算名詞]  
+建築現場などの足場、足場材料  
+
+フレームワークにおいて使う場合、アプリケーションを効率的に構築するためにある程度まで必要な状態を作ってくれる機能のことをいう。  
+
 ---
 
 ## Delete,Erase,Remove,Eliminate
