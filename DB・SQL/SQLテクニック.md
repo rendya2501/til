@@ -527,3 +527,16 @@ CEILING : 天井→切り上げ
 113     CEILING  
 普通に112.23の地点でCEILING使えばよくね？ってなるよね。  
 修正の履歴を見る限り、過去の修正を生かしつつ、辻褄を合わせるためにこうなったのだろうという結論で終結した。  
+
+---
+
+## 値が入っているかNullか、をBoolに変換する
+
+[What is the best way to convert an int or null to boolean value in an SQL query?](https://stackoverflow.com/questions/177956/what-is-the-best-way-to-convert-an-int-or-null-to-boolean-value-in-an-sql-query)  
+
+``` SQL
+SELECT 
+    CASE WHEN ValueColumn IS NULL THEN 'FALSE' ELSE 'TRUE' END BooleanOutput 
+FROM 
+    table 
+```
