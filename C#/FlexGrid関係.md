@@ -225,6 +225,11 @@ public class RowHeaderNumberingCellFactory : CellFactory
         <!-- TriggerActionに記述していた1行だけの命令はこれで実行できる。 -->
         <i:CallMethodAction MethodName="Clear" TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ctrl:CustomFlexGrid}}, Path=CollectionView.SortDescriptions}" />
     </l:InteractionMessageTrigger>
+
+    <!-- 画面をリフレッシュするだけならこれでよい。 -->
+    <l:InteractionMessageTrigger MessageKey="FlexGridInvalidateAction" Messenger="{Binding Messenger}">
+        <i:CallMethodAction MethodName="Invalidate" />
+    </l:InteractionMessageTrigger>
 </i:Interaction.Triggers>
 ```
 
