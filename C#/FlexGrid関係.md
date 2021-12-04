@@ -247,6 +247,8 @@ public class RowHeaderNumberingCellFactory : CellFactory
     }
 ```
 
+//Messenger.Raise(new InteractionMessage("FlexGridInvalidateAction"));
+
 ---
 
 ## FlexGridのセルを選択する時に色々あったのでまとめ
