@@ -1,0 +1,7 @@
+{
+    "DebugMode": false,
+    "WebApiKey": "12345678901234567890123456789012",
+    "ApiUrlBase": "https://selfdemo.roundnavi.jp/RN3.SelfOrder/option/restaurant/self_order",
+    "BarcodeScanPatchSize": "medium",
+    "BarcodeScanDetectedCount": 2
+}
