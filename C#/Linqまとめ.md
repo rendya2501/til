@@ -11,7 +11,61 @@ ValueTupeを使えばいつもの感じでフィールドにアクセスでき�
     {
         (1, "cow"),
         (2, "chickens"),
-        (3, "airplane")
+        (3, "airplane"),
+    };
+
+    var tupleList = new List<(string Name, byte Gender, int Age)>
+    {
+        ("井村 由宇",1,58),
+        ("脇田 大",0,30),
+        ("平 千佳子",1,75),
+        ("江川 那奈",1,66),
+        ("永島 美幸",1,80),
+        ("中塚 明日",1,55),
+        ("黒木 りえ",1,52),
+        ("戎 杏",1,45),
+        ("菅 亮",0,79),
+        ("池本 しぼり",1,38),
+        ("本多 路子",1,52),
+        ("山内 博明",0,21),
+        ("木下 さやか",1,27),
+        ("市川 竜也",0,61),
+        ("山城 りえ",1,41),
+        ("長田 窈",1,79),
+        ("井手 秀樹",0,35),
+        ("松井 明慶",0,68),
+        ("立石 たまき",1,79),
+        ("とよた さやか",1,51),
+        ("小木 美月",1,77),
+        ("今西 まなみ",1,66),
+        ("河本 友也",0,74),
+        ("北条 ヒカル",1,24),
+        ("天野 瑠璃亜",1,68),
+        ("大塚 浩正",0,69),
+        ("真田 大五郎",0,57),
+        ("堀井 京子",1,76),
+        ("渡辺 美佐",1,51),
+        ("浅川 美帆",1,75),
+        ("岩井 賢治",0,20),
+        ("村瀬 莉沙",1,31),
+        ("市川 研二",0,57),
+        ("河原 美幸",1,27),
+        ("黒岩 憲史",0,30),
+        ("薬師丸 美嘉",1,62),
+        ("阿部 禄郎",0,50),
+        ("吉野 公顕",0,48),
+        ("八十田 隼士",0,40),
+        ("清田 美和子",1,59),
+        ("矢口 あさみ",1,26),
+        ("米沢 明宏",0,80),
+        ("神野 礼子",1,55),
+        ("辻 三郎",0,29),
+        ("百瀬 有海",1,32),
+        ("村瀬 俊介",0,73),
+        ("金丸 寿明",0,43),
+        ("小寺 勝久",0,25),
+        ("今泉 由宇",1,64),
+        ("岡田 大",0,40),
     };
 ```
 
@@ -1200,8 +1254,9 @@ groupbyで解決しようとしすぎて無駄に難しくしてしまった感�
                     })
                     .ToList();
             }
+```
 
-
+``` C#
             if (condition.AgeAggregateUnit > 1)
             {
                 T CreateT(IGrouping<(bool Gender, bool Age), ResultInquiryAttendee> s, string name) => new T()
@@ -1257,5 +1312,147 @@ groupbyで解決しようとしすぎて無駄に難しくしてしまった感�
                 }
                 male.AddRange(female);
                 list = male;
+            }
+```
+
+``` C#
+            {
+                var male = new List<T>(
+                    attendeeList
+                        .GroupBy(g => (Gender: g.Gender == GenderType.Male, Age: g.Age == null))
+                        .Where(w => w.Key.Gender && w.Key.Age)
+                        .Select(s => CreateT(s, "男性 生年月日無し"))
+                        .ToList());
+                var female = new List<T>(
+                   attendeeList
+                       .GroupBy(g => (Gender: g.Gender == GenderType.Female, Age: g.Age == null))
+                       .Where(w => w.Key.Gender && w.Key.Age)
+                       .Select(s => CreateT(s, "女性 生年月日無し"))
+                       .ToList());
+
+                T CreateT(IGrouping<(bool Gender, bool Age), ResultInquiryAttendee> s, string name) => new T()
+                {
+                    Name = name,
+                    PersonCount = s.GroupBy(g => g.CustomerCD).Count(),
+                    SumCount = s.Count(),
+
+                    MondayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Monday),
+                    TuesdayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Tuesday),
+                    WednesdayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Wednesday),
+                    ThursdayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Thursday),
+                    FridayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Friday),
+                    SaturdayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Saturday),
+                    SundayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Sunday),
+
+                    FeeCls1Count = s.Count(s => s.FeeClsCD == 1),
+                    FeeCls2Count = s.Count(s => s.FeeClsCD == 2),
+                    FeeCls3Count = s.Count(s => s.FeeClsCD == 3),
+                    FeeCls4Count = s.Count(s => s.FeeClsCD == 4),
+                    OtherFeeCls1Count = s.Count(s => s.FeeClsCD != 1)
+                };
+
+                _ = Enumerable.Range(0, 100)
+                    .Select((v, i) => (v, i))
+                    .GroupBy(x => x.i / condition.AgeAggregateUnit)
+                    .Select(g =>
+                    {
+                        var from = g.Min(m => m.v);
+                        var to = g.Max(m => m.v);
+                        var fromTo = from.ToString() + "～" + to.ToString();
+                        male.AddRange(
+                            attendeeList
+                                .GroupBy(g => (Gender: g.Gender == GenderType.Male, Age: g.Age >= from && g.Age <= to))
+                                .Where(w => w.Key.Gender && w.Key.Age)
+                                .Select(s => CreateT(s, "男性 " + fromTo))
+                                .ToList());
+                        female.AddRange(
+                            attendeeList
+                                .GroupBy(g => (Gender: g.Gender == GenderType.Female, Age: g.Age >= from && g.Age <= to))
+                                .Where(w => w.Key.Gender && w.Key.Age)
+                                .Select(s => CreateT(s, "女性 " + fromTo))
+                                .ToList());
+                        return g;
+                    })
+                    .ToList();
+
+                male.AddRange(female);
+                list = male;
+            }
+```
+
+GroupByで条件で絞れて、次のWhere文でKeyがTrueのモノを拾えば、その条件でグルーピングされた一覧を操作可能って話。
+
+``` C#
+            var tupleList = new List<(string Name, byte Gender, int Age)>
+            {
+                ("井村 由宇",1,58),
+                ("脇田 大",0,30),
+                ("平 千佳子",1,75),
+                ("江川 那奈",1,66),
+                ("永島 美幸",1,80),
+                ("中塚 明日",1,55),
+                ("黒木 りえ",1,52),
+                ("戎 杏",1,45),
+                ("菅 亮",0,79),
+                ("池本 しぼり",1,38),
+                ("本多 路子",1,52),
+                ("山内 博明",0,21),
+                ("木下 さやか",1,27),
+                ("市川 竜也",0,61),
+                ("山城 りえ",1,41),
+                ("長田 窈",1,79),
+                ("井手 秀樹",0,35),
+                ("松井 明慶",0,68),
+                ("立石 たまき",1,79),
+                ("とよた さやか",1,51),
+                ("小木 美月",1,77),
+                ("今西 まなみ",1,66),
+                ("河本 友也",0,74),
+                ("北条 ヒカル",1,24),
+                ("天野 瑠璃亜",1,68),
+                ("大塚 浩正",0,69),
+                ("真田 大五郎",0,57),
+                ("堀井 京子",1,76),
+                ("渡辺 美佐",1,51),
+                ("浅川 美帆",1,75),
+                ("岩井 賢治",0,20),
+                ("村瀬 莉沙",1,31),
+                ("市川 研二",0,57),
+                ("河原 美幸",1,27),
+                ("黒岩 憲史",0,30),
+                ("薬師丸 美嘉",1,62),
+                ("阿部 禄郎",0,50),
+                ("吉野 公顕",0,48),
+                ("八十田 隼士",0,40),
+                ("清田 美和子",1,59),
+                ("矢口 あさみ",1,26),
+                ("米沢 明宏",0,80),
+                ("神野 礼子",1,55),
+                ("辻 三郎",0,29),
+                ("百瀬 有海",1,32),
+                ("村瀬 俊介",0,73),
+                ("金丸 寿明",0,43),
+                ("小寺 勝久",0,25),
+                ("今泉 由宇",1,64),
+                ("岡田 大",0,40),
+            };
+
+            var aa = tupleList
+                .GroupBy(g => g.Gender == 0 && 15 <= g.Age && g.Age <= 20)
+                .SelectMany(s =>
+                {
+                    if (s.Key == true)
+                    {
+                        return s.Select(s => $"{ s.Name},{(s.Gender == 0 ? "女性" : "男性")},{s.Age}");
+                    }
+                    else
+                    {
+                        return s.Select(s => $"{ s.Name},{(s.Gender == 0 ? "女性" : "男性")},{s.Age}");
+                    }
+                })
+                .ToList();
+            foreach (var item in aa)
+            {
+                Console.WriteLine(item);
             }
 ```
