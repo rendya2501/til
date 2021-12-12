@@ -970,7 +970,7 @@ foreachなどの評価で初めてクエリが外部ソースに発行され結�
 
 ## OrderBy,ThenBy
 
-笹田さんから`list.ThenBy(o => true ? o.ID : o.name);`この構文がエラーになるのだが、分からないかと聞かれたのでまとめ。  
+`list.ThenBy(o => true ? o.ID : o.name);`この構文がエラーになるのだが、分からないかと聞かれたのでまとめ。  
 よく考えたら、OrderByって複数のキーを指定できたっけ？みたいなこともあいまいだったので復習も兼ねる。  
 
 「OrderBy 複数」で調べても何も出てこなかった記憶がある。  
@@ -1039,36 +1039,47 @@ foreachなどの評価で初めてクエリが外部ソースに発行され結�
 
 ## 連番を指定した数の塊に分解する方法
 
+間隔3と指定した場合、
+{
+    {0,1,2},
+    {3,4,5},
+    {6,7,8}
+}
+
+間隔5を指定した場合、
+{
+    {0,1,2,3,4},
+    {5,6,7,8,9},
+    {10,11,12,13,14},
+}
+
+年齢を範囲で区切る処理で必要になったのでまとめ。  
+みたいな一連のリストを生成するスマートな処理はないものか探した。
+
+最後に考えたのはForで愚直にやる方法。  
+スマートじゃないし、直観的でもないけど、十分動く。でもって速度的には一番早い。  
+
+``` C#
+var kankaku = 5;
+var from = 0;
+// 間隔分インクリメントされる。
+for (var to = kankaku - 1; to < 150; to += kankaku)
+{
+    // ここの間は0,1,2,3,4  5,6,7,8,9 になってる。
+
+    // fromは6,10,16みたいな感じで常にto + 1の値にする。
+    from = to + 1;
+}
+```
+
+探したら使えそうなのがたくさんあった。  
+
 [【C#】LINQ でコレクションをN個ずつの要素に分割する](https://qiita.com/Nossa/items/db9bff2390291432d138)  
 [連続する数値でグループ分けする](https://noriok.hatenadiary.jp/entry/2015/06/14/122043)  
 [LINQでn個ずつグルーピング](https://ichiroku11.hatenablog.jp/entry/2015/04/16/230309)  
 [[C#][VB] LINQでコレクションをチャンク(N個ずつ)に分割](https://webbibouroku.com/Blog/Article/chunk-linq)  
 
-間隔3と指定した場合、
-0,1,2
-3,4,5
-6,7,8
-
-間隔5を指定した場合、
-0,1,2,3,4
-5,6,7,8,9
-10,11,12,13,14
-
-を生成してくれるスマートな処理はないものか探した。
-スマートじゃないけどこんなのしか思いつかなかった。
-
-``` C# : from to の一覧
-var kankaku = 5;
-var from = 0;
-// 間隔分インクリメントされる。
-for (var i = 0; i < 150; i += kankaku){
-    var to = i;
-    // ここの間は0,1,2,3,4  5,6,7,8,9 になってる。
-
-    // fromは6,10,16みたいな感じで常にto + 1の値にする。
-    from += i + 1;
-}
-```
+1から100までの連番を生成して、それを指定した要素数の塊にわけて、ループして最小値と最大値を取れば実現できるという寸法。  
 
 ``` C#
     // N 個ずつの N
@@ -1086,373 +1097,129 @@ for (var i = 0; i < 150; i += kankaku){
     }
 
     // fromtoとnullのバージョン
-    var chunks2 = Enumerable.Range(0, 100)
+    List<(int, int)?> chunks2 = Enumerable.Range(0, 100)
         .Select((v, i) => (v, i))
-        .GroupBy(x => x.i / chunkSize)
-        .Select(g => ((int?)g.Min(m => m.v), (int?)g.Max(m => m.v)))
+        .GroupBy(x => x.i / 5)
+        .Select(g => ((int, int)?)(g.Min(m => m.v), g.Max(m => m.v)))
         .ToList();
-    chunks2.Insert(0, (null,null));
+    chunks2.Insert(0, null);
 ```
 
 ---
 
 ## groupbyに条件指定可能
 
-そうしたらKeyがTrueの固まりとFalseの固まりにわかれる。  
-条件に当てはまったやつはもちろんTrue。そうじゃない奴はFalseになるので、要素を回せばGroupingした値を操作可能。  
+連番を指定した数の塊に分解する方法と合わせての話になる。  
+連番を塊にわけてFromToを取れたとして、次はその範囲内の年齢を集めて集計しないといけない。  
+真っ先に思い浮かぶのはgroupbyを使う事だが、`from < age && age < to` という条件を当てはめる事ができるのかわからなかった。  
+実際にやってみたら普通に出来たのでまとめ。  
 
-これは思えば、男性null,男性年齢順,女性null,女性年齢順って愚直にやっていけば問題ない課題ではあった。  
-groupbyで解決しようとしすぎて無駄に難しくしてしまった感じがする。  
+groupbyに条件を指定した場合、Keyがboolになる。  
+Trueの集合とFalseの集合が生成されるので、`group().where(w => w.key)`とすることでtrueの集合だけを操作可能になる。  
+この時、select句のsはIGroupingインターフェースで返却されるので、普通の型に戻したかったらs.ToList()とするればよい。  
 
-``` C#
-            if (attendeeList?.Any() != true)
-            {
-                return;
-            }
+whereで絞った後にgroupbyでもいいのかもしれない。  
+てか、普通にそれでいいか？  
+それでいいかも・・・。  
+いいといえばいいが、微妙に解釈が違うので、それはそれで何とかしないといけないかも。  
+とりあえず、目的のものがある程度スマートに出来たし、頭でも理解できたので良しとしましょう。  
 
-            if (condition.AgeAggregateUnit > 1)
-            {
-                var from = 0;
-                var check = attendeeList
-                    .GroupBy(g => new { g.Gender, g.Age })
-                    .OrderBy(o => o.Key.Gender)
-                    .ThenBy(t => t.Key.Age)
-                    .ToList();
-                var male = new List<T>(check
-                    .Where(w => w.Key.Gender == GenderType.Male && w.Key.Age == null)
-                    .Select(s => new T()
-                    {
-                        Name = (s.Key.Gender == GenderType.Male ? "男性" : "女性") + " " + (s.Key.Age.HasValue ? s.Key.Age.ToString() : "生年月日無し"),
-                        PersonCount = s.GroupBy(g => g.CustomerCD).Count(),
-                        SumCount = s.Count(),
+GroupByで条件で絞れて、WhereでTrueのモノを拾えば、その条件でグルーピングされた一覧を操作可能って話。
 
-                        MondayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Monday),
-                        TuesdayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Tuesday),
-                        WednesdayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Wednesday),
-                        ThursdayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Thursday),
-                        FridayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Friday),
-                        SaturdayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Saturday),
-                        SundayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Sunday),
+``` C# : 完成形
+    enum GenderType
+    {
+        Male,
+        Female
+    }
 
-                        FeeCls1Count = s.Count(s => s.FeeClsCD == 1),
-                        FeeCls2Count = s.Count(s => s.FeeClsCD == 2),
-                        FeeCls3Count = s.Count(s => s.FeeClsCD == 3),
-                        FeeCls4Count = s.Count(s => s.FeeClsCD == 4),
-                        OtherFeeCls1Count = s.Count(s => s.FeeClsCD != 1)
-                    })
-                    .ToList());
-                var female = new List<T>(check
-                    .Where(w => w.Key.Gender == GenderType.Female && w.Key.Age == null)
-                    .Select(s => new T()
-                    {
-                        Name = (s.Key.Gender == GenderType.Male ? "男性" : "女性") + " " + (s.Key.Age.HasValue ? s.Key.Age.ToString() : "生年月日無し"),
-                        PersonCount = s.GroupBy(g => g.CustomerCD).Count(),
-                        SumCount = s.Count(),
+    static List<(string Name, GenderType Gender, int Age)> tupleList = new List<(string Name, GenderType Gender, int Age)>
+        {
+            ("井村 由宇",GenderType.Female,58),
+            ("脇田 大",GenderType.Male,30),
+            ("平 千佳子",GenderType.Female,75),
+            ("江川 那奈",GenderType.Female,66),
+            ("永島 美幸",GenderType.Female,80),
+            ("中塚 明日",GenderType.Female,55),
+            ("黒木 りえ",GenderType.Female,52),
+            ("戎 杏",GenderType.Female,45),
+            ("菅 亮",GenderType.Male,79),
+            ("池本 しぼり",GenderType.Female,38),
+            ("本多 路子",GenderType.Female,52),
+            ("山内 博明",GenderType.Male,21),
+            ("木下 さやか",GenderType.Female,27),
+            ("市川 竜也",GenderType.Male,61),
+            ("山城 りえ",GenderType.Female,41),
+            ("長田 窈",GenderType.Female,79),
+            ("井手 秀樹",GenderType.Male,35),
+            ("松井 明慶",GenderType.Male,68),
+            ("立石 たまき",GenderType.Female,79),
+            ("とよた さやか",GenderType.Female,51),
+            ("小木 美月",GenderType.Female,77),
+            ("今西 まなみ",GenderType.Female,66),
+            ("河本 友也",GenderType.Male,74),
+            ("北条 ヒカル",GenderType.Female,24),
+            ("天野 瑠璃亜",GenderType.Female,68),
+            ("大塚 浩正",GenderType.Male,69),
+            ("真田 大五郎",GenderType.Male,57),
+            ("堀井 京子",GenderType.Female,76),
+            ("渡辺 美佐",GenderType.Female,51),
+            ("浅川 美帆",GenderType.Female,75),
+            ("岩井 賢治",GenderType.Male,20),
+            ("村瀬 莉沙",GenderType.Female,31),
+            ("市川 研二",GenderType.Male,57),
+            ("河原 美幸",GenderType.Female,27),
+            ("黒岩 憲史",GenderType.Male,30),
+            ("薬師丸 美嘉",GenderType.Female,62),
+            ("阿部 禄郎",GenderType.Male,50),
+            ("吉野 公顕",GenderType.Male,48),
+            ("八十田 隼士",GenderType.Male,40),
+            ("清田 美和子",GenderType.Female,59),
+            ("矢口 あさみ",GenderType.Female,26),
+            ("米沢 明宏",GenderType.Male,80),
+            ("神野 礼子",GenderType.Female,55),
+            ("辻 三郎",GenderType.Male,29),
+            ("百瀬 有海",GenderType.Female,32),
+            ("村瀬 俊介",GenderType.Male,73),
+            ("金丸 寿明",GenderType.Male,43),
+            ("小寺 勝久",GenderType.Male,25),
+            ("今泉 由宇",GenderType.Female,64),
+            ("岡田 大",GenderType.Male,40),
+        };
 
-                        MondayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Monday),
-                        TuesdayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Tuesday),
-                        WednesdayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Wednesday),
-                        ThursdayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Thursday),
-                        FridayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Friday),
-                        SaturdayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Saturday),
-                        SundayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Sunday),
+    static void Do(int chunkSize = 1)
+    {
+        var male = new List<(string test, int count)>();
+        var female = new List<(string test, int count)>();
 
-                        FeeCls1Count = s.Count(s => s.FeeClsCD == 1),
-                        FeeCls2Count = s.Count(s => s.FeeClsCD == 2),
-                        FeeCls3Count = s.Count(s => s.FeeClsCD == 3),
-                        FeeCls4Count = s.Count(s => s.FeeClsCD == 4),
-                        OtherFeeCls1Count = s.Count(s => s.FeeClsCD != 1)
-                    })
-                    .ToList());
+        (string test, int count) CreateT(List<(string Name, GenderType Gender, int Age)> s, string name) =>
+            (test: name, count: s.Count());
 
-                for (int to = condition.AgeAggregateUnit - 1; to <= 200; to += condition.AgeAggregateUnit)
-                {
-                    var cc = attendeeList
-                        .GroupBy(g => new { g.Gender, Age = g.Age >= from && g.Age <= to })
-                        .OrderBy(o => o.Key.Gender)
-                        .ToList();
-                    male.AddRange(
-                        cc
-                        .Where(w => w.Key.Age && w.Key.Gender == GenderType.Male)
-                        .Select(s => new T()
-                        {
-                            Name = (s.Key.Gender == GenderType.Male ? "男性" : "女性") + " " + from.ToString() + "～" + to.ToString(),
-                            PersonCount = s.GroupBy(g => g.CustomerCD).Count(),
-                            SumCount = s.Count(),
+        // 2万ms
+        foreach (var chunk in Enumerable.Range(0, 150)
+            .Select((v, i) => (v, i))
+            .GroupBy(x => x.i / chunkSize)
+            .Select(g => g.Select(x => x.v))
+            .ToList())
+        {
+            var from = chunk.Min();
+            var to = chunk.Max();
+            var fromTo = from.ToString() + "～" + to.ToString();
 
-                            MondayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Monday),
-                            TuesdayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Tuesday),
-                            WednesdayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Wednesday),
-                            ThursdayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Thursday),
-                            FridayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Friday),
-                            SaturdayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Saturday),
-                            SundayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Sunday),
-
-                            FeeCls1Count = s.Count(s => s.FeeClsCD == 1),
-                            FeeCls2Count = s.Count(s => s.FeeClsCD == 2),
-                            FeeCls3Count = s.Count(s => s.FeeClsCD == 3),
-                            FeeCls4Count = s.Count(s => s.FeeClsCD == 4),
-                            OtherFeeCls1Count = s.Count(s => s.FeeClsCD != 1)
-                        })
-                        .ToList()
-                    );
-                    female.AddRange(
-                        cc
-                        .Where(w => w.Key.Age && w.Key.Gender == GenderType.Female)
-                        .Select(s => new T()
-                        {
-                            Name = (s.Key.Gender == GenderType.Male ? "男性" : "女性") + " " + from.ToString() + "～" + to.ToString(),
-                            PersonCount = s.GroupBy(g => g.CustomerCD).Count(),
-                            SumCount = s.Count(),
-
-                            MondayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Monday),
-                            TuesdayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Tuesday),
-                            WednesdayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Wednesday),
-                            ThursdayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Thursday),
-                            FridayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Friday),
-                            SaturdayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Saturday),
-                            SundayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Sunday),
-
-                            FeeCls1Count = s.Count(s => s.FeeClsCD == 1),
-                            FeeCls2Count = s.Count(s => s.FeeClsCD == 2),
-                            FeeCls3Count = s.Count(s => s.FeeClsCD == 3),
-                            FeeCls4Count = s.Count(s => s.FeeClsCD == 4),
-                            OtherFeeCls1Count = s.Count(s => s.FeeClsCD != 1)
-                        })
-                        .ToList()
-                    );
-                    from = to + 1;
-                }
-                male.AddRange(female);
-                list = male;
-            }
-            else
-            {
-                list = attendeeList
-                    .GroupBy(g => new { g.Gender, g.Age })
-                    .OrderBy(o => o.Key.Gender)
-                    .ThenBy(t => t.Key.Age)
-                    .Select(s => new T()
-                    {
-                        Name = (s.Key.Gender == GenderType.Male ? "男性" : "女性") + " " + (s.Key.Age.HasValue ? s.Key.Age.ToString() : "生年月日無し"),
-                        PersonCount = s.GroupBy(g => g.CustomerCD).Count(),
-                        SumCount = s.Count(),
-
-                        MondayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Monday),
-                        TuesdayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Tuesday),
-                        WednesdayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Wednesday),
-                        ThursdayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Thursday),
-                        FridayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Friday),
-                        SaturdayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Saturday),
-                        SundayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Sunday),
-
-                        FeeCls1Count = s.Count(s => s.FeeClsCD == 1),
-                        FeeCls2Count = s.Count(s => s.FeeClsCD == 2),
-                        FeeCls3Count = s.Count(s => s.FeeClsCD == 3),
-                        FeeCls4Count = s.Count(s => s.FeeClsCD == 4),
-                        OtherFeeCls1Count = s.Count(s => s.FeeClsCD != 1)
-                    })
-                    .ToList();
-            }
-```
-
-``` C#
-            if (condition.AgeAggregateUnit > 1)
-            {
-                T CreateT(IGrouping<(bool Gender, bool Age), ResultInquiryAttendee> s, string name) => new T()
-                {
-                    Name = name,
-                    PersonCount = s.GroupBy(g => g.CustomerCD).Count(),
-                    SumCount = s.Count(),
-
-                    MondayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Monday),
-                    TuesdayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Tuesday),
-                    WednesdayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Wednesday),
-                    ThursdayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Thursday),
-                    FridayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Friday),
-                    SaturdayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Saturday),
-                    SundayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Sunday),
-
-                    FeeCls1Count = s.Count(s => s.FeeClsCD == 1),
-                    FeeCls2Count = s.Count(s => s.FeeClsCD == 2),
-                    FeeCls3Count = s.Count(s => s.FeeClsCD == 3),
-                    FeeCls4Count = s.Count(s => s.FeeClsCD == 4),
-                    OtherFeeCls1Count = s.Count(s => s.FeeClsCD != 1)
-                };
-                var male = new List<T>(
-                    attendeeList
-                        .GroupBy(g => (Gender: g.Gender == GenderType.Male, Age: g.Age == null))
-                        .Where(w => w.Key.Gender && w.Key.Age)
-                        .Select(s => CreateT(s, "男性 生年月日無し"))
-                        .ToList());
-                var female = new List<T>(
-                    attendeeList
-                        .GroupBy(g => (Gender: g.Gender == GenderType.Female, Age: g.Age == null))
-                        .Where(w => w.Key.Gender && w.Key.Age)
-                        .Select(s => CreateT(s, "女性 生年月日無し"))
-                        .ToList());
-
-                var from = 0;
-                for (int to = condition.AgeAggregateUnit - 1; to <= 150; to += condition.AgeAggregateUnit)
-                {
-                    var fromTo = from.ToString() + "～" + to.ToString();
-                    male.AddRange(
-                        attendeeList
-                            .GroupBy(g => (Gender: g.Gender == GenderType.Male, Age: g.Age >= from && g.Age <= to))
-                            .Where(w => w.Key.Gender && w.Key.Age)
-                            .Select(s => CreateT(s, "男性 " + fromTo))
-                            .ToList());
-                    female.AddRange(
-                        attendeeList
-                            .GroupBy(g => (Gender: g.Gender == GenderType.Female, Age: g.Age >= from && g.Age <= to))
-                            .Where(w => w.Key.Gender && w.Key.Age)
-                            .Select(s => CreateT(s, "女性 " + fromTo))
-                            .ToList());
-                    from = to + 1;
-                }
-                male.AddRange(female);
-                list = male;
-            }
-```
-
-``` C#
-            {
-                var male = new List<T>(
-                    attendeeList
-                        .GroupBy(g => (Gender: g.Gender == GenderType.Male, Age: g.Age == null))
-                        .Where(w => w.Key.Gender && w.Key.Age)
-                        .Select(s => CreateT(s, "男性 生年月日無し"))
-                        .ToList());
-                var female = new List<T>(
-                   attendeeList
-                       .GroupBy(g => (Gender: g.Gender == GenderType.Female, Age: g.Age == null))
-                       .Where(w => w.Key.Gender && w.Key.Age)
-                       .Select(s => CreateT(s, "女性 生年月日無し"))
-                       .ToList());
-
-                T CreateT(IGrouping<(bool Gender, bool Age), ResultInquiryAttendee> s, string name) => new T()
-                {
-                    Name = name,
-                    PersonCount = s.GroupBy(g => g.CustomerCD).Count(),
-                    SumCount = s.Count(),
-
-                    MondayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Monday),
-                    TuesdayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Tuesday),
-                    WednesdayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Wednesday),
-                    ThursdayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Thursday),
-                    FridayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Friday),
-                    SaturdayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Saturday),
-                    SundayCount = s.Count(s => s.BusinessDate.Value.DayOfWeek == DayOfWeek.Sunday),
-
-                    FeeCls1Count = s.Count(s => s.FeeClsCD == 1),
-                    FeeCls2Count = s.Count(s => s.FeeClsCD == 2),
-                    FeeCls3Count = s.Count(s => s.FeeClsCD == 3),
-                    FeeCls4Count = s.Count(s => s.FeeClsCD == 4),
-                    OtherFeeCls1Count = s.Count(s => s.FeeClsCD != 1)
-                };
-
-                _ = Enumerable.Range(0, 100)
-                    .Select((v, i) => (v, i))
-                    .GroupBy(x => x.i / condition.AgeAggregateUnit)
-                    .Select(g =>
-                    {
-                        var from = g.Min(m => m.v);
-                        var to = g.Max(m => m.v);
-                        var fromTo = from.ToString() + "～" + to.ToString();
-                        male.AddRange(
-                            attendeeList
-                                .GroupBy(g => (Gender: g.Gender == GenderType.Male, Age: g.Age >= from && g.Age <= to))
-                                .Where(w => w.Key.Gender && w.Key.Age)
-                                .Select(s => CreateT(s, "男性 " + fromTo))
-                                .ToList());
-                        female.AddRange(
-                            attendeeList
-                                .GroupBy(g => (Gender: g.Gender == GenderType.Female, Age: g.Age >= from && g.Age <= to))
-                                .Where(w => w.Key.Gender && w.Key.Age)
-                                .Select(s => CreateT(s, "女性 " + fromTo))
-                                .ToList());
-                        return g;
-                    })
-                    .ToList();
-
-                male.AddRange(female);
-                list = male;
-            }
-```
-
-GroupByで条件で絞れて、次のWhere文でKeyがTrueのモノを拾えば、その条件でグルーピングされた一覧を操作可能って話。
-
-``` C#
-            var tupleList = new List<(string Name, byte Gender, int Age)>
-            {
-                ("井村 由宇",1,58),
-                ("脇田 大",0,30),
-                ("平 千佳子",1,75),
-                ("江川 那奈",1,66),
-                ("永島 美幸",1,80),
-                ("中塚 明日",1,55),
-                ("黒木 りえ",1,52),
-                ("戎 杏",1,45),
-                ("菅 亮",0,79),
-                ("池本 しぼり",1,38),
-                ("本多 路子",1,52),
-                ("山内 博明",0,21),
-                ("木下 さやか",1,27),
-                ("市川 竜也",0,61),
-                ("山城 りえ",1,41),
-                ("長田 窈",1,79),
-                ("井手 秀樹",0,35),
-                ("松井 明慶",0,68),
-                ("立石 たまき",1,79),
-                ("とよた さやか",1,51),
-                ("小木 美月",1,77),
-                ("今西 まなみ",1,66),
-                ("河本 友也",0,74),
-                ("北条 ヒカル",1,24),
-                ("天野 瑠璃亜",1,68),
-                ("大塚 浩正",0,69),
-                ("真田 大五郎",0,57),
-                ("堀井 京子",1,76),
-                ("渡辺 美佐",1,51),
-                ("浅川 美帆",1,75),
-                ("岩井 賢治",0,20),
-                ("村瀬 莉沙",1,31),
-                ("市川 研二",0,57),
-                ("河原 美幸",1,27),
-                ("黒岩 憲史",0,30),
-                ("薬師丸 美嘉",1,62),
-                ("阿部 禄郎",0,50),
-                ("吉野 公顕",0,48),
-                ("八十田 隼士",0,40),
-                ("清田 美和子",1,59),
-                ("矢口 あさみ",1,26),
-                ("米沢 明宏",0,80),
-                ("神野 礼子",1,55),
-                ("辻 三郎",0,29),
-                ("百瀬 有海",1,32),
-                ("村瀬 俊介",0,73),
-                ("金丸 寿明",0,43),
-                ("小寺 勝久",0,25),
-                ("今泉 由宇",1,64),
-                ("岡田 大",0,40),
-            };
-
-            var aa = tupleList
-                .GroupBy(g => g.Gender == 0 && 15 <= g.Age && g.Age <= 20)
-                .SelectMany(s =>
-                {
-                    if (s.Key == true)
-                    {
-                        return s.Select(s => $"{ s.Name},{(s.Gender == 0 ? "女性" : "男性")},{s.Age}");
-                    }
-                    else
-                    {
-                        return s.Select(s => $"{ s.Name},{(s.Gender == 0 ? "女性" : "男性")},{s.Age}");
-                    }
-                })
-                .ToList();
-            foreach (var item in aa)
-            {
-                Console.WriteLine(item);
-            }
+            male.AddRange(
+                tupleList
+                    .GroupBy(g => (Gender: g.Gender == GenderType.Male, Age: g.Age >= from && g.Age <= to))
+                    .Where(w => w.Key.Gender && w.Key.Age && w.Any())
+                    .Select(ss => CreateT(ss.ToList(), "男性 " + fromTo))
+                    .ToList()
+            );
+            female.AddRange(
+                tupleList
+                    .GroupBy(g => (Gender: g.Gender == GenderType.Female, Age: g.Age >= from && g.Age <= to))
+                    .Where(w => w.Key.Gender && w.Key.Age && w.Any())
+                    .Select(ss => CreateT(ss.ToList(), "女性 " + fromTo))
+                    .ToList()
+            );
+        }
+    }
 ```

@@ -1,14 +1,51 @@
 # 開発についてのあれこれ
 
+## リポジトリをクローンしてから起動するまで
+
+前提条件  
+node.js , npm , vue-cliインストール済み  
+パスの設定済み(環境変数)  
+
+①`npm ci`コマンドを実行して、node_modulesを再インストールする。  
+②`npm run serve`コマンドを実行する。  
+
+### node_modulesを再インストールする方法
+
+[node_modulesの再インストール方法](https://zenn.dev/mo_ri_regen/articles/node-modules-article)  
+
+>パッケージをインストールしたあと、node_modulesができますがチームで共有する場合は、ファイルの大きさからnode_modulesを共有することはありません。  
+>なので、node_modulesを再インストールする方法を紹介します。  
+
+node_modules インストールコマンド :: `npm ci`
+
+<https://ginpen.com/2019/12/04/npm-install-vs-ci/>  
+>npm ci は npm install と同じように、全依存パッケージをインストールする  
+>npm install は package-lock.json を更新することがある  
+>npm ci は package-lock.json を更新しない  
+>npm ci は node_modules を削除してからインストールする  
+
+### プロジェクトを起動する
+
+Vueプロジェクトの起動コマンド :: `npm run serve`  
+
+package.jsonのscriptsタグの中に命令が記述されている。  
+
+---
+
 ## 環境構築に関して
 
-vueへのパスはユーザーの環境変数で充分だった。
-SETコマンドで適当な環境変数作っても意味がない。
-ユーザーの環境変数のPathに追加する必要がある。
-コマンドプロンプトは立ち上げなおさないと、反映されない。
+[コマンドラインツール「Vue CLI」で本格的なVue.jsプロジェクトを作成しよう](https://codezine.jp/article/detail/14896?p=2)  
+[これでわかるはじめてのVue CLI](https://reffect.co.jp/vue/finally-understand-vue-cli#i)  
 
-Pathの環境変数はセミコロンで区切る。
-最後に C:\Users\[ユーザー名]\AppData\Roaming\npm に追加する。
+## パスの通し方
+
+vue-cliをインストールして`vue --version`コマンドを実行するのだが、バージョンが表示されない。  
+パスが通ってないのは明らかなのだが、パスを通すまでも色々あったので、まとめる。  
+
+ユーザーの環境変数に以下のパスを追加する。
+`C:\Users\[ユーザー名]\AppData\Roaming\npm`
+
+### 参考にしたりわかった事まとめ
 
 [管理者権限のないWindowsでvue開発（サンプル付き）](https://qiita.com/nobu-maple/items/9b99cfd22bd811d74765)
 WindowsのPathは面倒臭い・・・。
@@ -16,33 +53,37 @@ WindowsのPathは面倒臭い・・・。
 windowsのパスってどうやって設定するの？
 →[Windows で環境変数 PATH をいじる方法のまとめ](https://qiita.com/sta/items/6d29da0dc7069ffaae60)  
 
+Pathの環境変数はセミコロンで区切る。
+vueへのパスはユーザーの環境変数で充分だった。
+SETコマンドで適当な環境変数作っても意味がない。
+ユーザーの環境変数のPathに追加する必要がある。
+コマンドプロンプトは立ち上げなおさないと、反映されない。
+
 なんで反映されないの？
 →プロンプトやVSCodeの再起動が必要だった。
 
 ユーザーの環境設定を設定するだけで反映されたりするの？
 →反映されることが分かった。
 
-
 `npm install -g @vue/cli`でグローバルインストールした場合、DotNetDev4ではC:\Users\s.ito\AppData\Roaming\npmにインストールされる。
 
-[node_modulesの再インストール方法](https://zenn.dev/mo_ri_regen/articles/node-modules-article)  
-
 [【Node.js】 Windows上で動作させるための設定知識](https://note.affi-sapo-sv.com/nodejs-windows-setting-knowledge.php)  
-`インストーラーでNode.jsをインストールした場合、パッケージのグローバルインストール先として C:\Users\ユーザー名\AppData\Roaming\npm が使用されます。`
 
-node_modules インストール
-`npm ci`
-i → インストール
-c → ??。クリーン的な意味だった気がする。
+>インストーラーでNode.jsをインストールした場合、パッケージのグローバルインストール先として C:\Users\ユーザー名\AppData\Roaming\npm が使用されます。
 
+## vue.ps1 はデジタル署名されていません。と言われたときの対処法  
 
+[PowerShell で デジタル署名されていないため実行できない時の対処](https://noitalog.tokyo/pssecurity-exception/)  
 
-package.jsonファイル
-package.jsonファイルにはプロジェクトに関する情報が記述されているファイルです。Vue.jsのみで利用するファイルではなくnpmコマンドでライブラリを管理する際に必須となるファイルでインストールしたライブラリのバージョン情報等も記述されています。
-新たにnpmコマンドでライブラリを追加した場合はここに追加されることになります。dependenciesとdevDependenciesに別れていますが、dependenciesに記述されているライブラリは本番環境でも利用するライブラリです。devDependenciesに記述されているライブラリは開発時に利用するライブラリで本番環境では利用されません。
+PowerShellの設定の問題  
+設定→更新とセキュリティ→開発者向け→一番したのPowerShellの適用ボタンを押す。  
 
+---
 
-App.vueの拡張子.vueはvue専用のファイルを表している拡張子で、中身は3つのパーツ(template, script, style)で構成されていることが確認できます。このファイルは単一ファイルコンポーネント(SFC : Single File Component)と呼ばれます。Vue.jsを初めて利用する人であれば拡張子はvueはみたことがないかもしれません。Vue.js専用の拡張子で拡張子vueはブラウザでは直接処理することができないのでJavaScriptファイルjsに変換が行われます。
+App.vueの拡張子.vueはvue専用のファイルを表している拡張子で、中身は3つのパーツ(template, script, style)で構成されていることが確認できます。
+このファイルは単一ファイルコンポーネント(SFC : Single File Component)と呼ばれます。
+Vue.jsを初めて利用する人であれば拡張子はvueはみたことがないかもしれません。
+Vue.js専用の拡張子で拡張子vueはブラウザでは直接処理することができないのでJavaScriptファイルjsに変換が行われます。
 
 
 templateタグについて
@@ -55,6 +96,38 @@ templateタグにはブラウザ上に表示させたい内容をHTMLで記述�
 
 ## TypeScript導入の仕方
 
+プロジェクト作成時に指定する。  
+作った後に指定する方法は知らない。  
+
 ## 変更の即時反映の仕方
 
-## フォルダ構成
+実行中に保存したら即時反映される。  
+
+## Vueプロジェクトのフォルダ構成
+
+``` txt
+node_modules      :: インストールされたNode.jsのモジュール
+public            :: Webページとして公開されるindex.htmlなどを配置
+src               :: Vue.jsの実装内容を配置
+.browserlistrc    :: 対応するブラウザーを指定するファイル
+.eslintrc.js      :: ESLint（Lintツール）の設定ファイル
+.gitignore        :: Gitでリポジトリから除外するファイル・フォルダーの指定
+babel.config.js   :: Babelの設定ファイル
+package-lock.json :: プロジェクトで利用するパッケージとバージョンの設定
+package.json      :: プロジェクトの設定ファイル
+README.md         :: READMEファイル
+tsconfig.json     :: TypeScriptの設定ファイル
+```
+
+``` txt : src配下のフォルダーやファイル
+assets         :: アセット（Webページの画像ファイルなど）を配置
+components     :: Vue.jsのコンポーネント（ページの一部に対応）を配置
+App.vue        :: Webページ全体に対応するコンポーネント
+main.ts        :: App.vueをWebページに表示する処理
+shims-vue.d.ts :: TypeScriptでVue.jsのコンポーネントを記述するための設定
+```
+
+## おすすめ拡張機能
+
+・Vetur  
+・ESLint  
