@@ -108,3 +108,9 @@ git push origin HEAD
 もしかしたら本当に実現できるのかも？  
 というか、リポジトリとかブランチの関係を完全に把握しているわけではないので、なんとも言えないのが正直なところ。  
 はぁ。勉強したいなぁ。  
+
+[リモートのブランチをcloneする](https://qiita.com/shim0mura/items/85aa7fc762112189bd73)  
+
+`git checkout -b ブランチ名 リモートリポジトリ名`  
+→  
+`git checkout -b development origin/development`  
