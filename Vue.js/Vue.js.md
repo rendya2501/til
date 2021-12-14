@@ -71,6 +71,8 @@ SETコマンドで適当な環境変数作っても意味がない。
 
 >インストーラーでNode.jsをインストールした場合、パッケージのグローバルインストール先として C:\Users\ユーザー名\AppData\Roaming\npm が使用されます。
 
+---
+
 ## vue.ps1 はデジタル署名されていません。と言われたときの対処法  
 
 [PowerShell で デジタル署名されていないため実行できない時の対処](https://noitalog.tokyo/pssecurity-exception/)  
@@ -93,6 +95,7 @@ templateタグにはブラウザ上に表示させたい内容をHTMLで記述�
 
 他のファイルからインポートできるように、（1）のMyFirstTSクラスにexportキーワードを付与している点です。
 
+---
 
 ## TypeScript導入の仕方
 
@@ -127,10 +130,89 @@ main.ts        :: App.vueをWebページに表示する処理
 shims-vue.d.ts :: TypeScriptでVue.jsのコンポーネントを記述するための設定
 ```
 
+## タブの名称を変更する方法
+
+[where to find or how to set htmlWebpackPlugin.options.title in project created with vue cli 3?](https://stackoverflow.com/questions/62023604/where-to-find-or-how-to-set-htmlwebpackplugin-options-title-in-project-created-w)  
+
+package.jsonのnameで解決したが、大文字の名前違反になったのでvue.config.jsにpagesを追加して対応。  
+
+``` txt
+  pages: {
+    index: {
+      entry: 'src/main.ts',
+      title: 'SelfOrder',
+    },
+  }
+```
+
+## package.jsonのString does not match the pattern ofエラー
+
+[nuxtで環境構築エラー String does not match the pattern of](https://qiita.com/fuwakun/items/d6abf5b50ccf1c1f9383)  
+
+nameに大文字はだめらしい。  
+ルールはこちらで。  
+[package.jsonの内容をまとめてみました](https://qiita.com/gght/items/f74788c728b33f071e50)  
+
+---
+
 ## おすすめ拡張機能
 
 ・Vetur  
 ・ESLint  
 
-Veturのコード成型でシングルコーテーションを使うようにする
-[](https://jpdebug.com/p/101301)  
+[Veturのコード成型でシングルコーテーションを使うようにする](https://jpdebug.com/p/101301)  
+.prettierrc.jsonを作成して以下の記述をする。  
+シングルコーテーションが有効になり、最後にセミコロンが付くように整形される。  
+
+``` json:.prettierrc.json
+{
+    "singleQuote": true,
+    "semi": true
+}
+```
+
+---
+
+## テーブルを作る
+
+<https://www.itra.co.jp/webmedia/what-is-inline-block.html>  
+Gridの構築の仕方はここが参考になった。  
+Borderをある程度の太さにして色を白くすればよかった。  
+Borderをはる場所はtd。  
+
+``` html
+    <b-table-simple hover small caption-top responsive>
+    <b-tbody>
+        <b-tr v-for="item in items" :key="item.accountNo">
+        <b-td
+            variant="primary"
+            style="margin-right: 20px;border: 2px solid #ffffff;"
+            v-text="item.accountNo"
+        />
+        <b-td
+            class="text-left"
+            variant="primary"
+            style="margin-right: 20px;border: 2px solid #ffffff;"
+            v-text="item.name + '様'"
+        />
+        </b-tr>
+    </b-tbody>
+    </b-table-simple>
+```
+
+``` ts
+  private items = [
+    { accountNo: 111, name: 'カトウ　タカシ' },
+    { accountNo: 333, name: 'キムラ　ユウイチ' },
+    { accountNo: 555, name: 'クドウ　ケイ' },
+    { accountNo: 777, name: 'サイトウ　ユズル' }
+  ];
+```
+
+## バインドと文字列の連結方法
+
+[Vueの基本構文をまとめてみた](https://qiita.com/_masa_u/items/7a940f1aea8be4eef4fe)  
+
+``` html
+v-text="item.name + '様'"
+```

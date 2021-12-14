@@ -114,3 +114,31 @@ git push origin HEAD
 `git checkout -b ブランチ名 リモートリポジトリ名`  
 →  
 `git checkout -b development origin/development`  
+
+---
+
+## gitignoreでディレクトリを除外する
+
+``` txt
+src
+├─assets
+├─components
+├─constants
+├─router
+├─scripts
+│  ├─api
+│  ├─services
+│  └─storage
+├─types
+│  └─api
+└─views
+```
+
+assetsを除外したい場合。  
+
+``` .gitignore
+.DS_Store
+*/assets
+```
+
+[[Git] .gitignoreの仕様詳解](https://qiita.com/anqooqie/items/110957797b3d5280c44f)  
