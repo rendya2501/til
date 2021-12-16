@@ -72,3 +72,9 @@ PIDも表示されるので、タスクマネージャーと合わせて探し�
 
 Revertしたいコミット履歴を右クリックして「元に戻す(R)」を選択。  
 Revertコミットが自動的に生成されるのでプッシュすればRevert完了。  
+
+---
+
+## コミットを取り消す方法
+
+[コミットを取り消す - リセットの利用](https://www.ipentec.com/document/visual-studio-2019-git-reset-commit)  
