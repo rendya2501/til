@@ -220,16 +220,16 @@ Annotation:注釈
 
 ``` C#
 static (int quotient, int remainder) DivRem(int dividend, int divisor)
-    => (Math.DivRem(dividend, divisor, out var remainder), remainder);
+    => (Math.DivRem(dividend, divisor, out var remainder), remainder);
 static void Deconstruct()
 {
-    // 商と余りを計算するメソッドがあるけども、ここでは商しか要らない
-    // _ を書いたところでは、値を受け取らずに無視する
-    var (q, _) = DivRem(123, 11);
+    // 商と余りを計算するメソッドがあるけども、ここでは商しか要らない
+    // _ を書いたところでは、値を受け取らずに無視する
+    var (q, _) = DivRem(123, 11);
 
-    // 逆に、余りしか要らない
-    // また、本来「var x」とか変数宣言を書くべき場所にも _ だけを書ける
-    (_, var r) = DivRem(123, 11);
+    // 逆に、余りしか要らない
+    // また、本来「var x」とか変数宣言を書くべき場所にも _ だけを書ける
+    (_, var r) = DivRem(123, 11);
 }
 ```
 
