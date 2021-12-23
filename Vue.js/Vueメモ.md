@@ -76,7 +76,12 @@ CORS(Cross-Origin Resource Sharing)
 
 [Vue.jsで処理中はボタンを無効にする](https://qiita.com/reflet/items/8337b17fb727364328d1)  
 
-<https://zenn.dev/koduki/articles/0fe6cc5ada58e5600f75>
+``` html
+<button 
+  v-bind:disabled="isProcessing"
+  @click="submit">何かしら処理する
+</button>
+```
 
 ## TypeScriptのオブジェクトの初期化
 
@@ -169,7 +174,8 @@ javascript byte array to image
 
 ## Vueの色々
 
-https://qiita.com/i-ryo/items/baa50cf0a6647fe8bd2e
+<https://qiita.com/i-ryo/items/baa50cf0a6647fe8bd2e>  
+<https://zenn.dev/koduki/articles/0fe6cc5ada58e5600f75>  
 
 ---
 
@@ -189,4 +195,97 @@ https://qiita.com/i-ryo/items/baa50cf0a6647fe8bd2e
 
 [「なぜ enum の利用が推奨されないのか？」をまとめてみた](https://qiita.com/saba_can00/items/696baa5337eb10c37342)  
 
+---
+
+## 役立ちそうな情報
+
 [How to to use `v-for` with Bootstrap-Vue's `b-col` and `b-row`?](https://stackoverflow.com/questions/63960450/how-to-to-use-v-for-with-bootstrap-vues-b-col-and-b-row)  
+
+---
+
+## Gitの変更の色が反映されない問題
+
+参照先の違いだった。  
+
+`C:\Develop\s.ito\RN3.WebContent`ならOK。  
+`C:\VSSTEMP\s.ito\RN3.WebContent`だとNG。  
+そういうあれなのか？なんかそういう設定あるのだろうか。  
+
+まぁ、何はともあれ、分からなかったことが分かってよかった。  
+この線で調べれば何か文献が出てくるだろう。  
+
+---
+
+## TypeScriptで "Object is possibly null" と怒られたときにすること
+
+<https://qiita.com/fufufukakaka/items/5d4a2f2272b8f1a4a16f>  
+
+---
+
+## Vueのテンプレート構文はJavaScriptしかサポートしてない
+
+ということなので、三項演算子はいいけど、null合体演算子`?.`を使うと構文エラーになる。  
+
+オプショナルチェイニング演算子 (?.) との関係  
+Null 合体演算子は、null と undefined を特定の値として扱いますが、オプショナルチェイニング演算子 (?.)  
+<https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Operators/Nullish_coalescing_operator>  
+
+``` html
+  <label class="lbl-account-total">
+    ○小計&nbsp;{{ this.total ? this.total.price.toLocaleString() : '' }}円
+    ×小計&nbsp;{{ this.total?.price.toLocaleString() ?? '' }}円
+  </label>
+```
+
+---
+
+## Vue $refs
+
+[[Vue.js] $refsでコンポーネント内の子要素を触る](https://qiita.com/1994spagetian/items/5f372fc68122ec207c78)  
+
+---
+
+## Vue @Click 三項演算子
+
+[If statement inside Vue click to change function to be run?](https://stackoverflow.com/questions/43698274/if-statement-inside-vue-click-to-change-function-to-be-run)  
+
+``` txt
+@click="isAlone ? makeOrder() : confirmOrder()"
+```
+
+thisがないと行けた。
+
+---
+
+## localStorageの強制クリア
+
+[Clearing localStorage in javascript?](https://stackoverflow.com/questions/7667958/clearing-localstorage-in-javascript)  
+
+消さないといけないので調べたら物凄く単純だった。
+というか、ローカルストレージって本当に単純にキーバリューで管理してるだけなんだな。
+
+---
+
+## 端末情報を取得できる限り取得したい
+
+[使用してるブラウザを判定したい](https://qiita.com/sakuraya/items/33f93e19438d0694a91d)  
+
+``` js
+
+    var userAgent = window.navigator.userAgent.toLowerCase();
+
+    if (userAgent.indexOf('iphone') != -1) {
+      console.log('iPhoneをお使いですね');
+    } else if (userAgent.indexOf('ipad') != -1) {
+      console.log('iPadをお使いですね');
+    } else if (userAgent.indexOf('android') != -1) {
+      if (userAgent.indexOf('mobile') != -1) {
+        console.log('androidのスマホをお使いですね');
+      } else {
+        console.log('androidのタブレットをお使いですね');
+      }
+      //OSの種類
+      console.log(navigator.platform);
+    }
+
+```
