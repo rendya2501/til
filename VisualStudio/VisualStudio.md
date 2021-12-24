@@ -78,3 +78,9 @@ Revertコミットが自動的に生成されるのでプッシュすればRever
 ## コミットを取り消す方法
 
 [コミットを取り消す - リセットの利用](https://www.ipentec.com/document/visual-studio-2019-git-reset-commit)  
+
+---
+
+## Gitの比較のエディタがVSCodeになった
+
+メニューバーのGit→設定→Gitグローバル設定、ツール、差分ツールをVisualStudioにする。
