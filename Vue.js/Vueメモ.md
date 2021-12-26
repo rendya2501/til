@@ -1,5 +1,7 @@
 # Vueメモ
 
+[Visual Studio CodeでVue.jsアプリケーションの開発環境を構築する](https://qiita.com/rubytomato@github/items/b35b819671e7cbb3dff7)  
+
 ## テーブルを作る
 
 [Vue.jsのv-forでTableを表示させてみた](https://neco913.kirara.st/post-12827/)  
@@ -289,3 +291,40 @@ thisがないと行けた。
     }
 
 ```
+
+---
+
+## TypeScript 初期化方法
+
+[TypeScriptのclassをオブジェクトで初期化する](https://qiita.com/Tsuyoshi84/items/e74109e2ccc0f4e625aa)  
+
+``` ts
+class Person {
+  name?: string;
+  age?: number;
+
+  constructor(init?: Partial<Person>) {
+    Object.assign(this, init);
+  }
+}
+```
+
+---
+
+## Linq.Sum
+
+[[TypeScript]配列の要素の合計値を計算する](https://codelab.website/typescript-reduce/)  
+
+``` ts
+const data = [
+  {num: 1}, {num: 2}, {num: 3}, {num: 4}, {num: 5},
+  {num: 6}, {num: 7}, {num: 8}, {num: 9}, {num: 10},
+];
+
+const result = data.reduce(function(a, x){return a + x.num;}, 0);
+
+console.log(result);
+
+```
+
+<https://decembersoft.com/posts/typescript-vs-csharp-linq/>  
