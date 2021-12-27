@@ -328,3 +328,60 @@ console.log(result);
 ```
 
 <https://decembersoft.com/posts/typescript-vs-csharp-linq/>  
+
+---
+
+## Vue Enable
+
+``` html
+<b-button
+  class="btn"
+  block
+  variant="outline-primary"
+  @click="callStaff"
+  v-bind:disabled="isWaiting || this.tableNo == null"
+  v-text="'スタッフ呼出'"
+/>
+```
+
+---
+
+## Vue @Propデコレータの書き方
+
+[Vue.js to TypeScriptの書き方一覧](https://qiita.com/ryo2132/items/4d43209ea89ad1297426)  
+
+``` Vue
+<script lang="ts">
+import { Component, Prop, Vue } from 'vue-property-decorator';
+
+@Component
+export default class Post extends Vue {
+  @Prop({ default: '' })
+  contents!: string;
+
+  @Prop({ default: 0 })
+  postNumber!: number | string;
+
+  @Prop({ default: false })
+  publish!: boolean;
+
+  @Prop
+  option?: {
+    new: boolean,
+    important: boolean,
+    sortNumber: number
+  };
+}
+</script>
+```
+
+---
+
+## there are multiple modules with names that only differ in casing
+
+[there are multiple modules with names that only differ in casing](https://minokuba.hatenablog.com/entry/20180310/1520679200)  
+>無造作にnpm updateしたら突如出るようになったエラー。  
+>どうやらWindowsの場合に、importするモジュール名の大文字・小文字が異なるとエラーになるらしい。  
+>
+>node_modulesを見たら、index.jsに定義していたモジュールの大文字小文字が異なったので直したら解消した。  
+>早めに、仮想Linux環境に移行したいな・・・  
