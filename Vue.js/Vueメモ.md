@@ -385,3 +385,8 @@ export default class Post extends Vue {
 >
 >node_modulesを見たら、index.jsに定義していたモジュールの大文字小文字が異なったので直したら解消した。  
 >早めに、仮想Linux環境に移行したいな・・・  
+
+物凄く単純な事だった。
+`cd selfOrder`で移動してbuildするとだめで、`cd SelfOrder`と大文字小文字をしっかり合わせて移動すると問題なかった。
+大文字小文字の違いってそういう？
+逆にわからなんってなった。  
