@@ -1,6 +1,10 @@
 # HTMLに関する色々
 
-[Apple風のかっこよくて美しいデザインの背景49種類を簡単に実装できるスタイルシート -HUE.css](https://coliss.com/articles/build-websites/operation/css/gradient-background-hue-css.html)
+---
+
+## 見た目参考
+
+[Apple風のかっこよくて美しいデザインの背景49種類を簡単に実装できるスタイルシート -HUE.css](https://coliss.com/articles/build-websites/operation/css/gradient-background-hue-css.html)  
 
 ## HTML HEAD
 
@@ -14,3 +18,10 @@
 
 ※メタデータ : データを説明するデータ  
 `<meta charset="utf-8">`
+
+---
+
+## ただの文字列でも無理にタグを付けたほうがよいのか？
+
+ないらしい。  
+XAMLではTextBlockだの、Labelだの指定する必要があるが、HTMLでは必要はないらしい。  

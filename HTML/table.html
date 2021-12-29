@@ -190,7 +190,7 @@ BR案
         </td>
     </tr>
     <tr>
-        <th >見出し2</th>
+        <th>見出し2</th>
         <td>
             <div style="display:table-cell; padding-right: 40px;">
                 データ5
@@ -220,72 +220,30 @@ BR案
         </td>
     </tr>
 </table>
-<!-- <div style="display:table;">
-                <div style="display:table-cell; padding-right: 40px;">
-                    <table>
-                        <tr>
-                            <td class="test">
-                                <div style="display:table-cell; padding-right: 40px;">
-                                    リアルタイム予約
-                                </div>
-                                <div style="display:table-cell;">
-                                    当日の
-                                    <select class="el_select--time"
-                                        [(ngModel)]="gora.GORAReceptionDeadlineTimeHour">
-                                        <option *ngFor="let item of deatLineHourList" [value]="item.value">{{item.name}}</option>
-                                    </select>
-                                    時まで
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="test">
-                                <div style="display:table-cell; padding-right: 40px;">
-                                    リクエスト予約
-                                </div>
-                                <div style="display:table-cell;">
-                                    前日の
-                                    <select class="el_select--time"
-                                        [(ngModel)]="gora.GORARequestReceptionDeadlineTimeHour">
-                                        <option *ngFor="let item of deatLineHourList" [value]="item.value">{{item.name}}</option>
-                                    </select>
-                                    時まで
-                                </div>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-                <div style="display:table-cell; vertical-align: middle;" >
-                    <button class="web-open-plan-setting__button--setting"
-                        (click)="temp()">
-                        プラン毎に設定
-                    </button>
-                </div>
-            </div> -->
-<!-- <div style="display:table;">
-                <div style="display:table-cell; padding-right: 40px;">
-                    リアルタイム予約
-                    <p>リクエスト予約</p>
-                </div>
-                <div style="display:table-cell; padding-right: 40px;">
-                    当日の
-                    <select class="el_select--time"
-                        [(ngModel)]="gora.GORAReceptionDeadlineTimeHour">
-                        <option *ngFor="let item of deatLineHourList" [value]="item.value">{{item.name}}</option>
-                    </select>
-                    時まで
-                    <p>前日の
-                        <select class="el_select--time"
-                            [(ngModel)]="gora.GORARequestReceptionDeadlineTimeHour">
-                            <option *ngFor="let item of deatLineHourList" [value]="item.value">{{item.name}}</option>
-                        </select>
-                        時まで
-                    </p>
-                </div>
-                <div style="display:table-cell; vertical-align: middle;" >
-                    <button class="web-open-plan-setting__button--setting"
-                        (click)="temp()">
-                        プラン毎に設定
-                    </button>
-                </div>
-            </div> -->
+
+---
+
+[htmlのテーブルについてまとめてみた。](https://qiita.com/ritukiii/items/349ad7dee239bb220d6b)
+
+一番上の行をタイトルにしたい
+単純にセルを結合すれば良いだけだった。
+
+TableHeader案
+<table>
+    <th colspan="2">見出し1</th>
+    <tr>
+        <td>セル2-1</td>
+        <td>セル2-2</td>
+    </tr>
+</table>
+
+TableData案
+<table border="1">
+    <tr>    
+        <td colspan="2">セル1</td>
+    </tr>       
+    <tr>        
+        <td>セル2-1</td>
+        <td>セル2-2</td>
+    </tr>
+</table> 
