@@ -6,6 +6,14 @@
 
 [Apple風のかっこよくて美しいデザインの背景49種類を簡単に実装できるスタイルシート -HUE.css](https://coliss.com/articles/build-websites/operation/css/gradient-background-hue-css.html)  
 
+[便利なCSSジェネレーターを4つ集めました](https://twitter.com/mndgn_y/status/1471465529571672065)  
+ローディングアニメーション :: Epic Spinners  
+グラスモーフィズム :: grassmorphism-generator  
+ニューモフィズム :: Neumorphism.io  
+フレックスボックス :: Flex layout Generator  
+
+---
+
 ## HTML HEAD
 
 ページが読み込まれてもウェブブラウザーには表示されない部分。  
@@ -25,3 +33,5 @@
 
 ないらしい。  
 XAMLではTextBlockだの、Labelだの指定する必要があるが、HTMLでは必要はないらしい。  
+
+---

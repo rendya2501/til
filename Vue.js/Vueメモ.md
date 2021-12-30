@@ -377,16 +377,21 @@ export default class Post extends Vue {
 
 ---
 
-## there are multiple modules with names that only differ in casing
+## npm run build 出来ない問題
 
+物凄く単純な事だった。  
+cdコマンドで移動先の名前が完全に合っていないとダメらしい。  
+これで30分くらい嵌った。
+
+移動先ディレクトリが`SelfOrder`のときに`cd selfOrder`で問題なく移動できるが、そこでbuildするとエラーが発生する。  
+`cd SelfOrder`と大文字小文字をしっかり合わせて移動すると問題なかった。  
+大文字小文字の違いってそういう？  
+逆にわからなんってなった。  
+
+因みに発生したエラーはこれ。  
 [there are multiple modules with names that only differ in casing](https://minokuba.hatenablog.com/entry/20180310/1520679200)  
 >無造作にnpm updateしたら突如出るようになったエラー。  
 >どうやらWindowsの場合に、importするモジュール名の大文字・小文字が異なるとエラーになるらしい。  
 >
 >node_modulesを見たら、index.jsに定義していたモジュールの大文字小文字が異なったので直したら解消した。  
 >早めに、仮想Linux環境に移行したいな・・・  
-
-物凄く単純な事だった。
-`cd selfOrder`で移動してbuildするとだめで、`cd SelfOrder`と大文字小文字をしっかり合わせて移動すると問題なかった。
-大文字小文字の違いってそういう？
-逆にわからなんってなった。  
