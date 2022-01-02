@@ -194,3 +194,30 @@ Allowed : 許可された
 [Laravelで405や419エラーに遭遇した場合の対処法](https://qiita.com/aminevsky/items/04cdf17686e28c9847c4)  
 結構記事はあるけども、どれもルーティングに関する簡単なミスばかり。  
 TeelaのProxy周りが特殊なのかもねぇ。  
+
+---
+
+## Laravelでログを出力する
+
+[Laravelでログを出力する](https://uedive.net/2019/3625/laravellog/)  
+ファサードで整えられたログ出力ではなく、プレーンな状態でのログ出力の方法が分からなかったのでメモ。  
+
+①use宣言する  
+`use Illuminate\Support\Facades\Log;`  
+
+②Log::ファシリティ(メッセージ)でログ出力できる。  
+
+``` php
+Log::emergency($message);
+Log::alert($message);
+Log::critical($message);
+Log::error($message);
+Log::warning($message);
+Log::notice($message);
+Log::info($message);
+Log::debug($message);
+```
+
+どのファシリティでも出力されるけど、とりあえずdebug使っておけばいいんじゃないかな。  
+
+因みに出力先は、デフォルトの設定の場合、`storage/logs/laravel.log` に出力される。  

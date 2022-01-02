@@ -395,3 +395,65 @@ cdコマンドで移動先の名前が完全に合っていないとダメらし
 >
 >node_modulesを見たら、index.jsに定義していたモジュールの大文字小文字が異なったので直したら解消した。  
 >早めに、仮想Linux環境に移行したいな・・・  
+
+---
+
+## ASP.NETのAuthorize(AuthenticationSchemesとRoles)の認証を通す
+
+SelfOrderControlerにある以下の認証を通すために1日無駄にしたのでメモする。  
+`[Authorize(AuthenticationSchemes = OtherSystemCustomerAuthenticationOptions.DEFAULT_SCHEME, Roles = nameof(WebCoopClsType.RoundNaviWeb))]`  
+
+結論からいうとヘッダーに以下の指定をすればよかった。  
+
+``` txt
+coop-cls-type-name : RoundNaviWeb
+encrypted-coop-customer-code : 暗号化されたWeb会員CD
+```
+
+ASP側のコードをよくよく見てみれば、ヘッダーから`coop-cls-type-name`と`encrypted-coop-customer-code`の値を取得するような処理があったので、  
+もしやと思ってヘッダーを追加してみたら行けた。  
+この程度のことなら一言、言ってくれればよかったのに・・・。
+
+<https://qiita.com/okazuki/items/f66976c8cd71ea99c385>  
+
+---
+
+## TypeScript Const Class
+
+[Typescriptで定数クラスを作成する](https://dev.appswingby.com/typescript/typescript%E3%81%A7%E5%AE%9A%E6%95%B0%E3%82%AF%E3%83%A9%E3%82%B9%E3%82%92%E4%BD%9C%E6%88%90%E3%81%99%E3%82%8B/)  
+[TypeScript(Angular)で定数クラス](https://www.l08084.com/entry/2018/02/16/180015)  
+
+[[Vue.js] template内で定数を簡単に使用したい](https://ohmyenter.com/use-constants-in-vue-template/)  
+[Vue.jsでグローバルな定数をコンポーネントで使いまわせるようにしたい](https://qiita.com/amagurix/items/0f19d04b7771a71b5eaf)  
+
+``` ts
+export class SystemConst {
+  /** アプリケーション名 */
+  static readonly APPLICATION_NAME = 'ほげアプリ';
+
+  /** サーバー */
+  static readonly Server = class {
+      /** IPアドレス */
+      static readonly IP = '192.168.1.1';
+      /** サブネットマスク */
+      static readonly Mask = '255.255.255.0';
+  }
+}
+
+/** システム定数クラス */
+export namespace SystemConst {
+  /** アプリケーション名 */
+  export const APPLICATION_NAME = 'ほげアプリ';
+
+  /** サーバー */
+  export namespace Server {
+      /** IPアドレス */
+      export const IP = '192.168.1.1';
+      /** サブネットマスク */
+      export const Mask = '255.255.255.0';
+  }
+}
+```
+
+[TypescriptでInner Classを定義する方法](https://anton0825.hatenablog.com/entry/2015/11/14/000000)  
+[TypeScriptでネストされたクラスを作成できますか？](https://www.webdevqa.jp.net/ja/javascript/typescript%E3%81%A7%E3%83%8D%E3%82%B9%E3%83%88%E3%81%95%E3%82%8C%E3%81%9F%E3%82%AF%E3%83%A9%E3%82%B9%E3%82%92%E4%BD%9C%E6%88%90%E3%81%A7%E3%81%8D%E3%81%BE%E3%81%99%E3%81%8B%EF%BC%9F/1055625294/)  
