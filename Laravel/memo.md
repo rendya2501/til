@@ -203,7 +203,10 @@ TeelaのProxy周りが特殊なのかもねぇ。
 ファサードで整えられたログ出力ではなく、プレーンな状態でのログ出力の方法が分からなかったのでメモ。  
 
 ①use宣言する  
-`use Illuminate\Support\Facades\Log;`  
+
+``` php
+use Illuminate\Support\Facades\Log;
+```
 
 ②Log::ファシリティ(メッセージ)でログ出力できる。  
 
