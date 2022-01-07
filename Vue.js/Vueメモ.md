@@ -457,3 +457,92 @@ export namespace SystemConst {
 
 [TypescriptでInner Classを定義する方法](https://anton0825.hatenablog.com/entry/2015/11/14/000000)  
 [TypeScriptでネストされたクラスを作成できますか？](https://www.webdevqa.jp.net/ja/javascript/typescript%E3%81%A7%E3%83%8D%E3%82%B9%E3%83%88%E3%81%95%E3%82%8C%E3%81%9F%E3%82%AF%E3%83%A9%E3%82%B9%E3%82%92%E4%BD%9C%E6%88%90%E3%81%A7%E3%81%8D%E3%81%BE%E3%81%99%E3%81%8B%EF%BC%9F/1055625294/)  
+
+---
+
+## GetとSetを同時に行うメソッドの名前
+
+「load」がいいのでは？という話。  
+メソッド名は永遠の課題だ。  
+
+[メソッド名等の名前付け (個人的)](https://knooto.info/naming-methods/#%E7%B5%84%E3%81%BF%E5%90%88%E3%82%8F%E3%81%9B)  
+[うまくメソッド名を付けるための参考情報](https://qiita.com/KeithYokoma/items/2193cf79ba76563e3db6)  
+
+---
+
+## Promise then,catch
+
+``` ts
+  /**
+   * ライフサイクルフックmounted
+   */
+  async mounted(): Promise<void> {
+    try {
+      await super.mounted();
+    } catch (error) {
+      console.error(error);
+      this.toast.error('エラーが発生しました。スタッフをお呼びください。');
+      return;
+    }
+    // プレーヤー一覧をロード
+    await this.loadFramePlayerList()
+      .then(() => {
+        // 代表者の会計Noが状態管理に登録されていれば操作可能にする。
+        this.isTotalEnable = Boolean(this.encryptRepreAccountNo);
+      })
+      .catch(error => {
+        this.toast.error(error);
+      });
+  }
+
+  /**
+   * プレーヤー一覧をロードします。
+   */
+  private async loadFramePlayerList(): Promise<void> {
+    // プレーヤー一覧取得リクエストの生成
+    const framePlayerListRequest = new FramePlayerListRequest(
+      this.encryptWebMemberCD
+    );
+    // プレーヤー一覧の取得
+    await this.selfOrderService
+      .getFramePlayerList(framePlayerListRequest, this.encryptWebMemberCD)
+      .then(
+        resolve => {
+          // 画面に反映させる
+          this.playerList = resolve.PlayerList.map(m => {
+            return {
+              EncryptedAccountNo: m.EncryptedAccountNo,
+              AccountNo: m.AccountNo,
+              Name: m.Name,
+              Kana: m.Kana,
+              // 最初から選択された状態にする。
+              // 項目はなんでもよかったがとりあえずEncryptedAccountNoにしておいた。
+              IsSelected: Boolean(m.EncryptedAccountNo),
+              // 代表者は絶対にチェックを外せないようにする。
+              IsDisable: m.EncryptedAccountNo == resolve.EncryptedAccountNo
+            };
+          });
+          // マルチモード∧プレーヤーが2人以上の場合にチェックボックスを表示する
+          this.isMultiSelect =
+            resolve.IsMultiSelect && this.playerList.length >= 2;
+          // 暗号化された代表者の会計Noを登録する。
+          this.setEncryptRepreAccountNo(resolve.EncryptedAccountNo);
+        },
+        reject => {
+          console.error(reject);
+          return Promise.reject(reject.data.message);
+        }
+      );
+  }
+```
+
+---
+
+## aass
+
+[VueにVue-Routerを使ってURLクエリパラメータを設定する方法](https://www.webdevqa.jp.net/ja/javascript/vue%E3%81%ABvuerouter%E3%82%92%E4%BD%BF%E3%81%A3%E3%81%A6url%E3%82%AF%E3%82%A8%E3%83%AA%E3%83%91%E3%83%A9%E3%83%A1%E3%83%BC%E3%82%BF%E3%82%92%E8%A8%AD%E5%AE%9A%E3%81%99%E3%82%8B%E6%96%B9%E6%B3%95/827650744/)  
+
+``` ts
+// with query, resulting in /register?plan=private
+router.Push({ path: 'register', query: { plan: 'private' }})
+```
