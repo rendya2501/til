@@ -538,7 +538,13 @@ export namespace SystemConst {
 
 ---
 
-## aass
+## クエリパラメータを使いまわす方法
+
+hold query params Vue
+
+<https://flutterq.com/how-to-set-url-query-params-in-vue-with-vue-router/>  
+<https://stackoverflow.com/questions/45091380/vue-router-keep-query-parameter-and-use-same-view-for-children>  
+[Vue Router - How to pass along query params between routes](https://vuejscode.com/vue-router-how-to-pass-along-query-params-between-routes)  
 
 [VueにVue-Routerを使ってURLクエリパラメータを設定する方法](https://www.webdevqa.jp.net/ja/javascript/vue%E3%81%ABvuerouter%E3%82%92%E4%BD%BF%E3%81%A3%E3%81%A6url%E3%82%AF%E3%82%A8%E3%83%AA%E3%83%91%E3%83%A9%E3%83%A1%E3%83%BC%E3%82%BF%E3%82%92%E8%A8%AD%E5%AE%9A%E3%81%99%E3%82%8B%E6%96%B9%E6%B3%95/827650744/)  
 
