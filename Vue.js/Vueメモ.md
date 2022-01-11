@@ -538,6 +538,47 @@ export namespace SystemConst {
 
 ---
 
+## Object.assign({}, this.$route.query)
+
+---
+
+## objectの比較方法
+
+[JavaScriptでのObject比較方法](https://www.deep-rain.com/programming/javascript/755)  
+
+安直にやるなら以下の方法で行けるらしい。
+
+``` js
+const a = {"a":"a"};
+const b = {"a":"a"};
+
+const aJSON = JSON.stringify(a);
+const bJSON = JSON.stringify(b);
+
+console.log(aJSON === bJSON);  // -> true
+```
+
+---
+
+## { [key: string]: string }
+
+[TypeScriptのIndex Signature"{[key:string]:string}"で特定の文字だけのIndexを扱う](https://blog.mitsuruog.info/2019/03/typescript-limited-set-of-index-signature)  
+
+javascriptでよく見る記述。  
+jsonを作る時に便利っぽい。
+後でまとめたい。  
+
+``` ts
+  protected get tableParameter(): { [key: string]: string } {
+    const params: { [key: string]: string } = {};
+    params.ReferrerName = 'RoundNaviWeb';
+    params.WebMemberCD = 'test2';
+    return params;
+  }
+```
+
+---
+
 ## クエリパラメータを使いまわす方法
 
 hold query params Vue
@@ -548,7 +589,142 @@ hold query params Vue
 
 [VueにVue-Routerを使ってURLクエリパラメータを設定する方法](https://www.webdevqa.jp.net/ja/javascript/vue%E3%81%ABvuerouter%E3%82%92%E4%BD%BF%E3%81%A3%E3%81%A6url%E3%82%AF%E3%82%A8%E3%83%AA%E3%83%91%E3%83%A9%E3%83%A1%E3%83%BC%E3%82%BF%E3%82%92%E8%A8%AD%E5%AE%9A%E3%81%99%E3%82%8B%E6%96%B9%E6%B3%95/827650744/)  
 
+[Vue Routerのナビゲーションガードについて](https://qiita.com/yoshiblog-space/items/a4eb02d1d05ba1fbf9b5)  
+
 ``` ts
 // with query, resulting in /register?plan=private
 router.Push({ path: 'register', query: { plan: 'private' }})
+
+const routes: Array<RouteConfig> = [
+  {
+    path: '/',
+    name: 'ScanQRCode',
+    component: ScanQRCode,
+    beforeEnter: (to, from, next) => {
+      //to.query = Object.assign({}, from.query);
+      to.query.ReferrerName = 'RoundNaviWeb';
+      to.query.WebMemberCD = 'test2';
+      next();
+    }
+  },
+
+
+// グローバルビフォーガード
+router.beforeEach((to, from, next) => {
+        console.log(from.path);
+      console.log(to.path);
+  if (from.path == to.path) {
+    if (from.path == '/') {
+      next();
+    } else {
+      next(false);
+    }
+  } else {
+    if (JSON.stringify(from.query) != JSON.stringify(to.query)) {
+      next({
+        path: to.path,
+        query: from.query
+      });
+    } else {
+      next(false);
+    }
+  }
+
+  // if (JSON.stringify(from.query) != JSON.stringify(to.query)) {
+  //   if (from.path == to.path) {
+  //     console.log('b');
+  //     next(false);
+  //   } else {
+  //     console.log('a');
+  //     console.log(from.path);
+  //     console.log(to.path);
+  //     console.log(JSON.stringify(from.query));
+  //     console.log(JSON.stringify(to.query));
+  //     next({
+  //       path: to.path,
+  //       query: from.query
+  //     });
+  //   }
+  // } else {
+  //   console.log('c');
+  //   console.log(from.path);
+  //   console.log(to.path);
+  //   console.log(JSON.stringify(from.query));
+  //   console.log(JSON.stringify(to.query));
+  //   console.log(JSON.stringify(from.query) != JSON.stringify(to.query));
+  //   // next();
+  //   if (JSON.stringify(from.query) == JSON.stringify(to.query)) {
+  //     next(false);
+  //   } else {
+  //     next();
+  //   }
+  // }
+});
+
+function hasQueryParams(route: Route) {
+  return !!Object.keys(route.query).length;
+}
 ```
+
+``` ts : 最も安直にクエリパラメータを引き回す方法
+  /**
+   * QRコード読み込み画面に遷移します。
+   */
+  protected moveToScanQR(): void {
+    this.$router.push({
+      path: '/',
+      query: Object.assign({}, this.$route.query)
+    });
+  }
+  /**
+   * 来場者確認画面に遷移します。
+   */
+  protected moveToConfirmTable(): void {
+    this.$router.push({
+      path: 'ConfirmTable',
+      query: Object.assign({}, this.$route.query)
+    });
+  }
+```
+
+---
+
+## bootstrap-vueのボタン、無効を即反映させる
+
+`:variant`の指定が`outline-primary`だけでは駄目だった。  
+それについで、`bg-white text-primary`も指定する必要があった。  
+逆に言えばこれだけだったのだが、全然答えが見つからなかった。  
+
+``` html
+  <b-button
+    block
+    class="btn-request"
+    :variant="
+      item.isSelected == true
+        ? 'primary'
+        : 'outline-primary bg-white text-primary'
+    "
+    v-bind:disabled="!isTotalEnable"
+    :pressed.sync="item.isSelected"
+  >
+```
+
+---
+
+## ダブルタップの拡大
+
+[スマホでダブルタップしたときに拡大しないようにするCSS](https://www.memory-lovers.blog/entry/2020/01/27/170000)  
+[iOS10のSafariでuser-scalable=no が効かなくズームがされる問題への対策](https://qiita.com/GrDolphium/items/d74e5758a36478fbc039)  
+
+`touch-action`と`user-scalable=no`の2つが手っ取り早いみたい。  
+`user-scalable`のほうはあまりよろしくないみたいなので、`touch-action`を使ったら一発で解決したのでこれでいいかなって思った。  
+
+---
+
+## コンポーネント間のデータの受け渡し
+
+[vue.js component間のデータの受け渡し](https://qiita.com/catkk/items/bd474d75b42aae2b92e9)  
+
+主に「path,query」の組み合わせと「name,param」の組み合わせがあるらしい。  
+paramを使う場合、nameでなければ駄目。queryは使えるらしい。  
+基本的にnameが万能そうであるが、履歴の
