@@ -728,3 +728,13 @@ function hasQueryParams(route: Route) {
 主に「path,query」の組み合わせと「name,param」の組み合わせがあるらしい。  
 paramを使う場合、nameでなければ駄目。queryは使えるらしい。  
 基本的にnameが万能そうであるが、履歴の
+
+---
+
+## npm WARN old lockfile
+
+[cdkでよくあると思う npm WARN をとにかく解消してみた](https://dev.classmethod.jp/articles/fix-npm-warn-on-cdk/)  
+>lockfileが古い状況です。更新すると表示されなくなります。  
+>`npm i --package-lock-only`  
+
+[npmにpackage-lock.jsonを生成させる方法はありますか？](https://www.webdevqa.jp.net/ja/node.js/npm%E3%81%ABpackagelockjson%E3%82%92%E7%94%9F%E6%88%90%E3%81%95%E3%81%9B%E3%82%8B%E6%96%B9%E6%B3%95%E3%81%AF%E3%81%82%E3%82%8A%E3%81%BE%E3%81%99%E3%81%8B%EF%BC%9F/833855653/)  
