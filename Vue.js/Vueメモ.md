@@ -1,6 +1,19 @@
 # Vueメモ
 
 [Visual Studio CodeでVue.jsアプリケーションの開発環境を構築する](https://qiita.com/rubytomato@github/items/b35b819671e7cbb3dff7)  
+[はじめてのvue-property-decorator (nuxtにも対応）](https://qiita.com/simochee/items/e5b77af4aa36bd0f32e5)  
+[TypeScriptの型入門](https://qiita.com/uhyo/items/e2fdef2d3236b9bfe74a)  
+[TypeScriptを雰囲気で使っていたので勉強し直したら知らなかったこと](https://zenn.dev/nrikiji/articles/45721c42b48124)  
+[【Vuex】stateの変更を監視する3つの方法](https://kawadev.net/vuex-watch/)  
+[Vuexのstate/getters/mutations/actionsについて調べた](https://shkn.hatenablog.com/entry/2019/05/29/020223)  
+[Vuex の使い方を勉強してみた](https://qiita.com/nmgw1119/items/27ed23e433ec54a9c950)  
+[JavaScriptの数値チェックについてハマったのでメモ](https://qiita.com/taku-0728/items/329e0bee1c49b7ce7cd1)  
+[[JavaScript] 配列の存在チェック（空判定）は if (array.length) {...} でいいよって話](https://qiita.com/kozzzz/items/42108bc96b3a0e7c53d5)  
+
+QRコード関連  
+[JavaScript で QRコードのデコード：jsQR で簡素な処理（日本語の扱いでハマった部分についても記載）](https://qiita.com/youtoy/items/d94a5bf835d3f4007c81)  
+[requestAnimationFrameの仕組みと使い方！うまく使ってパフォーマンスを改善しよう！](https://leap-in.com/ja/use-requestanimtionframe/)  
+[jsQRであっさりQRコードリーダ/メーカ](https://zenn.dev/sdkfz181tiger/articles/096dfb74d485db)  
 
 ## テーブルを作る
 
@@ -311,8 +324,12 @@ class Person {
 
 ---
 
-## Linq.Sum
+## Linq
 
+[TypeScript vs. C#: LINQ](https://decembersoft.com/posts/typescript-vs-csharp-linq/#firstordefault)  
+[はじめてのvue-property-decorator (nuxtにも対応）](https://qiita.com/otagaisama-1/items/a9eec24acabb35cc4b1c)  
+
+Sum  
 [[TypeScript]配列の要素の合計値を計算する](https://codelab.website/typescript-reduce/)  
 
 ``` ts
@@ -743,6 +760,18 @@ paramを使う場合、nameでなければ駄目。queryは使えるらしい。
 
 ## URLのエスケープ
 
-「+」はASCII
+`ZAOtlo+HxBqV0Nhbgq2GYA==` がURLだと `ZAOtlo%20HxBqV0Nhbgq2GYA%3D%3D` となり、それを変換すると `ZAOtlo HxBqV0Nhbgq2GYA==` なる問題が発生。  
+「+」はASCIIだと `%2B` になるはずだが、 `%20` : `SPACE` になってしまう。  
+
+URLに乗せる際、エスケープしていないのが問題だった。  
+PHPのurlencode関数を暗号化された文字列に噛ませたら解決した。  
 
 [urlencode](https://www.php.net/manual/ja/function.urlencode.php)  
+[ASCII文字とURLエンコードの対応表](https://www.seil.jp/doc/index.html#tool/url-encode.html)  
+[URLエンコード 【URL encoding】 パーセントエンコーディング](https://e-words.jp/w/URL%E3%82%A8%E3%83%B3%E3%82%B3%E3%83%BC%E3%83%89.html)  
+
+---
+
+## Vuexについて色々
+
+
