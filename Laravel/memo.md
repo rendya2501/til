@@ -224,3 +224,12 @@ Log::debug($message);
 どのファシリティでも出力されるけど、とりあえずdebug使っておけばいいんじゃないかな。  
 
 因みに出力先は、デフォルトの設定の場合、`storage/logs/laravel.log` に出力される。  
+
+---
+
+## json->getbody()->rewind()
+
+[Guzzle getContents（）-> getBody（）-2回目の呼び出しで空の文字列が返されます](https://stackoverflow.com/questions/55120359/guzzle-getcontents-getbody-second-calls-return-empty-string)  
+>応答本体はストリームであるため、これは予想される動作です（PSR-7仕様で詳細を参照してください）。  
+>本文を再度読み取ることができるようにするには->getBody()->rewind()、ストリームを最初に巻き戻すように呼び出す必要があります。  
+>すべてのストリームタイプが巻き戻し操作をサポートしているわけではないため、まれに例外が発生する可能性があることに注意してください。  

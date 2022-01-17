@@ -1,19 +1,40 @@
 # Vueメモ
 
+Vue
 [Visual Studio CodeでVue.jsアプリケーションの開発環境を構築する](https://qiita.com/rubytomato@github/items/b35b819671e7cbb3dff7)  
 [はじめてのvue-property-decorator (nuxtにも対応）](https://qiita.com/simochee/items/e5b77af4aa36bd0f32e5)  
-[TypeScriptの型入門](https://qiita.com/uhyo/items/e2fdef2d3236b9bfe74a)  
-[TypeScriptを雰囲気で使っていたので勉強し直したら知らなかったこと](https://zenn.dev/nrikiji/articles/45721c42b48124)  
+
+Vuex
 [【Vuex】stateの変更を監視する3つの方法](https://kawadev.net/vuex-watch/)  
 [Vuexのstate/getters/mutations/actionsについて調べた](https://shkn.hatenablog.com/entry/2019/05/29/020223)  
 [Vuex の使い方を勉強してみた](https://qiita.com/nmgw1119/items/27ed23e433ec54a9c950)  
-[JavaScriptの数値チェックについてハマったのでメモ](https://qiita.com/taku-0728/items/329e0bee1c49b7ce7cd1)  
-[[JavaScript] 配列の存在チェック（空判定）は if (array.length) {...} でいいよって話](https://qiita.com/kozzzz/items/42108bc96b3a0e7c53d5)  
 
 QRコード関連  
 [JavaScript で QRコードのデコード：jsQR で簡素な処理（日本語の扱いでハマった部分についても記載）](https://qiita.com/youtoy/items/d94a5bf835d3f4007c81)  
 [requestAnimationFrameの仕組みと使い方！うまく使ってパフォーマンスを改善しよう！](https://leap-in.com/ja/use-requestanimtionframe/)  
 [jsQRであっさりQRコードリーダ/メーカ](https://zenn.dev/sdkfz181tiger/articles/096dfb74d485db)  
+
+TypeScript
+[TypeScriptの型入門](https://qiita.com/uhyo/items/e2fdef2d3236b9bfe74a)  
+[TypeScriptを雰囲気で使っていたので勉強し直したら知らなかったこと](https://zenn.dev/nrikiji/articles/45721c42b48124)  
+[JavaScriptの数値チェックについてハマったのでメモ](https://qiita.com/taku-0728/items/329e0bee1c49b7ce7cd1)  
+[[JavaScript] 配列の存在チェック（空判定）は if (array.length) {...} でいいよって話](https://qiita.com/kozzzz/items/42108bc96b3a0e7c53d5)  
+
+見た目
+[スマホで100vhを使うと、アドレスバーの高さ分はみでてしまう](https://877.design/smartphone-height/)  
+結局min-height: 92vh;で画面サイズをそもそも小さくして対応した。  
+const vh = window.innerHeight;  
+// const vh = document.documentElement.clientHeight;  
+ここら辺の資料も膨大に出てきた。  
+
+[Javascript/jQuery でブラウザ高さを取得する方法](https://www-creators.com/archives/6036)  
+
+[JavaScriptでスクロール禁止にする方法を解説！](https://qumeru.com/magazine/277)  
+
+[iOS Safari でダブルタップによるズームを防ぐには touch-action: manipulation が一番簡単](https://neos21.net/blog/2018/12/22-01.html)  
+[[React] 画面タッチによるピンチズーム操作を無効にする](https://dev.classmethod.jp/articles/react-disable-pinch-zoom-by-screen-touch/)  
+[JavaScriptのtouchstartを止めるとclickイベントが発火しない](https://qiita.com/krmbn0576/items/fb8f1c90128b242a83bc)  
+[[javascript] ダブルタップでブラウザが拡大するのを防ぐ](https://qiita.com/ELIXIR/items/1d007313c09489738e26)  
 
 ## テーブルを作る
 
