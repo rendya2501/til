@@ -793,6 +793,71 @@ PHPのurlencode関数を暗号化された文字列に噛ませたら解決し�
 
 ---
 
-## Vuexについて色々
+## b-row,b-colで頑張った
 
+``` html
+<b-container fluid class="bv-example-row">
+  <b-row>
+    <b-col>
+      <b-row>
+        <b-col>Level 2: cols="8" sm="6"</b-col>
+      </b-row>
+      <b-row>
+        <b-col>Level 2: cols="4" sm="6"</b-col>
+      </b-row>
+    </b-col>
+    <b-col align-self="center">
+      プラン毎に設定1
+    </b-col>
+  </b-row>
+</b-container>
+```
 
+---
+
+## bootstrap-vueのb-row,b-colのmarginとpaddingを0にする
+
+marginとpaddinigで痛い目にあったのでまとめる。  
+デフォルト状態だと、勝手にmarginとpaddingが設定されるらしく、それが悪さしてたので、classでさっくり指定できる方法がないか探したらあった。  
+
+`class="p-0 m-0"`でmarginとpaddingを0に設定できた。  
+
+``` html
+  <b-row class="p-0 m-0">
+    <b-col class="p-0 m-0">
+```
+
+[bootstrapvueの使い方全覚書(b-container,b-col,b-table/b-form-radio)](https://ebookbrain.net/bootstrap-vue/#b-colpadding)  
+
+---
+
+## html 1行 左寄せ 右寄せ
+
+[一行の中で左寄せと右寄せに分けて表示する方法](https://blog.goo.ne.jp/nobutoshi3/e/5f1f53bce3f4a835a2e27f7089616091)  
+
+実際にはこんな感じで実現できた。
+
+``` html
+  <b-td
+    :variant="item.SettlementFlag ? 'danger' : 'primary'"
+    style="margin-right: 20px;border: 2px solid #ffffff;"
+  >
+    <span
+      class="text-left float-left"
+      v-text="!item.Name ? '　' : item.Name + ' 様'"
+    />
+    <span
+      class="text-right float-right"
+      v-if="item.SettlementFlag"
+      v-text="'精算済'"
+    />
+  </b-td>
+```
+
+---
+
+## 動的にテーブルを結合する方法
+
+どうでもいいけどすんげーことしてるやつ見つけた。
+
+[HTMLのテーブルのセルを動的結合するvueコンポーネントを作る](https://note.com/moli9ma/n/n27bab66d27e6)  
