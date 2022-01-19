@@ -861,3 +861,17 @@ marginとpaddinigで痛い目にあったのでまとめる。
 どうでもいいけどすんげーことしてるやつ見つけた。
 
 [HTMLのテーブルのセルを動的結合するvueコンポーネントを作る](https://note.com/moli9ma/n/n27bab66d27e6)  
+
+---
+
+## bootstrap 文字色を変更する
+
+classでvariantの文字列使えばおｋ。
+
+``` html
+            <p
+              class="p-0 m-0 text-left text-info"
+              v-text="'※精算済みの方には伝票は付けられません。'"
+              v-if="playerList.some(s => s.SettlementFlag)"
+            />
+```
