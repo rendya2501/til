@@ -1,9 +1,5 @@
 # 午後メモ等
 
-
-\*\*\n
-**  \n
-
 ---
 
 [「厳選5題」過去問と解説｜令和元年度 秋期 の過去問やるならこれをやれ](https://www.seplus.jp/dokushuzemi/fe/fenavi/kakomon-gensen/r01_autumn/)
@@ -15,7 +11,6 @@
 3.実際にプログラムを書いて答え合わせ
 
 実際にプログラムを動かしながら処理を追う練習しましょう。
-
 
 [午後問題の歩き方 ｜ 地道にアルゴリズム問題に取り組む（1）](https://www.seplus.jp/dokushuzemi/fe/fenavi/gogo_arukikata/guide_algorithm_of_questions_at_pm/)  
 

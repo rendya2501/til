@@ -11,8 +11,8 @@ groupにしてしまった。
 
 ●aliasコマンド  
 ●newasliasesコマンド  
-
 aliasesコマンドはない。ノリでそう答えてしまいそうになる。  
+●/etc/aliases
 
 ■dnsのhost系  
 ・/etc/hosts          :: IPアドレスとホスト名の対応付けファイル。
@@ -45,6 +45,14 @@ user
 -follow  
 -f  
 
+## +が設定、-が解除。+が解除、-が設定
+
+setコマンド :: 「+ : 解除」 , 「- : 設定」
+
+xhost :: 「+ : 設定」 , 「- : 解除」
+
+find :: 「+ : or」,「- : and」
+
 ## dが付くファイル、付かないファイル
 
 ntpdの設定ファイルを間違えてしまった。  
@@ -70,6 +78,7 @@ ntpdの設定ファイルを間違えてしまった。
 ■xinet  
 ・xinetd           :: スーパーサーバデーモン。ネットワークからのリクエストを受け付けるデーモン。  
 ・/etc/xinetd.conf :: xintedの全体的な設定を行うファイル。  
+・/etc/xinted.d/   :: xinetdのサービスごとの設定ファイルを格納するディレクトリ。  
 
 ■CUPS(Common Unix Printing System) :: これまで使われてきた「lpd」に代わる新しいWebブラウザベースの印刷システム。
 ・cupsd      :: UNIXの印刷サービスCUPSのデーモン。
@@ -99,7 +108,7 @@ none    :: どのネットワークにも接続していない。
 unknown :: 接続状態が見つからない。
 ```
 
-``` txt : ロケールの主なカテゴリ  
+``` txt : ロケールの主なカテゴリ
 LC_CTYPE     :: 文字の種類やその比較・分類の規定  
 LC_NUMERIC   :: 数値の書式に関する規定  
 LC_TIME      :: 日付や時刻の書式に関する規定  
@@ -229,6 +238,37 @@ User         :: ユーザー名。これがあるとユーザー名を省略で�
 Port         :: ポート番号。これがあると 「-p ポート番号」 って書かなくてよくなる。  
 IdentityFile :: 秘密鍵ファイル。これがあると 「ssh -i 秘密鍵ファイルのパス」 って書かなくてよくなる。  
 ```
+
+## 設定ファイルの有無
+
+■cron  
+・/etc/cron.allow :: cronの利用を許可するユーザーを記述する。  
+・/etc/cron.deny  :: cronの利用を拒否するユーザーを記述する。  
+① /etc/cron.allowファイルがあれば、そこに記述されたユーザーのみがcronを利用できる。/etc/cron.denyファイルは無視される。  
+② /etc/cron.allowファイルが無ければ、/etc/cron.denyを参照し、/etc/cron.denyに記述されていないすべてのユーザーがcronを利用できる。  
+③ /etc/cron.allowファイル、/etc/cron.denyファイルのどちらもない場合、rootユーザーのみが利用可能。  
+全員OK。
+
+■at  
+・/etc/at.allow :: atの利用を許可するユーザーを記述する。  
+・/etc/at.deny  :: atの利用を拒否するユーザーを記述する。  
+① /etc/at.allowがあれば、そこに記述されたユーザーのみがatを利用できる。/etc/at.denyファイルは無視される。  
+② /etc/at.allowが無ければ、/etc/at.denyを参照し、/etc/at.denyに記述されていないすべてのユーザーがatを利用できる。  
+③ どちらのファイルも無ければ、rootユーザーだけがatを利用できる。  
+
+■xinetdによるアクセス制御  
+・only_fromもno_accessも設定されていない場合、サービスへのアクセスは全て許可  
+・only_fromだけが設定されている場合、指定されたアクセス元しかサービスへアクセス出来ない  
+・no_accessだけが設定されている場合、指定されたアクセス元はサービスへアクセス出来ない  
+・only_fromとno_accessが同時に指定された場合、より厳密にマッチするほうに従う  
+
+■TCPラッパー（tcpd)の制御ファイルは以下の順で評価されます。  
+1.「/etc/hosts.allow」に記載されているホストは許可。  
+2.「/etc/hosts.allow」に記載されていなければ、「/etc/hosts.deny」を参照し、記載されているホストは拒否。  
+3.両方のファイルに記載の無いホストは全て許可。  
+
+両方のファイルに記載が無いホストは全て許可されてしまうため、通常は「/etc/hosts.deny」に「ALL:ALL」と記載（全てのサービスとホストを拒否）しておき、  
+許可したいサービスとホストだけ、「/etc/hosts.allow」に記載しておくという運用を行います。  
 
 ---
 
@@ -1054,11 +1094,20 @@ Proto , RefCnt , Flags , Type , State , I-Node , Path
 ・サブネットマスク
 ・MTU
 
+■送受信バイト数を表示できるコマンド
+・ifconfig デバイス名
+・ip -s link show dev デバイス名
+
 ■ルーティングテーブルを表示できるコマンド
-[route] [netstat -r] [ip route show]
+・route
+・netstat -r
+・ip route show
 
 ■DNSを利用し、ホスト名をIPアドレスに変換することができるコマンド  
-[host] [nslookup] [getent] [dig]
+・host
+・nslookup
+・getent
+・dig
 この中で出力する情報が最も少ないのはhostコマンド
 ```
 
