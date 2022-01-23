@@ -35,3 +35,40 @@
 XAMLではTextBlockだの、Labelだの指定する必要があるが、HTMLでは必要はないらしい。  
 
 ---
+
+## Overlay
+
+``` html
+    <!-- <b-container class="overlay" v-if="isBusyFlag">
+      <b-spinner />
+    </b-container> -->
+```
+
+``` css
+/** 読み込みクルクル */
+.overlay {
+  /* 要素を重ねた時の順番 */
+  z-index: 1;
+
+  /* 画面全体を覆う設定 */
+  position: fixed;
+  top: 0;
+  left: 0;
+  min-width: 100%;
+  min-height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+
+  /* 画面の中央に要素を表示させる設定 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+```
+
+---
+
+## bootstrap-vueでテキストの太字
+
+`<p class="font-weight-bold">Bold text.</p>`
+
+[Text](https://getbootstrap.com/docs/4.1/utilities/text/)  
