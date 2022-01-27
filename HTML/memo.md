@@ -72,3 +72,27 @@ XAMLではTextBlockだの、Labelだの指定する必要があるが、HTMLで�
 `<p class="font-weight-bold">Bold text.</p>`
 
 [Text](https://getbootstrap.com/docs/4.1/utilities/text/)  
+
+---
+
+## justify-contetで右寄せにならない
+
+[justify-content「flexアイテムの水平方向の揃え方」](https://web-designer.cman.jp/css_ref/abc_list/justify-content/)  
+
+・display : flex であること。  
+・ブラウザ対応が必要。  
+
+``` css
+/* ----- 右揃え ----- */
+#id2 {
+  -webkit-justify-content: flex-end;         /* Safari etc. */
+  -ms-justify-content    : flex-end;         /* IE10        */
+  justify-content        : flex-end;
+}
+```
+
+---
+
+## ブロック要素の中央寄せ
+
+[ブロック内でブロック要素を上下左右中央揃えにする技](https://qiita.com/HiromuMasuda0228/items/6a51c2ce24c69c937092)

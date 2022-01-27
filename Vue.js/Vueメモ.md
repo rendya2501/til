@@ -19,6 +19,7 @@ TypeScript
 [TypeScriptを雰囲気で使っていたので勉強し直したら知らなかったこと](https://zenn.dev/nrikiji/articles/45721c42b48124)  
 [JavaScriptの数値チェックについてハマったのでメモ](https://qiita.com/taku-0728/items/329e0bee1c49b7ce7cd1)  
 [[JavaScript] 配列の存在チェック（空判定）は if (array.length) {...} でいいよって話](https://qiita.com/kozzzz/items/42108bc96b3a0e7c53d5)  
+[[JavaScript] null とか undefined とか 0 とか 空文字('') とか false とかの判定について](https://qiita.com/phi/items/723aa59851b0716a87e3)
 
 見た目
 [スマホで100vhを使うと、アドレスバーの高さ分はみでてしまう](https://877.design/smartphone-height/)  
@@ -26,6 +27,8 @@ TypeScript
 const vh = window.innerHeight;  
 // const vh = document.documentElement.clientHeight;  
 ここら辺の資料も膨大に出てきた。  
+[【CSS】100vhは「一画面」ではないという罠](https://jsnotice.com/posts/2019-03-30/#%E3%82%A2%E3%83%89%E3%83%AC%E3%82%B9%E3%83%90%E3%83%BC%E3%81%AE%E5%88%86%E6%8A%BC%E3%81%97%E5%87%BA%E3%81%95%E3%82%8C%E3%82%8B)
+[【CSS】vhは一画面でない...ならばwindow.outerHeightを試してみよう+実用例](https://jsnotice.com/posts/2019-04-03/)  
 
 [Javascript/jQuery でブラウザ高さを取得する方法](https://www-creators.com/archives/6036)  
 
@@ -628,6 +631,7 @@ hold query params Vue
 [VueにVue-Routerを使ってURLクエリパラメータを設定する方法](https://www.webdevqa.jp.net/ja/javascript/vue%E3%81%ABvuerouter%E3%82%92%E4%BD%BF%E3%81%A3%E3%81%A6url%E3%82%AF%E3%82%A8%E3%83%AA%E3%83%91%E3%83%A9%E3%83%A1%E3%83%BC%E3%82%BF%E3%82%92%E8%A8%AD%E5%AE%9A%E3%81%99%E3%82%8B%E6%96%B9%E6%B3%95/827650744/)  
 
 [Vue Routerのナビゲーションガードについて](https://qiita.com/yoshiblog-space/items/a4eb02d1d05ba1fbf9b5)  
+[Vue-Routerのナビゲーションガードを使ってみる](https://qiita.com/SatohJohn/items/cd7067ac64d8e45da4dd)  
 
 ``` ts
 // with query, resulting in /register?plan=private
@@ -875,3 +879,79 @@ classでvariantの文字列使えばおｋ。
               v-if="playerList.some(s => s.SettlementFlag)"
             />
 ```
+
+---
+
+## ブラウザバックの無効化
+
+safariだとうまく行かなかった。他の方法で対応した。  
+ブラウザにも色々あるんだなぁって思った。  
+
+[HTML5 history apiで戻るボタン無効化](https://qiita.com/maruo327/items/a0502c8b508fed4ec169)  
+[JavaScriptだけでブラウザの「戻る」ボタンを無効化する方法](https://hidari-lab.hatenablog.com/entry/2015/03/02/212818)  
+[ブラウザの「戻る」ボタンでキャッシュが表示されてしまう際の対策](https://qiita.com/shibe23/items/79f950061457ff1a7687)  
+[History APIとスマホブラウザでのハマりどころ](https://qiita.com/nenokido2000/items/2dd8da77d06837c8a510)  
+
+``` ts
+finally {
+      // 戻る禁止
+      if (history && history.pushState && history.state !== undefined) {
+        history.pushState(null, '', null);
+        window.addEventListener(
+          'popstate',
+          () => history.pushState(null, '', null),
+          false
+        );
+      }
+    }
+```
+
+---
+
+## 一定時間後に実行する
+
+javascriptに書くべきだがとりあえず。
+setTimeout関数使う。
+
+``` js
+// とりあえず0.1秒無効にする。
+setTimeout(() => (this.isTotalEnable = true), 100);
+```
+
+---
+
+## デッドロック
+
+[SQLServer: with(nolock)ヒントでロックを確実に回避できるという認識は間違い](https://qiita.com/maaaaaaaa/items/209a681f0a771cf80df4)  
+[SQL Serverのwith(NOLOCK)の挙動について](https://tech.excite.co.jp/entry/2021/05/22/120000)  
+[SQLServerのテーブルロック状態を取得するSQL](https://www.excellence-blog.com/2016/11/11/sqlserver%E3%81%AE%E3%83%86%E3%83%BC%E3%83%96%E3%83%AB%E3%83%AD%E3%83%83%E3%82%AF%E7%8A%B6%E6%85%8B%E3%82%92%E5%8F%96%E5%BE%97%E3%81%99%E3%82%8Bsql/)  
+[SQL Serverのロックについて出来る限り分かりやすく解説](https://qiita.com/maaaaaaaa/items/38fd95b142b07acf7700)  
+[続・SQL Serverのロックについて出来る限り分かりやすく解説](https://qiita.com/maaaaaaaa/items/28c8a1affe36a6bd811a)  
+
+[SQL SERVERにおけるデッドロック（内部仕様）〜クラスタ化インデックスと非クラスタ化インデックス間のデッドロック〜](https://bxdxmx.hatenablog.com/entry/20090820/1250746566)  
+[デッドロック（SQL Server）](https://www.dbsheetclient.jp/blog/?p=1609)  
+[デッドロックのサンプルクエリ](https://blog.engineer-memo.com/2013/07/15/%E3%83%87%E3%83%83%E3%83%89%E3%83%AD%E3%83%83%E3%82%AF%E3%81%AE%E3%82%B5%E3%83%B3%E3%83%97%E3%83%AB%E3%82%AF%E3%82%A8%E3%83%AA/)  
+[SQL Server 2012 のデッドロック情報の取得について](https://blog.engineer-memo.com/2012/04/19/sql-server-2012-%E3%81%AE%E3%83%87%E3%83%83%E3%83%89%E3%83%AD%E3%83%83%E3%82%AF%E6%83%85%E5%A0%B1%E3%81%AE%E5%8F%96%E5%BE%97%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6/)  
+[【SQL server】デッドロックの調査方法](https://memorandom-nishi.hatenablog.jp/entry/2016/11/14/024856)  
+[EXISTSとSQLの高速化について](http://kkoudev.github.io/blog/2013/09/14/sql/)  
+
+[SQL Serverで処理時間を計測する](https://qiita.com/maitake9116/items/ed3037badc90de18b0e6)  
+
+[SQL Server の Wait Resource から実オブジェクトを判断する](https://blog.engineer-memo.com/2019/10/06/sql-server-%E3%81%AE-wait-resource-%E3%81%8B%E3%82%89%E5%AE%9F%E3%82%AA%E3%83%96%E3%82%B8%E3%82%A7%E3%82%AF%E3%83%88%E3%82%92%E5%88%A4%E6%96%AD%E3%81%99%E3%82%8B/)  
+
+[クラスター化インデックスと非クラスター化インデックスの概念](https://docs.microsoft.com/ja-jp/sql/relational-databases/indexes/clustered-and-nonclustered-indexes-described?view=sql-server-ver15)  
+[【SQL Server】クラスター化インデックスと非クラスター化インデックス](https://memorandom-nishi.hatenablog.jp/entry/2017/02/05/232703)  
+
+[sys.dm_exec_sql_text (Transact-SQL)](https://docs.microsoft.com/ja-jp/sql/relational-databases/system-dynamic-management-views/sys-dm-exec-sql-text-transact-sql?view=sql-server-ver15)
+
+``` sql
+-- pass sql_handle to sys.dm_exec_sql_text
+SELECT * FROM sys.dm_exec_sql_text(0x01000600B74C2A1300D2582A2100000000000000000000000000000000000000000000000000000000000000) -- modify this value with your actual sql_handle
+```
+
+[エスカレーション 件数　sqlserver]  
+[sqlserver デッドロック キーロック]  
+[sqlserver 非クラスター化インデックス 含まれている列]  
+
+インデックスは必須であることは分かったが、根本的な原因は分からなかった。  
+色々勉強にはなったが、実力不足が否めない。  
