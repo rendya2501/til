@@ -282,3 +282,50 @@ CommandParameterに複数のパラメーターを指定したければ、MultiBi
 ItemsSourceChanging、ItemsSourceChangedではない。  
 バインド先がItemsSourceなので、なんでできないのか小一時間悩んでしまった。  
 正解はRowsでした。  
+
+---
+
+### Mah チェックボックスの色変える
+
+``` C#
+        // これでMahのチェックつけたときの青色が取れる。
+        private static readonly SolidColorBrush _ForeGround = (SolidColorBrush)Application.Current.Resources["MahApps.Brushes.Accent"];
+
+
+                        var textBlockList = cell.FindVisualChildren<CheckBox>();
+                        if (textBlockList != null)
+                        {
+                            foreach (var textBlock in textBlockList)
+                            {
+                                if (AssociatedObject.Selection.Row == i && AssociatedObject.Selection.Column == j)
+                                {
+                                    // これで色変えられる。
+                                    // CheckGlyphForegroundCheckedはXAMLで指定するときのあれ。
+                                    // mahapp:CheckGlyphForegroundChecked()
+                                    CheckBoxHelper.SetCheckGlyphForegroundChecked(textBlock, _ForeGround);
+                                    CheckBoxHelper.SetCheckGlyphForegroundCheckedMouseOver(textBlock, _ForeGround);
+
+
+
+                // 値を表示/編集するために、チェックボックスを作成します
+                CheckBox chk = new CheckBox
+                {
+                    IsChecked = (bool?)grid.Cells[rng.Row, rng.Column],
+                    VerticalAlignment = VerticalAlignment.Center,
+                    HorizontalAlignment = HorizontalAlignment.Center
+                };
+                _ = chk.SetBinding(ToggleButton.IsCheckedProperty, grid.Columns["Cancel"].Binding);
+                // 精算済みのレコードは操作不能にして色を変える
+                if (!(bool)grid.Cells[rng.Row, "ValidFlag"])
+                {
+                    chk.IsEnabled = false;
+                    grid.Columns["Cancel"].IsReadOnly = true;
+                    // ここで色変える
+                    CheckBoxHelper.SetCheckBackgroundFillUncheckedDisabled(
+                        chk,
+                        (Brush)Application.Current.Resources["IsReadOnlyBackGroundColor"]
+                    );
+                }
+                // チェックボックスをセル要素に割り当てます
+                bdr.Child = chk;
+```
