@@ -540,3 +540,78 @@ SELECT
 FROM 
     table 
 ```
+
+---
+
+## LIKE結合とEXCEPT
+
+全データがあるテーブルから存在しないレコードだけを抜き出したいという案件を受けた。  
+それだけなら差集合でいいけど、微妙に文字列が追加されていて、単純な結合ができない。  
+SQL SERVERで正規表現が使えればよかったが、SQL SERVERでは使えない模様。  
+LIKE句を使った結合はできたが、その先が分からなかった。  
+そんな時にドンピシャな記事があったのでまとめる。  
+
+[テーブル結合　LIKE演算子](https://teratail.com/questions/65949)
+[SQL EXCEPTのサンプル(差分を抽出する)](https://itsakura.com/sql-except)  
+
+>下記の状況で最適なSQLを作成したいのです。  
+>
+>【情報】  
+>テーブル1 カラム名：項目X  
+>テーブル2 カラム名：項目Y(※レコード内容は項目Xに文字列を付与したものが入っています)  
+>
+>手順1.ある条件を元にして、テーブル1の項目XのSELECTします。(結果は複数行返ってきます)  
+>手順2.手順1のSELECT結果をWHERE条件にLIKE演算子の前方一致でテーブル2の項目YをSELECTします。  
+>
+>最終的には、手順2で前方一致でぶつからなかった項目Xの値を知りたいと思っています。  
+>これをSQLにて効率的に実行するには、どのようなやり方が望ましいのでしょうか。  
+>テーブル1とテーブル2を結合する際の条件にLIKE演算子を用いるとかですかね、、、？  
+
+``` sql
+-- 全データ
+SELECT `項目X` FROM `テーブル1`
+EXCEPT
+-- 抽出したデータ
+SELECT
+    [Table2].`項目X`
+FROM
+    `テーブル2` AS [Table1]
+INNER JOIN
+    (SELECT `項目X` FROM `テーブル1` WHERE "ある条件") AS [Table2]
+ON
+    [Table1].`項目Y` LIKE [Table2].`項目X` + '%'
+```
+
+``` sql : こっちでもいけた
+SELECT
+    テーブル1.X 
+FROM
+    テーブル1
+    LEFT JOIN テーブル2 
+    ON テーブル2.Y 
+    LIKE テーブル1.X + '%' （AND / OR テーブル2でさらに絞りたい条件式）
+WHERE
+    テーブル2.Y IS NULL AND
+```
+
+---
+
+## ストアドのIF EXISTS
+
+[テーブルなどのデータベースオブジェクトの存在確認](https://johobase.com/exists-database-object-sqlserver/#IF_EXISTS_ELSE)
+
+ストアドの `IF EXISTS ELSE` には閉じる構文がない。  
+ELSE以降のNEXT FETCHがELSEでしか実行されないことを心配したが大丈夫
+
+``` sql
+IF EXISTS(SELECT * from Student where FirstName='Akhil' and LastName='Mittal')
+  BEGIN
+    UPDATE Student set FirstName='Anu' where FirstName='Akhil'
+  END
+ELSE
+  BEGIN
+    INSERT INTO Student values(1,'Akhil','Mittal',28,'Male',2006,'Noida','Tenth','LFS','Delhi')
+  END
+```
+
+[Using cursor to update if exists and insert if not](https://dba.stackexchange.com/questions/218994/using-cursor-to-update-if-exists-and-insert-if-not)  

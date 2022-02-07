@@ -371,3 +371,11 @@ Oracleは最大値扱いだが、SQLServerは最小値扱い見たい。
 
 (NULL AS CHAR)→NULLのまま
 NULL -1 = NULL
+
+---
+
+## insert intoのinto句のありなしの違い
+
+[insert intoのinto句のありなしって違いは何ですか？](https://detail.chiebukuro.yahoo.co.jp/qa/question_detail/q1049319100)  
+>MySQL、SQL Server、ACCESS では、 into は省略可能です。  
+Oracle では、省略不可です。  
