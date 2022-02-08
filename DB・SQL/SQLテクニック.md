@@ -615,3 +615,35 @@ ELSE
 ```
 
 [Using cursor to update if exists and insert if not](https://dba.stackexchange.com/questions/218994/using-cursor-to-update-if-exists-and-insert-if-not)  
+
+``` sql
+    DECLARE myCursor CURSOR FOR 
+    SELECT ~~ 
+    FROM ~~
+    WHERE ~~
+    -- カーソルオープン
+    -- 変数に値をいれる。
+    OPEN myCursor
+    FETCH NEXT FROM myCursor INTO @~~
+
+    BEGIN
+        IF EXISTS(SELECT ~~ FROM ~~ WHERE ~~)
+            -- IFの処理
+            BEGIN
+                UPDATE ~~
+                SET ~~
+            END
+        ELSE
+            -- ELSEの処理
+            BEGIN
+                INSERT INTO ~~
+            END
+
+        -- if文外で実行したい場合はここにBEGIN ENDで囲って書くと実行される。
+        BEGIN
+            INSERT INTO ~~
+        END
+    END
+    -- カーソルを次に進める。
+    FETCH NEXT FROM myCursor4 INTO @~~
+```
