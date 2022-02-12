@@ -598,41 +598,31 @@ WHERE
 
 ## ストアドのIF EXISTS
 
-[テーブルなどのデータベースオブジェクトの存在確認](https://johobase.com/exists-database-object-sqlserver/#IF_EXISTS_ELSE)
-
-ストアドの `IF EXISTS ELSE` には閉じる構文がない。  
-ELSE以降のNEXT FETCHがELSEでしか実行されないことを心配したが大丈夫
-
-``` sql
-IF EXISTS(SELECT * from Student where FirstName='Akhil' and LastName='Mittal')
-  BEGIN
-    UPDATE Student set FirstName='Anu' where FirstName='Akhil'
-  END
-ELSE
-  BEGIN
-    INSERT INTO Student values(1,'Akhil','Mittal',28,'Male',2006,'Noida','Tenth','LFS','Delhi')
-  END
-```
-
+[テーブルなどのデータベースオブジェクトの存在確認](https://johobase.com/exists-database-object-sqlserver/#IF_EXISTS_ELSE)  
 [Using cursor to update if exists and insert if not](https://dba.stackexchange.com/questions/218994/using-cursor-to-update-if-exists-and-insert-if-not)  
 
-``` sql
+ストアドの `IF EXISTS ELSE` には閉じる構文がない。  
+ELSE以降のNEXT FETCHがELSEでしか実行されないことを心配したが大丈夫であることを確認できた。  
+とりあえずBEGIN ENDで処理を囲めばよいらしい。  
+
+``` sql : 実際にうまくいったストアド
+    -- カーソル定義
     DECLARE myCursor CURSOR FOR 
-    SELECT ~~ 
-    FROM ~~
-    WHERE ~~
+    SELECT ~~ FROM ~~ WHERE ~~
     -- カーソルオープン
-    -- 変数に値をいれる。
     OPEN myCursor
+    -- カーソルから変数に値をいれて、次のカーソルを参照
     FETCH NEXT FROM myCursor INTO @~~
 
     BEGIN
+        -- 存在したらUPDATE
         IF EXISTS(SELECT ~~ FROM ~~ WHERE ~~)
             -- IFの処理
             BEGIN
                 UPDATE ~~
                 SET ~~
             END
+        -- 存在しなければINSERT
         ELSE
             -- ELSEの処理
             BEGIN
