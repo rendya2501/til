@@ -1,5 +1,7 @@
 # Gitメモ
 
+[Git 基本の用語集](https://qiita.com/toshi_um/items/72c9d929a600323b2e77)  
+
 ---
 
 ## git pull
