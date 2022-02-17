@@ -637,3 +637,64 @@ ELSE以降のNEXT FETCHがELSEでしか実行されないことを心配した�
     -- カーソルを次に進める。
     FETCH NEXT FROM myCursor4 INTO @~~
 ```
+
+---
+
+## WITH句
+
+[SQL WITH句で同じSQLを１つのSQLに共通化する](https://zukucode.com/2017/09/sql-with.html)  
+
+ビューみたいな定義ができる構文。  
+
+``` sql : 使い方例
+WITH employee_with AS (
+  SELECT *
+  FROM
+    employee T1
+  WHERE
+    T1.last_name = '山田'
+)
+SELECT
+  T1.id,
+  T1.first_name,
+  T1.last_name,
+  T1.department_id,
+  (
+    SELECT
+      AVG(SUB1.height)
+    FROM
+      -- WITH句で指定したテーブルを参照
+      employee_with SUB1
+    WHERE
+      T1.department_id = SUB1.department_id
+  ) AS avg_height,
+  (
+    SELECT
+      MAX(SUB1.height)
+    FROM
+      -- WITH句で指定したテーブルを参照
+      employee_with SUB1
+    WHERE
+      T1.department_id = SUB1.department_id
+  ) AS max_height
+FROM
+  -- WITH句で指定したテーブルを参照
+  employee_with T1
+```
+
+``` sql : 複数のテーブルを指定する
+WITH sample_with AS (
+  SELECT *
+  FROM sample
+  WHERE COL1 = 'sample'
+),
+sample2_with AS (
+  SELECT *
+  FROM sample2
+    -- WITH句で定義したテーブルも参照可能
+    JOIN sample_with
+    ON sample2.COL1 = sample_with.COL1
+  WHERE sample2.COL1 = 'sample'
+)
+SELECT
+```
