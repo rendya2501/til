@@ -843,6 +843,9 @@ tryで宣言した変数を外部で使うためには、tryの外で予め宣�
 
 [C#でURLを既定のブラウザで開く](https://qiita.com/tsukasa_labz/items/80a94d202f5e88f1ddc0)  
 
+なんかうまいこといかない場合もある模様。  
+次必要になったらまとめる。  
+
 ``` C#
 Process.Start(
     new ProcessStartInfo()

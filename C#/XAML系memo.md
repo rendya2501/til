@@ -138,6 +138,29 @@ Styleでは、通常、「Setter」というオブジェクトを配置してプ
 </CheckBox>
 ```
 
+``` xml : 文言を変えるサンプル
+<Button Command="{Binding ShowHelpPageCommand, Mode=OneWay}">
+    <Button.Content>
+        <Image Source="{StaticResource White_Help_16}" Stretch="None" />
+    </Button.Content>
+    <Button.Style>
+        <Style BasedOn="{StaticResource WindowButton}" TargetType="Button">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding HelpPageURL, Converter={StaticResource NotNullOrEmptyToBoolConverter}, Mode=OneWay}" Value="true">
+                    <Setter Property="ToolTip" Value="ヘルプページを表示します。" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding HelpPageURL, Converter={StaticResource NotNullOrEmptyToBoolConverter}, Mode=OneWay}" Value="false">
+                    <Setter Property="ToolTip" Value="ヘルプページの設定がありません。" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </Button.Style>
+</Button>
+```
+
+ボタンなどのコントロールにマウスを載せた時、説明やヒントをポップアップ表示してくれる機能です。  
+[ボタンのツールチップ](https://araramistudio.jimdo.com/2019/11/01/c-%E3%81%AEwpf%E3%81%A7%E3%83%84%E3%83%BC%E3%83%AB%E3%83%81%E3%83%83%E3%83%97%E3%82%92%E8%A1%A8%E7%A4%BA%E3%81%99%E3%82%8B/)  
+
 ---
 
 ## GrapeCityコンポーネントのDataTriggerにおけるTargetTypeの指定の仕方
@@ -1204,3 +1227,41 @@ eventtrigger eventname 一覧
             }
         }
 ```
+
+---
+
+## MetroWindowでタイトルバーにボタンを配置する
+
+ヘルプページを表示するときに採用した案。  
+オプションの歯車を出すアレを?アイコンに置き換えてそれをヘルプページとした。  
+しかし、意外にも出し方が分からなかったのでまとめ。  
+
+[MahApps.Metroを使ってみた](https://sourcechord.hatenablog.com/entry/2016/02/23/012511)  
+
+RidhtWindowCommandsを使う。  
+
+``` xml
+<Controls:MetroWindow
+    x:Class="MahAppsMetroTest.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:MahAppsMetroTest"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Title="MainWindow"
+    Width="500"
+    Height="300"
+    BorderThickness="0"
+    GlowBrush="Black"
+    mc:Ignorable="d">
+    <Controls:MetroWindow.RightWindowCommands>
+        <Controls:WindowCommands>
+            <Button Content="settings" />
+            <Button Content="acount" />
+        </Controls:WindowCommands>
+    </Controls:MetroWindow.RightWindowCommands>
+    以下略
+```
+
+![!](http://cdn-ak.f.st-hatena.com/images/fotolife/m/minami_SC/20160223/20160223003354.png)  
