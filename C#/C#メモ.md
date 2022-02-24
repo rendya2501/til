@@ -855,3 +855,26 @@ Process.Start(
     }
 );
 ```
+
+---
+
+## StringBuilderで先頭にWHEREを追加する方法
+
+``` C#
+            var whereQuery = new StringBuilder();
+            if (!string.IsNullOrEmpty(settlementPlayerNo))
+            {
+                whereQuery.AppendLine("AND [SettlementPlayerNo] = @settlementPlayerNo");
+            }
+            if (!string.IsNullOrEmpty(settlementID))
+            {
+                whereQuery.AppendLine("AND [SettlementID] = @settlementID");
+            }
+            // 現金振替マイナスの伝票は除く
+            if (isExclueCashAdvanceMinus)
+            {
+                whereQuery.AppendLine("AND [DetailType] <> @cashAdvanceMinus");
+            }
+            // 先頭のAND消してWHEREにする。
+            whereQuery.Remove(0, 3).Insert(0, "WHERE");
+```
