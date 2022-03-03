@@ -190,6 +190,27 @@ SELECT STUFF( (SELECT TOP 3 ',' + PlayerNo FROM TFr_Slip FOR xml path('')) , 1 ,
 
 ---
 
+## FOR XML PATHで文字をつなげつつ、重複は削除する例
+
+[SQL Serverで取得結果行を1列に連結するSQL(FOR XML PATH)](https://fumokmm.github.io/it/sqlserver/for_xml_path)  
+
+このサイトに使い方全部乗ってる。  
+
+``` sql
+SELECT
+    a.TEAM AS TEAM,
+    STUFF(
+        (SELECT ',' + MEMBER FROM Table1 b WHERE b.TEAM = a.TEAM ORDER BY b.NO FOR XML PATH(''))
+        , 1, 1, ''
+    ) AS MEMBER
+FROM
+    (SELECT DISTINCT TEAM FROM Table1) a
+ORDER BY
+    a.TEAM
+```
+
+---
+
 ## FOR XML PATH の TYPE .valueとは何か？
 
 for xml pathは、なんかインテリセンスが働かないけど、`,TYPE).value(,)`なるオプション？が使える模様。  
@@ -290,6 +311,97 @@ FROM
 ) AS x
 WHERE 
     rk=1
+```
+
+---
+
+## グループ毎に1行だけ取り出したけど、それぞれ何行がひとまとまりになったのか表示する
+
+[ndid単位で抜き出したけど、それぞれ何行がひとまとまりになったのだろうか？](https://ameblo.jp/lovetanpopo/entry-10280370777.html)  
+`COUNT(フィールド名) OVER ( PARTITION BY フィールド名 )`  
+
+RANK,ROW_NUMBER,COUNTにOVERを使えるあたり、OVERはOVERでそういう構文になっているのだろうか。  
+
+組数を表示するときに使った。  
+予約枠でサマった時にGROUPBYするほどではないけど、2つあったら「+」を表示したい。  
+その時に活躍した。  
+
+``` sql
+select *
+from
+(
+ select
+  id,name,ndid,stid,
+  row_number()
+    over( partition by ndid order by stid ) row_num,
+  count(ndid) over ( partition by ndid ) cn
+ from test
+)
+where row_num = 1
+```
+
+``` sql : 成果物その1
+SELECT
+    [SQ].[ReservationFrameNo],
+    [SQ].[Numerator] + '/' + [SQ].[Denominator] + CASE
+        WHEN [SQ].[Count] > 1 THEN '+'
+        ELSE ''
+    END AS [FrameCount]
+FROM
+    (
+        SELECT
+            [SQ_Numerator].[ReservationFrameNo],
+            [SQ_Numerator].[ReservationNo],
+            [SQ_SeatNo].[SeatNo],
+            COUNT(*) OVER(PARTITION BY [SQ_Numerator].[ReservationFrameNo]) AS [Count],
+            CONVERT(nvarchar, [SQ_Numerator].[Numerator]) AS [Numerator],
+            CONVERT(nvarchar, [SQ_Denominator].[Denominator]) AS [Denominator]
+        FROM
+            (
+                SELECT
+                    [ReservationFrameNo],
+                    [ReservationNo],
+                    ROW_NUMBER() OVER(PARTITION BY [ReservationNo] ORDER BY [ReservationFrameNo]) AS [Numerator]
+                FROM
+                    [TRe_ReservationPlayer]
+                WHERE
+                    ISNULL([ReservationCancelFlag], 0) = 0
+                GROUP BY
+                    [ReservationFrameNo],
+                    [ReservationNo]
+            ) AS [SQ_Numerator]
+            INNER JOIN
+                (
+                    SELECT
+                        [ReservationNo],
+                        COUNT(DISTINCT [ReservationFrameNo]) AS [Denominator]
+                    FROM
+                        [TRe_ReservationPlayer]
+                    WHERE
+                        ISNULL([ReservationCancelFlag], 0) = 0
+                    GROUP BY
+                        [ReservationNo]
+                ) AS [SQ_Denominator]
+            ON  [SQ_Numerator].[ReservationNo] = [SQ_Denominator].[ReservationNo]
+            INNER JOIN
+                (
+                    SELECT
+                        [ReservationFrameNo],
+                        [ReservationNo],
+                        MIN([SeatNo]) AS [SeatNo]
+                    FROM
+                        [TRe_ReservationPlayer]
+                    WHERE
+                        ISNULL([ReservationCancelFlag], 0) = 0
+                    GROUP BY
+                        [ReservationFrameNo],
+                        [ReservationNo]
+                ) AS [SQ_SeatNo]
+            ON  [SQ_Numerator].[ReservationNo] = [SQ_SeatNo].[ReservationNo]
+            AND [SQ_Numerator].[ReservationFrameNo] = [SQ_SeatNo].[ReservationFrameNo]
+    ) AS [SQ]
+WHERE
+    [SQ].[SeatNo] = 1
 ```
 
 ---
