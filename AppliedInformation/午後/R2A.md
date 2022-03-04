@@ -184,27 +184,6 @@ j : t2.宿泊日 = t1.宿泊日 × t1.宿泊日 = t2.宿泊日
 
 ```
 
-``` sql
--- 後でどこかにまとめるけど、いい感じのWITH句と相関副問い合わせのサンプルが出来たのでまとめておく。
-WITH employee_with AS (
-  SELECT 1 As id ,"りんご" as name,"フルーツ" as category ,10 as kosuu
-  UNION
-  SELECT 2,"みかん","フルーツ",20
-  UNION
-  SELECT 3,"にんじん","野菜",30
-  UNION
-  SELECT 4,"大根","野菜",40
-)
-select id,name 
-from employee_with a
-where kosuu =
- (select 
-  max(kosuu)
-  from employee_with b 
-  where a.category = b.category);
-
-```
-
 ---
 
 ## 組み込みシステム 多言語他通貨対応両替システム
