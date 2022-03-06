@@ -1230,3 +1230,19 @@ GroupByで条件で絞れて、WhereでTrueのモノを拾えば、その条件�
 
 返却されるのがプリミティブなら、Listは変更されないが、がっつりそれ以外だったので、普通に考えたら変更されるわな。  
 だけど、改めて考えてみたらどうなるんだろうってなったのでまとめ。  
+
+---
+
+## GroupByして単純に足したい場合
+
+``` C#
+    ConsumptionTaxList = aac
+        .GroupBy(g => new { g.TaxationType, g.TaxRate })
+        .Select(s =>
+        {
+            var taxSlip = s.FirstOrDefault();
+            taxSlip.TargetPrice = s.Sum(sum => sum.TargetPrice);
+            taxSlip.Tax = s.Sum(sum => sum.Tax);
+            return taxSlip;
+        }).ToList();
+```
