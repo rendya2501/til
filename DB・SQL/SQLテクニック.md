@@ -34,6 +34,53 @@ WHERE
 
 ---
 
+## 縦横変換
+
+PIVOT関数ってSQL SERVERだけなのね。  
+メジャーなのはMAX CASE WHEN使うパターンみたい。  
+
+``` sql
+SELECT
+    [TB_会員].[顧客CD],
+    MAX(CASE WHEN [AA].[ItemCD] = '101' THEN [AA].[Date] ELSE NULL END) AS [日付0],
+    MAX(CASE WHEN [AA].[ItemCD] = '102' THEN [AA].[Date] ELSE NULL END) AS [日付1],
+    MAX(CASE WHEN [AA].[ItemCD] = '103' THEN [AA].[Date] ELSE NULL END) AS [日付2],
+    MAX(CASE WHEN [AA].[ItemCD] = '104' THEN [AA].[Date] ELSE NULL END) AS [日付3],
+    MAX(CASE WHEN [AA].[ItemCD] = '105' THEN [AA].[Date] ELSE NULL END) AS [日付4],
+    MAX(CASE WHEN [AA].[ItemCD] = '106' THEN [AA].[Date] ELSE NULL END) AS [日付5],
+    MAX(CASE WHEN [AA].[ItemCD] = '107' THEN [AA].[Date] ELSE NULL END) AS [日付6],
+    MAX(CASE WHEN [AA].[ItemCD] = '108' THEN [AA].[Date] ELSE NULL END) AS [日付7],
+    MAX(CASE WHEN [AA].[ItemCD] = '109' THEN [AA].[Date] ELSE NULL END) AS [日付8],
+    MAX(CASE WHEN [AA].[ItemCD] = '110' THEN [AA].[Date] ELSE NULL END) AS [日付9],
+    MAX(CASE WHEN [AA].[ItemCD] = '111' THEN [AA].[Number] ELSE NULL END) AS [数値0],
+    MAX(CASE WHEN [AA].[ItemCD] = '112' THEN [AA].[Number] ELSE NULL END) AS [数値1],
+    MAX(CASE WHEN [AA].[ItemCD] = '113' THEN [AA].[Number] ELSE NULL END) AS [数値2],
+    MAX(CASE WHEN [AA].[ItemCD] = '114' THEN [AA].[Number] ELSE NULL END) AS [数値3],
+    MAX(CASE WHEN [AA].[ItemCD] = '115' THEN [AA].[Number] ELSE NULL END) AS [数値4],
+    MAX(CASE WHEN [AA].[ItemCD] = '116' THEN [AA].[Number] ELSE NULL END) AS [数値5],
+    MAX(CASE WHEN [AA].[ItemCD] = '117' THEN [AA].[Number] ELSE NULL END) AS [数値6],
+    MAX(CASE WHEN [AA].[ItemCD] = '118' THEN [AA].[Number] ELSE NULL END) AS [数値7],
+    MAX(CASE WHEN [AA].[ItemCD] = '119' THEN [AA].[Number] ELSE NULL END) AS [数値8],
+    MAX(CASE WHEN [AA].[ItemCD] = '120' THEN [AA].[Number] ELSE NULL END) AS [数値9],
+    MAX(CASE WHEN [AA].[ItemCD] = '121' THEN [AA].[Text] ELSE '' END) AS [名称0],
+    MAX(CASE WHEN [AA].[ItemCD] = '122' THEN [AA].[Text] ELSE '' END) AS [名称1],
+    MAX(CASE WHEN [AA].[ItemCD] = '123' THEN [AA].[Text] ELSE '' END) AS [名称2],
+    MAX(CASE WHEN [AA].[ItemCD] = '124' THEN [AA].[Text] ELSE '' END) AS [名称3],
+    MAX(CASE WHEN [AA].[ItemCD] = '125' THEN [AA].[Text] ELSE '' END) AS [名称4],
+    MAX(CASE WHEN [AA].[ItemCD] = '126' THEN [AA].[Text] ELSE '' END) AS [名称5],
+    MAX(CASE WHEN [AA].[ItemCD] = '127' THEN [AA].[Text] ELSE '' END) AS [名称6],
+    MAX(CASE WHEN [AA].[ItemCD] = '128' THEN [AA].[Text] ELSE '' END) AS [名称7],
+    MAX(CASE WHEN [AA].[ItemCD] = '129' THEN [AA].[Text] ELSE '' END) AS [名称8],
+    MAX(CASE WHEN [AA].[ItemCD] = '130' THEN [AA].[Text] ELSE '' END) AS [名称9]
+FROM [TB_会員]
+INNER JOIN [Round3DatBRK_20220308].[dbo].[TMc_CustomerGenericInfoContent] AS [AA]
+ON [AA].[OfficeCD]+[TB_会員].[顧客CD] = [AA].[CustomerCD]
+AND [AA].[UpdateProgram] LIKE 'RN3.WPF%'
+GROUP BY [TB_会員].[顧客CD]
+```
+
+---
+
 ## ROW_NUMBER()
 
 [SQL Fiddle](http://sqlfiddle.com/#!18/7374f/71)  
@@ -830,4 +877,52 @@ where kosuu =
   from employee_with b 
   where a.category = b.category);
 
+```
+
+---
+
+## 分子分母を出力するサンプル
+
+``` sql
+SELECT
+    ReservationFrameNo,
+    CASE WHEN COUNT(*) > 1 
+        THEN CONVERT(nvarchar,MAX(Numerator)) + '/' + CONVERT(NVARCHAR,MAX(Denominator)) + '+'
+        ELSE CONVERT(nvarchar,MAX(Numerator)) + '/' + CONVERT(NVARCHAR,MAX(Denominator))
+    END
+FROM (
+    SELECT
+        [A].ReservationFrameNo,
+        [A].ReservationNo,
+        [A].Numerator,
+        [B].Denominator
+    FROM (
+   -- 予約枠を上から見ていった時のシーケンス(分子:Numerator)
+        SELECT
+            [ReservationFrameNo],
+            [ReservationNo],
+            ROW_NUMBER() OVER(PARTITION BY [ReservationNo] ORDER BY ReservationFrameNo) AS Numerator
+        FROM 
+            [TRe_ReservationPlayer]
+        WHERE
+            ISNULL(ReservationCancelFlag,0) = 0
+        GROUP BY
+            ReservationFrameNo,ReservationNo
+        ) AS [A]
+    JOIN (
+   -- 予約が持っている予約枠数(分母:Denominator)
+        SELECT
+            [ReservationNo],
+            COUNT(DISTINCT [ReservationFrameNo]) AS Denominator
+        FROM 
+            [TRe_ReservationPlayer]
+        WHERE 
+            ISNULL(ReservationCancelFlag,0) = 0
+        GROUP BY 
+            [ReservationNo]
+    ) AS [B]
+    ON [A].ReservationNo = [B].ReservationNo
+) AS [SQ]
+GROUP BY
+    [ReservationFrameNo]
 ```
