@@ -32,6 +32,9 @@ WHERE
     [v].[DepositAmount] <> 0
 ```
 
+2022/03/10 追記  
+横持ちから縦持ちへの変換は、union all を使うことでも実現できるらしい。  
+
 ---
 
 ## 縦横変換
@@ -39,44 +42,96 @@ WHERE
 PIVOT関数ってSQL SERVERだけなのね。  
 メジャーなのはMAX CASE WHEN使うパターンみたい。  
 
-``` sql
-SELECT
-    [TB_会員].[顧客CD],
-    MAX(CASE WHEN [AA].[ItemCD] = '101' THEN [AA].[Date] ELSE NULL END) AS [日付0],
-    MAX(CASE WHEN [AA].[ItemCD] = '102' THEN [AA].[Date] ELSE NULL END) AS [日付1],
-    MAX(CASE WHEN [AA].[ItemCD] = '103' THEN [AA].[Date] ELSE NULL END) AS [日付2],
-    MAX(CASE WHEN [AA].[ItemCD] = '104' THEN [AA].[Date] ELSE NULL END) AS [日付3],
-    MAX(CASE WHEN [AA].[ItemCD] = '105' THEN [AA].[Date] ELSE NULL END) AS [日付4],
-    MAX(CASE WHEN [AA].[ItemCD] = '106' THEN [AA].[Date] ELSE NULL END) AS [日付5],
-    MAX(CASE WHEN [AA].[ItemCD] = '107' THEN [AA].[Date] ELSE NULL END) AS [日付6],
-    MAX(CASE WHEN [AA].[ItemCD] = '108' THEN [AA].[Date] ELSE NULL END) AS [日付7],
-    MAX(CASE WHEN [AA].[ItemCD] = '109' THEN [AA].[Date] ELSE NULL END) AS [日付8],
-    MAX(CASE WHEN [AA].[ItemCD] = '110' THEN [AA].[Date] ELSE NULL END) AS [日付9],
-    MAX(CASE WHEN [AA].[ItemCD] = '111' THEN [AA].[Number] ELSE NULL END) AS [数値0],
-    MAX(CASE WHEN [AA].[ItemCD] = '112' THEN [AA].[Number] ELSE NULL END) AS [数値1],
-    MAX(CASE WHEN [AA].[ItemCD] = '113' THEN [AA].[Number] ELSE NULL END) AS [数値2],
-    MAX(CASE WHEN [AA].[ItemCD] = '114' THEN [AA].[Number] ELSE NULL END) AS [数値3],
-    MAX(CASE WHEN [AA].[ItemCD] = '115' THEN [AA].[Number] ELSE NULL END) AS [数値4],
-    MAX(CASE WHEN [AA].[ItemCD] = '116' THEN [AA].[Number] ELSE NULL END) AS [数値5],
-    MAX(CASE WHEN [AA].[ItemCD] = '117' THEN [AA].[Number] ELSE NULL END) AS [数値6],
-    MAX(CASE WHEN [AA].[ItemCD] = '118' THEN [AA].[Number] ELSE NULL END) AS [数値7],
-    MAX(CASE WHEN [AA].[ItemCD] = '119' THEN [AA].[Number] ELSE NULL END) AS [数値8],
-    MAX(CASE WHEN [AA].[ItemCD] = '120' THEN [AA].[Number] ELSE NULL END) AS [数値9],
-    MAX(CASE WHEN [AA].[ItemCD] = '121' THEN [AA].[Text] ELSE '' END) AS [名称0],
-    MAX(CASE WHEN [AA].[ItemCD] = '122' THEN [AA].[Text] ELSE '' END) AS [名称1],
-    MAX(CASE WHEN [AA].[ItemCD] = '123' THEN [AA].[Text] ELSE '' END) AS [名称2],
-    MAX(CASE WHEN [AA].[ItemCD] = '124' THEN [AA].[Text] ELSE '' END) AS [名称3],
-    MAX(CASE WHEN [AA].[ItemCD] = '125' THEN [AA].[Text] ELSE '' END) AS [名称4],
-    MAX(CASE WHEN [AA].[ItemCD] = '126' THEN [AA].[Text] ELSE '' END) AS [名称5],
-    MAX(CASE WHEN [AA].[ItemCD] = '127' THEN [AA].[Text] ELSE '' END) AS [名称6],
-    MAX(CASE WHEN [AA].[ItemCD] = '128' THEN [AA].[Text] ELSE '' END) AS [名称7],
-    MAX(CASE WHEN [AA].[ItemCD] = '129' THEN [AA].[Text] ELSE '' END) AS [名称8],
-    MAX(CASE WHEN [AA].[ItemCD] = '130' THEN [AA].[Text] ELSE '' END) AS [名称9]
-FROM [TB_会員]
-INNER JOIN [Round3DatBRK_20220308].[dbo].[TMc_CustomerGenericInfoContent] AS [AA]
-ON [AA].[OfficeCD]+[TB_会員].[顧客CD] = [AA].[CustomerCD]
-AND [AA].[UpdateProgram] LIKE 'RN3.WPF%'
-GROUP BY [TB_会員].[顧客CD]
+GROUP BYとMAXをつけないで実行すると斜めにずらーっと並ぶ形になる。  
+それをGROUP BYで絞って、MAXで1つだけ取ることで縦横変換を実現するというロジック。  
+
+``` sql : 基本的な構文 <https://crmprogrammer38.hatenablog.com/entry/2017/08/01/154831>
+Select
+   グループ
+  ,max( case when 連番=1 then 担当 end )
+  ,max( case when 連番=2 then 担当 end )
+  ,max( case when 連番=3 then 担当 end )
+  ,max( case when 連番=4 then 担当 end )
+  ,max( case when 連番=5 then 担当 end )
+From 1のデータ
+Group By グループ
+```
+
+``` sql : 縦横変換しつつそれをUPDATEするサンプル
+UPDATE [TB_会員]
+SET
+    [日付0] = [SQ].[日付0],
+    [日付1] = [SQ].[日付1],
+    [日付2] = [SQ].[日付2],
+    [日付3] = [SQ].[日付3],
+    [日付4] = [SQ].[日付4],
+    [日付5] = [SQ].[日付5],
+    [日付6] = [SQ].[日付6],
+    [日付7] = [SQ].[日付7],
+    [日付8] = [SQ].[日付8],
+    [日付9] = [SQ].[日付9],
+    [数値0] = [SQ].[数値0],
+    [数値1] = [SQ].[数値1],
+    [数値2] = [SQ].[数値2],
+    [数値3] = [SQ].[数値3],
+    [数値4] = [SQ].[数値4],
+    [数値5] = [SQ].[数値5],
+    [数値6] = [SQ].[数値6],
+    [数値7] = [SQ].[数値7],
+    [数値8] = [SQ].[数値8],
+    [数値9] = [SQ].[数値9],
+    [名称0] = [SQ].[名称0],
+    [名称1] = [SQ].[名称1],
+    [名称2] = [SQ].[名称2],
+    [名称3] = [SQ].[名称3],
+    [名称4] = [SQ].[名称4],
+    [名称5] = [SQ].[名称5],
+    [名称6] = [SQ].[名称6],
+    [名称7] = [SQ].[名称7],
+    [名称8] = [SQ].[名称8],
+    [名称9] = [SQ].[名称9]
+FROM(
+    -- ここが縦横変換部分
+    SELECT
+        [TB_会員].[顧客CD],
+        MAX(CASE WHEN [AA].[ItemCD] = '101' THEN [AA].[Date] ELSE NULL END) AS [日付0],
+        MAX(CASE WHEN [AA].[ItemCD] = '102' THEN [AA].[Date] ELSE NULL END) AS [日付1],
+        MAX(CASE WHEN [AA].[ItemCD] = '103' THEN [AA].[Date] ELSE NULL END) AS [日付2],
+        MAX(CASE WHEN [AA].[ItemCD] = '104' THEN [AA].[Date] ELSE NULL END) AS [日付3],
+        MAX(CASE WHEN [AA].[ItemCD] = '105' THEN [AA].[Date] ELSE NULL END) AS [日付4],
+        MAX(CASE WHEN [AA].[ItemCD] = '106' THEN [AA].[Date] ELSE NULL END) AS [日付5],
+        MAX(CASE WHEN [AA].[ItemCD] = '107' THEN [AA].[Date] ELSE NULL END) AS [日付6],
+        MAX(CASE WHEN [AA].[ItemCD] = '108' THEN [AA].[Date] ELSE NULL END) AS [日付7],
+        MAX(CASE WHEN [AA].[ItemCD] = '109' THEN [AA].[Date] ELSE NULL END) AS [日付8],
+        MAX(CASE WHEN [AA].[ItemCD] = '110' THEN [AA].[Date] ELSE NULL END) AS [日付9],
+        MAX(CASE WHEN [AA].[ItemCD] = '111' THEN [AA].[Number] ELSE NULL END) AS [数値0],
+        MAX(CASE WHEN [AA].[ItemCD] = '112' THEN [AA].[Number] ELSE NULL END) AS [数値1],
+        MAX(CASE WHEN [AA].[ItemCD] = '113' THEN [AA].[Number] ELSE NULL END) AS [数値2],
+        MAX(CASE WHEN [AA].[ItemCD] = '114' THEN [AA].[Number] ELSE NULL END) AS [数値3],
+        MAX(CASE WHEN [AA].[ItemCD] = '115' THEN [AA].[Number] ELSE NULL END) AS [数値4],
+        MAX(CASE WHEN [AA].[ItemCD] = '116' THEN [AA].[Number] ELSE NULL END) AS [数値5],
+        MAX(CASE WHEN [AA].[ItemCD] = '117' THEN [AA].[Number] ELSE NULL END) AS [数値6],
+        MAX(CASE WHEN [AA].[ItemCD] = '118' THEN [AA].[Number] ELSE NULL END) AS [数値7],
+        MAX(CASE WHEN [AA].[ItemCD] = '119' THEN [AA].[Number] ELSE NULL END) AS [数値8],
+        MAX(CASE WHEN [AA].[ItemCD] = '120' THEN [AA].[Number] ELSE NULL END) AS [数値9],
+        MAX(CASE WHEN [AA].[ItemCD] = '121' THEN [AA].[Text] ELSE '' END) AS [名称0],
+        MAX(CASE WHEN [AA].[ItemCD] = '122' THEN [AA].[Text] ELSE '' END) AS [名称1],
+        MAX(CASE WHEN [AA].[ItemCD] = '123' THEN [AA].[Text] ELSE '' END) AS [名称2],
+        MAX(CASE WHEN [AA].[ItemCD] = '124' THEN [AA].[Text] ELSE '' END) AS [名称3],
+        MAX(CASE WHEN [AA].[ItemCD] = '125' THEN [AA].[Text] ELSE '' END) AS [名称4],
+        MAX(CASE WHEN [AA].[ItemCD] = '126' THEN [AA].[Text] ELSE '' END) AS [名称5],
+        MAX(CASE WHEN [AA].[ItemCD] = '127' THEN [AA].[Text] ELSE '' END) AS [名称6],
+        MAX(CASE WHEN [AA].[ItemCD] = '128' THEN [AA].[Text] ELSE '' END) AS [名称7],
+        MAX(CASE WHEN [AA].[ItemCD] = '129' THEN [AA].[Text] ELSE '' END) AS [名称8],
+        MAX(CASE WHEN [AA].[ItemCD] = '130' THEN [AA].[Text] ELSE '' END) AS [名称9]
+    FROM [TB_会員]
+    INNER JOIN [Round3DatBRK_20220308].[dbo].[TMc_CustomerGenericInfoContent] AS [AA]
+    ON [TB_会員].[顧客CD] = REPLACE([AA].[CustomerCD],[AA].[OfficeCD],'')
+    AND [AA].[UpdateProgram] LIKE 'RN3.WPF%'
+    GROUP BY [TB_会員].[顧客CD]
+) AS [SQ]
+WHERE
+    [TB_会員].顧客CD = [SQ].[顧客CD]
 ```
 
 ---
@@ -804,6 +859,8 @@ ELSE以降のNEXT FETCHがELSEでしか実行されないことを心配した�
 [SQL WITH句で同じSQLを１つのSQLに共通化する](https://zukucode.com/2017/09/sql-with.html)  
 
 ビューみたいな定義ができる構文。  
+JOIN句の中では使えないことが判明した。  
+なので、単品で使う分でしか無理っぽい。  
 
 ``` sql : 使い方例
 WITH employee_with AS (
@@ -886,16 +943,13 @@ where kosuu =
 ``` sql
 SELECT
     ReservationFrameNo,
-    CASE WHEN COUNT(*) > 1 
-        THEN CONVERT(nvarchar,MAX(Numerator)) + '/' + CONVERT(NVARCHAR,MAX(Denominator)) + '+'
-        ELSE CONVERT(nvarchar,MAX(Numerator)) + '/' + CONVERT(NVARCHAR,MAX(Denominator))
-    END
+    [SQ].[Numerator] + '/' + [SQ].[Denominator] + CASE WHEN COUNT(*) > 1 THEN '+' ELSE '' END  AS [FrameCount]
 FROM (
     SELECT
         [A].ReservationFrameNo,
         [A].ReservationNo,
-        [A].Numerator,
-        [B].Denominator
+        CONVERT(nvarchar,[SQ_Numerator].[Numerator]) AS [Numerator],
+        CONVERT(nvarchar,[SQ_Denominator].[Denominator]) AS [Denominator]
     FROM (
    -- 予約枠を上から見ていった時のシーケンス(分子:Numerator)
         SELECT
@@ -926,3 +980,37 @@ FROM (
 GROUP BY
     [ReservationFrameNo]
 ```
+
+[COUNT OVER(PARTITION BY)](https://zukucode.com/2017/08/sql-over-partition-by.html)  
+
+``` sql : もっと簡単にできた
+SELECT
+    [ReservationFrameNo],
+    [ReservationNo],
+    ROW_NUMBER() OVER(PARTITION BY [ReservationNo] ORDER BY [ReservationFrameNo]) AS [Numerator],
+    COUNT(1) OVER(PARTITION BY [ReservationNo]) AS [MinAccountNo]
+FROM 
+    [TRe_ReservationPlayer]
+WHERE
+    ISNULL([ReservationCancelFlag],0) = 0
+GROUP BY
+    [ReservationFrameNo],[ReservationNo]
+```
+
+---
+
+## Identityの発番テーブルで保存時に発番した値を取得する
+
+`OUTPUT句`なるものがあるらしい。  
+部長が知ってた。  
+
+``` sql
+INSERT INTO Tfr_Reception
+(OfficeCD)
+OUTPUT
+inserted.SeqNo
+values('aaa')
+```
+
+福田さんはこんなのも提示した。  
+`var id = rnWebConnection.QueryFirstOrDefault<long>("SELECT LAST_INSERT_ID()");`  
