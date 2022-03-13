@@ -263,6 +263,14 @@ Box化解除(Unboxing)はポインタの参照先から値を取り出してス�
     }
 ```
 
+``` C# : 少し応用してキーバリューで出力するサンプル
+    var props = condition
+        .GetType()
+        .GetProperties(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public)
+        .Select(s => (s.Name ,s.GetValue(condition)))
+        .ToList();
+```
+
 ---
 
 ## string.CompareTo

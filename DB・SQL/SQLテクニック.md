@@ -981,8 +981,6 @@ GROUP BY
     [ReservationFrameNo]
 ```
 
-[COUNT OVER(PARTITION BY)](https://zukucode.com/2017/08/sql-over-partition-by.html)  
-
 ``` sql : もっと簡単にできた
 SELECT
     [ReservationFrameNo],
@@ -995,6 +993,27 @@ WHERE
     ISNULL([ReservationCancelFlag],0) = 0
 GROUP BY
     [ReservationFrameNo],[ReservationNo]
+```
+
+[COUNT OVER(PARTITION BY)](https://zukucode.com/2017/08/sql-over-partition-by.html)  
+
+``` sql
+SELECT
+  last_name,
+  --全体の総件数
+  COUNT(1) OVER() total_count,
+  --部門ごとの件数
+  COUNT(1) OVER(PARTITION BY department_id) section_count,
+  --部門ごとの最大身長
+  MAX(height) OVER(PARTITION BY department_id) section_max_height,
+  --部門ごとの身長順（身長順に並び替えたときの行番号）
+  ROW_NUMBER() OVER(PARTITION BY department_id ORDER BY height DESC) section_height_order,
+  --全体の身長順（身長順に並び替えたときの行番号）
+  ROW_NUMBER() OVER(ORDER BY height DESC) height_order
+FROM
+  employee
+ORDER BY
+  id
 ```
 
 ---
