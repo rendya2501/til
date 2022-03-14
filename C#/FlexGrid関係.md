@@ -329,3 +329,140 @@ ItemsSourceChanging、ItemsSourceChangedではない。
                 // チェックボックスをセル要素に割り当てます
                 bdr.Child = chk;
 ```
+
+---
+
+## セルファクトリーでチェックボックスの制御
+
+``` C#
+using C1.WPF.FlexGrid;
+using MahApps.Metro.Controls;
+using System.Linq;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Media;
+
+namespace RN3.Wpf.Front.AccountsReceivableSlip.CellFactory
+{
+    /// <summary>
+    /// 売掛伝票入力セルファクトリー
+    /// </summary>
+    /// <remarks>
+    /// ソートを実装したらチェックボタンの制御を色々やらないといけなくて、
+    /// セルファクトリーでしか実現できなかったので実装した。
+    /// ここ参考にした。
+    /// <https://docs.grapecity.com/help/c1/xaml/xaml_flexgrid/#Displayingcheckbox.html>
+    /// </remarks>
+    public class AccountsReceivableSlipCellFactory : C1.WPF.FlexGrid.CellFactory
+    {
+        /// <summary>
+        /// CreateRowHeaderContent
+        /// </summary>
+        /// <param name="grid"></param>
+        /// <param name="bdr"></param>
+        /// <param name="rng"></param>
+        public override void CreateRowHeaderContent(C1FlexGrid grid, Border bdr, CellRange rng)
+        {
+            var row = grid.Rows[rng.Row];
+            if (!(row is GroupRow))
+            {
+                var tb = new TextBlock();
+                tb.HorizontalAlignment = HorizontalAlignment.Center;
+                tb.VerticalAlignment = VerticalAlignment.Center;
+                tb.Foreground = grid.RowHeaderForeground;
+                tb.Text = (rng.Row + 1 - grid.Rows.Where(w => w.Index < rng.Row && w is GroupRow).Count()).ToString();
+                bdr.Child = tb;
+            }
+        }
+
+        public override void CreateCellContent(C1FlexGrid grid, Border bdr, CellRange rng)
+        {
+            if (grid.Cells[rng.Row, rng.Column] is bool)
+            {
+                // 値を表示/編集するために、チェックボックスを作成します
+                CheckBox chk = new CheckBox
+                {
+                    IsChecked = (bool?)grid.Cells[rng.Row, rng.Column],
+                    VerticalAlignment = VerticalAlignment.Center,
+                    HorizontalAlignment = HorizontalAlignment.Center
+                };
+                _ = chk.SetBinding(ToggleButton.IsCheckedProperty, grid.Columns["Cancel"].Binding);
+                // 精算済みのレコードは操作不能にして色を変える
+                if (!(bool)grid.Cells[rng.Row, "ValidFlag"])
+                {
+                    chk.IsEnabled = false;
+                    grid.Columns["Cancel"].IsReadOnly = true;
+                    CheckBoxHelper.SetCheckBackgroundFillUncheckedDisabled(
+                        chk,
+                        (Brush)Application.Current.Resources["IsReadOnlyBackGroundColor"]
+                    );
+                }
+                // チェックボックスをセル要素に割り当てます
+                bdr.Child = chk;
+            }
+            else
+            {
+                // ブール値ではない場合、デフォルト動作を実現
+                base.CreateCellContent(grid, bdr, rng);
+            }
+        }
+
+        /// <summary>
+        /// セルが廃却された場合、セルの境界のコンテンツも削除します
+        /// </summary>
+        /// <param name="grid"></param>
+        /// <param name="cellType"></param>
+        /// <param name="cell"></param>
+        public override void DisposeCell(C1FlexGrid grid, CellType cellType, FrameworkElement cell)
+        {
+            Border bdr = (Border)cell;
+            bdr.Child = null;
+        }
+    }
+}
+```
+
+---
+
+### aaa
+
+``` C#
+using C1.WPF.FlexGrid;
+using Microsoft.Xaml.Behaviors;
+using RN3.Wpf.Front.DutchTreat.Resource;
+using System.Windows;
+using System.Windows.Media;
+
+namespace RN3.Wpf.Front.DutchTreat.TriggerAction
+{
+    /// <summary>
+    /// 割り勘FlexGridを読み取りモードにするトリガーアクション
+    /// </summary>
+    public class DutchTreatGridReadOnlyModeAction : TriggerAction<C1FlexGrid>
+    {
+        /// <summary>
+        /// 読み取り専用背景色
+        /// </summary>
+        private static readonly Brush ReadOnlyBackGroundColor = (Brush)Application.Current.Resources["IsReadOnlyBackGroundColor"];
+
+        /// <summary>
+        /// 読み取りモードにします。
+        /// </summary>
+        /// <param name="parameter"></param>
+        protected override void Invoke(object parameter)
+        {
+            // 割り勘金額列
+            var dutchTreatAmount = AssociatedObject.Columns[DutchTreatGridColumnName.DutchTreatAmount];
+            dutchTreatAmount.IsReadOnly = true;
+            dutchTreatAmount.Background = ReadOnlyBackGroundColor;
+            // 計算対象外列
+            var isNoTargetCalc = AssociatedObject.Columns[DutchTreatGridColumnName.IsNoTargetCalc];
+            isNoTargetCalc.IsReadOnly = true;
+            isNoTargetCalc.Background = ReadOnlyBackGroundColor;
+            // FlexGridを再描画
+            AssociatedObject.Invalidate();
+        }
+    }
+}
+```

@@ -1265,3 +1265,9 @@ RidhtWindowCommandsを使う。
 ```
 
 ![!](http://cdn-ak.f.st-hatena.com/images/fotolife/m/minami_SC/20160223/20160223003354.png)  
+
+---
+
+### テキストブロックをぐわんぐわん動かしたい
+
+[WPFにおけるGUI構築講座 -座標ベタ書きから脱却しよう-](https://qiita.com/YSRKEN/items/686068a359866f21f956)
