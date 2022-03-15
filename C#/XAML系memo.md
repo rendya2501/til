@@ -1270,4 +1270,65 @@ RidhtWindowCommandsを使う。
 
 ### テキストブロックをぐわんぐわん動かしたい
 
+FlexGridで1つのセルにテキストボックスを2つ配置して左右にわけて、片方の大きさがメインで変わって、片方はそのままって機能を実装したかったんだけど、  
+全然できなかったので色々調べた。  
+
 [WPFにおけるGUI構築講座 -座標ベタ書きから脱却しよう-](https://qiita.com/YSRKEN/items/686068a359866f21f956)
+[WPF DataGridへのBindingに関する基本設計](https://oita.oika.me/2014/11/03/wpf-datagrid-binding/)  
+[DataGridTemplateColumn内のTextBoxのフォーカスについて](https://social.msdn.microsoft.com/Forums/ja-JP/cc028d67-7ed6-406e-99a9-4c876a06647c/datagridtemplatecolumn2086912398textbox12398125011245712540124591247312395?forum=wpfja)  
+
+``` XML
+        <DataGrid
+            Name="dataGrid"
+            Width="500"
+            Height="164"
+            Margin="213,0,0,0"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Center"
+            AutoGenerateColumns="False"
+            IsReadOnly="True">
+            <DataGrid.Columns>
+                <DataGridTextColumn
+                    Width="80"
+                    Binding="{Binding No, StringFormat=D2}"
+                    Header="番号" />
+                <DataGridTextColumn
+                    Width="100"
+                    Binding="{Binding Name}"
+                    Header="名前" />
+                <DataGridTemplateColumn Width="80">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock
+                                    Grid.Column="0"
+                                    Text="{Binding Name}"
+                                    ToolTip="test" />
+                                <TextBlock Grid.Column="1" Text="{Binding No}" />
+                            </Grid>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Width="80">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock
+                                HorizontalAlignment="Left"
+                                Text="{Binding Name}"
+                                ToolTip="test">
+                                <TextBlock HorizontalAlignment="Right" Text="{Binding No}" />
+                            </TextBlock>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn
+                    Width="*"
+                    Binding="{Binding BirthDay, StringFormat=yyyy/MM/dd}"
+                    Header="誕生日" />
+            </DataGrid.Columns>
+        </DataGrid>
+```
