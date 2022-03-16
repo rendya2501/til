@@ -466,3 +466,72 @@ namespace RN3.Wpf.Front.DutchTreat.TriggerAction
     }
 }
 ```
+
+---
+
+## セルファクトリーでツールチップを表示する
+
+<https://docs.grapecity.com/help/c1/xaml/xaml_flexgrid/#Displayingtooltip.html>  
+
+それはそうとして、どちらかというとカラム名の指定とそのカラムだけにツールチップを表示するようにする制御のほうがメインかもしれん。
+
+``` C#
+using C1.WPF.FlexGrid;
+using MahApps.Metro.Controls;
+using System;
+using System.Linq;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Media;
+using C1.WPF;
+
+namespace RN3.Wpf.Reservation.ReservationSearch.CellFactory
+{
+    /// <summary>
+    /// 予約検索セルファクトリー
+    /// </summary>
+    public class ReservationSearchCellFactory : C1.WPF.FlexGrid.CellFactory
+    {
+        /// <summary>
+        /// セルコンテンツ作成
+        /// </summary>
+        /// <param name="grid"></param>
+        /// <param name="bdr"></param>
+        /// <param name="rng"></param>
+        public override void CreateCellContent(C1FlexGrid grid, Border bdr, CellRange rng)
+        {
+            //// コンテンツを作成します
+            base.CreateCellContent(grid, bdr, rng);
+            // 指定したカラム名かどうか判定
+            // nameofでもいける
+            if (grid.Columns[rng.Column].ColumnName == "Player1Name")
+            {
+                // これでもなんか取れる
+                var aaa = grid.Columns["Player1Name"];
+                // そのセルに備考が存在したらツールチップを設定
+                // セルの指定の仕方は grid[rng.Row, grid.Columns["Player1Remarks"]
+                if (!string.IsNullOrEmpty(grid[rng.Row, grid.Columns["Player1Remarks"].Index]?.ToString()))
+                {
+                    var contents = $"備考:{ Environment.NewLine }{grid[rng.Row, grid.Columns["Player1Remarks"].Index]}";
+                    // ツールチップ設定の呪文。
+                    // 第2引数に設定したい内容を設定
+                    ToolTipService.SetToolTip(bdr, contents);
+                }
+            }
+        }
+
+        /// <summary>
+        /// セルが廃却された場合、セルの境界のコンテンツも削除します
+        /// </summary>
+        /// <param name="grid"></param>
+        /// <param name="cellType"></param>
+        /// <param name="cell"></param>
+        public override void DisposeCell(C1FlexGrid grid, CellType cellType, FrameworkElement cell)
+        {
+            Border bdr = (Border)cell;
+            bdr.Child = null;
+        }
+    }
+}
+```

@@ -886,3 +886,13 @@ Process.Start(
             // 先頭のAND消してWHEREにする。
             whereQuery.Remove(0, 3).Insert(0, "WHERE");
 ```
+
+---
+
+## asyncのデリゲート定義
+
+[async/await を使った非同期ラムダ式を変数に代入する方法](https://qiita.com/go_astrayer/items/352c34b8db72cf2f6ca5)  
+
+``` C#
+ Func<ListReplyContext, Task> callback = async res => {}
+```
