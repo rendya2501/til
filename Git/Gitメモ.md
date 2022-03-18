@@ -237,3 +237,27 @@ release/1.0といった感じで切ればいい。
 - 履歴によりリリース内容を後から追跡可能  
 
 ---
+
+## error: failed to push some refs to "URL"のエラー対処法
+
+[【git】error: failed to push some refs to "URL"のエラー対処法](https://qiita.com/chiaki-kjwr/items/118a5b3237c78d720582)
+
+>いくつか対処法があるみたいです。
+>
+>①git pull origin develop
+>git pull origin developでリモートの環境をローカルファイルにpullした後、
+>再度pushを行う。
+>
+>②git fetchした後、git mergeする
+>①とやっていることはほとんど変わらず、pull＝fetch + mergeという意味合いなのかと思います。
+>
+>③git push ––forceで矯正的にpushする
+>こちらは、個人開発なら自分一人しかリポジトリを操作しないので大きな影響はなさそうですが、
+>チーム開発の場合だと自分以外にcommitやpushする人がいる無闇に使用すべきでは無い、という記事をいくつか確認しました。
+>
+>①か②で対処するのが無難かもしれません・・・（私は①で対処しました）
+
+2022/03/17 Thuに発生。  
+push出来なくなってしまったので、エラー文で検索したら色々ヒットした。  
+
+git fetch,git mergeを実行したらいけたので備忘録として残しておく。  
