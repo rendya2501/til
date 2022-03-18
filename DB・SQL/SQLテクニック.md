@@ -8,6 +8,9 @@
 たぶんSQL Server独自の関数だと思われるが、とても便利な物があるものだ。  
 使い方はサンプルを見れば大体わかる。  
 
+2022/03/10 追記  
+横持ちから縦持ちへの変換は、union all を使うことでも実現できるらしい。  
+
 ``` SQL : 実際に業務で使用したSQL
 SELECT
     CONCAT('ALP', CONVERT(nvarchar,[TU_売掛残高].[営業日], 112), [v].[SlipNumber]) AS [SettlementID],
@@ -31,9 +34,6 @@ CROSS APPLY(
 WHERE
     [v].[DepositAmount] <> 0
 ```
-
-2022/03/10 追記  
-横持ちから縦持ちへの変換は、union all を使うことでも実現できるらしい。  
 
 ---
 
@@ -1033,3 +1033,18 @@ values('aaa')
 
 福田さんはこんなのも提示した。  
 `var id = rnWebConnection.QueryFirstOrDefault<long>("SELECT LAST_INSERT_ID()");`  
+
+---
+
+## Time型をString型に変換する
+
+[SQL Serverで日付型を文字列に変換する](https://it-engineer-info.com/database/2630/)
+
+Time(7)型の`07:23:00.0000000`って表示を`07:23`にしたい。  
+
+``` sql
+    -- 108 → HH:MM:SS → 07:23:00
+    CONVERT(NVARCHAR,[Frame].[StartTime],108)
+
+    LEFT(CONVERT(NVARCHAR,[Frame].[StartTime],108), 5)
+```

@@ -469,11 +469,147 @@ namespace RN3.Wpf.Front.DutchTreat.TriggerAction
 
 ---
 
+## チェックボックスをFlexGrid由来のものを使おうとしてCustomFlexGridの中で頑張ろうとしたやつら
+
+なぜかthis[0,0]でそのセルのデータを取ろうとしたときに、値が入ってなかったので、バインドできても値が吹っ飛んだ。  
+なのでできなかったけど、それさえ解決できれば済む問題ではあるので、備忘録として残しておく。  
+
+CheckBoxHelper
+CellFactory
+
+いまセルテン破棄してるから作り直さないといけないのかねぇ。
+
+チェックボックスをFlexGridのものを使えばすべて解決する。
+セルテンで色々やろうとするからややこしくなってる。
+これ、普通にビヘイビアで制御できる。
+もしValidFlagがFalseならReadOnly Trueにして背景色を灰色にすればいいだけ。
+
+セルテンプレートでやるにしても影響範囲でかすぎる。
+やるにしても色々考えないといけない。
+
+``` XML
+<c1:Column.CellTemplate>
+    <DataTemplate>
+        <Grid
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"
+            IsEnabled="{Binding IsEnableCancel, Mode=OneWay}">
+            <Grid.Style>
+                <Style TargetType="Grid">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsDiffPartyCount, Mode=OneWay}" Value="True">
+                            <Setter Property="Background">
+                                <Setter.Value>
+                                    <SolidColorBrush Opacity="0.5" Color="Red" />
+                                </Setter.Value>
+                            </Setter>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Grid.Style>
+            <CheckBox
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                IsChecked="{Binding IsSelectedCancel, Mode=TwoWay}"
+                IsTabStop="False">
+                <CheckBox.Style>
+                    <Style BasedOn="{StaticResource {x:Type CheckBox}}" TargetType="{x:Type CheckBox}">
+                        <Setter Property="LayoutTransform">
+                            <Setter.Value>
+                                <ScaleTransform ScaleX="0.8" ScaleY="0.8" />
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="metro:CheckBoxHelper.CheckBackgroundFillUncheckedDisabled" Value="LightGray" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </CheckBox.Style>
+            </CheckBox>
+        </Grid>
+    </DataTemplate>
+</c1:Column.CellTemplate>
+
+<c1:Column.CellTemplate>
+    <DataTemplate>
+        <Grid
+            Width="70"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"
+            Background="Red"
+            IsEnabled="{Binding IsEnableCancel, Mode=OneWay}">
+            <CheckBox
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                HorizontalContentAlignment="Center"
+                VerticalContentAlignment="Center"
+                IsChecked="{Binding IsSelectedCancel, Mode=TwoWay}">
+                <CheckBox.Style>
+                    <Style BasedOn="{StaticResource {x:Type CheckBox}}" TargetType="{x:Type CheckBox}">
+                        <Setter Property="LayoutTransform">
+                            <Setter.Value>
+                                <ScaleTransform ScaleX="0.8" ScaleY="0.8" />
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="metro:CheckBoxHelper.CheckBackgroundFillUncheckedDisabled" Value="LightGray" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </CheckBox.Style>
+            </CheckBox>
+        </Grid>
+    </DataTemplate>
+</c1:Column.CellTemplate>
+
+    <!--<Trigger Property="IsChecked" Value="True">
+        <Setter Property="metro:CheckBoxHelper.CheckGlyphForegroundChecked" Value="Red" />
+        <Setter Property="metro:CheckBoxHelper.CheckGlyphForegroundCheckedMouseOver" Value="Red" />
+    </Trigger>-->
+```
+
+``` C#
+// chk.Background = (Brush)Application.Current.Resources["IsReadOnlyBackGroundColor"];
+//chk.SetValue(CheckBox.BackgroundProperty, (Brush)Application.Current.Resources["IsReadOnlyBackGroundColor"]);
+
+    //チェックボックスの見た目変更
+    foreach (var col in Columns
+       .Where(w => w.CellTemplate != null && (w.DataType == typeof(bool) || w.DataType == typeof(bool?)))
+       .ToList())
+    {
+       var template = new DataTemplate();
+       var checkBox = new FrameworkElementFactory(typeof(CheckBox));
+       //this[0,0]
+       var aa = col.CellTemplate.VisualTree;
+       checkBox.SetBinding(ToggleButton.IsCheckedProperty, col.Binding);
+       template.VisualTree = new FrameworkElementFactory(typeof(Grid));
+       template.VisualTree.AppendChild(checkBox);
+       template.Seal();
+       col.CellTemplate = template;
+    }
+
+    //チェックボックスの見た目変更
+    foreach (var col in Columns.Where(w => w.CellTemplate != null).ToList())
+    {
+       var template = new DataTemplate();
+       var checkBox = new FrameworkElementFactory(typeof(CheckBox));
+       checkBox.SetBinding(ToggleButton.IsCheckedProperty, col.Binding);
+       template.VisualTree = new FrameworkElementFactory(typeof(Grid));
+       template.VisualTree.AppendChild(checkBox);
+       template.Seal();
+       col.CellTemplate = template;
+    }
+```
+
+---
+
 ## セルファクトリーでツールチップを表示する
 
 <https://docs.grapecity.com/help/c1/xaml/xaml_flexgrid/#Displayingtooltip.html>  
 
-それはそうとして、どちらかというとカラム名の指定とそのカラムだけにツールチップを表示するようにする制御のほうがメインかもしれん。
+それはそうとして、どちらかというとカラム名の指定とそのカラムだけにツールチップを表示するようにする制御のほうがメインかもしれん。  
 
 ``` C#
 using C1.WPF.FlexGrid;

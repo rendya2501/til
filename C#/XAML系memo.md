@@ -1268,76 +1268,58 @@ RidhtWindowCommandsを使う。
 
 ---
 
-### テキストブロックをぐわんぐわん動かしたい
+### 2つテキストブロックを左右に分けて左側だけリサイズできるようにしたい
 
-FlexGridで1つのセルにテキストボックスを2つ配置して左右にわけて、片方の大きさがメインで変わって、片方はそのままって機能を実装したかったんだけど、  
-全然できなかったので色々調べた。  
+FlexGridで1つのセルにテキストを2つ配置して左右にわけて、左側の大きさだけが変わって、片方はそのままって機能を実装したかったんだけど、全然できなかったので色々調べた。  
+DataGridでは再現できたので、それをFlexGridにも当てたら最終的にできた。  
+できなかった原因はColumnのTextAlighnにLeftが設定されていたから。  
+これを外したらあっさりできた。  
 
 [WPFにおけるGUI構築講座 -座標ベタ書きから脱却しよう-](https://qiita.com/YSRKEN/items/686068a359866f21f956)
 [WPF DataGridへのBindingに関する基本設計](https://oita.oika.me/2014/11/03/wpf-datagrid-binding/)  
 [DataGridTemplateColumn内のTextBoxのフォーカスについて](https://social.msdn.microsoft.com/Forums/ja-JP/cc028d67-7ed6-406e-99a9-4c876a06647c/datagridtemplatecolumn2086912398textbox12398125011245712540124591247312395?forum=wpfja)  
 
-``` XML
-        <DataGrid
-            Name="dataGrid"
-            Width="500"
-            Height="164"
-            Margin="213,0,0,0"
-            HorizontalAlignment="Left"
-            VerticalAlignment="Center"
-            AutoGenerateColumns="False"
-            IsReadOnly="True">
-            <DataGrid.Columns>
-                <DataGridTextColumn
-                    Width="80"
-                    Binding="{Binding No, StringFormat=D2}"
-                    Header="番号" />
-                <DataGridTextColumn
-                    Width="100"
-                    Binding="{Binding Name}"
-                    Header="名前" />
-                <DataGridTemplateColumn Width="80">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-                                <TextBlock
-                                    Grid.Column="0"
-                                    Text="{Binding Name}"
-                                    ToolTip="test" />
-                                <TextBlock Grid.Column="1" Text="{Binding No}" />
-                            </Grid>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-                <DataGridTemplateColumn Width="80">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <TextBlock
-                                HorizontalAlignment="Left"
-                                Text="{Binding Name}"
-                                ToolTip="test">
-                                <TextBlock HorizontalAlignment="Right" Text="{Binding No}" />
-                            </TextBlock>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-                <DataGridTextColumn
-                    Width="*"
-                    Binding="{Binding BirthDay, StringFormat=yyyy/MM/dd}"
-                    Header="誕生日" />
-            </DataGrid.Columns>
-        </DataGrid>
+``` XML : DataGridで試したやりかた
+<DataGrid>
+    <DataGrid.Columns>
+        <!-- Grid案 ○ -->
+        <!-- DataGridでセルテンつかってもいけた -->
+        <DataGridTemplateColumn Width="80">
+            <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock
+                            Grid.Column="0"
+                            Text="{Binding Name}"
+                            ToolTip="test" />
+                        <TextBlock Grid.Column="1" Text="{Binding No}" />
+                    </Grid>
+                </DataTemplate>
+            </DataGridTemplateColumn.CellTemplate>
+        </DataGridTemplateColumn>
+        <!-- TextBlockの中にTextBlockを入れる案 × -->
+        <!-- これだと駄目だった -->
+        <DataGridTemplateColumn Width="80">
+            <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                    <TextBlock
+                        HorizontalAlignment="Left"
+                        Text="{Binding Name}"
+                        ToolTip="test">
+                        <TextBlock HorizontalAlignment="Right" Text="{Binding No}" />
+                    </TextBlock>
+                </DataTemplate>
+            </DataGridTemplateColumn.CellTemplate>
+        </DataGridTemplateColumn>
+    </DataGrid.Columns>
+</DataGrid>
 ```
 
----
-
-## 要素を左右に分ける
-
-``` XML
+``` XML : 実際にGridに当てたときの書き方
     <!-- 自動調整あり 左側が大きくなるパターン -->
     <Grid>
         <Grid.ColumnDefinitions>
@@ -1440,4 +1422,88 @@ FlexGridで1つのセルにテキストボックスを2つ配置して左右に�
             </Style>
         </Button.Style>
     </Button>
+```
+
+---
+
+## ツールチップ開発の色々
+
+マウスオーバー
+プレースホルダー
+ポップアップ
+ToolTip
+
+[C#のWPFでツールチップを表示する](https://araramistudio.jimdo.com/2019/11/01/c-%E3%81%AEwpf%E3%81%A7%E3%83%84%E3%83%BC%E3%83%AB%E3%83%81%E3%83%83%E3%83%97%E3%82%92%E8%A1%A8%E7%A4%BA%E3%81%99%E3%82%8B/)  
+[wpf : ToolTipの幅](http://pieceofnostalgy.blogspot.com/2013/05/wpf-tooltip.html)
+[ToolTip Style ToolTipService.ShowDuration](https://stackoverflow.com/questions/32288529/tooltip-style-tooltipservice-showduration)
+[キーを指定したスタイルの使い方参考](https://qiita.com/tera1707/items/cb8ad4c40107ae25b565)
+
+[【WPF】無効なコントロールにツールチップを表示させる方法](https://threeshark3.com/show-on-disabled/)  
+>ToolTipService.ShowOnDisabledをTrueにする  
+
+``` XML
+<!-- キーを定義 -->
+<DockPanel.Resources>
+    <Style x:Key="ToolTipTextBlock" TargetType="TextBlock">
+        <Setter Property="LayoutTransform">
+            <Setter.Value>
+                <ScaleTransform 
+                ScaleX="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type metro:MetroWindow}}, Path=DataContext.Magnification, Mode=TwoWay}" 
+                ScaleY="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type metro:MetroWindow}}, Path=DataContext.Magnification, Mode=TwoWay}" />
+            </Setter.Value>
+        </Setter>
+    </Style>
+</DockPanel.Resources>
+
+<!-- 定義したキーを使う場合 -->
+<c1:Column.CellTemplate>
+    <DataTemplate>
+        <Grid ToolTipService.IsEnabled="{Binding Player1Remarks, Mode=OneWay, Converter={StaticResource NotNullOrEmptyToBoolConverter}}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <ToolTipService.ToolTip>
+                <TextBlock Style="{DynamicResource ToolTipTextBlock}" Text="{Binding Player1Remarks, Mode=OneWay}" />
+            </ToolTipService.ToolTip>
+            <TextBlock
+                Grid.Column="0"
+                Focusable="False"
+                Text="{Binding Player1Name, Mode=OneWay}"
+                TextWrapping="Wrap" />
+            <TextBlock
+                Grid.Column="1"
+                Margin="0,0,5,0"
+                Focusable="False"
+                Text="※"
+                Visibility="{Binding Player1Remarks, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}" />
+        </Grid>
+    </DataTemplate>
+</c1:Column.CellTemplate>
+
+<!-- 試行錯誤のあと -->
+                            <Setter Property="LayoutTransform" TargetName="grid">
+                                <Setter.Value>
+                                    <TransformGroup>
+                                        <ScaleTransform ScaleX="1" ScaleY="1" />
+                                        <SkewTransform AngleX="0" AngleY="0" />
+                                        <RotateTransform Angle="90" />
+                                        <TranslateTransform X="0" Y="0" />
+                                    </TransformGroup>
+                                </Setter.Value>
+                            </Setter>
+
+<!--<Style.Resources>
+    <Style TargetType="TextBlock">
+        <Setter Property="Text" Value="{Binding}" />
+        <Setter Property="LayoutTransform">
+            <Setter.Value>
+                <DataTemplate>
+                    <ScaleTransform ScaleX="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type metro:MetroWindow}}, Path=DataContext.Magnification, Mode=TwoWay}" ScaleY="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type metro:MetroWindow}}, Path=DataContext.Magnification, Mode=TwoWay}" />
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</Style.Resources>-->
+
 ```
