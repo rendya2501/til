@@ -426,7 +426,6 @@ xaml resourcedictionary コード 参照
     dutchTreatAmount.Background = (Brush)Application.Current.Resources["IsReadOnlyBackGroundColor"];
 ```
 
-
 ---
 
 ## WPF + MVVM でキーイベントを定義する
@@ -1106,7 +1105,7 @@ Enumのメンバーを任意の文字列に変換するため業務中に作っ�
 [MVVMのDataGridまたはListBoxからSelectedItemsにバインド](https://www.webdevqa.jp.net/ja/c%23/mvvm%E3%81%AEdatagrid%E3%81%BE%E3%81%9F%E3%81%AFlistbox%E3%81%8B%E3%82%89selecteditems%E3%81%AB%E3%83%90%E3%82%A4%E3%83%B3%E3%83%89/942024865/amp/)  
 
 MultiSelectComboBoxのSelectedItemsの2WayBindingを実装している時に出くわした問題。  
-コントロール側はIList,ViewModel側はIEnumerable<T>で実装していたのだが、コントロール側のSetterまでは値が入っているのに、ViewModelのSetterにはNullが入ってしまう現象に遭遇した。  
+コントロール側はIList,ViewModel側は`IEnumerable<T>`で実装していたのだが、コントロール側のSetterまでは値が入っているのに、ViewModelのSetterにはNullが入ってしまう現象に遭遇した。  
 コントロール側の型とViewModel側の型を合わせれば値は届くが、2Wayにしたい以上、コントロールはIList,ViewModelはIEnumerableで受け取りたい願望がある。  
 その線でいろいろ探してみたが、どうやら無理らしい。  
 
@@ -1507,3 +1506,14 @@ ToolTip
 </Style.Resources>-->
 
 ```
+
+---
+
+## StaticResourceが使えない
+
+[複数の画面で定義を共有したいとき](https://anderson02.com/cs/wpf/wpf-6/)
+
+>その場合はWPFのプロジェクトを作成したときに自動生成されるApp.xamlファイルに記述することで、プロジェクト内のすべての画面から参照することが可能です。  
+>App.xamlファイルのApplication.Resourcesエリアにリソースを定義します。  
+
+StaticResourceを使いたかったらApp.xamlの`<Application.Resources>`要素に`<ResourceDictionary>`をだらっと追加しないといけない模様。
