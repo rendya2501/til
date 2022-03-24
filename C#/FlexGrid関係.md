@@ -671,3 +671,284 @@ namespace RN3.Wpf.Reservation.ReservationSearch.CellFactory
     }
 }
 ```
+
+---
+
+``` XML
+<ctrl:CustomFlexGrid
+    x:Name="PaymentMethodGrid"
+    Grid.Row="0"
+    Grid.Column="1"
+    Margin="10"
+    AllowAddNew="False"
+    AllowDragging="None"
+    AllowFreezing="None"
+    AllowResizing="None"
+    AllowSorting="False"
+    AutoGenerateColumns="False"
+    GridLinesVisibility="All"
+    HeadersVisibility="Column"
+    IsReadOnly="{Binding CanEditPayment, Mode=OneWay, Converter={StaticResource NotConverter}}"
+    ItemsSource="{Binding DepositTypeList, Mode=OneWay}"
+    MenuVisibility="Collapsed"
+    MinRowHeight="30"
+    SelectionBackground="Transparent"
+    SelectionMode="Cell">
+    <i:Interaction.Behaviors>
+        <behavior:ResetFlexGridForegroundBehavior />
+    </i:Interaction.Behaviors>
+    <ctrl:CustomFlexGrid.LayoutTransform>
+        <ScaleTransform ScaleX="{Binding Magnification, Mode=TwoWay}" ScaleY="{Binding Magnification, Mode=TwoWay}" />
+    </ctrl:CustomFlexGrid.LayoutTransform>
+    <ctrl:CustomFlexGrid.Columns>
+        <c1:Column
+            Width="150"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"
+            Binding="{Binding DepositTypeName, Mode=OneWay}"
+            ColumnName="DepositTypeName"
+            Header="精算方法"
+            HeaderHorizontalAlignment="Center"
+            HeaderVerticalAlignment="Center"
+            IsReadOnly="true">
+            <c1:Column.CellTemplate>
+                <DataTemplate>
+                    <DockPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                        <DockPanel.Style>
+                            <Style TargetType="DockPanel">
+                                <Setter Property="Background" Value="{StaticResource MahApps.Brushes.Accent4}" />
+                            </Style>
+                        </DockPanel.Style>
+                        <Button
+                            Padding="0"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch"
+                            VerticalContentAlignment="Stretch"
+                            Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type metro:MetroWindow}}, Path=DataContext.SelectDepositTypeCommand, Mode=OneWay}"
+                            CommandParameter="{Binding Mode=OneWay}"
+                            IsTabStop="False"
+                            Style="{StaticResource MahApps.Styles.Button.Flat}">
+                            <DockPanel VerticalAlignment="Center">
+                                <!-- <Label
+                                    Height="Auto"
+                                    HorizontalContentAlignment="Center"
+                                    VerticalContentAlignment="Center"
+                                    Content="{Binding DepositTypeName, Mode=OneWay}"
+                                    Focusable="False">
+                                    <Label.Style>
+                                        <Style TargetType="Label">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type metro:MetroWindow}}, Path=DataContext.FormStatus, Mode=OneWay}" Value="Mode_New">
+                                                    <Setter Property="Foreground" Value="{DynamicResource MahApps.Brushes.Gray2}" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type metro:MetroWindow}}, Path=DataContext.FormStatus, Mode=OneWay}" Value="Mode_Edit">
+                                                    <Setter Property="Foreground" Value="Black" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Label.Style>
+                                </Label> -->
+                                <Label
+                                    Margin="4,0,0,0"
+                                    VerticalAlignment="Center"
+                                    Content="{Binding DepositTypeName, Mode=OneWay}"
+                                    DockPanel.Dock="Left" />
+                                <Label
+                                    Margin="0,0,8,0"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Center"
+                                    Content="▼"
+                                    DockPanel.Dock="Right"
+                                    Focusable="False"
+                                    Visibility="{Binding DetailDisplayFlag, Mode=OneWay, Converter={StaticResource VisibleConverter}}" />
+                            </DockPanel>
+                        </Button>
+                    </DockPanel>
+                </DataTemplate>
+            </c1:Column.CellTemplate>
+        </c1:Column>
+        <c1:Column
+            Width="*"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Center"
+            Binding="{Binding Amount}"
+            ColumnName="Amount"
+            Header="精算金額"
+            HeaderHorizontalAlignment="Center"
+            HeaderVerticalAlignment="Center"
+            IsReadOnly="True">
+            <c1:Column.CellTemplate>
+                <DataTemplate>
+                    <im:GcNumber
+                        x:Name="AmountTextBox"
+                        Width="200"
+                        Height="35"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        HorizontalContentAlignment="Right"
+                        VerticalContentAlignment="Center"
+                        AllowSpin="False"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        DisabledBackground="Transparent"
+                        DisabledForeground="Black"
+                        DisplayFieldSet="###,###,##0,,,-,"
+                        FieldSet="###,###,##0,,,-,"
+                        Focusable="True"
+                        IsEnabled="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type metro:MetroWindow}}, Path=DataContext.CanEditPayment, Mode=OneWay}"
+                        IsReadOnly="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type metro:MetroWindow}}, Path=DataContext.CanEditPayment, Mode=OneWay, Converter={StaticResource NotConverter}}"
+                        IsTabStop="True"
+                        SpinButtonVisibility="NotShown"
+                        Value="{Binding Amount, Mode=TwoWay}" />
+                </DataTemplate>
+            </c1:Column.CellTemplate>
+        </c1:Column>
+    </ctrl:CustomFlexGrid.Columns>
+</ctrl:CustomFlexGrid>
+```
+
+``` XML : ItemsControlにした
+<ItemsControl
+    x:Name="PaymentMethodGrid"
+    Grid.Row="0"
+    Grid.Column="1"
+    MinWidth="120"
+    Margin="10"
+    BorderBrush="{StaticResource MahApps.Brushes.Gray5}"
+    Focusable="False"
+    ItemsSource="{Binding DepositTypeList, Mode=OneWay}">
+    <ItemsControl.LayoutTransform>
+        <ScaleTransform ScaleX="{Binding Magnification, Mode=TwoWay}" ScaleY="{Binding Magnification, Mode=TwoWay}" />
+    </ItemsControl.LayoutTransform>
+    <ItemsControl.Template>
+        <ControlTemplate TargetType="{x:Type ItemsControl}">
+            <Border BorderBrush="{StaticResource MahApps.Brushes.Accent}" BorderThickness="1">
+                <ScrollViewer
+                    Focusable="False"
+                    HorizontalScrollBarVisibility="Auto"
+                    VerticalScrollBarVisibility="Auto">
+                    <i:Interaction.Triggers>
+                        <l:InteractionMessageTrigger MessageKey="ResetPayMethodScrollAction" Messenger="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.Messenger, Mode=OneWay}">
+                            <action:ReserScrollViewerAction />
+                        </l:InteractionMessageTrigger>
+                    </i:Interaction.Triggers>
+                    <Grid>
+                        <ItemsPresenter Margin="0,26,0,0" />
+                        <Border VerticalAlignment="Top" IsHitTestVisible="False">
+                            <Grid Background="White">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="3*" MinWidth="140" />
+                                    <ColumnDefinition Width="4*" MinWidth="100" />
+                                </Grid.ColumnDefinitions>
+                                <Label
+                                    Grid.Column="0"
+                                    Height="Auto"
+                                    Margin="0"
+                                    HorizontalContentAlignment="Center"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="0,0,1,1"
+                                    Content="精算方法"
+                                    Style="{StaticResource AccentLabel}" />
+                                <Label
+                                    Grid.Column="1"
+                                    Height="Auto"
+                                    Margin="0"
+                                    HorizontalContentAlignment="Center"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="0,0,0,1"
+                                    Content="精算金額"
+                                    Style="{StaticResource AccentLabel}" />
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </ScrollViewer>
+            </Border>
+        </ControlTemplate>
+    </ItemsControl.Template>
+    <ItemsControl.ItemTemplate>
+        <DataTemplate>
+            <Border BorderBrush="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ItemsControl}}, Path=BorderBrush, Mode=OneWay}" BorderThickness="0,0,1,1">
+                <Grid Height="Auto">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="3*" MinWidth="140" />
+                        <ColumnDefinition Width="4*" MinWidth="100" />
+                    </Grid.ColumnDefinitions>
+                    <Button
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                        VerticalContentAlignment="Stretch"
+                        Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.SelectDepositTypeCommand, Mode=OneWay}"
+                        CommandParameter="{Binding Mode=OneWay}"
+                        Focusable="False"
+                        Style="{StaticResource MahApps.Styles.Button.Flat}">
+                        <DockPanel VerticalAlignment="Center">
+                            <TextBlock DockPanel.Dock="Left" Text="{Binding DepositTypeName, Mode=OneWay}" />
+                            <TextBlock
+                                Margin="0,0,8,0"
+                                HorizontalAlignment="Right"
+                                DockPanel.Dock="Right"
+                                Text="▼"
+                                Visibility="{Binding DetailDisplayFlag, Mode=OneWay, Converter={StaticResource VisibleConverter}}" />
+                        </DockPanel>
+                    </Button>
+                    <im:GcNumber
+                        Grid.Column="1"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Right"
+                        AllowSpin="False"
+                        BorderThickness="0"
+                        DisabledBackground="Transparent"
+                        DisabledForeground="Black"
+                        DisplayFieldSet="###,###,##0,,,-,"
+                        FieldSet="###,###,##0,,,-,"
+                        IsReadOnly="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.CanEditPayment, Mode=OneWay, Converter={StaticResource NotConverter}}"
+                        SpinButtonVisibility="NotShown"
+                        Value="{Binding Amount, Mode=TwoWay}">
+                        <im:GcNumber.Style>
+                            <Style BasedOn="{StaticResource {x:Type im:GcNumber}}" TargetType="{x:Type im:GcNumber}">
+                                <Setter Property="Background" Value="Transparent" />
+                                <Style.Triggers>
+                                    <Trigger Property="IsReadOnly" Value="True">
+                                        <Setter Property="HighlightText" Value="False" />
+                                        <Setter Property="Background" Value="Transparent" />
+                                    </Trigger>
+                                    <Trigger Property="IsActive" Value="True">
+                                        <Setter Property="Background" Value="{StaticResource MahApps.Brushes.Accent4}" />
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </im:GcNumber.Style>
+                    </im:GcNumber>
+                </Grid>
+            </Border>
+        </DataTemplate>
+    </ItemsControl.ItemTemplate>
+</ItemsControl>
+```
+
+``` C#
+    for (int i = 1; i <= 4; i++)
+    {
+        var playerCell = AssociatedObject.Columns[$"Player{i}Name"].CellTemplate.LoadContent().FindVisualChildren<TextBlock>();
+        if (playerCell != null)
+        {
+            foreach (var textBlock in playerCell)
+            {
+                //if (AssociatedObject.Selection.Row == i && AssociatedObject.Selection.Column == AssociatedObject.Columns[$"Player{i}"])
+                //{
+                //    textBlock.Foreground = AssociatedObject.Foreground;
+                //}
+                //else if (AssociatedObject.Selection.Row == i)
+                //{
+                //    textBlock.Foreground = AssociatedObject.SelectionForeground;
+                //}
+                //else
+                //{
+                    textBlock.Foreground = AssociatedObject.Foreground;
+                //}
+            }
+        }
+    }
+```

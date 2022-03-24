@@ -163,9 +163,7 @@ select ROW_NUMBER() OVER (), * from TMa_Product
 
 [SQL Server - WHILEによるループ(T-SQL)](https://www.curict.com/item/bb/bb80194.html)  
 
-WHILEの書き方  
-
-``` SQL
+``` SQL : WHILEの書き方
 WHILE *ループ継続条件*
 BEGIN
     *繰り返し実行したいコード*
@@ -174,9 +172,7 @@ END
 -- ループ内でCONTINUEが実行されるとループの先頭に戻ります。
 ```
 
-WHILE 10回ループ
-
-``` SQL
+``` SQL : WHILE 10回ループ
 --変数宣言
 DECLARE @index INTEGER
 --ループ用変数を初期化
@@ -190,9 +186,7 @@ BEGIN
 END
 ```
 
-10回ループ(BREAKでループを抜ける)(まぁつかわんやろ)  
-
-``` SQL
+``` SQL : 10回ループ(BREAKでループを抜ける)(まぁつかわんやろ)
 --変数宣言
 DECLARE @index INTEGER
 --ループ用変数を初期化

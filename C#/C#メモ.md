@@ -896,3 +896,45 @@ Process.Start(
 ``` C#
  Func<ListReplyContext, Task> callback = async res => {}
 ```
+
+---
+
+## Foreachでnullが来ても大丈夫な書き方はないか
+
+[foreachの時のNullReferenceExceptionを回避する](https://tiratom.hatenablog.com/entry/2018/12/16/foreach%E3%81%AE%E6%99%82%E3%81%AENullReferenceException%E3%82%92%E5%9B%9E%E9%81%BF%E3%81%99%E3%82%8B)  
+
+foreachをやる前にifでnullチェックするのが野暮ったく感じたし、インデントが深くなってしまうのでなんかいい書き方はないかなということで探した。  
+前にも調べたはずだが、そこそこ需要あると思うので備忘録としてまとめる。  
+
+null合体演算子[??]と`Enumerable.Empty<T>()`か`new List<T>()`の2つ組み合わせで実現できる模様。  
+Enumerable.EmptyはLinqで空のシーケンスを取得するための構文の模様。  
+
+[【C#,LINQ】Empty～空のシーケンスがほしいとき～](https://www.urablog.xyz/entry/2018/06/02/070000)  
+
+``` C#
+    // 例1
+    foreach (string msg in msgList ?? Enumerable.Empty<String>()){}
+
+    // 例2
+    foreach (string msg in msgList ?? new List<string>()){}
+```
+
+---
+
+## DateTimeで年月日だけ取得する
+
+[日時（DateTimeオブジェクト）の情報を取得する](https://dobon.net/vb/dotnet/system/datetime.html)  
+
+GrapeCityのGcDateのFormatが効かず、時間も入ってきてうまく検索できない問題が発生して、年月日だけ取得する書き方が分からなかったので調べた。  
+こういうのって地味にわからない。  
+
+``` C#
+//2000年9月30日13時15分30秒を表すDateTimeオブジェクトを作成する
+DateTime dt = new DateTime(2000, 9, 30, 13, 15, 30);
+//「2000/09/30 0:00:00」のDateTimeオブジェクトを作成する
+DateTime dtd = dt.Date;
+
+//nullの場合も対応できる
+DateTime? dt = null;
+var test = dt?.Date;
+```
