@@ -1517,3 +1517,20 @@ ToolTip
 >App.xamlファイルのApplication.Resourcesエリアにリソースを定義します。  
 
 StaticResourceを使いたかったらApp.xamlの`<Application.Resources>`要素に`<ResourceDictionary>`をだらっと追加しないといけない模様。
+
+---
+
+## MultiBindingで単純に2つの要素をつなげる例
+
+[](https://riptutorial.com/wpf/example/23413/binding-multiple-values-with-a-multibinding)  
+
+``` XML
+<TextBlock>
+    <TextBlock.Text>
+        <MultiBinding StringFormat="{}{0} {1}">
+            <Binding Path="User.Forename"/>
+            <Binding Path="User.Surname"/>
+        </MultiBinding>
+    </TextBlock.Text>
+</TextBlock>
+```
