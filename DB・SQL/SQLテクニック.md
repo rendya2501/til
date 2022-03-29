@@ -1017,6 +1017,9 @@ ORDER BY
 `OUTPUT句`なるものがあるらしい。  
 部長が知ってた。  
 
+福田さんはこんなのも提示した。  
+`var id = rnWebConnection.QueryFirstOrDefault<long>("SELECT LAST_INSERT_ID()");`  
+
 ``` sql
 INSERT INTO Tfr_Reception
 (OfficeCD)
@@ -1025,20 +1028,125 @@ inserted.SeqNo
 values('aaa')
 ```
 
-福田さんはこんなのも提示した。  
-`var id = rnWebConnection.QueryFirstOrDefault<long>("SELECT LAST_INSERT_ID()");`  
-
 ---
 
 ## Time型をString型に変換する
 
+Time(7)型の`07:23:00.0000000`を`07:23`にしたかった。  
 [SQL Serverで日付型を文字列に変換する](https://it-engineer-info.com/database/2630/)
-
-Time(7)型の`07:23:00.0000000`って表示を`07:23`にしたい。  
 
 ``` sql
     -- 108 → HH:MM:SS → 07:23:00
     CONVERT(NVARCHAR,[Frame].[StartTime],108)
 
     LEFT(CONVERT(NVARCHAR,[Frame].[StartTime],108), 5)
+```
+
+---
+
+## テーブル結合にLIKE演算子を使えるか
+
+普通に行ける。  
+[テーブル結合 LIKE演算子](https://teratail.com/questions/65949)  
+
+``` sql
+SELECT
+    テーブル1.X 
+FROM
+    テーブル1
+    LEFT JOIN テーブル2 
+    ON テーブル2.Y LIKE テーブル1.X + '%' 
+    (AND / OR テーブル2でさらに絞りたい条件式)
+WHERE
+    テーブル2.Y IS NULL 
+    AND ~~
+```
+
+---
+
+## 行けそうだけどいけないUPDATE
+
+ネットの記事を参考にして色々やってみたのだが、sqlserverでは受け付けてもらえなかった。  
+でも、なんか行けそうなので備忘録として残しておく。  
+
+``` sql : 例1
+UPDATE [TB_会員]
+SET
+    日付0 = MAX(CASE WHEN [AA].ItemCD = '101' THEN [AA].[Date] ELSE NULL END),
+    日付1 = MAX(CASE WHEN [AA].ItemCD = '102' THEN [AA].[Date] ELSE NULL END),
+    日付2 = MAX(CASE WHEN [AA].ItemCD = '103' THEN [AA].[Date] ELSE NULL END),
+    日付3 = MAX(CASE WHEN [AA].ItemCD = '104' THEN [AA].[Date] ELSE NULL END),
+    日付4 = MAX(CASE WHEN [AA].ItemCD = '105' THEN [AA].[Date] ELSE NULL END),
+    日付5 = MAX(CASE WHEN [AA].ItemCD = '106' THEN [AA].[Date] ELSE NULL END),
+    日付6 = MAX(CASE WHEN [AA].ItemCD = '107' THEN [AA].[Date] ELSE NULL END),
+    日付7 = MAX(CASE WHEN [AA].ItemCD = '108' THEN [AA].[Date] ELSE NULL END),
+    日付8 = MAX(CASE WHEN [AA].ItemCD = '109' THEN [AA].[Date] ELSE NULL END),
+    日付9 = MAX(CASE WHEN [AA].ItemCD = '110' THEN [AA].[Date] ELSE NULL END),
+    数値0 = MAX(CASE WHEN [AA].ItemCD = '111' THEN [AA].[Number] ELSE NULL END),
+    数値1 = MAX(CASE WHEN [AA].ItemCD = '112' THEN [AA].[Number] ELSE NULL END),
+    数値2 = MAX(CASE WHEN [AA].ItemCD = '113' THEN [AA].[Number] ELSE NULL END),
+    数値3 = MAX(CASE WHEN [AA].ItemCD = '114' THEN [AA].[Number] ELSE NULL END),
+    数値4 = MAX(CASE WHEN [AA].ItemCD = '115' THEN [AA].[Number] ELSE NULL END),
+    数値5 = MAX(CASE WHEN [AA].ItemCD = '116' THEN [AA].[Number] ELSE NULL END),
+    数値6 = MAX(CASE WHEN [AA].ItemCD = '117' THEN [AA].[Number] ELSE NULL END),
+    数値7 = MAX(CASE WHEN [AA].ItemCD = '118' THEN [AA].[Number] ELSE NULL END),
+    数値8 = MAX(CASE WHEN [AA].ItemCD = '119' THEN [AA].[Number] ELSE NULL END),
+    数値9 = MAX(CASE WHEN [AA].ItemCD = '120' THEN [AA].[Number] ELSE NULL END),
+    名称0 = MAX(CASE WHEN [AA].ItemCD = '121' THEN [AA].[Text] ELSE '' END),
+    名称1 = MAX(CASE WHEN [AA].ItemCD = '122' THEN [AA].[Text] ELSE '' END),
+    名称2 = MAX(CASE WHEN [AA].ItemCD = '123' THEN [AA].[Text] ELSE '' END),
+    名称3 = MAX(CASE WHEN [AA].ItemCD = '124' THEN [AA].[Text] ELSE '' END),
+    名称4 = MAX(CASE WHEN [AA].ItemCD = '125' THEN [AA].[Text] ELSE '' END),
+    名称5 = MAX(CASE WHEN [AA].ItemCD = '126' THEN [AA].[Text] ELSE '' END),
+    名称6 = MAX(CASE WHEN [AA].ItemCD = '127' THEN [AA].[Text] ELSE '' END),
+    名称7 = MAX(CASE WHEN [AA].ItemCD = '128' THEN [AA].[Text] ELSE '' END),
+    名称8 = MAX(CASE WHEN [AA].ItemCD = '129' THEN [AA].[Text] ELSE '' END),
+    名称9 = MAX(CASE WHEN [AA].ItemCD = '130' THEN [AA].[Text] ELSE '' END)
+FROM
+    [TB_会員]
+    INNER JOIN Round3DatBRK_20220308.dbo.TMc_CustomerGenericInfoContent AS [AA]
+    ON [TB_会員].[顧客CD] = REPLACE([AA].[CustomerCD],'BRK','')
+    AND [AA].[UpdateProgram] LIKE 'RN3.WPF%'
+    GROUP BY [TB_会員].[顧客CD]
+```
+
+``` sql : 例2
+UPDATE
+    [TB_会員]
+    INNER JOIN Round3DatBRK_20220308.dbo.TMc_CustomerGenericInfoContent AS [RN3_Cus] 
+    ON [TB_会員].顧客CD = REPLACE([RN3_Cus].[CustomerCD],'BRK','')
+    AND [RN3_Cus].[UpdateProgram] LIKE 'RN3.WPF%'
+SET
+    日付0 = MAX(CASE WHEN ItemCD = '101' THEN [Date] ELSE NULL END) AS [日付0],
+    日付1 = MAX(CASE WHEN ItemCD = '102' THEN [Date] ELSE NULL END) AS [日付1],
+    日付2 = MAX(CASE WHEN ItemCD = '103' THEN [Date] ELSE NULL END) AS [日付2],
+    日付3 = MAX(CASE WHEN ItemCD = '104' THEN [Date] ELSE NULL END) AS [日付3],
+    日付4 = MAX(CASE WHEN ItemCD = '105' THEN [Date] ELSE NULL END) AS [日付4],
+    日付5 = MAX(CASE WHEN ItemCD = '106' THEN [Date] ELSE NULL END) AS [日付5],
+    日付6 = MAX(CASE WHEN ItemCD = '107' THEN [Date] ELSE NULL END) AS [日付6],
+    日付7 = MAX(CASE WHEN ItemCD = '108' THEN [Date] ELSE NULL END) AS [日付7],
+    日付8 = MAX(CASE WHEN ItemCD = '109' THEN [Date] ELSE NULL END) AS [日付8],
+    日付9 = MAX(CASE WHEN ItemCD = '110' THEN [Date] ELSE NULL END) AS [日付9],
+    数値0 = MAX(CASE WHEN ItemCD = '111' THEN [Number] ELSE NULL END) AS [数値0],
+    数値1 = MAX(CASE WHEN ItemCD = '112' THEN [Number] ELSE NULL END) AS [数値1],
+    数値2 = MAX(CASE WHEN ItemCD = '113' THEN [Number] ELSE NULL END) AS [数値2],
+    数値3 = MAX(CASE WHEN ItemCD = '114' THEN [Number] ELSE NULL END) AS [数値3],
+    数値4 = MAX(CASE WHEN ItemCD = '115' THEN [Number] ELSE NULL END) AS [数値4],
+    数値5 = MAX(CASE WHEN ItemCD = '116' THEN [Number] ELSE NULL END) AS [数値5],
+    数値6 = MAX(CASE WHEN ItemCD = '117' THEN [Number] ELSE NULL END) AS [数値6],
+    数値7 = MAX(CASE WHEN ItemCD = '118' THEN [Number] ELSE NULL END) AS [数値7],
+    数値8 = MAX(CASE WHEN ItemCD = '119' THEN [Number] ELSE NULL END) AS [数値8],
+    数値9 = MAX(CASE WHEN ItemCD = '120' THEN [Number] ELSE NULL END) AS [数値9],
+    名称0 = MAX(CASE WHEN ItemCD = '121' THEN [Text] ELSE NULL END) AS [名称0],
+    名称1 = MAX(CASE WHEN ItemCD = '122' THEN [Text] ELSE NULL END) AS [名称1],
+    名称2 = MAX(CASE WHEN ItemCD = '123' THEN [Text] ELSE NULL END) AS [名称2],
+    名称3 = MAX(CASE WHEN ItemCD = '124' THEN [Text] ELSE NULL END) AS [名称3],
+    名称4 = MAX(CASE WHEN ItemCD = '125' THEN [Text] ELSE NULL END) AS [名称4],
+    名称5 = MAX(CASE WHEN ItemCD = '126' THEN [Text] ELSE NULL END) AS [名称5],
+    名称6 = MAX(CASE WHEN ItemCD = '127' THEN [Text] ELSE NULL END) AS [名称6],
+    名称7 = MAX(CASE WHEN ItemCD = '128' THEN [Text] ELSE NULL END) AS [名称7],
+    名称8 = MAX(CASE WHEN ItemCD = '129' THEN [Text] ELSE NULL END) AS [名称8],
+    名称9 = MAX(CASE WHEN ItemCD = '130' THEN [Text] ELSE NULL END) AS [名称9]
+WHERE
+    [TB_会員].顧客CD = REPLACE([RN3_Cus].[CustomerCD],'BRK','')
 ```

@@ -952,3 +952,379 @@ namespace RN3.Wpf.Reservation.ReservationSearch.CellFactory
         }
     }
 ```
+
+---
+
+## 予約検索でFlexGridのCellTemplateを使うと文字が白くなる現象について
+
+CellTemplateを使ったセルだけスクロールした時に白くなる。  
+結果的にCellTemplateではなく、CellFactoryで同じようにコンポーネントをCreateしてChildにセットすることで白くなる現象を解決できた。  
+CellTemplateでもCellFactoryでもやっていることは同じなのに、CellTemplateを使うと発生する模様。  
+念のためデフォルトのC1FlexGridでもやってみたがもっとひどかった。  
+これはFlexGridの仕様としてとらえたほうがいいかもしれない。  
+多少の違いはあれど、やらせていることは同じ。不思議である。  
+これだからFlexGridは嫌いなんだ。  
+
+### XMLで書いていたことをセルファクトリーで記述できたのでまとめ
+
+[方法: グリッド要素を作成する](https://docs.microsoft.com/ja-jp/dotnet/desktop/wpf/controls/how-to-create-a-grid-element?view=netframeworkdesktop-4.8)
+[方法: ToolTip を配置する](https://docs.microsoft.com/ja-jp/dotnet/desktop/wpf/controls/how-to-position-a-tooltip?view=netframeworkdesktop-4.8)
+
+``` XML
+<!-- 一番上の要素でリソース定義 -->
+<!-- こうしないと拡大率のバインドができなかった -->
+<DockPanel.Resources>
+    <Style x:Key="ToolTipTextBlock" TargetType="TextBlock">
+        <Setter Property="LayoutTransform">
+            <Setter.Value>
+                <ScaleTransform ScaleX="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type metro:MetroWindow}}, Path=DataContext.Magnification, Mode=TwoWay}" ScaleY="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type metro:MetroWindow}}, Path=DataContext.Magnification, Mode=TwoWay}" />
+            </Setter.Value>
+        </Setter>
+    </Style>
+</DockPanel.Resources>
+
+<c1:Column
+    Width="100"
+    VerticalAlignment="Center"
+    Binding="{Binding Player2Name, Mode=OneWay}"
+    ColumnName="Player2Name"
+    Header="Player2"
+    HeaderHorizontalAlignment="Center"
+    HeaderVerticalAlignment="Center"
+    IsReadOnly="True"
+    TextWrapping="true">
+    <c1:Column.CellTemplate>
+        <DataTemplate>
+            <Grid ToolTipService.IsEnabled="{Binding Player1Remarks, Mode=OneWay, Converter={StaticResource NotNullOrEmptyToBoolConverter}}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <ToolTipService.ToolTip>
+                    <TextBlock Style="{DynamicResource ToolTipTextBlock}" Text="{Binding Player1Remarks, Mode=OneWay}" />
+                </ToolTipService.ToolTip>
+                <TextBlock
+                    Grid.Column="0"
+                    VerticalAlignment="Center"
+                    Focusable="False"
+                    Text="{Binding Player1Name, Mode=OneWay}"
+                    TextWrapping="Wrap" />
+                <TextBlock
+                    Grid.Column="1"
+                    Margin="0,0,5,0"
+                    VerticalAlignment="Center"
+                    Focusable="False"
+                    Text="※"
+                    Visibility="{Binding Player1Remarks, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}" />
+            </Grid>
+        </DataTemplate>
+    </c1:Column.CellTemplate>
+</c1:Column>
+```
+
+``` C#
+    /// <summary>
+    /// セルコンテンツ作成
+    /// </summary>
+    /// <param name="grid"></param>
+    /// <param name="bdr"></param>
+    /// <param name="rng"></param>
+    public override void CreateCellContent(C1FlexGrid grid, Border bdr, CellRange rng)
+    {
+        // コンテンツを作成します
+        base.CreateCellContent(grid, bdr, rng);
+
+        // プレーヤー1~4までループ
+        for (int i = 1; i <= 4; i++)
+        {
+            string nameColumnName = $"Player{i}Name";
+            string remarksColumnName = $"Player{i}Remarks";
+            // 指定したカラム名かどうか判定
+            if (grid.Columns[rng.Column].ColumnName == nameColumnName)
+            {
+                 // 備考を取得
+                string contents = (string)grid[rng.Row, remarksColumnName];
+
+                // そのセルに備考が存在したらツールチップを設定
+                if (!string.IsNullOrEmpty(contents))
+                {
+                    // タグにTextBlockおいて、そのTextにバインドして内容取れないかやってみたけど駄目だった。
+                    var mnnn = (grid.Columns[nameColumnName].Tag is TextBlock ts) ? ts.Text : string.Empty;
+
+                    // ツールチップ用テキストブロック定義
+                    TextBlock tooltipBlock = new TextBlock
+                    {
+                        LayoutTransform = new ScaleTransform()
+                        {
+                            ScaleX = (double)grid.LayoutTransform.GetValue(ScaleTransform.ScaleXProperty),
+                            ScaleY = (double)grid.LayoutTransform.GetValue(ScaleTransform.ScaleYProperty),
+                        },
+                        Text = contents
+                    };
+                    // セルにツールチップを設定
+                    ToolTipService.SetToolTip(bdr, tooltipBlock);
+
+                    // プレーヤー名テキストブロック定義
+                    TextBlock nameBlock = new TextBlock
+                    {
+                        HorizontalAlignment = HorizontalAlignment.Left,
+                        VerticalAlignment = VerticalAlignment.Center,
+                        Focusable = false,
+                        TextWrapping = TextWrapping.Wrap,
+                        Text = (string)grid[rng.Row, nameColumnName],
+                    };
+                    // ※マーク用テキストブロック定義
+                    TextBlock noticeBlock = new TextBlock
+                    {
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        VerticalAlignment = VerticalAlignment.Center,
+                        Text = "※",
+                        Margin = new Thickness(0, 0, 5, 0),
+                        Focusable = false,
+                    };
+                    // テキストブロック格納Grid定義
+                    Grid childGrid = new Grid();
+                    childGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1.0, GridUnitType.Star) });
+                    childGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
+                    Grid.SetColumn(nameBlock, 0);
+                    Grid.SetColumn(noticeBlock, 1);
+                    _ = childGrid.Children.Add(nameBlock);
+                    _ = childGrid.Children.Add(noticeBlock);
+                    
+                    // これをやるとGridにToolTipServiceを設定できる。
+                    //ToolTipService.SetIsEnabled(childGrid, true);
+                    //ToolTipService.SetToolTip(childGrid, tooltipBlock);
+
+                    // 定義したGridをセル要素に割り当てる
+                    bdr.Child = childGrid;
+                }
+            }
+        }
+    }
+```
+
+#### ボツ案
+
+TagのTextBlockにあるバインド情報からリフレクション使って取得しようとしたり、  
+CellTemplateのTextBlock要素だけを抽出して取得しようとしたがうまく取得できなかった。  
+リフレクションに関しては取得の型が違うとエラーになり、要素の抽出に関しては結局空白しか抽出できなかった。  
+備忘録としてまとめておく。  
+
+``` C#
+    // これは駄目だった。
+    if ((bdr.Child is TextBlock t22s))
+    {
+        var cd = t22s.DataContext.GetType().GetProperty(remarksColumnName);
+        var value = cd.GetValue(typeof(string),null);
+    }
+    // FindVisualChildrenはutilのメソッド。TextBlockまでは取れた
+    var aa = grid.Columns[nameColumnName].CellTemplate.LoadContent().FindVisualChildren<TextBlock>();
+    // 取得したTextBlockのTextには何も入っていなかった。
+    if (grid.Columns[nameColumnName].CellTemplate.LoadContent() is TextBlock sss)
+    {
+        var bb = sss.Text;
+    }
+```
+
+### 案2
+
+最初はスクロールした時も色を変更するようにしたら行けると思っていたのだが、スクロールした端の部分までは変わってくれなかった。  
+試しに再描画命令を記述したら変わるようになったが、体感できるレベルで重くなった。  
+スクロールが若干かくつく感じ。  
+スクロールの度に2重ループして文字色を再設定した後、すべてのセルを再描画するので当然といえば当然。  
+これでもできるといえばできるが、なんか無理やり感が否めなかったので、
+
+``` C#
+using C1.WPF.FlexGrid;
+using Microsoft.Xaml.Behaviors;
+using RN3.Wpf.Common.Util.Extension;
+using System;
+using System.Linq;
+using System.Windows;
+using System.Windows.Controls;
+
+namespace RN3.Wpf.Reservation.ReservationSearch.Behaivor
+{
+    /// <summary>
+    /// FlexGridのカスタムセル内にあるTextBlockのForegroundを再設定するビヘイビア
+    /// </summary>
+    public class ResetFlexGridForegroundBehavior : Behavior<C1FlexGrid>
+    {
+        /// <summary>
+        /// イベント登録
+        /// </summary>
+        protected override void OnAttached()
+        {
+            base.OnAttached();
+            if (AssociatedObject is C1FlexGrid fg)
+            {
+                fg.SelectionChanged -= FlexGrid_CellRangeEventArgs;
+                fg.SelectionChanged += FlexGrid_CellRangeEventArgs;
+                fg.ScrollPositionChanged -= FlexGrid_EventArgs;
+                fg.ScrollPositionChanged += FlexGrid_EventArgs;
+            }
+        }
+
+        /// <summary>
+        /// CellRangeEventArgsイベント処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void FlexGrid_CellRangeEventArgs(object sender, CellRangeEventArgs e) => ReserForeground();
+        /// <summary>
+        /// EventArgsイベント処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void FlexGrid_EventArgs(object sender, EventArgs e) => ReserForeground();
+
+        /// <summary>
+        /// TextBlockの文字色を再設定する
+        /// </summary>
+        private void ReserForeground()
+        {
+            // カスタムテンプレート内のTextBlockの文字色がおかしくなるので、強制的に再設定
+            for (int i = 0; i < AssociatedObject.Rows.Count; i++)
+            {
+                for (int j = 0; j < AssociatedObject.Columns.Count; j++)
+                {
+                    var cell = AssociatedObject.Cells.GetCellElement(new CellRange(i, j));
+                    // 子孫要素からTextBlockを探索、選択箇所に応じてForegroundを再設定
+                    var textBlockList = cell?.FindVisualChildren<TextBlock>();
+                    foreach (var textBlock in textBlockList ?? Enumerable.Empty<TextBlock>())
+                    {
+                        if (AssociatedObject.Selection.Row == i && AssociatedObject.Selection.Column == j)
+                        {
+                            textBlock.Foreground = AssociatedObject.Foreground;
+                        }
+                        else if (AssociatedObject.Selection.Row == i)
+                        {
+                            textBlock.Foreground = AssociatedObject.SelectionForeground;
+                        }
+                        else
+                        {
+                            textBlock.Foreground = AssociatedObject.Foreground;
+                        }
+                    }
+                }
+            }
+            // 再描画命令を記述したら解決するけど重くなる。
+            AssociatedObject.Invalidate();
+        }
+    }
+}
+```
+
+### 最終案
+
+最終的にこれで行けた。  
+まずセルテンプレートにTextBlockを配置して備考をバインドさせてセルファクトリーで取得。  
+CellFactory内部で改めてテンプレートを作ってセルテンプレートに上書きすることで備考がある場合とない場合の表示ができた。  
+
+一番最初は備考カラムを作って、そのセルの内容を取得してたけど、エクスポートした時に備考まで出力されてしまう欠点があった。  
+備考程度出力されても別にいいといえばいいけど、一応影響を受けないように作ることにした。  
+
+次にTagにTextBlockをバインドさせて同じようにCellFactoryで取得しようとしたけどだめだった。  
+どういうわけか空白にしかならない。  
+中々いい案だと思っただけに残念だった。  
+TagもBindに対応してくれればいいのだが。  
+
+この考えを応用してCellTemplateで同じようにしたらいけた。  
+
+``` XML
+<c1:Column
+    Width="100"
+    VerticalAlignment="Center"
+    Binding="{Binding Player1Name, Mode=OneWay}"
+    ColumnName="Player1Name"
+    Header="Player1"
+    HeaderHorizontalAlignment="Center"
+    HeaderVerticalAlignment="Center"
+    IsReadOnly="True"
+    TextWrapping="true">
+    <c1:Column.CellTemplate>
+        <DataTemplate>
+            <TextBlock Text="{Binding Player1Remarks, Mode=OneWay}" />
+        </DataTemplate>
+    </c1:Column.CellTemplate>
+    <!-- タグ案は駄目だった。 -->
+    <!-- 記述自体に問題はなさそうなのだが、CellFactory側でTextが空白のままで何も取得できなかった。 -->
+    <c1:Column.Tag>
+        <TextBlock Text="{Binding Player1Remarks, Mode=OneWay}" />
+    </c1:Column.Tag>
+</c1:Column>
+```
+
+``` C#
+    /// <summary>
+    /// セルコンテンツ作成
+    /// </summary>
+    /// <param name="grid"></param>
+    /// <param name="bdr"></param>
+    /// <param name="rng"></param>
+    public override void CreateCellContent(C1FlexGrid grid, Border bdr, CellRange rng)
+    {
+        // コンテンツを作成します
+        base.CreateCellContent(grid, bdr, rng);
+
+        // プレーヤー1~4までループ
+        for (int i = 1; i <= 4; i++)
+        {
+            string nameColumnName = $"Player{i}Name";
+            // string remarksColumnName = $"Player{i}Remarks";
+            // 指定したカラム名かどうか判定
+            if (grid.Columns[rng.Column].ColumnName == nameColumnName)
+            {
+                // プレーヤー名テキストブロック定義
+                TextBlock nameBlock = new TextBlock
+                {
+                    HorizontalAlignment = HorizontalAlignment.Left,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Focusable = false,
+                    TextWrapping = TextWrapping.Wrap,
+                    Text = (string)grid[rng.Row, nameColumnName],
+                };
+                // 備考マーク用テキストブロック定義
+                TextBlock noticeBlock = new TextBlock
+                {
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Text = "※",
+                    Margin = new Thickness(0, 0, 5, 0),
+                    Focusable = false,
+                };
+                // テキストブロック格納Grid定義
+                Grid childGrid = new Grid();
+                childGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1.0, GridUnitType.Star) });
+                childGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
+                Grid.SetColumn(nameBlock, 0);
+                _ = childGrid.Children.Add(nameBlock);
+
+                // セルテンプレートの備考を取得
+                var contents = (bdr.Child is TextBlock ts) ? ts.Text : string.Empty;
+                // 備考が存在したらそのセルにツールチップを設定
+                if (!string.IsNullOrEmpty(contents))
+                {
+                    // ツールチップ用テキストブロック定義
+                    TextBlock tooltipBlock = new TextBlock
+                    {
+                        LayoutTransform = new ScaleTransform()
+                        {
+                            ScaleX = (double)grid.LayoutTransform.GetValue(ScaleTransform.ScaleXProperty),
+                            ScaleY = (double)grid.LayoutTransform.GetValue(ScaleTransform.ScaleYProperty),
+                        },
+                        Text = contents
+                    };
+                    // プレーヤーiのセルにツールチップを設定
+                    ToolTipService.SetToolTip(bdr, tooltipBlock);
+                    // 備考マークテキストブロックをgridに追加
+                    Grid.SetColumn(noticeBlock, 1);
+                    _ = childGrid.Children.Add(noticeBlock);
+                }
+
+                // 定義したGridをセル要素に割り当てる
+                bdr.Child = childGrid;
+            }
+        }
+    }
+```

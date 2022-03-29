@@ -355,6 +355,9 @@ selectだと配列の中の配列があったときに、`IEnumerable<IEnumerabl
 [なんか外国のよく見るところ](https://www.it-swarm-ja.com/ja/c%23/linq%E3%82%92%E4%BD%BF%E7%94%A8%E3%81%97%E3%81%A6%E6%96%87%E5%AD%97%E5%88%97%E3%82%92%E9%80%A3%E7%B5%90%E3%81%99%E3%82%8B/958428705/)  
 [複数の文字列をセパレータ文字で区切って結合する方法(LINQ編)](https://www.exceedsystem.net/2020/08/29/how-to-join-multiple-strings-with-delimiter/)  
 
+①string.Join  
+②Linq.Aggregate  
+
 主にAggregateとString.joinを使う方法があるけれど、String.joinを使うことをおすすめする。  
 理由は速度だそうだ。  
 
@@ -365,15 +368,15 @@ var data = new[] { "a", "b", "c" };
 // 出力は「a,b,c」
 Console.WriteLine(string.Join(",", data));
 
-// Aggregate方式
+// Linq.Aggregate方式
 // "a"
 // "a" + "," + "b"
 // "a,b" + "," + "c"
 // のような文字列の結合となるため結合文字数が増えると大きなパフォーマンス低下が生じる。
 Console.WriteLine(data.Aggregate((x, y) => $"{x},{y}"));
+```
 
-
-// おまけ : Aggregate+StringBuilder方式
+``` C# : おまけ Aggregate+StringBuilder方式
 // チェーンしすぎてわけわからんので、自己満足以外で使うことはないだろう。
 var res = words.Aggregate(
         new StringBuilder(), 
@@ -383,7 +386,7 @@ var res = words.Aggregate(
 Console.WriteLine(res);
 ```
 
-```C#
+```C# : 実装例1
 // 中々うまくまとめれたのでまとめる。
 // 精算済みプレーヤーの警告を出すためメッセージを生成(精算済みプレーヤーのアナウンス)
 var warningMessage = _TRe_ReservationPlayerModel
@@ -405,6 +408,34 @@ var warningMessage = _TRe_ReservationPlayerModel
         "",
         (a, b) => a + Environment.NewLine + b
     );
+```
+
+``` C# : 実装例2
+// これを
+if (AccountsReceivableList?.Any() == true)
+{
+    var context = "売掛者";
+    foreach (var item in AccountsReceivableList)
+    {
+        var name = item.AccountsReceivableName ?? string.Empty;
+        var len = 60 - Encoding.GetEncoding("shift_jis").GetByteCount(name.ToCharArray());
+        context += Environment.NewLine + " " + name.PadRight(len) + string.Format("￥{0:#,0}", item.Amount);
+    }
+    Data.BasicItem.BusinessReport = context;
+}
+
+// こうできた
+Data.BasicItem.BusinessReport = AccountsReceivableList?.Any() == true
+    ? "売掛者" + AccountsReceivableList
+        .Select(s =>
+        {
+            string name = s.AccountsReceivableName ?? string.Empty;
+            int len = 60 - Encoding.GetEncoding("shift_jis").GetByteCount(name.ToCharArray());
+            // 名前 空白 \金額 の構成にする
+            return $"{ name.PadRight(len)}￥{s.Amount:#,0}";
+        })
+        ?.Aggregate("", (a, b) => a + Environment.NewLine + b)
+    : string.Empty;
 ```
 
 ---
