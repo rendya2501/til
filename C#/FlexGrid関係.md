@@ -212,7 +212,7 @@ public class RowHeaderNumberingCellFactory : CellFactory
 ## XAML上でソートをクリアする命令を実行する方法
 
 2021/10/06 Fri  
-最近、ViewModelからコントロールのメソッドを実行する方法を見つけたので、  
+最近、ViewModelからコントロールのメソッドを実行する方法を見つけたので、
 「伝票一括入力でやってるソートをクリアするだけのトリガーアクションあるじゃん。あれ、これで実現できないか？」と思ってやったら行けたのでまとめる。  
 
 ``` XML : Front.SlipBulkInput.Views.EditWindow.xaml
@@ -225,13 +225,26 @@ public class RowHeaderNumberingCellFactory : CellFactory
         <!-- TriggerActionに記述していた1行だけの命令はこれで実行できる。 -->
         <i:CallMethodAction MethodName="Clear" TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ctrl:CustomFlexGrid}}, Path=CollectionView.SortDescriptions}" />
     </l:InteractionMessageTrigger>
+</i:Interaction.Triggers>
+```
 
-    <!-- 画面をリフレッシュするだけならこれでよい。 -->
+---
+
+## FlexGridの描画をリフレッシュするサンプル
+
+``` XML : 画面をリフレッシュするサンプル
+<i:Interaction.Triggers>
     <l:InteractionMessageTrigger MessageKey="FlexGridInvalidateAction" Messenger="{Binding Messenger}">
-        <i:CallMethodAction MethodName="Invalidate" />
+        <i:CallMethodAction MethodName="InvalidateVisual" />
     </l:InteractionMessageTrigger>
 </i:Interaction.Triggers>
 ```
+
+``` C#
+    Messenger.Raise(new InteractionMessage("FlexGridInvalidateAction"));
+```
+
+上記2つでやっていることは下記トリガーアクションと同じ  
 
 ``` C# : Front.SlipBulkInput.TriggerAction.C1FlexGridClearSortAction.cs
     /// <summary>
@@ -246,8 +259,6 @@ public class RowHeaderNumberingCellFactory : CellFactory
         protected override void Invoke(object parameter) => AssociatedObject.CollectionView.SortDescriptions.Clear();
     }
 ```
-
-//Messenger.Raise(new InteractionMessage("FlexGridInvalidateAction"));
 
 ---
 
