@@ -1460,3 +1460,78 @@ source(repreTemp);
         }
     }
 ```
+
+---
+
+## switch文のパターンマッチング
+
+[C#のアプデでめちゃくちゃ便利になったswitch文（パターンマッチング）の紹介](https://qiita.com/toRisouP/items/18b31b024b117009137a)
+
+swapの時にサラっと使ったけど改めてまとめ。  
+if文で愚直にobjがPlaer1か2か判定してたけど、型で判定できないか探してみた。  
+結果的にif文より短くかけたけど、思ってたのと若干違った。  
+
+``` C#
+public string NankaMethod3(object obj)
+{
+    // Object型をそれぞれの型で判定し、その中身も同時に判定する
+    switch (obj)
+    {
+        // objがint型 かつ 0より大きい
+        case int x when x > 0:
+            return x.ToString();
+        // objがint型 かつ 0以下
+        case int x when x <= 0:
+            return (-x).ToString();
+        // objがfloat型
+        case float f:
+            return ((int) f).ToString();
+        // objが1文字以上のstring型
+        case string s when s.Length > 0:
+            return s;
+        // どれにもマッチしなかった
+        default:
+            throw new ArgumentOutOfRangeException(nameof(obj));
+    }
+}
+```
+
+``` C#
+private void SwapRepre(ReservationPlayerView obj)
+{
+    // これがswitchだと下のようになる
+    // if (pushFrom.ReservationPlayer1 == obj)
+    // {
+    //     (repre.ReservationPlayer4, pushFrom.ReservationPlayer1) = (pushFrom.ReservationPlayer1, repre.ReservationPlayer4);
+    // }
+    // else if (pushFrom.ReservationPlayer2 == obj)
+    // {
+    //     (repre.ReservationPlayer4, pushFrom.ReservationPlayer2) = (pushFrom.ReservationPlayer2, repre.ReservationPlayer4);
+    // }
+    // else if (pushFrom.ReservationPlayer3 == obj)
+    // {
+    //     (repre.ReservationPlayer4, pushFrom.ReservationPlayer3) = (pushFrom.ReservationPlayer3, repre.ReservationPlayer4);
+    // }
+    // else if (pushFrom.ReservationPlayer4 == obj)
+    // {
+    //     (repre.ReservationPlayer4, pushFrom.ReservationPlayer4) = (pushFrom.ReservationPlayer4, repre.ReservationPlayer4);
+    // }
+
+    // 押された場所を特定する
+    switch (obj)
+    {
+        // switchのパターンマッチング
+        case ReservationPlayerView n when n == frame.ReservationPlayer1:
+            // 一時変数と押された場所は今の代表者と入れ替えるのでbeRepreActionを登録する
+            return (frame.ReservationPlayer1, (repre) => frame.ReservationPlayer1 = repre);
+        case ReservationPlayerView n when n == frame.ReservationPlayer2:
+            return (frame.ReservationPlayer2, (repre) => frame.ReservationPlayer2 = repre);
+        case ReservationPlayerView n when n == frame.ReservationPlayer3:
+            return (frame.ReservationPlayer3, (repre) => frame.ReservationPlayer3 = repre);
+        case ReservationPlayerView n when n == frame.ReservationPlayer4:
+            return (frame.ReservationPlayer4, (repre) => frame.ReservationPlayer4 = repre);
+        default:
+            break;
+    }
+}
+```

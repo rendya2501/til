@@ -1534,3 +1534,158 @@ StaticResourceを使いたかったらApp.xamlの`<Application.Resources>`要素
     </TextBlock.Text>
 </TextBlock>
 ```
+
+---
+
+## ItemsControlをDataGridみたいに使う
+
+[WPF ItemsControlをDataGridみたいに使う](https://nomoredeathmarch.hatenablog.com/entry/2019/01/21/003825)  
+[[WPF] GridSplitter 画面を分割して境界線をドラッグしてリサイズする](https://note.dokeep.jp/post/wpf-gridsplitter/)  
+
+``` XML
+<Window
+    x:Class="BlankApp1.Views.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:BlankApp1.ViewModels"
+    xmlns:prism="http://prismlibrary.com/"
+    Title="{Binding Title}"
+    Width="525"
+    Height="350"
+    prism:ViewModelLocator.AutoWireViewModel="True">
+    <!--<ContentControl prism:RegionManager.RegionName="ContentRegion" />-->
+    <Grid Grid.IsSharedSizeScope="True">
+        <Grid.Resources>
+            <!--  GridSplitter  -->
+            <Style x:Key="HorizontalGridSplitter" TargetType="{x:Type GridSplitter}">
+                <Setter Property="Height" Value="5" />
+                <Setter Property="HorizontalAlignment" Value="Stretch" />
+            </Style>
+            <Style x:Key="VerticalGridSplitter" TargetType="{x:Type GridSplitter}">
+                <Setter Property="HorizontalAlignment" Value="Stretch" />
+                <Setter Property="Width" Value="1" />
+            </Style>
+        </Grid.Resources>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0" Background="AliceBlue">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" SharedSizeGroup="Seq" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" SharedSizeGroup="Name" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" SharedSizeGroup="BirthDay" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" SharedSizeGroup="Age" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="連番" />
+            <GridSplitter Grid.Column="1" Style="{StaticResource VerticalGridSplitter}" />
+            <TextBlock
+                Grid.Column="2"
+                Margin="10,0,0,0"
+                Text="氏名" />
+            <GridSplitter Grid.Column="3" Style="{StaticResource VerticalGridSplitter}" />
+            <TextBlock
+                Grid.Column="4"
+                Margin="10,0,0,0"
+                Text="生年月日" />
+            <GridSplitter Grid.Column="5" Style="{StaticResource VerticalGridSplitter}" />
+            <TextBlock
+                Grid.Column="6"
+                Margin="10,0,0,0"
+                Text="年齢" />
+        </Grid>
+        <ItemsControl
+            Grid.Row="1"
+            Focusable="False"
+            ItemsSource="{Binding Persons}"
+            ScrollViewer.CanContentScroll="True"
+            ScrollViewer.HorizontalScrollBarVisibility="Auto"
+            ScrollViewer.VerticalScrollBarVisibility="Auto"
+            VirtualizingPanel.IsVirtualizing="True">
+            <ItemsControl.Template>
+                <ControlTemplate TargetType="{x:Type ItemsControl}">
+                    <ScrollViewer Focusable="False">
+                        <VirtualizingStackPanel IsItemsHost="True" />
+                    </ScrollViewer>
+                </ControlTemplate>
+            </ItemsControl.Template>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate DataType="{x:Type local:Person}">
+                    <Grid Background="AntiqueWhite" ShowGridLines="True">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" SharedSizeGroup="Seq" />
+                            <ColumnDefinition Width="Auto" SharedSizeGroup="Name" />
+                            <ColumnDefinition Width="Auto" SharedSizeGroup="BirthDay" />
+                            <ColumnDefinition Width="Auto" SharedSizeGroup="Age" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="{Binding Seq}" />
+                        <TextBlock
+                            Grid.Column="1"
+                            Margin="10,0,0,0"
+                            Text="{Binding Name}" />
+                        <TextBlock
+                            Grid.Column="2"
+                            Margin="10,0,0,0"
+                            Text="{Binding BirthDay}" />
+                        <TextBlock
+                            Grid.Column="3"
+                            Margin="10,0,0,0"
+                            Text="{Binding Age}" />
+                    </Grid>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </Grid>
+</Window>
+```
+
+``` C#
+
+        public MainWindowViewModel()
+        {
+            Persons = new ReadOnlyObservableCollection<Person>(
+                new ObservableCollection<Person>
+                {
+                    new Person(1,"北野久子","1973/11/25",48),
+                    new Person(2,"松崎和馬","1993/11/15",28),
+                    new Person(3,"水谷義哉","1962/07/21",59),
+                    new Person(4,"長野佳奈","2001/03/13",21),
+                    new Person(5,"藤島凪",    "1974/04/18",47),
+                    new Person(6,"荻野亜実","1968/03/02",54),
+                    new Person(7,"岩本葵愛","1997/12/06",24),
+                    new Person(8,"小山田大貴","1991/10/10",30),
+                    new Person(9,"宮原美明","1977/10/26",44),
+                    new Person(10,"田端利之","1974/08/16",47),
+                    new Person(11,"大下靖",    "1968/09/14",53),
+                    new Person(12,"那須瑞紀","2000/11/15",21),
+                    new Person(13,"門脇忠吉","1978/03/25",44),
+                    new Person(14,"冨永和奏","1988/03/14",34),
+                    new Person(15,"島本彰三","1988/09/07",33),
+                    new Person(16,"首藤和男","1995/10/28",26),
+                    new Person(17,"氏家覚",    "1972/05/28",49),
+                    new Person(18,"古川幸次郎","1977/08/06",44),
+                    new Person(19,"安藤浩俊","1965/10/16",56),
+                    new Person(20,"佐伯誠治","1985/03/21",37),
+                }
+            );
+        }
+
+        
+    public sealed class Person
+    {
+        public Person(int seq, string name, string birthDay, int age)
+        {
+            this.Seq = seq;
+            this.Name = name;
+            this.BirthDay = birthDay;
+            this.Age = age;
+        }
+        public int Seq { get; }
+        public string Name { get; }
+        public string BirthDay { get; }
+        public int Age { get; }
+    }
+```
