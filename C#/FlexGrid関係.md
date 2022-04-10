@@ -1339,3 +1339,255 @@ TagもBindに対応してくれればいいのだが。
         }
     }
 ```
+
+---
+
+## イベント順
+
+[[C#/WPF] Windowクラスのイベント全部、発生時にログ取ってみる](https://zenn.dev/tera1707/articles/594f392077ea80)
+
+FlexGridの「検索→セルを適当にクリック」した時のイベント発火の流れを記録したので残す。  
+
+``` C#
+    // ログをデスクトップに残すためのクラス
+    static class LogOnDesktop
+    {
+        public static void WriteLogToDesktopLogFile(string line)
+        {
+            var logPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\log.log";
+
+            File.AppendAllText(logPath, DateTime.Now.ToString("hh:mm:ss.fff") + "  " + line);
+            File.AppendAllText(logPath, Environment.NewLine);
+        }
+    }
+
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        public EditWindow()
+        {
+            InitializeComponent();
+
+            FlexGrid.DraggedFrozenRow += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("DraggedFrozenRow"); });
+            FlexGrid.DraggedColumn += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("DraggedColumn"); });
+            FlexGrid.DraggedRow += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("DraggedRow"); });
+            FlexGrid.DraggingColumn += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("DraggingColumn"); });
+            FlexGrid.DraggingRow += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("DraggingRow"); });
+            FlexGrid.LoadingRows += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("LoadingRows"); });
+            FlexGrid.GroupCollapsedChanging += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("GroupCollapsedChanging"); });
+            FlexGrid.GroupCollapsedChanged += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("GroupCollapsedChanged"); });
+            FlexGrid.PrepareCellForEdit += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("PrepareCellForEdit"); });
+            FlexGrid.CellEditEnding += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("CellEditEnding"); });
+            FlexGrid.RowEditEnding += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("RowEditEnding"); });
+            FlexGrid.DraggedFrozenColumn += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("DraggedFrozenColumn"); });
+            FlexGrid.LoadedRows += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("LoadedRows"); });
+            FlexGrid.DraggingFrozenRow += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("DraggingFrozenRow"); });
+            FlexGrid.ItemsSourceChanging += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("ItemsSourceChanging"); });
+            FlexGrid.ResizedRow += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("ResizedRow"); });
+            FlexGrid.CustomAggregate += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("CustomAggregate"); });
+            FlexGrid.ItemsSourceChanged += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("ItemsSourceChanged"); });
+            FlexGrid.Click += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("Click"); });
+            FlexGrid.DoubleClick += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("DoubleClick"); });
+            FlexGrid.ScrollPositionChanging += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("ScrollPositionChanging"); });
+            FlexGrid.ScrollPositionChanged += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("ScrollPositionChanged"); });
+            FlexGrid.DraggingFrozenColumn += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("DraggingFrozenColumn"); });
+            FlexGrid.ScrollingDeferred += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("ScrollingDeferred"); });
+            FlexGrid.SelectionChanged += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("SelectionChanged"); });
+            FlexGrid.SortingColumn += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("SortingColumn"); });
+            FlexGrid.SortedColumn += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("SortedColumn"); });
+            FlexGrid.ResizingColumn += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("ResizingColumn"); });
+            FlexGrid.ResizingRow += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("ResizingRow"); });
+            FlexGrid.ResizedColumn += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("ResizedColumn"); });
+            FlexGrid.SelectionChanging += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("SelectionChanging"); });
+            FlexGrid.SelectedItemChanged += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("SelectedItemChanged"); });
+            FlexGrid.RowEditEnded += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("RowEditEnded"); });
+            FlexGrid.CellEditEnded += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("CellEditEnded"); });
+
+            FlexGrid.KeyUp += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("KeyUp"); });
+            FlexGrid.TouchMove += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("TouchMove"); });
+            FlexGrid.PreviewTouchMove += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("PreviewTouchMove"); });
+            FlexGrid.TouchDown += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("TouchDown"); });
+            FlexGrid.PreviewTouchDown += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("PreviewTouchDown"); });
+            FlexGrid.Drop += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("Drop"); });
+            FlexGrid.PreviewDrop += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("PreviewDrop"); });
+            FlexGrid.DragLeave += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("DragLeave"); });
+            FlexGrid.PreviewDragLeave += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("PreviewDragLeave"); });
+            FlexGrid.DragOver += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("DragOver"); });
+            FlexGrid.PreviewDragOver += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("PreviewDragOver"); });
+            FlexGrid.DragEnter += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("DragEnter"); });
+            FlexGrid.PreviewDragEnter += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("PreviewDragEnter"); });
+            FlexGrid.GiveFeedback += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("GiveFeedback"); });
+            FlexGrid.PreviewGiveFeedback += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("PreviewGiveFeedback"); });
+            FlexGrid.QueryContinueDrag += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("QueryContinueDrag"); });
+            FlexGrid.PreviewQueryContinueDrag += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("PreviewQueryContinueDrag"); });
+            FlexGrid.TextInput += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("TextInput"); });
+            FlexGrid.PreviewTouchUp += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("PreviewTouchUp"); });
+            FlexGrid.TouchUp += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("TouchUp"); });
+            FlexGrid.LostTouchCapture += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("LostTouchCapture"); });
+            FlexGrid.PreviewTextInput += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("PreviewTextInput"); });
+            FlexGrid.ManipulationInertiaStarting += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("ManipulationInertiaStarting"); });
+            FlexGrid.ManipulationDelta += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("ManipulationDelta"); });
+            FlexGrid.ManipulationStarted += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("ManipulationStarted"); });
+            FlexGrid.ManipulationStarting += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("ManipulationStarting"); });
+            FlexGrid.FocusableChanged += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("FocusableChanged"); });
+            FlexGrid.IsHitTestVisibleChanged += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("IsHitTestVisibleChanged"); });
+            //FlexGrid.IsEnabledChanged += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("IsEnabledChanged"); });
+            FlexGrid.LostFocus += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("LostFocus"); });
+            FlexGrid.GotTouchCapture += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("GotTouchCapture"); });
+            FlexGrid.GotFocus += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("GotFocus"); });
+            FlexGrid.IsKeyboardFocusedChanged += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("IsKeyboardFocusedChanged"); });
+            FlexGrid.IsStylusCaptureWithinChanged += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("IsStylusCaptureWithinChanged"); });
+            FlexGrid.IsStylusDirectlyOverChanged += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("IsStylusDirectlyOverChanged"); });
+            //FlexGrid.IsMouseCaptureWithinChanged += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("IsMouseCaptureWithinChanged"); });
+            //FlexGrid.IsMouseCapturedChanged += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("IsMouseCapturedChanged"); });
+            FlexGrid.IsKeyboardFocusWithinChanged += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("IsKeyboardFocusWithinChanged"); });
+            //FlexGrid.IsMouseDirectlyOverChanged += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("IsMouseDirectlyOverChanged"); });
+            FlexGrid.TouchLeave += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("TouchLeave"); });
+            FlexGrid.TouchEnter += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("TouchEnter"); });
+            FlexGrid.LostKeyboardFocus += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("LostKeyboardFocus"); });
+            FlexGrid.PreviewLostKeyboardFocus += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("PreviewLostKeyboardFocus"); });
+            FlexGrid.GotKeyboardFocus += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("GotKeyboardFocus"); });
+            FlexGrid.PreviewStylusMove += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("PreviewStylusMove"); });
+            FlexGrid.StylusMove += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("StylusMove"); });
+            FlexGrid.PreviewStylusInAirMove += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("PreviewStylusInAirMove"); });
+            FlexGrid.StylusInAirMove += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("StylusInAirMove"); });
+            FlexGrid.StylusEnter += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("StylusEnter"); });
+            FlexGrid.StylusLeave += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("StylusLeave"); });
+            FlexGrid.PreviewStylusInRange += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("PreviewStylusInRange"); });
+            FlexGrid.StylusInRange += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("StylusInRange"); });
+            FlexGrid.PreviewStylusOutOfRange += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("PreviewStylusOutOfRange"); });
+            FlexGrid.StylusOutOfRange += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("StylusOutOfRange"); });
+            FlexGrid.PreviewStylusSystemGesture += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("PreviewStylusSystemGesture"); });
+            FlexGrid.StylusSystemGesture += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("StylusSystemGesture"); });
+            FlexGrid.GotStylusCapture += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("GotStylusCapture"); });
+            FlexGrid.LostStylusCapture += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("LostStylusCapture"); });
+            FlexGrid.StylusButtonDown += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("StylusButtonDown"); });
+            FlexGrid.StylusButtonUp += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("StylusButtonUp"); });
+            FlexGrid.PreviewStylusButtonDown += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("PreviewStylusButtonDown"); });
+            FlexGrid.PreviewStylusButtonUp += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("PreviewStylusButtonUp"); });
+            FlexGrid.PreviewKeyDown += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("PreviewKeyDown"); });
+            FlexGrid.KeyDown += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("KeyDown"); });
+            FlexGrid.PreviewKeyUp += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("PreviewKeyUp"); });
+            FlexGrid.StylusUp += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("StylusUp"); });
+            FlexGrid.PreviewGotKeyboardFocus += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("PreviewGotKeyboardFocus"); });
+            FlexGrid.PreviewStylusUp += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("PreviewStylusUp"); });
+            FlexGrid.PreviewStylusDown += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("PreviewStylusDown"); });
+            //FlexGrid.PreviewMouseDown += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("PreviewMouseDown"); });
+            //FlexGrid.MouseDown += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("MouseDown"); });
+            //FlexGrid.PreviewMouseUp += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("PreviewMouseUp"); });
+            //FlexGrid.MouseUp += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("MouseUp"); });
+            //FlexGrid.PreviewMouseLeftButtonDown += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("PreviewMouseLeftButtonDown"); });
+            //FlexGrid.MouseLeftButtonDown += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("MouseLeftButtonDown"); });
+            //FlexGrid.PreviewMouseLeftButtonUp += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("PreviewMouseLeftButtonUp"); });
+            //FlexGrid.MouseLeftButtonUp += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("MouseLeftButtonUp"); });
+            //FlexGrid.PreviewMouseMove += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("PreviewMouseMove"); });
+            //FlexGrid.QueryCursor += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("QueryCursor"); });
+            FlexGrid.StylusDown += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("StylusDown"); });
+            FlexGrid.IsStylusCapturedChanged += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("IsStylusCapturedChanged"); });
+            FlexGrid.ManipulationCompleted += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("ManipulationCompleted"); });
+            FlexGrid.ManipulationBoundaryFeedback += ((obj, ev) => { LogOnDesktop.WriteLogToDesktopLogFile("ManipulationBoundaryFeedback"); });
+        }
+```
+
+``` log
+11:13:07.514  ItemsSourceChanging
+11:13:07.519  LoadingRows
+11:13:07.522  SelectionChanging
+11:13:07.525  SelectedItemChanged
+11:13:07.588  PrepareCellForEdit
+11:13:07.609  SelectionChanged
+11:13:07.612  LoadedRows
+11:13:07.639  SelectedItemChanged
+11:13:07.641  CellEditEnding
+11:13:07.644  CellEditEnded
+11:13:07.648  SelectionChanging
+11:13:07.718  SelectionChanged
+11:13:07.722  SelectedItemChanged
+11:13:07.725  RowEditEnding
+11:13:07.728  RowEditEnded
+11:13:07.746  SelectionChanging
+11:13:07.819  PrepareCellForEdit
+11:13:07.831  SelectionChanged
+11:13:07.834  ItemsSourceChanged
+11:13:08.116  PreviewGotKeyboardFocus
+11:13:08.120  IsKeyboardFocusWithinChanged
+11:13:08.123  IsKeyboardFocusedChanged
+11:13:08.127  GotFocus
+11:13:08.130  GotKeyboardFocus
+11:13:15.680  CellEditEnding
+11:13:15.684  CellEditEnded
+11:13:15.693  RowEditEnding
+11:13:15.696  RowEditEnded
+11:13:15.701  SelectionChanging
+11:13:15.704  SelectedItemChanged
+11:13:15.724  PrepareCellForEdit
+11:13:15.732  PreviewLostKeyboardFocus
+11:13:15.735  PreviewGotKeyboardFocus
+11:13:15.738  IsKeyboardFocusedChanged
+11:13:15.742  LostKeyboardFocus
+11:13:15.744  LostFocus
+11:13:15.747  PreviewLostKeyboardFocus
+11:13:15.750  PreviewGotKeyboardFocus
+11:13:15.755  GotFocus
+11:13:15.759  GotKeyboardFocus
+11:13:15.763  SelectionChanged
+11:13:15.765  SelectionChanging
+11:13:15.770  PreviewLostKeyboardFocus
+11:13:15.772  PreviewGotKeyboardFocus
+11:13:15.776  LostKeyboardFocus
+11:13:15.778  LostFocus
+11:13:15.782  PreviewLostKeyboardFocus
+11:13:15.784  PreviewGotKeyboardFocus
+11:13:15.787  GotFocus
+11:13:15.791  GotKeyboardFocus
+11:13:15.794  PreviewLostKeyboardFocus
+11:13:15.797  PreviewGotKeyboardFocus
+11:13:15.800  LostKeyboardFocus
+11:13:15.803  LostFocus
+11:13:15.806  PreviewLostKeyboardFocus
+11:13:15.809  PreviewGotKeyboardFocus
+11:13:15.812  GotFocus
+11:13:15.815  GotKeyboardFocus
+11:13:15.822  CellEditEnding
+11:13:15.825  CellEditEnded
+11:13:15.837  PrepareCellForEdit
+11:13:15.848  PreviewLostKeyboardFocus
+11:13:15.851  PreviewGotKeyboardFocus
+11:13:15.854  LostKeyboardFocus
+11:13:15.857  LostFocus
+11:13:15.859  PreviewLostKeyboardFocus
+11:13:15.862  PreviewGotKeyboardFocus
+11:13:15.865  GotFocus
+11:13:15.869  GotKeyboardFocus
+11:13:15.872  Click
+11:13:15.876  PreviewLostKeyboardFocus
+11:13:15.879  PreviewGotKeyboardFocus
+11:13:15.882  IsKeyboardFocusedChanged
+11:13:15.889  LostKeyboardFocus
+11:13:15.892  LostFocus
+11:13:15.895  GotFocus
+11:13:15.898  GotKeyboardFocus
+11:13:15.902  PreviewLostKeyboardFocus
+11:13:15.905  PreviewGotKeyboardFocus
+11:13:15.908  IsKeyboardFocusedChanged
+11:13:15.911  LostKeyboardFocus
+11:13:15.914  LostFocus
+11:13:15.916  PreviewLostKeyboardFocus
+11:13:15.919  PreviewGotKeyboardFocus
+11:13:15.924  GotFocus
+11:13:15.928  GotKeyboardFocus
+11:13:15.931  PreviewLostKeyboardFocus
+11:13:15.934  PreviewGotKeyboardFocus
+11:13:15.937  LostKeyboardFocus
+11:13:15.940  LostFocus
+11:13:15.943  PreviewLostKeyboardFocus
+11:13:15.945  PreviewGotKeyboardFocus
+11:13:15.948  GotFocus
+11:13:15.952  GotKeyboardFocus
+11:13:18.236  CellEditEnding
+11:13:18.240  CellEditEnded
+11:13:18.249  RowEditEnding
+11:13:18.253  RowEditEnded
+11:13:18.258  LostFocus
+11:13:18.272  IsKeyboardFocusWithinChanged
+```
