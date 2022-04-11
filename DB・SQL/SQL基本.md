@@ -24,6 +24,15 @@ WHERE WindowName = 'RN3.Wpf.Front.CheckOut.Views.CheckOutWindow'
 AND TemplateName = 'RN3.Wpf.Front.CheckOut.SettlementH.rdlx'
 ```
 
+疑問
+列名を書くタイプのINSERT文で別名を定義して
+`INSERT INTO テーブル名 ([列1],[列2]) VALUES ( ‘値1′ AS [列2] ,‘値2’ AS [列1])`
+ってやった場合どうなる？
+
+・SELECTを用いたタイプで別名を定義した場合も同義。
+・値を設定するタイプは設定した列の数があっていればおｋ？
+・定義していない列はデフォルト値が入る？
+
 ---
 
 ## UPDATE
@@ -142,7 +151,7 @@ WHERE User.UserId = 1
 
 ---
 
-## union について
+## UNOIN
 
 ``` SQL
 SELECT 1 AS NUM
@@ -150,29 +159,30 @@ UNION
 SELECT 2 AS NUM;
 ```
 
-union系は出力テーブルの構造が同じでないといけない。  
-union は重複チェックする。  
-union all は重複チェックしない。  
+[union]は出力テーブルの構造が同じでないといけない。  
+
+[union]は重複チェックする。  
+[union all]は重複チェックしない。  
+
 なので、速度的にはunion all のほうが早い。  
 
 ---
 
-## LIKE句
+## COUNT
 
-基本情報技術者過去問題 平成31年春期 午後問3より。  
+<https://medium-company.com/sql-count/#:~:text=COUNT%E9%96%A2%E6%95%B0%E3%81%AE%E5%BC%95%E6%95%B0%E3%81%AB%E5%88%97%E5%90%8D%E3%82%92%E6%8C%87%E5%AE%9A%E3%81%99%E3%82%8B,%E3%81%99%E3%82%8B%E3%81%93%E3%81%A8%E3%81%8C%E3%81%A7%E3%81%8D%E3%81%BE%E3%81%99%E3%80%82&text=%E3%80%8CID%3D%221005%22%E3%80%8D,%E7%B5%90%E6%9E%9C%E3%81%8C%E5%8F%96%E5%BE%97%E3%81%A7%E3%81%8D%E3%81%BE%E3%81%99%E3%80%82>
 
-LIKE句は、指定したパターンと文字列比較を行うための演算子で、次の特殊記号を用いて文字列のパターンを指定します。  
-・`_` … 任意の1文字  
-・`%` … 0文字以上の任意の文字列  
+### COUNT(*) : 件数を取得
 
-`_`が任意の1文字だとは知らなかった。  
-つまり、普段よく使っている`LIKE '%○○%'`は、どこでもいいから○○があるかどうかを調べているってわけか。  
+COUNT関数の引数に*(アスタリスク)を指定することで、レコード数を取得することができます。
 
-エ : `= '201%'`  
-を選択したけど、ワイルドカードを使用した文字列は、LIKE句と同時に使用しなければ効果を生じません。年度が"201%"の行は存在しませんので結果は0行になります。  
-との事。  
+### COUNT(列名）:NULLを除いた件数を取得
 
----
+COUNT関数の引数に列名を指定することで、指定した列がNULL以外のレコード数を取得することができます。
+
+### COUNT(DISTINCT 列名）: 重複を除いた件数を取得
+
+COUNT関数の引数にDISTINCT 列名を指定することで、重複を除いたレコード数を取得することができます。
 
 ## COUNT(*)の意味とNULLのCOUNT
 
@@ -192,6 +202,82 @@ COUNT(*)ではレコードの内容を取得するため、COUNT('X')やSUM(1)�
 
 なるほど。COUNTはNULLはカウントしないのね。  
 動作的にCOUNT(name)見たいにフィールド名を指定したほうが高速化できるっぽいけど、単純にレコード数を取得したいならCOUNT(*)でいいのか。  
+
+## COUNT(*)とCOUNT(カラム名)の違い
+
+基本情報27年春の問題にて遭遇。  
+なんだかんだわかってなかったのでまとめ。  
+
+[【SQL】COUNT(*)とCOUNT(カラム名)の違い](https://qiita.com/TomoProg/items/5ba5779b3015ac02f577)  
+すげードンピシャな記事があった。  
+正直会社では恥ずかしくて聞けない内容だな。  
+
+・COUNT(*)はNULL値かどうかに関係なく、取得された行の数を返す  
+・COUNT(カラム名)はNULL値でない値の行数を返す  
+
+``` txt
++----+--------+-------+
+| id | name   | price |
++----+--------+-------+
+|  1 | apple  |   100 |
+|  2 | banana |   120 |
+|  3 | grape  |   140 |
+|  4 | melon  |  NULL |
+|  5 | kiwi   |   120 |
++----+--------+-------+
+```
+
+select count(*) from shohin; → 5  
+select count(price) from shohin; → 4  
+
+## COUNT句内でDISTINCTを使う
+
+これも基本情報27年春の問題にて遭遇。  
+
+[SQL | COUNT(DISTINCT column_name) は「同じ値の種類数」をカウントする](https://qiita.com/YumaInaura/items/1a1123ed4f33d30d9548)  
+初歩だって。トホホ・・・。  
+[COUNT句内でDISTINCTを使う／重複を排除したカウント](https://nyoe3.hatenadiary.org/entry/20100313/1268468670)  
+
+つまり、重複行を除いたカウントをしたい場合に有効な構文というわけだ。  
+そうなると次はDISTINCTとはどこまで含めることができるのか気になってきたぞ。  
+
+``` txt
++-------+--------+-------+
+| name  | sex    | score |
++-------+--------+-------+
+| Alice | female |    60 |
+| Bob   | male   |    70 |
+| Carol | female |    70 |
+| David | male   |    80 |
+| Eric  | male   |    80 |
++-------+--------+-------+
+```
+
+sex には male / famale の二種類がある。  
+SELECT COUNT(DISTINCT(sex)) AS sex_kind FROM scores; → 2  
+
+score には 60点 / 70点 / 80点の三種類がある。  
+SELECT COUNT(DISTINCT(score)) AS score_kind FROM scores; → 3  
+
+こんな感じでも書ける  
+SELECT COUNT(*),COUNT(DISTINCT(sex)) AS sex_kind FROM scores; → 5,2  
+
+---
+
+## LIKE句
+
+基本情報技術者過去問題 平成31年春期 午後問3より。  
+
+LIKE句は、指定したパターンと文字列比較を行うための演算子で、次の特殊記号を用いて文字列のパターンを指定します。  
+・`_` … 任意の1文字  
+・`%` … 0文字以上の任意の文字列  
+
+`_`が任意の1文字だとは知らなかった。  
+つまり、普段よく使っている`LIKE '%○○%'`は、どこでもいいから○○があるかどうかを調べているってわけか。  
+
+エ : `= '201%'`  
+を選択したけど、ワイルドカードを使用した文字列は、LIKE句と同時に使用しなければ効果を生じません。年度が"201%"の行は存在しませんので結果は0行になります。  
+との事。  
 
 ---
 
@@ -292,69 +378,6 @@ WHERE depts.dept_id = employees.dept_id;
 
 ---
 
-## COUNT(*)とCOUNT(カラム名)の違い
-
-基本情報27年春の問題にて遭遇。  
-なんだかんだわかってなかったのでまとめ。  
-
-[【SQL】COUNT(*)とCOUNT(カラム名)の違い](https://qiita.com/TomoProg/items/5ba5779b3015ac02f577)  
-すげードンピシャな記事があった。  
-正直会社では恥ずかしくて聞けない内容だな。  
-
-・COUNT(*)はNULL値かどうかに関係なく、取得された行の数を返す  
-・COUNT(カラム名)はNULL値でない値の行数を返す  
-
-``` txt
-+----+--------+-------+
-| id | name   | price |
-+----+--------+-------+
-|  1 | apple  |   100 |
-|  2 | banana |   120 |
-|  3 | grape  |   140 |
-|  4 | melon  |  NULL |
-|  5 | kiwi   |   120 |
-+----+--------+-------+
-```
-
-select count(*) from shohin; → 5  
-select count(price) from shohin; → 4  
-
----
-
-## COUNT句内でDISTINCTを使う
-
-これも基本情報27年春の問題にて遭遇。  
-
-[SQL | COUNT(DISTINCT column_name) は「同じ値の種類数」をカウントする](https://qiita.com/YumaInaura/items/1a1123ed4f33d30d9548)  
-初歩だって。トホホ・・・。  
-[COUNT句内でDISTINCTを使う／重複を排除したカウント](https://nyoe3.hatenadiary.org/entry/20100313/1268468670)  
-
-つまり、重複行を除いたカウントをしたい場合に有効な構文というわけだ。  
-そうなると次はDISTINCTとはどこまで含めることができるのか気になってきたぞ。  
-
-``` txt
-+-------+--------+-------+
-| name  | sex    | score |
-+-------+--------+-------+
-| Alice | female |    60 |
-| Bob   | male   |    70 |
-| Carol | female |    70 |
-| David | male   |    80 |
-| Eric  | male   |    80 |
-+-------+--------+-------+
-```
-
-sex には male / famale の二種類がある。  
-SELECT COUNT(DISTINCT(sex)) AS sex_kind FROM scores; → 2  
-
-score には 60点 / 70点 / 80点の三種類がある。  
-SELECT COUNT(DISTINCT(score)) AS score_kind FROM scores; → 3  
-
-こんな感じでも書ける  
-SELECT COUNT(*),COUNT(DISTINCT(sex)) AS sex_kind FROM scores; → 5,2  
-
----
-
 ## NULLのLIKE検索
 
 LIKE検索には引っかからない。  
@@ -372,6 +395,10 @@ Oracleは最大値扱いだが、SQLServerは最小値扱い見たい。
 (NULL AS CHAR)→NULLのまま
 NULL -1 = NULL
 
+## NULLのSUM
+
+SUMはNULLが1件でも含まれると結果がNULLになる。
+
 ---
 
 ## insert intoのinto句のありなしの違い
@@ -379,3 +406,11 @@ NULL -1 = NULL
 [insert intoのinto句のありなしって違いは何ですか？](https://detail.chiebukuro.yahoo.co.jp/qa/question_detail/q1049319100)  
 >MySQL、SQL Server、ACCESS では、 into は省略可能です。  
 Oracle では、省略不可です。  
+
+---
+
+## 後でまとめる
+
+DISTINCTとワイルドカード `*` を併用したら.NETFrameworkでは実行速度が遅くなるらしい
+
+[NULLを排除した設計①](http://onefact.jp/wp/2014/08/26/null%E3%82%92%E6%8E%92%E9%99%A4%E3%81%97%E3%81%9F%E8%A8%AD%E8%A8%88/)  
