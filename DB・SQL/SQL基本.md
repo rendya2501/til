@@ -6,14 +6,16 @@
 
 ``` sql
 -- ●INSERT文 (列名を書かない)  
-INSERT INTO テーブル名 VALUES ( ‘値1′ [ , ‘値2’ ]・・・);
+INSERT INTO テーブル名 VALUES ( '値1' [ , '値2' ]・・・);
 
 -- ●INSERT文 (列名を書く)
-INSERT INTO テーブル名 ( テーブルの列名1 [ , テーブルの列名2 ]・・・) VALUES ( ‘値1′ [ , ‘値2’ ]・・・);
+INSERT INTO テーブル名 ( テーブルの列名1 [ , テーブルの列名2 ]・・・) VALUES ( '値1' [ , '値2' ]・・・);
 
--- ●INSERT文 (select文の結果をinsertする)
+-- ●INSERT文 (selectの結果をinsertする)
 INSERT INTO テーブル名 SELECT 項目名 FROM テーブル名
-INSERT INTO syain1 ( id, name ) SELECT id, name FROM syain2
+
+-- ●INSERT文 (selectの結果+列名の指定)
+INSERT INTO テーブル名 ( [テーブルの列名1], [テーブルの列名2]... ) SELECT [項目名1],[項目名2]... FROM 別テーブル名
 
 -- SELECTした結果をINSERTできたよなぁーと思ってやったら一発で行けたので備忘録として載せておく。
 INSERT INTO Round3SysC3.dbo.TSm_ReportFileSetting
@@ -25,13 +27,47 @@ AND TemplateName = 'RN3.Wpf.Front.CheckOut.SettlementH.rdlx'
 ```
 
 疑問
-列名を書くタイプのINSERT文で別名を定義して
-`INSERT INTO テーブル名 ([列1],[列2]) VALUES ( ‘値1′ AS [列2] ,‘値2’ AS [列1])`
-ってやった場合どうなる？
 
-・SELECTを用いたタイプで別名を定義した場合も同義。
-・値を設定するタイプは設定した列の数があっていればおｋ？
-・定義していない列はデフォルト値が入る？
+### 列名を書くタイプのINSERT文で別名を定義して
+
+`INSERT INTO テーブル名 ([列1],[列2]) VALUES ('値1' AS [列2],‘値2’ AS [列1])`
+ってやった場合どうなる？  
+→そもそも構文エラーになる。
+
+`INSERT INTO TMa_Route2 (OfficeCD,RouteCD) VALUES ('ALP' AS [AAA],100 AS [BBB])`
+→
+`メッセージ 156、レベル 15、状態 1、行 5 キーワード 'AS' 付近に不適切な構文があります。`
+
+### 列名を書くタイプのINSERTは列の数が一致しないとエラーになる
+
+`INSERT INTO TMa_Route2 VALUES ('ALP',102)`
+→
+`メッセージ 213、レベル 16、状態 1、行 5 列名または指定された値の数がテーブルの定義と一致しません。`
+
+### SELECTを用いたタイプで別名を定義した場合も同義
+
+→こっちは行ける。でもって別名関係なく、順番通りに入る。  
+
+・定義していない列はデフォルト値が入る？  
+→そう  
+
+`INSERT INTO TMa_Route2 (OfficeCD,RouteCD) SELECT 'ALP' AS [AAA],100 AS [BBB]`
+→
+
+``` txt
+OfficeCD    RouteCD    RouteName    RouteShortName    ClsCD    Color    BackgroundColor    Sort    ValidFlag    SearchKey    InsertDateTime    InsertStaffCD    InsertStaffName    InsertProgram    InsertTerminal    UpdateDateTime    UpdateStaffCD    UpdateStaffName    UpdateProgram    UpdateTerminal
+ALP    100    NULL    NULL    NULL    NULL    NULL    NULL    NULL    NULL    NULL    NULL    NULL    NULL    NULL    NULL    NULL    NULL    NULL    NULL
+```
+
+### 値を設定するタイプは設定した列の数があっていればおｋ?
+
+→そうみたい。
+
+`INSERT INTO TMa_Route2 (OfficeCD,RouteCD) VALUES ('ALP',100,22)`  
+→
+
+`メッセージ 110、レベル 15、状態 1、行 5`  
+`VALUES 句で指定された値よりも INSERT ステートメントの列数が少なすぎます。VALUES 句の値の数は、INSERT ステートメントで指定される列数と一致させてください。`  
 
 ---
 
@@ -187,10 +223,9 @@ COUNT関数の引数にDISTINCT 列名を指定することで、重複を除い
 ## COUNT(*)の意味とNULLのCOUNT
 
 [COUNT(*)　が何を意味しているのかわからない](https://ja.stackoverflow.com/questions/42915/count-%E3%81%8C%E4%BD%95%E3%82%92%E6%84%8F%E5%91%B3%E3%81%97%E3%81%A6%E3%81%84%E3%82%8B%E3%81%AE%E3%81%8B%E3%82%8F%E3%81%8B%E3%82%89%E3%81%AA%E3%81%84)  
-→  
+→そもそも構文エラーになる。  
 **COUNT(*)は行数を数えてくれる**  
 COUNT()は、行数を数えて出力する集計関数です。→平成27年秋期 午後問3の解説より  
-
 ``` txt
 OracleではCOUNT(*)とCOUNT(age)の結果は異なります。
 ageにnullが入っているとCOUNT(age)では件数にカウントされません。
@@ -227,10 +262,9 @@ COUNT(*)ではレコードの内容を取得するため、COUNT('X')やSUM(1)�
 +----+--------+-------+
 ```
 
-select count(*) from shohin; → 5  
-select count(price) from shohin; → 4  
+select count(*) from shohin; →そもそも構文エラーになる。 5  
+select count(price) from shohin; →そもそも構文エラーになる。 4  
 
-## COUNT句内でDISTINCTを使う
 
 これも基本情報27年春の問題にて遭遇。  
 
@@ -254,16 +288,15 @@ select count(price) from shohin; → 4
 ```
 
 sex には male / famale の二種類がある。  
-SELECT COUNT(DISTINCT(sex)) AS sex_kind FROM scores; → 2  
+SELECT COUNT(DISTINCT(sex)) AS sex_kind FROM scores; →そもそも構文エラーになる。 2  
 
 score には 60点 / 70点 / 80点の三種類がある。  
-SELECT COUNT(DISTINCT(score)) AS score_kind FROM scores; → 3  
+る。 3  
 
 こんな感じでも書ける  
-SELECT COUNT(*),COUNT(DISTINCT(sex)) AS sex_kind FROM scores; → 5,2  
+なる。 5,2  
 
 ---
-
 ## LIKE句
 
 基本情報技術者過去問題 平成31年春期 午後問3より。  
