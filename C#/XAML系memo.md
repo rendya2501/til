@@ -1689,3 +1689,246 @@ StaticResourceを使いたかったらApp.xamlの`<Application.Resources>`要素
         public int Age { get; }
     }
 ```
+
+---
+
+## タブコントロールのタブを幅いっぱいにする修正
+
+元々ビヘイビアでやっていたところをスタイルから修正することにした。  
+添付プロパティや添付プロパティを含めたDataTriggerの分岐のやり方とか色々発見があったのでまとめる。  
+
+### 最終的な作品
+
+``` XML
+    <ControlTemplate TargetType="{x:Type TabControl}">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition x:Name="ColumnDefinition0" />
+                <ColumnDefinition x:Name="ColumnDefinition1" Width="0" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition x:Name="RowDefinition0" Height="Auto" />
+                <RowDefinition x:Name="RowDefinition1" Height="*" />
+            </Grid.RowDefinitions>
+            <Grid
+                x:Name="HeaderPanelGrid"
+                Grid.Row="0"
+                Grid.Column="0"
+                Panel.ZIndex="1">
+                <mah:Underline
+                    x:Name="Underline"
+                    Background="{DynamicResource MahApps.Brushes.WindowTitle}"
+                    BorderBrush="{TemplateBinding mah:TabControlHelper.UnderlineBrush}"
+                    LineThickness="{TemplateBinding BorderThickness}"
+                    Placement="Bottom"
+                    SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                    Visibility="Collapsed" />
+                <!-- 今回実装したところ -->
+                <UniformGrid
+                    x:Name="HeaderPanel"
+                    Columns="{TemplateBinding helper:TabControlHelper.Colums}"
+                    IsItemsHost="true"
+                    KeyboardNavigation.TabIndex="1"
+                    Rows="{TemplateBinding helper:TabControlHelper.Rows}" />
+            </Grid>
+        </Grid>
+    </ControlTemplate>
+```
+
+``` C#
+using System.Windows;
+
+namespace RN3.Wpf.Common.Control.Helper
+{
+    /// <summary>
+    /// タブコントロールヘルパー
+    /// </summary>
+    public class TabControlHelper
+    {
+        #region ColumsProperty
+        /// <summary>
+        /// Columsプロパティ
+        /// </summary>
+        public static readonly DependencyProperty ColumsProperty =
+            DependencyProperty.RegisterAttached(
+                "Colums",
+                typeof(int),
+                typeof(TabControlHelper),
+                new FrameworkPropertyMetadata()
+            );
+        /// <summary>
+        /// Columsを取得します。
+        /// </summary>
+        /// <param name="dp"></param>
+        /// <returns></returns>
+        public static int GetColums(DependencyObject dp)
+        {
+            return (int)dp.GetValue(ColumsProperty);
+        }
+        /// <summary>
+        /// Columsを設定します。
+        /// </summary>
+        /// <param name="dp"></param>
+        /// <param name="value"></param>
+        public static void SetColums(DependencyObject dp, int value)
+        {
+            dp.SetValue(ColumsProperty, value);
+        }
+        #endregion
+
+        #region RowsProperty
+        /// <summary>
+        /// Rowsプロパティ
+        /// </summary>
+        public static readonly DependencyProperty RowsProperty =
+            DependencyProperty.RegisterAttached(
+                "Rows",
+                typeof(int),
+                typeof(TabControlHelper),
+                new FrameworkPropertyMetadata(1)
+            );
+        /// <summary>
+        /// Rowsを取得します。
+        /// </summary>
+        /// <param name="dp"></param>
+        /// <returns></returns>
+        public static int GetRows(DependencyObject dp)
+        {
+            return (int)dp.GetValue(RowsProperty);
+        }
+        /// <summary>
+        /// Rowsを設定します。
+        /// </summary>
+        /// <param name="dp"></param>
+        /// <param name="value"></param>
+        public static void SetRows(DependencyObject dp, int value)
+        {
+            dp.SetValue(RowsProperty, value);
+        }
+        #endregion
+    }
+}
+```
+
+``` XML
+    <TabControl
+        x:Name="FeeTabControl"
+        Width="970"
+        Height="320"
+        behavior:MoveFocusBehavior.IsSkip="All"
+        ItemsSource="{Binding SeasonList, Mode=OneWay}"
+        SelectedItem="{Binding SeasonSelectedItem, Mode=TwoWay}">
+        <!-- 添付プロパティの設定 -->
+        <!-- 行が0なら1にするTrigger。ここでもあれこれあった。できれば直接添付プロパティを参照したかったけどそうしたらStackOverFlowしやがった。 -->
+        <TabControl.Style>
+            <Style BasedOn="{StaticResource {x:Type TabControl}}" TargetType="{x:Type TabControl}">
+                <Setter Property="helper:TabControlHelper.Rows" Value="{Binding Path=Items.Count, RelativeSource={RelativeSource Self}, Converter={StaticResource DivideConverter}, ConverterParameter=4}" />
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding Path=Items.Count, RelativeSource={RelativeSource Self}, Converter={StaticResource DivideConverter}, ConverterParameter=4}" Value="0">
+                        <Setter Property="helper:TabControlHelper.Rows" Value="1" />
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+        </TabControl.Style>
+        <TabControl.ItemTemplate>
+            <DataTemplate>
+                <TextBlock Text="{Binding SeasonName}" />
+            </DataTemplate>
+        </TabControl.ItemTemplate>
+        <TabControl.ContentTemplate>
+            <DataTemplate>
+            </DataTemplate>
+        </TabControl.ContentTemplate>
+    </TabControl>
+```
+
+### ボツ作品
+
+総数を列の数で割って行を求めようとした。  
+ほぼできたし動くのも確認できたけど、現存するConverterだけでは無理そうだったのと、そもそも2行にするプログラムは料金台帳しかないから、View及びViewModel側から値を設定できたほうが楽でいいんじゃないかと気が付いてやめた。  
+まぁ、色々やりながら検証できたのでこれはこれでよかったけど。  
+
+``` XML
+<Grid
+    x:Name="HeaderPanelGrid"
+    Grid.Row="0"
+    Grid.Column="0"
+    Panel.ZIndex="1">
+    <mah:Underline
+        x:Name="Underline"
+        Background="{DynamicResource MahApps.Brushes.WindowTitle}"
+        BorderBrush="{TemplateBinding mah:TabControlHelper.UnderlineBrush}"
+        LineThickness="{TemplateBinding BorderThickness}"
+        Placement="Bottom"
+        SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+        Visibility="Collapsed" />
+    <!--<TabPanel
+        x:Name="HeaderPanel"
+        IsItemsHost="true"
+        KeyboardNavigation.TabIndex="1" />-->
+    <UniformGrid
+        x:Name="HeaderPanel"
+        Columns="{TemplateBinding helper:TabControlHelper.Colums}"
+        IsItemsHost="true"
+        KeyboardNavigation.TabIndex="1">
+        <UniformGrid.Style>
+            <Style TargetType="{x:Type UniformGrid}">
+                <Setter Property="Rows" Value="1" />
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding Path=Columns, RelativeSource={RelativeSource Self}, Converter={StaticResource NegativeToBoolConverter}}">
+                        <Setter Property="Rows">
+                            <Setter.Value>
+                                <MultiBinding Converter="{StaticResource DivideMultiConverter}" ConverterParameter="{x:Type sys:Int32}">
+                                    <MultiBinding.Bindings>
+                                        <Binding Path="Items.Count" RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type TabControl}}" />
+                                        <Binding Path="Columns" RelativeSource="{RelativeSource Self}" />
+                                    </MultiBinding.Bindings>
+                                </MultiBinding>
+                            </Setter.Value>
+                        </Setter>
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+        </UniformGrid.Style>
+        <!--<UniformGrid.Rows>
+            <MultiBinding Converter="{StaticResource DivideMultiConverter}" ConverterParameter="{x:Type sys:Int32}">
+                <MultiBinding.Bindings>
+                    <Binding Path="Items.Count" RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type TabControl}}" />
+                    <Binding Path="Columns" RelativeSource="{RelativeSource Self}" />
+                </MultiBinding.Bindings>
+            </MultiBinding>
+        </UniformGrid.Rows>-->
+    </UniformGrid>
+</Grid>
+```
+
+---
+
+## 添付プロパティをBindingのPathに指定する場合はカッコを付ける
+
+[添付プロパティをBindingのPathに指定する場合はカッコを付ける](https://qiita.com/flasksrw/items/7212453de6e7d8f221a1)
+
+BindingのPathに添付プロパティを指定する場合、カッコをつけないと「BindingExpression path error」になる。
+
+``` XML
+<Window x:Class="Sample.MainView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:Sample"
+    Title="MainView" Height="300" Width="300">
+    <Grid>
+        <TextBox>
+            <TextBox.Style>
+                <Style TargerType="TextBox">
+                    <Style.Triggers>
+                        <!--Pathにカッコを付ける-->
+                        <DataTrigger Binding="{Binding Path=(local:AttachedXXX.XXX), RelativeSource={RelativeSource Self}}" Value="True">
+                            <Setter Property="Background" Value="Blue"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBox.Style>
+        </TextBox>
+    </Grid>
+</Window>
+```
