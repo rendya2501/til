@@ -1150,3 +1150,62 @@ SET
 WHERE
     [TB_会員].顧客CD = REPLACE([RN3_Cus].[CustomerCD],'BRK','')
 ```
+
+---
+
+## 検索条件にマッチするデータが存在しない場合にデフォルト値を返す
+
+レコードが存在したらそのままINSERTして、レコードがなければデフォルト値をINSERTしたい。  
+
+言葉にすると単純なのだが、30分くらい調べたのでまとめる。  
+調べても全然スマートなのが出てこなかった。  
+
+結果としてCOALESCEで実現できた。  
+その前段としてCASE WHEN使って実現しようとしたが、なんと駄目だったのでそれもまとめる。  
+
+てか、COALESCEってNULLの場合の置き換えだと思っていたが、レコードがなくても動いてくれるのか。  
+2,3調べてみたけど、どこにも0件の場合についての記事が見つからない。  
+確実に言えるのはNULLを指定した値に置き換えるというものだけだ。  
+
+sql 条件によってselectを変える
+SQL 0件の場合
+COALESCE　レコードなし
+[検索条件にマッチするデータが存在しない場合にデフォルト値を返す](https://sebenkyo.com/2020/04/14/post-774/)
+[NULLと戯れる: 集約関数とNULL](https://qiita.com/SVC34/items/dc1bc52c2d7b44a65459)
+[レコードがない場合のselect結果](https://teratail.com/questions/57768)  
+
+``` sql : CASE WHEN案  
+-- 一見行けそうに見えるが、GROUP BYしないと駄目だった。
+
+SELECT CASE
+    -- レコードがあれば料金CDをそのままいれる。なければデフォルト値として9999をいれる。
+    WHEN COUNT(*) != 0
+    THEN 料金CD
+    ELSE 9999 
+END AS 料金CD
+FROM RoundDat_OCC.dbo.TM_料金 
+WHERE 資格区分CD = 9
+
+-- エラー
+-- 列 'RoundDat_OCC.dbo.TM_料金.料金CD' は選択リスト内では無効です。この列は集計関数または GROUP BY 句に含まれていません。
+```
+
+``` sql : COALESCE案
+-- レコードがなくても動いてくれたのは以外だった。
+-- 何はともあれ理想の動作を実現できた。
+
+SELECT COALESCE(
+    (SELECT FeeCD FROM TMa_Fee WHERE PrivilegeTypeCD = 9),
+    9999
+)
+```
+
+``` sql : COALESCE案2
+-- こっちのほうがいいのかも。
+-- MAXは0件ならNULLを返す。COALESCEは結果がNULLなら指定した値に置き換えるので本来の動作に準拠したものになる。
+
+SELECT COALESCE(
+    (SELECT MAX(FeeCD) FROM TMa_Fee WHERE PrivilegeTypeCD = 9),
+    9999
+)
+```
