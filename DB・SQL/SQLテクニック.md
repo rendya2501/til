@@ -1209,3 +1209,142 @@ SELECT COALESCE(
     9999
 )
 ```
+
+``` sql
+SELECT 
+    CASE WHEN EXISTS(SELECT 料金CD FROM RoundDat_OCC.dbo.TM_料金 WHERE 資格区分CD = 0)
+        THEN [A].料金CD
+        ELSE 9999
+    END
+
+
+    SELECT IIF(COUNT(*) != 0, 料金CD,9999)
+    FROM RoundDat_OCC.dbo.TM_料金 
+    WHERE 資格区分CD = 0
+
+
+
+    SELECT CASE 
+        WHEN (SELECT COUNT(*) FROM RoundDat_OCC.dbo.TM_料金) != 0 
+        THEN 料金CD
+        ELSE 9999 
+    END AS 料金CD
+    FROM RoundDat_OCC.dbo.TM_料金 
+    WHERE 資格区分CD = 0
+
+    
+    SELECT CASE 
+        WHEN COUNT(*) = 0
+        THEN 料金CD
+        ELSE 9999 
+    END AS 料金CD
+    FROM RoundDat_OCC.dbo.TM_料金 
+    WHERE 資格区分CD = 9
+
+
+SELECT
+    CASE WHEN COUNT(CASE WHEN 資格区分CD = 9 THEN 1 ELSE 0 END) = 0
+        THEN 料金CD
+        ELSE 9999
+    END    
+FROM RoundDat_OCC.dbo.TM_料金
+
+
+select COALESCE(
+    (SELECT 料金CD FROM RoundDat_OCC.dbo.TM_料金 WHERE  資格区分CD = 9),
+    9999
+)
+```
+
+---
+
+## aaa
+
+WHEREをどのタイミングで実行するかによって結果が変わってくるパターンに遭遇したのでメモっておく。  
+
+- 全部JoinしてからWHERE  
+- Joinする最中にWHERE  
+- WHEREしてJoinしたサブテーブル  
+
+``` sql
+--1 カード 166666.00
+--2 QR 0.00
+
+SELECT
+    [TMa_PaymentCls].[PaymentClsCD],
+    [TMa_PaymentCls].[PaymentClsName],
+    SUM(ISNULL([TCs_CardBalance].[TodayAccountsReceivable],0)) AS [Price]
+FROM
+    [TMa_PaymentCls]
+    LEFT OUTER JOIN [TMa_PaymentType] 
+    ON [TMa_PaymentCls].[OfficeCD] = [TMa_PaymentType].[OfficeCD]
+    AND [TMa_PaymentCls].[PaymentClsCD] = [TMa_PaymentType].[PaymentClsCD]
+    LEFT OUTER JOIN [TCs_CardBalance]
+    ON [TMa_PaymentType].[OfficeCD] = [TCs_CardBalance].[OfficeCD]
+    AND [TMa_PaymentType].[PaymentTypeCD] = [TCs_CardBalance].[PaymentTypeCD]
+    AND [TCs_CardBalance].[OfficeCD] = 'ESV'
+    AND [TCs_CardBalance].[BusinessDate] = '2022/04/02'
+GROUP BY
+    [TMa_PaymentCls].[PaymentClsCD],
+    [TMa_PaymentCls].[PaymentClsName]
+ORDER BY
+    [TMa_PaymentCls].[PaymentClsCD]
+```
+
+``` sql
+--1 カード 166666.00
+
+SELECT
+    [TMa_PaymentCls].[PaymentClsCD],
+    [TMa_PaymentCls].[PaymentClsName],
+    SUM(ISNULL([TCs_CardBalance].[TodayAccountsReceivable],0)) AS [Price]
+FROM
+    [TMa_PaymentCls]
+    LEFT OUTER JOIN [TMa_PaymentType] 
+    ON [TMa_PaymentCls].[OfficeCD] = [TMa_PaymentType].[OfficeCD]
+    AND [TMa_PaymentCls].[PaymentClsCD] = [TMa_PaymentType].[PaymentClsCD]
+    LEFT OUTER JOIN [TCs_CardBalance]
+    ON [TMa_PaymentType].[OfficeCD] = [TCs_CardBalance].[OfficeCD]
+    AND [TMa_PaymentType].[PaymentTypeCD] = [TCs_CardBalance].[PaymentTypeCD]
+WHERE 
+    [TCs_CardBalance].[OfficeCD] = 'ESV'
+    AND [TCs_CardBalance].[BusinessDate] = '2022/04/02'
+GROUP BY
+    [TMa_PaymentCls].[PaymentClsCD],
+    [TMa_PaymentCls].[PaymentClsName]
+ORDER BY
+    [TMa_PaymentCls].[PaymentClsCD]
+```
+
+``` sql
+--1 カード 166666.00
+--2 QR 0.00
+SELECT
+    [TMa_PaymentCls].[PaymentClsCD],
+    [TMa_PaymentCls].[PaymentClsName],
+    SUM(ISNULL([TodayAccountsReceivable],0)) AS [Price]
+FROM
+    [TMa_PaymentCls]
+    LEFT OUTER JOIN
+        (
+            SELECT
+                [TCs_CardBalance].[OfficeCD],
+                [TCs_CardBalance].[TodayAccountsReceivable],
+                [TMa_PaymentType].[PaymentClsCD]
+            FROM
+                [TCs_CardBalance]
+                LEFT JOIN [TMa_PaymentType]
+                ON  [TCs_CardBalance].[OfficeCD] = [TMa_PaymentType].[OfficeCD]
+                AND [TCs_CardBalance].[PaymentTypeCD] = [TMa_PaymentType].[PaymentTypeCD]
+            WHERE
+                [TCs_CardBalance].[OfficeCD] = 'ESV'
+                AND [TCs_CardBalance].[BusinessDate] = '2022/04/02'
+        ) AS [CardBalance]
+    ON  [TMa_PaymentCls].[OfficeCD] = [CardBalance].[OfficeCD]
+    AND [TMa_PaymentCls].[PaymentClsCD] = [CardBalance].[PaymentClsCD]
+GROUP BY
+    [TMa_PaymentCls].[PaymentClsCD],
+    [TMa_PaymentCls].[PaymentClsName]
+ORDER BY
+    [TMa_PaymentCls].[PaymentClsCD]
+```
