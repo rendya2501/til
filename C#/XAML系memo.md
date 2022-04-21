@@ -1541,37 +1541,47 @@ StaticResourceを使いたかったらApp.xamlの`<Application.Resources>`要素
 
 [WPF ItemsControlをDataGridみたいに使う](https://nomoredeathmarch.hatenablog.com/entry/2019/01/21/003825)  
 [[WPF] GridSplitter 画面を分割して境界線をドラッグしてリサイズする](https://note.dokeep.jp/post/wpf-gridsplitter/)  
+[世界で一番短いサンプルで覚えるMVVM入門](https://resanaplaza.com/%E4%B8%96%E7%95%8C%E3%81%A7%E4%B8%80%E7%95%AA%E7%9F%AD%E3%81%84%E3%82%B5%E3%83%B3%E3%83%97%E3%83%AB%E3%81%A7%E8%A6%9A%E3%81%88%E3%82%8Bmvvm%E5%85%A5%E9%96%80/)  
+
+このサンプルを作るだけでも結構な量の発見があった。  
+簡単な一覧だけならこのサンプルを適応するだけで色々解決するのではないかと思った。  
+最小のMVVMサンプルはかなりいいサンプルなので、これはこれで別にまとめる。  
+まだ全体として完成したわけではないし、まだ全然ItemsControlを理解できていないので、今後も習得していく。  
+
+チェックアウトで作ったやつと何か違うと思ったら、参考にしたサンプルはヘッダー部分はGridをそのまま使ってるのか。  
 
 ``` XML
-<Window
-    x:Class="BlankApp1.Views.MainWindow"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="clr-namespace:BlankApp1.ViewModels"
-    xmlns:prism="http://prismlibrary.com/"
-    Title="{Binding Title}"
-    Width="525"
-    Height="350"
-    prism:ViewModelLocator.AutoWireViewModel="True">
-    <!--<ContentControl prism:RegionManager.RegionName="ContentRegion" />-->
+<Window 略>
+    <!-- MVVMにおける最小のデータバインド -->
+    <Window.DataContext>
+        <local:MainWindowViewModel />
+    </Window.DataContext>
     <Grid Grid.IsSharedSizeScope="True">
         <Grid.Resources>
-            <!--  GridSplitter  -->
             <Style x:Key="HorizontalGridSplitter" TargetType="{x:Type GridSplitter}">
-                <Setter Property="Height" Value="5" />
+                <Setter Property="Height" Value="1" />
                 <Setter Property="HorizontalAlignment" Value="Stretch" />
+                <Setter Property="Background" Value="Red" />
+                <Setter Property="Padding" Value="0" />
+                <Setter Property="Margin" Value="0" />
             </Style>
             <Style x:Key="VerticalGridSplitter" TargetType="{x:Type GridSplitter}">
                 <Setter Property="HorizontalAlignment" Value="Stretch" />
                 <Setter Property="Width" Value="1" />
+                <Setter Property="Background" Value="Red" />
+                <Setter Property="Padding" Value="0" />
+                <Setter Property="Margin" Value="0" />
             </Style>
         </Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
+        <!--  ヘッダー部分  -->
         <Grid Grid.Row="0" Background="AliceBlue">
             <Grid.ColumnDefinitions>
+                <!--  列幅を自動的に調整する  -->
                 <ColumnDefinition Width="Auto" SharedSizeGroup="Seq" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" SharedSizeGroup="Name" />
@@ -1579,61 +1589,87 @@ StaticResourceを使いたかったらApp.xamlの`<Application.Resources>`要素
                 <ColumnDefinition Width="Auto" SharedSizeGroup="BirthDay" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" SharedSizeGroup="Age" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <TextBlock Grid.Column="0" Text="連番" />
+            <TextBlock
+                Grid.Column="0"
+                Margin="5,0,10,0"
+                HorizontalAlignment="Center"
+                Text="連番" />
             <GridSplitter Grid.Column="1" Style="{StaticResource VerticalGridSplitter}" />
             <TextBlock
                 Grid.Column="2"
-                Margin="10,0,0,0"
+                Margin="5,0,10,0"
+                HorizontalAlignment="Center"
                 Text="氏名" />
             <GridSplitter Grid.Column="3" Style="{StaticResource VerticalGridSplitter}" />
             <TextBlock
                 Grid.Column="4"
-                Margin="10,0,0,0"
+                Margin="5,0,10,0"
+                HorizontalAlignment="Center"
                 Text="生年月日" />
             <GridSplitter Grid.Column="5" Style="{StaticResource VerticalGridSplitter}" />
             <TextBlock
                 Grid.Column="6"
-                Margin="10,0,0,0"
+                Margin="5,0,10,0"
+                HorizontalAlignment="Center"
                 Text="年齢" />
+            <GridSplitter Grid.Column="7" Style="{StaticResource VerticalGridSplitter}" />
         </Grid>
+        <!--  ヘッダーとデータの間の線  -->
+        <GridSplitter Grid.Row="1" Style="{StaticResource HorizontalGridSplitter}" />
+        <!--  データ部分  -->
         <ItemsControl
-            Grid.Row="1"
+            Grid.Row="2"
             Focusable="False"
             ItemsSource="{Binding Persons}"
             ScrollViewer.CanContentScroll="True"
             ScrollViewer.HorizontalScrollBarVisibility="Auto"
+            ScrollViewer.IsDeferredScrollingEnabled="True"
             ScrollViewer.VerticalScrollBarVisibility="Auto"
             VirtualizingPanel.IsVirtualizing="True">
             <ItemsControl.Template>
                 <ControlTemplate TargetType="{x:Type ItemsControl}">
+                    <!--  スクロールバーを表示する  -->
                     <ScrollViewer Focusable="False">
+                        <!--  パネルを仮想化する  -->
                         <VirtualizingStackPanel IsItemsHost="True" />
                     </ScrollViewer>
                 </ControlTemplate>
             </ItemsControl.Template>
             <ItemsControl.ItemTemplate>
                 <DataTemplate DataType="{x:Type local:Person}">
-                    <Grid Background="AntiqueWhite" ShowGridLines="True">
+                    <Grid Background="AntiqueWhite">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" SharedSizeGroup="Seq" />
+                            <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" SharedSizeGroup="Name" />
+                            <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" SharedSizeGroup="BirthDay" />
+                            <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" SharedSizeGroup="Age" />
+                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="{Binding Seq}" />
                         <TextBlock
-                            Grid.Column="1"
-                            Margin="10,0,0,0"
-                            Text="{Binding Name}" />
+                            Grid.Column="0"
+                            Margin="5,0,10,0"
+                            Text="{Binding Seq}" />
+                        <GridSplitter Grid.Column="1" Style="{StaticResource VerticalGridSplitter}" />
                         <TextBlock
                             Grid.Column="2"
-                            Margin="10,0,0,0"
-                            Text="{Binding BirthDay}" />
+                            Margin="5,0,10,0"
+                            Text="{Binding Name}" />
+                        <GridSplitter Grid.Column="3" Style="{StaticResource VerticalGridSplitter}" />
                         <TextBlock
-                            Grid.Column="3"
-                            Margin="10,0,0,0"
+                            Grid.Column="4"
+                            Margin="5,0,10,0"
+                            Text="{Binding BirthDay}" />
+                        <GridSplitter Grid.Column="5" Style="{StaticResource VerticalGridSplitter}" />
+                        <TextBlock
+                            Grid.Column="6"
+                            Margin="5,0,10,0"
                             Text="{Binding Age}" />
+                        <GridSplitter Grid.Column="7" Style="{StaticResource VerticalGridSplitter}" />
                     </Grid>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
@@ -1643,39 +1679,23 @@ StaticResourceを使いたかったらApp.xamlの`<Application.Resources>`要素
 ```
 
 ``` C#
-
-        public MainWindowViewModel()
+    /// <summary>
+    /// Interaction logic for MainWindow.xaml
+    /// </summary>
+    public partial class MainWindow : Window
+    {
+        public MainWindow()
         {
-            Persons = new ReadOnlyObservableCollection<Person>(
-                new ObservableCollection<Person>
-                {
-                    new Person(1,"北野久子","1973/11/25",48),
-                    new Person(2,"松崎和馬","1993/11/15",28),
-                    new Person(3,"水谷義哉","1962/07/21",59),
-                    new Person(4,"長野佳奈","2001/03/13",21),
-                    new Person(5,"藤島凪",    "1974/04/18",47),
-                    new Person(6,"荻野亜実","1968/03/02",54),
-                    new Person(7,"岩本葵愛","1997/12/06",24),
-                    new Person(8,"小山田大貴","1991/10/10",30),
-                    new Person(9,"宮原美明","1977/10/26",44),
-                    new Person(10,"田端利之","1974/08/16",47),
-                    new Person(11,"大下靖",    "1968/09/14",53),
-                    new Person(12,"那須瑞紀","2000/11/15",21),
-                    new Person(13,"門脇忠吉","1978/03/25",44),
-                    new Person(14,"冨永和奏","1988/03/14",34),
-                    new Person(15,"島本彰三","1988/09/07",33),
-                    new Person(16,"首藤和男","1995/10/28",26),
-                    new Person(17,"氏家覚",    "1972/05/28",49),
-                    new Person(18,"古川幸次郎","1977/08/06",44),
-                    new Person(19,"安藤浩俊","1965/10/16",56),
-                    new Person(20,"佐伯誠治","1985/03/21",37),
-                }
-            );
+            InitializeComponent();
         }
+    }
 
-        
     public sealed class Person
     {
+        public int Seq { get; }
+        public string Name { get; }
+        public string BirthDay { get; }
+        public int Age { get; }
         public Person(int seq, string name, string birthDay, int age)
         {
             this.Seq = seq;
@@ -1683,11 +1703,154 @@ StaticResourceを使いたかったらApp.xamlの`<Application.Resources>`要素
             this.BirthDay = birthDay;
             this.Age = age;
         }
-        public int Seq { get; }
-        public string Name { get; }
-        public string BirthDay { get; }
-        public int Age { get; }
     }
+
+    public class MainWindowViewModel : INotifyPropertyChanged
+    {
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public ReadOnlyObservableCollection<Person> Persons { get; set; } =
+            new ReadOnlyObservableCollection<Person>(
+                new ObservableCollection<Person>
+                {
+                    new Person(1,  "北野久子"  , "1973/11/25" , 48),
+                    new Person(2,  "松崎和馬"  , "1993/11/15" , 28),
+                    new Person(3,  "水谷義哉"  , "1962/07/21" , 59),
+                    new Person(4,  "長野佳奈"  , "2001/03/13" , 21),
+                    new Person(5,  "藤島凪"    , "1974/04/18" , 47),
+                    new Person(6,  "荻野亜実"  , "1968/03/02" , 54),
+                    new Person(7,  "岩本葵愛"  , "1997/12/06" , 24),
+                    new Person(8,  "小山田大貴", "1991/10/10" , 30),
+                    new Person(9,  "宮原美明"  , "1977/10/26" , 44),
+                    new Person(10, "田端利之"  , "1974/08/16" , 47),
+                    new Person(11, "大下靖"    , "1968/09/14" , 53),
+                    new Person(12, "那須瑞紀"  , "2000/11/15" , 21),
+                    new Person(13, "門脇忠吉"  , "1978/03/25" , 44),
+                    new Person(14, "冨永和奏"  , "1988/03/14" , 34),
+                    new Person(15, "島本彰三"  , "1988/09/07" , 33),
+                    new Person(16, "首藤和男"  , "1995/10/28" , 26),
+                    new Person(17, "氏家覚"    , "1972/05/28" , 49),
+                    new Person(18, "古川幸次郎", "1977/08/06" , 44),
+                    new Person(19, "安藤浩俊"  , "1965/10/16" , 56),
+                    new Person(20, "佐伯誠治"  , "1985/03/21" , 37),
+                }
+            );
+    }
+```
+
+``` XML : チェックアウトのItemsControl
+<ItemsControl
+    MinWidth="120"
+    BorderBrush="{StaticResource MahApps.Brushes.Gray5}"
+    Focusable="False"
+    ItemsSource="{Binding DepositTypeList, Mode=OneWay}">
+    <ItemsControl.Template>
+        <ControlTemplate TargetType="{x:Type ItemsControl}">
+            <Border BorderBrush="{StaticResource MahApps.Brushes.Accent}" BorderThickness="1">
+                <ScrollViewer
+                    Focusable="False"
+                    HorizontalScrollBarVisibility="Auto"
+                    VerticalScrollBarVisibility="Auto">
+                    <i:Interaction.Triggers>
+                        <l:InteractionMessageTrigger MessageKey="ResetPayMethodScrollAction" Messenger="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.Messenger, Mode=OneWay}">
+                            <action:ReserScrollViewerAction />
+                        </l:InteractionMessageTrigger>
+                    </i:Interaction.Triggers>
+                    <Grid>
+                        <ItemsPresenter Margin="0,26,0,0" />
+                        <Border VerticalAlignment="Top" IsHitTestVisible="False">
+                            <Grid Background="White">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="3*" MinWidth="140" />
+                                    <ColumnDefinition Width="4*" MinWidth="100" />
+                                </Grid.ColumnDefinitions>
+                                <Label
+                                    Grid.Column="0"
+                                    Height="Auto"
+                                    Margin="0"
+                                    HorizontalContentAlignment="Center"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="0,0,1,1"
+                                    Content="精算方法"
+                                    FontSize="15"
+                                    Style="{StaticResource AccentLabel}" />
+                                <Label
+                                    Grid.Column="1"
+                                    Height="Auto"
+                                    Margin="0"
+                                    HorizontalContentAlignment="Center"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="0,0,0,1"
+                                    Content="精算金額"
+                                    FontSize="15"
+                                    Style="{StaticResource AccentLabel}" />
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </ScrollViewer>
+            </Border>
+        </ControlTemplate>
+    </ItemsControl.Template>
+    <ItemsControl.ItemTemplate>
+        <DataTemplate>
+            <Border BorderBrush="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ItemsControl}}, Path=BorderBrush, Mode=OneWay}" BorderThickness="0,0,1,1">
+                <Grid Height="Auto">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="3*" MinWidth="140" />
+                        <ColumnDefinition Width="4*" MinWidth="100" />
+                    </Grid.ColumnDefinitions>
+                    <Button
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                        VerticalContentAlignment="Stretch"
+                        Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.SelectDepositTypeCommand, Mode=OneWay}"
+                        CommandParameter="{Binding Mode=OneWay}"
+                        Focusable="False"
+                        Style="{StaticResource MahApps.Styles.Button.Flat}">
+                        <DockPanel VerticalAlignment="Center">
+                            <TextBlock DockPanel.Dock="Left" Text="{Binding DepositTypeName, Mode=OneWay}" />
+                            <TextBlock
+                                Margin="0,0,8,0"
+                                HorizontalAlignment="Right"
+                                DockPanel.Dock="Right"
+                                Text="▼"
+                                Visibility="{Binding DetailDisplayFlag, Mode=OneWay, Converter={StaticResource VisibleConverter}}" />
+                        </DockPanel>
+                    </Button>
+                    <im:GcNumber
+                        Grid.Column="1"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Right"
+                        AllowSpin="False"
+                        BorderThickness="0"
+                        DisabledBackground="Transparent"
+                        DisabledForeground="Black"
+                        DisplayFieldSet="###,###,##0,,,-,"
+                        FieldSet="###,###,##0,,,-,"
+                        IsReadOnly="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.CanEditPayment, Mode=OneWay, Converter={StaticResource NotConverter}}"
+                        SpinButtonVisibility="NotShown"
+                        Value="{Binding Amount, Mode=TwoWay}">
+                        <im:GcNumber.Style>
+                            <Style BasedOn="{StaticResource {x:Type im:GcNumber}}" TargetType="{x:Type im:GcNumber}">
+                                <Setter Property="Background" Value="Transparent" />
+                                <Style.Triggers>
+                                    <Trigger Property="IsReadOnly" Value="True">
+                                        <Setter Property="HighlightText" Value="False" />
+                                        <Setter Property="Background" Value="Transparent" />
+                                    </Trigger>
+                                    <Trigger Property="IsActive" Value="True">
+                                        <Setter Property="Background" Value="{StaticResource MahApps.Brushes.Accent4}" />
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </im:GcNumber.Style>
+                    </im:GcNumber>
+                </Grid>
+            </Border>
+        </DataTemplate>
+    </ItemsControl.ItemTemplate>
+    </ItemsControl>
 ```
 
 ---
