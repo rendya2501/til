@@ -188,3 +188,9 @@ DependencyProperty→バインディングができるようにする。コン�
 ```
 
 `<SETTER>`はStyleタグでのみ有効な模様。
+
+---
+
+## DataContextとは?
+
+[データ・バインディングを理解する](https://marikooota.hatenablog.com/entry/2017/05/30/002059)

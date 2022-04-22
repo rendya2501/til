@@ -1850,7 +1850,99 @@ StaticResourceを使いたかったらApp.xamlの`<Application.Resources>`要素
             </Border>
         </DataTemplate>
     </ItemsControl.ItemTemplate>
-    </ItemsControl>
+</ItemsControl>
+```
+
+``` C#
+    public sealed class Deposit
+    {
+        public string DepositTypeName { get; set; }
+        public decimal Amount { get; set; }
+    }
+
+    public List<Deposit> DepositTypeList { get; set; } =
+        new List<Deposit>()
+        {
+            new Deposit(){DepositTypeName="test1",Amount=100 },
+            new Deposit(){DepositTypeName="test2",Amount=200 },
+            new Deposit(){DepositTypeName="test3",Amount=300 },
+            new Deposit(){DepositTypeName="test4",Amount=400 },
+            new Deposit(){DepositTypeName="test5",Amount=500 },
+            new Deposit(){DepositTypeName="test6",Amount=600 },  
+        };
+```
+
+``` xml
+<ItemsControl
+    Width="200"
+    Height="100"
+    Margin="0,10,0,0"
+    Background="Red"
+    BorderBrush="Gray"
+    Focusable="False"
+    ItemsSource="{Binding DepositTypeList, Mode=OneWay}">
+    <ItemsControl.Resources>
+        <Style x:Key="VerticalGridSplitter" TargetType="{x:Type GridSplitter}">
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="Width" Value="1" />
+            <Setter Property="Background" Value="Red" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Margin" Value="0" />
+        </Style>
+    </ItemsControl.Resources>
+    <ItemsControl.Template>
+        <ControlTemplate TargetType="{x:Type ItemsControl}">
+            <ScrollViewer
+                Focusable="False"
+                HorizontalScrollBarVisibility="Auto"
+                VerticalScrollBarVisibility="Auto">
+                <Grid>
+                    <ItemsPresenter Margin="0,30,0,0" />
+                    <Border
+                        VerticalAlignment="Top"
+                        BorderBrush="Black"
+                        BorderThickness="1,1,1,1"
+                        IsHitTestVisible="False">
+                        <Grid Background="Yellow" Grid.IsSharedSizeScope="True">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="3*" MinWidth="100" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="4*" MinWidth="140" />
+                            </Grid.ColumnDefinitions>
+                            <Label
+                                Grid.Column="0"
+                                HorizontalContentAlignment="Center"
+                                Content="精算方法"
+                                FontSize="15" />
+                            <GridSplitter Grid.Column="1" Style="{StaticResource VerticalGridSplitter}" />
+                            <Label
+                                Grid.Column="2"
+                                HorizontalContentAlignment="Center"
+                                Content="精算金額"
+                                FontSize="15" />
+                        </Grid>
+                    </Border>
+                </Grid>
+            </ScrollViewer>
+        </ControlTemplate>
+    </ItemsControl.Template>
+    <ItemsControl.ItemTemplate>
+        <DataTemplate>
+            <Border BorderBrush="Black" BorderThickness="1,0,1,1">
+                <Grid Height="Auto">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="3*" MinWidth="100" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="4*" MinWidth="140" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="{Binding DepositTypeName}" />
+                    <GridSplitter Grid.Column="1" Style="{StaticResource VerticalGridSplitter}" />
+                    <TextBlock Grid.Column="2" Text="{Binding Amount}" />
+                </Grid>
+            </Border>
+        </DataTemplate>
+    </ItemsControl.ItemTemplate>
+</ItemsControl>
 ```
 
 ---
