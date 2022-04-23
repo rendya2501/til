@@ -1,16 +1,15 @@
-# IIS
+# IIS(Internet Information Servise)
 
-�EIIS(Internet Information Servise)  
-Windows�W����Web�T�[�o�[�T�[�r�X  
-HTTP/HTTPS,FTP,SMTP,NNTP�Ȃǂ̊�{�I�ȃv���g�R���̓T�|�[�g���Ă���B  
+Windows標準のWebサーバーサービス  
+HTTP/HTTPS,FTP,SMTP,NNTPなどの基本的なプロトコルはサポートしている。  
 
-�EDefault Web Site�̉��ɂ����̓T�[�o�[�ł͂Ȃ��T�[�r�X�������̓A�v���P�[�V�����ƌĂ΂����́B  
+Default Web Siteの下にあるやつはサーバーではなくサービスもしくはアプリケーションと呼ばれるもの。  
 
-## �T�[�r�X�ǉ��̕��@
+## サービス追加の方法
 
-�EDefault Web Site���E�N���b�N�A�A�v���P�[�V�����̒ǉ���I���B  
-�E�G�C���A�X�ɐݒ肵�����T�[�r�X���B  
-�E�����p�X�ɔ��s���������������߂Ă���T�[�r�X�̃t�H���_���w��B  
-�EOK�����Ί����B���͓��ɂ�����Ȃ��Ă悢�B  
+・Default Web Siteを右クリック、アプリケーションの追加を選択。  
+・エイリアスに設定したいサービス名。  
+・物理パスに発行した生成物を収めているサービスのフォルダを指定。  
+・OK押せば完了。他は特にいじらなくてよい。  
 
-[IIS �ŃA�v���P�[�V�����i���z�f�B���N�g���j�̒ǉ�](https://creativeweb.jp/personal-site/application/)  
+[IIS でアプリケーション（仮想ディレクトリ）の追加](https://creativeweb.jp/personal-site/application/)  
