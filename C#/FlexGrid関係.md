@@ -1591,3 +1591,28 @@ FlexGridの「検索→セルを適当にクリック」した時のイベント
 11:13:18.258  LostFocus
 11:13:18.272  IsKeyboardFocusWithinChanged
 ```
+
+---
+
+## クリックした場所がヘッダーかどうかを判定し、クリックした場所の情報を表示するサンプル
+
+``` C#
+    private void FlexGrid_Click(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is C1FlexGrid fg)
+        {
+            var ht = fg.HitTest(e);
+            // ヘッダー
+            if (ht.CellType == CellType.ColumnHeader)
+            {
+                
+            }
+            // 普通のセル
+            else
+            {
+                fg.StartEditing(true);
+            }
+            MessageBox.Show($"クリックされたセル{Environment.NewLine}行：{ ht.Row}{Environment.NewLine}列：{ht.Column}");
+        }
+    }
+```

@@ -1540,8 +1540,13 @@ StaticResourceを使いたかったらApp.xamlの`<Application.Resources>`要素
 ## ItemsControlをDataGridみたいに使う
 
 [WPF ItemsControlをDataGridみたいに使う](https://nomoredeathmarch.hatenablog.com/entry/2019/01/21/003825)  
+[ItemsControl 攻略 ～ 外観のカスタマイズ](http://grabacr.net/archives/1240#ItemsPanel)  
+[【WPF】ItemsControlの基本的な使い方](https://qiita.com/ebipilaf/items/c3e9e501eb0560a12ce8)  
+[ItemsControl with row and column headers WPF](https://stackoverflow.com/questions/51396486/itemscontrol-with-row-and-column-headers-wpf)  
+
 [[WPF] GridSplitter 画面を分割して境界線をドラッグしてリサイズする](https://note.dokeep.jp/post/wpf-gridsplitter/)  
 [世界で一番短いサンプルで覚えるMVVM入門](https://resanaplaza.com/%E4%B8%96%E7%95%8C%E3%81%A7%E4%B8%80%E7%95%AA%E7%9F%AD%E3%81%84%E3%82%B5%E3%83%B3%E3%83%97%E3%83%AB%E3%81%A7%E8%A6%9A%E3%81%88%E3%82%8Bmvvm%E5%85%A5%E9%96%80/)  
+[WPF Grid.IsSharedSizeScope in ItemsControl and ScrollViewer](https://stackoverflow.com/questions/54922513/wpf-grid-issharedsizescope-in-itemscontrol-and-scrollviewer)  
 
 このサンプルを作るだけでも結構な量の発見があった。  
 簡単な一覧だけならこのサンプルを適応するだけで色々解決するのではないかと思った。  
@@ -1552,7 +1557,6 @@ StaticResourceを使いたかったらApp.xamlの`<Application.Resources>`要素
 
 ``` XML
 <Window 略>
-    <!-- MVVMにおける最小のデータバインド -->
     <Window.DataContext>
         <local:MainWindowViewModel />
     </Window.DataContext>
@@ -1872,7 +1876,7 @@ StaticResourceを使いたかったらApp.xamlの`<Application.Resources>`要素
         };
 ```
 
-``` xml
+``` xml : 完成形の途中
 <ItemsControl
     Width="200"
     Height="100"
@@ -1943,6 +1947,139 @@ StaticResourceを使いたかったらApp.xamlの`<Application.Resources>`要素
         </DataTemplate>
     </ItemsControl.ItemTemplate>
 </ItemsControl>
+```
+
+``` XML : 完成形1
+<ItemsControl
+    Width="200"
+    Height="100"
+    Margin="0,10,0,0"
+    Focusable="False"
+    Grid.IsSharedSizeScope="True"
+    ItemsSource="{Binding DepositTypeList, Mode=OneWay}"
+    ScrollViewer.CanContentScroll="True"
+    VirtualizingPanel.IsVirtualizing="True">
+    <ItemsControl.Resources>
+        <Style x:Key="HorizontalGridSplitter" TargetType="{x:Type GridSplitter}">
+            <Setter Property="Height" Value="1" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="Background" Value="Red" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Margin" Value="0" />
+        </Style>
+        <Style x:Key="VerticalGridSplitter" TargetType="{x:Type GridSplitter}">
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="Width" Value="1" />
+            <Setter Property="Background" Value="Red" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Margin" Value="0" />
+        </Style>
+    </ItemsControl.Resources>
+    <ItemsControl.Template>
+        <ControlTemplate TargetType="{x:Type ItemsControl}">
+            <ScrollViewer
+                Focusable="False"
+                HorizontalScrollBarVisibility="Auto"
+                VerticalScrollBarVisibility="Auto">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <!--  ヘッダー部分  -->
+                    <Border
+                        Grid.Row="0"
+                        VerticalAlignment="Top"
+                        BorderBrush="Black"
+                        BorderThickness="1,1,1,0">
+                        <Grid Background="Yellow">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" SharedSizeGroup="DepositTypeName" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" SharedSizeGroup="Amount" />
+                            </Grid.ColumnDefinitions>
+                            <Label
+                                Grid.Column="0"
+                                HorizontalContentAlignment="Center"
+                                Content="精算方法"
+                                FontSize="15" />
+                            <GridSplitter Grid.Column="1" Style="{StaticResource VerticalGridSplitter}" />
+                            <Label
+                                Grid.Column="2"
+                                HorizontalContentAlignment="Center"
+                                Content="精算金額"
+                                FontSize="15" />
+                        </Grid>
+                    </Border>
+                    <!--  ヘッダーとデータの間の線  -->
+                    <GridSplitter
+                        Grid.Row="1"
+                        IsHitTestVisible="False"
+                        Style="{StaticResource HorizontalGridSplitter}" />
+                    <!--  データ部分定義  -->
+                    <!--<ItemsPresenter Grid.Row="2" />-->
+                    <!-- 仮想化に対応 -->
+                    <VirtualizingStackPanel Grid.Row="2" IsItemsHost="True" />
+                </Grid>
+            </ScrollViewer>
+        </ControlTemplate>
+    </ItemsControl.Template>
+    <!--  データ部分本体  -->
+    <ItemsControl.ItemTemplate>
+        <DataTemplate>
+            <Border
+                BorderBrush="Black"
+                BorderThickness="1,0,1,1"
+                IsHitTestVisible="False">
+                <Grid Height="Auto">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" SharedSizeGroup="DepositTypeName" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" SharedSizeGroup="Amount" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock
+                        Grid.Column="0"
+                        Margin="5,0,10,0"
+                        Text="{Binding DepositTypeName}" />
+                    <GridSplitter Grid.Column="1" Style="{StaticResource VerticalGridSplitter}" />
+                    <TextBlock
+                        Grid.Column="2"
+                        Margin="5,0,10,0"
+                        Text="{Binding Amount}" />
+                </Grid>
+            </Border>
+        </DataTemplate>
+    </ItemsControl.ItemTemplate>
+</ItemsControl>
+```
+
+---
+
+## ItemsControlでIsSharedSizeScopeを適応させる方法
+
+[ItemsControlをDataGridみたいに使う]研究の一環としてまとめ。  
+理想の動作を実現する過程において、ヘッダーのGritSpliterを操作してもデータ本体まで伝播しない問題が解決できなかった。  
+元祖DataGridみたいに使うサイトでやっているサンプルでは出来ていたのだが、そもそもの構造が違っていたのでどのように適応していいのか分からなかった。  
+GridのIsSharedSizeScopeなるものがキーであるのは間違いなかったので、それを素直にItemsControlに適応することはできないか探していたら、ズバリな記事に行き当たり、  
+その通りに実装したら見事に解決できたのでまとめる。  
+
+[WPF Grid.IsSharedSizeScope in ItemsControl and ScrollViewer](https://stackoverflow.com/questions/54922513/wpf-grid-issharedsizescope-in-itemscontrol-and-scrollviewer)  
+wpf itemscontrol issharedsizescope  
+
+``` XML
+<!-- ItemsControl本体にGrid.IsSharedSizeScope="True" は適応可能 -->
+<ItemsControl ItemsSource="{Binding}" Grid.IsSharedSizeScope="True" IsTabStop="False">
+    <ItemsControl.ItemTemplate>
+        <DataTemplate>
+            <Grid >
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="30"/>
+                    <ColumnDefinition Width="40"/>
+                    <!-- 後は動きを共有したい列をグループ名でまとめればOK -->
+                    <ColumnDefinition Width="Auto" SharedSizeGroup="sharedWidth"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
 ```
 
 ---
