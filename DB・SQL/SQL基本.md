@@ -226,6 +226,7 @@ COUNT関数の引数にDISTINCT 列名を指定することで、重複を除い
 →そもそも構文エラーになる。  
 **COUNT(*)は行数を数えてくれる**  
 COUNT()は、行数を数えて出力する集計関数です。→平成27年秋期 午後問3の解説より  
+
 ``` txt
 OracleではCOUNT(*)とCOUNT(age)の結果は異なります。
 ageにnullが入っているとCOUNT(age)では件数にカウントされません。
@@ -265,7 +266,6 @@ COUNT(*)ではレコードの内容を取得するため、COUNT('X')やSUM(1)�
 select count(*) from shohin; →そもそも構文エラーになる。 5  
 select count(price) from shohin; →そもそも構文エラーになる。 4  
 
-
 これも基本情報27年春の問題にて遭遇。  
 
 [SQL | COUNT(DISTINCT column_name) は「同じ値の種類数」をカウントする](https://qiita.com/YumaInaura/items/1a1123ed4f33d30d9548)  
@@ -297,6 +297,7 @@ score には 60点 / 70点 / 80点の三種類がある。
 なる。 5,2  
 
 ---
+
 ## LIKE句
 
 基本情報技術者過去問題 平成31年春期 午後問3より。  
@@ -454,4 +455,3 @@ Oracle では、省略不可です。
 DISTINCTとワイルドカード `*` を併用したら.NETFrameworkでは実行速度が遅くなるらしい
 
 [NULLを排除した設計①](http://onefact.jp/wp/2014/08/26/null%E3%82%92%E6%8E%92%E9%99%A4%E3%81%97%E3%81%9F%E8%A8%AD%E8%A8%88/)  
-
