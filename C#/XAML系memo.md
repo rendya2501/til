@@ -2332,3 +2332,40 @@ BindingのPathに添付プロパティを指定する場合、カッコをつけ
 ・binとobjを削除する必要があった模様。  
 ・フォルダに追加するだけだと認識されない。  
 ・その場合はすべて表示にして、右クリックして追加する。  
+
+---
+
+## DataTemplateをResourceで定義する方法
+
+[How to create a static resource of DataTemplate?](https://social.msdn.microsoft.com/Forums/vstudio/en-US/0de6f454-bcde-4aa9-843d-ead2ad9d6d61/how-to-create-a-static-resource-of-datatemplate?forum=wpf)  
+
+``` XML
+<Window>
+  <Window.Resources>
+    <DataTemplate x:Key="Header">
+      <TextBlock Foreground="Orange" Background="Yellow" Text="{Binding}"/>
+    </DataTemplate>
+    <DataTemplate x:Key="Name">
+      <TextBlock Foreground="White" Background="Black" Text="{Binding Name}"/>
+    </DataTemplate>
+    <DataTemplate x:Key="Age">
+      <TextBlock Foreground="Red" Background="Green" Text="{Binding Age}"/>
+    </DataTemplate>
+    <x:Array x:Key="Office" Type="{x:Type local:Person}">
+      <local:Person Name="Michael" Age="40"/>
+      <local:Person Name="Jim" Age="30"/>
+      <local:Person Name="Dwight" Age="30"/>
+    </x:Array>
+  </Window.Resources>
+  <ListView ItemsSource="{Binding Source={StaticResource Office}}">
+    <ListView.View>
+      <GridView>
+        <GridView.Columns>
+          <GridViewColumn Width="140" Header="Column 1" HeaderTemplate="{StaticResource Header}" CellTemplate="{StaticResource Name}"/>
+          <GridViewColumn Width="140" Header="Column 2" HeaderTemplate="{StaticResource Header}" CellTemplate="{StaticResource Age}"/>
+        </GridView.Columns>
+      </GridView>
+    </ListView.View>
+  </ListView>
+</Window>
+```
