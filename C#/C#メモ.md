@@ -350,9 +350,6 @@ private Fuga(Action<int> action){
 
 ## プレースホルダー(文字列補完)
 
-まさかこんな基本的な事がわかっていなかったなんて・・・  
-割とショックである。  
-
 基本は`{インデックス}`で置き換え場所を指定する事。  
 中かっこ自体を表示する方法も地味にわからなかったが、それは`{{`でエスケープすればよかった。  
 
@@ -964,7 +961,7 @@ var test = dt?.Date;
 
 ---
 
-## Swap奮闘記
+## プロパティのSwap奮闘記
 
 FrmaeのPlayer1とPlayer2の入れ替えを実現するために色々やったのでまとめ。  
 普通のスワップなら気にする必要もないのだが、プロパティの中身を全て入れ替える場合は単純なSwapではうまく行かなかった。  
@@ -1378,7 +1375,7 @@ source(repreTemp);
     }
 ```
 
-``` C# : Taskで変数やデリゲートまで取れれば一時変数も必要なくね？と思って作った最終パター
+``` C# : Taskで変数やデリゲートまで取れれば一時変数も必要なくね？と思って作った最終パターン
     /// <summary>
     /// 代表者入れ替え
     /// </summary>
@@ -1445,11 +1442,7 @@ source(repreTemp);
 
         // 代表者と押した場所を検索する処理を並行実行
         Task.WaitAll(findRepre, findSource);
-        // これでも結果を取得できる。
-        var aa = Task.WhenAll(findRepre, findSource);
-        var a = aa.Result[0];
-        var b = aa.Result[1];
-
+        
         // 代表者がnullということは同じ場所をクリックしたことになるので処理しない。
         if (findRepre.Result.tempRepre != null)
         {
@@ -1459,6 +1452,13 @@ source(repreTemp);
             findSource.Result.beRepreAction(findRepre.Result.tempRepre);
         }
     }
+
+    // // 代表者と押した場所を検索する処理を並行実行
+    // Task.WaitAll(findRepre, findSource);
+    // // これでも結果を取得できる。
+    // var aa = Task.WhenAll(findRepre, findSource);
+    // var a = aa.Result[0];
+    // var b = aa.Result[1];
 ```
 
 ---
@@ -1535,3 +1535,9 @@ private void SwapRepre(ReservationPlayerView obj)
     }
 }
 ```
+
+---
+
+## C#からDB接続でSQLServerに接続してSELECT文を実行する方法
+
+[C#からDB接続でSQLServerに接続してSELECT文を実行する方法](https://rainbow-engine.com/csharp-dbconnection-sqlserver/)

@@ -245,8 +245,6 @@ COUNT(*)ではレコードの内容を取得するため、COUNT('X')やSUM(1)�
 なんだかんだわかってなかったのでまとめ。  
 
 [【SQL】COUNT(*)とCOUNT(カラム名)の違い](https://qiita.com/TomoProg/items/5ba5779b3015ac02f577)  
-すげードンピシャな記事があった。  
-正直会社では恥ずかしくて聞けない内容だな。  
 
 ・COUNT(*)はNULL値かどうかに関係なく、取得された行の数を返す  
 ・COUNT(カラム名)はNULL値でない値の行数を返す  
@@ -412,24 +410,27 @@ WHERE depts.dept_id = employees.dept_id;
 
 ---
 
-## NULLのLIKE検索
+## NULLの扱い
+
+### NULLのLIKE検索
 
 LIKE検索には引っかからない。  
 NULLを検索したかったからISNULLを使うこと。  
 
-## NULLのORDERBY
+### NULLのORDERBY
 
 [NULLと戯れる: ORDER BYとNULL](https://qiita.com/SVC34/items/c23341c79325a0a95979)  
+
 どうにも、NULLを最小値とするか最大値とするかは、RDBMS毎に違ったり、設定で変更出来たりするみたい。  
 Oracleは最大値扱いだが、SQLServerは最小値扱い見たい。  
 まぁ、どちらにせよ、先頭か末尾であることに違いはないということですね。  
 
-## NULLをキャスト
+### NULLをキャスト
 
 (NULL AS CHAR)→NULLのまま
 NULL -1 = NULL
 
-## NULLのSUM
+### NULLのSUM
 
 SUMはNULLが1件でも含まれると結果がNULLになる。
 
@@ -443,15 +444,36 @@ Oracle では、省略不可です。
 
 ---
 
-## sql N''
+## N'文字列'の意味
+
+1. Unicodeを使うという宣言・マーキング  
+2. 日本語を使う場合に必須  
 
 [SQLのNプレフィックスっていったい何？](http://once-and-only.com/programing/sql/sql%E3%81%AEn%E3%83%97%E3%83%AC%E3%83%95%E3%82%A3%E3%83%83%E3%82%AF%E3%82%B9%E3%81%A3%E3%81%A6%E3%81%84%E3%81%A3%E3%81%9F%E3%81%84%E4%BD%95%EF%BC%9F/)
+
+>SQL Server で Unicode 文字列定数を扱う場合には、Unicode 文字列の前に大文字の N が必ず必要です。  
+>これは、SQL Server Books Online の「Unicode データの使用」で説明されています。  
+>”N” プレフィックスは、SQL-92 標準の National Language を意味し、必ず大文字にする必要があります。  
+>Unicode 文字列定数の前に N を付加しない場合、その文字列は、SQL Server によって、使用される前に現在のデータベースの Unicode 以外のコードページに変換されます。  
+
+※Unicodeは何故UじゃなくてNなのか？  
+→  
+National Languageという意味でUnicodeが採用されているため。  
+National Languageは国語という意味ではなく「様々な国の文字」というニュアンス。  
+
 [MS SQLServer のSQLで文字列の前にN:](https://oshiete.goo.ne.jp/qa/280266.html)
+
+>N'***' とT-SQL内で書くと、''内の文字をUnicodeで表現されたものとして処理する、という意味になります。  
+>Nは、nationalの略です。  
+>ですから、日本語を使おうとするとNは必須になる、という事ですね。  
+>こんな感じでつかいます。＃N'Unicode 文字列'  
 
 ---
 
-## 後でまとめる
+## DISTINCTとワイルドカードの併用
 
-DISTINCTとワイルドカード `*` を併用したら.NETFrameworkでは実行速度が遅くなるらしい
+DISTINCTとワイルドカード `*` を併用したら.NETFrameworkでは実行速度が遅くなるらしい  
+
+---
 
 [NULLを排除した設計①](http://onefact.jp/wp/2014/08/26/null%E3%82%92%E6%8E%92%E9%99%A4%E3%81%97%E3%81%9F%E8%A8%AD%E8%A8%88/)  
