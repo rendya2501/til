@@ -1,6 +1,20 @@
 # ItemsControlまとめ
 
-[ItemsControl 攻略 ～ 外観のカスタマイズ](http://grabacr.net/archives/1240)
+[ItemsControl 攻略 ～ 外観のカスタマイズ](http://grabacr.net/archives/1240)  
+[WPF Reference ScrollContentPresenter of ScrollViewer Template](https://stackoverflow.com/questions/945542/wpf-reference-scrollcontentpresenter-of-scrollviewer-template)  
+[How to place a ScrollViewer on top of the content it should scroll](https://stackoverflow.com/questions/490784/how-to-place-a-scrollviewer-on-top-of-the-content-it-should-scroll)  
+
+[A Custom WPF ScrollViewer](https://www.codeproject.com/Tips/1271095/A-Custom-WPF-ScrollViewer)  
+[WPF Header/Multi-Column ListBox Control](http://epsg27700.blogspot.com/2010/01/wpf-headeredmulti-column-listbox_21.html)  
+[Wpf – Grid/ScrollViewer- Freeze grid header row vertical scrolling, but not horizontal scrolling](https://itecnote.com/tecnote/wpf-grid-scrollviewer-freeze-grid-header-row-vertical-scrolling-but-not-horizontal-scrolling/)  
+[How to freeze grid column in ScrollViewer or achieve something similar to that?](https://docs.microsoft.com/en-us/answers/questions/537119/how-to-freeze-grid-column-in-scrollviewer-or-achie.html)  
+[グループ化したコレクションのヘッダーをスクロール時に常に表示する](https://qiita.com/ambleside138/items/a25ab909cdbf6f307f54)  
+[Show WPF ScrollViewer Vertical scroll bar on right always](https://stackoverflow.com/questions/31511009/show-wpf-scrollviewer-vertical-scroll-bar-on-right-always)  
+[WPF の ListBox でスクロールバーの下に隙間ができる](http://var.blog.jp/archives/67425961.html)
+[【WPF】ScrollViewerを入れ子にした時の挙動をいい感じにする](https://threeshark3.com/scrcoll-viewer-wheel/)  
+
+[How to implement WPF custom grid with scrolling support](https://stackoverflow.com/questions/42552869/how-to-implement-wpf-custom-grid-with-scrolling-support)  
+[WPF - ScrollViewer with fixed header/row](https://stackoverflow.com/questions/10505875/wpf-scrollviewer-with-fixed-header-row)  
 
 ---
 
@@ -637,7 +651,7 @@ XAML上で2つのスクロールを連動させるための添付プロパティ
         Focusable="False"
         Grid.IsSharedSizeScope="True"
         ItemsSource="{Binding DepositTypeList, Mode=OneWay}"
-        ScrollViewer.CanContentScroll="True"
+        ScrollViewer.CanContentScroll="False"
         VirtualizingPanel.IsVirtualizing="True">
         <ItemsControl.Resources>
             <Style x:Key="HorizontalGridSplitter" TargetType="{x:Type GridSplitter}">
@@ -653,10 +667,11 @@ XAML上で2つのスクロールを連動させるための添付プロパティ
         </ItemsControl.Resources>
         <ItemsControl.Template>
             <ControlTemplate TargetType="{x:Type ItemsControl}">
-                <ScrollViewer
-                    Focusable="False"
-                    HorizontalScrollBarVisibility="Auto"
-                    VerticalScrollBarVisibility="Auto">
+                <!--  ヘッダーとデータをScrollViewerに収める  -->
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                    <i:Interaction.Behaviors>
+                        <local:ScrollSyncronizingBehavior Orientation="Horizontal" ScrollGroup="Group3" />
+                    </i:Interaction.Behaviors>
                     <ScrollViewer.Template>
                         <ControlTemplate TargetType="{x:Type ScrollViewer}">
                             <Grid>
@@ -670,58 +685,52 @@ XAML上で2つのスクロールを連動させるための添付プロパティ
                                     <RowDefinition Height="*" />
                                     <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
-
                                 <!--  ヘッダー部分  -->
-                                <Border
+                                <ScrollViewer
                                     Grid.Row="0"
+                                    Grid.Column="0"
                                     VerticalAlignment="Top"
-                                    BorderBrush="Black"
-                                    BorderThickness="1,1,1,0">
-                                    <Grid Background="Yellow">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto" SharedSizeGroup="DepositTypeName" />
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="Auto" SharedSizeGroup="Amount" />
-                                        </Grid.ColumnDefinitions>
-                                        <Label
-                                            Grid.Column="0"
-                                            HorizontalContentAlignment="Center"
-                                            Content="精算方法"
-                                            FontSize="15" />
-                                        <GridSplitter Grid.Column="1" Style="{StaticResource VerticalGridSplitter}" />
-                                        <Label
-                                            Grid.Column="2"
-                                            HorizontalContentAlignment="Center"
-                                            Content="精算金額"
-                                            FontSize="15" />
-                                    </Grid>
-                                </Border>
+                                    HorizontalScrollBarVisibility="Hidden"
+                                    VerticalScrollBarVisibility="Hidden">
+                                    <i:Interaction.Behaviors>
+                                        <local:ScrollSyncronizingBehavior Orientation="Horizontal" ScrollGroup="Group3" />
+                                    </i:Interaction.Behaviors>
+                                    <Border BorderBrush="Black" BorderThickness="1,1,1,0">
+                                        <Grid Background="Yellow">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" SharedSizeGroup="DepositTypeName" />
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="Auto" SharedSizeGroup="Amount" />
+                                            </Grid.ColumnDefinitions>
+                                            <Label
+                                                Grid.Column="0"
+                                                HorizontalContentAlignment="Center"
+                                                Content="精算方法"
+                                                FontSize="15" />
+                                            <GridSplitter Grid.Column="1" Style="{StaticResource VerticalGridSplitter}" />
+                                            <Label
+                                                Grid.Column="2"
+                                                HorizontalContentAlignment="Center"
+                                                Content="精算金額"
+                                                FontSize="15" />
+                                        </Grid>
+                                    </Border>
+                                </ScrollViewer>
                                 <!--  ヘッダーとデータの間の線  -->
                                 <GridSplitter
                                     Grid.Row="1"
+                                    Grid.Column="0"
                                     IsHitTestVisible="False"
                                     Style="{StaticResource HorizontalGridSplitter}" />
-                                <DockPanel
+                                <!--  ScrollViewerのコンテンツ  -->
+                                <!--  ここにデータ部分が乗っているはず  -->
+                                <ScrollContentPresenter
+                                    Name="PART_ScrollContentPresenter"
                                     Grid.Row="2"
-                                    Grid.RowSpan="1"
-                                    Grid.ColumnSpan="2"
-                                    Margin="{TemplateBinding Padding}">
-                                    <ScrollViewer
-                                        Grid.Row="2"
-                                        Grid.RowSpan="2"
-                                        Grid.ColumnSpan="2"
-                                        DockPanel.Dock="Top"
-                                        Focusable="False"
-                                        HorizontalScrollBarVisibility="Hidden"
-                                        VerticalScrollBarVisibility="Hidden" />
-
-                                    <ScrollContentPresenter
-                                        Name="PART_ScrollContentPresenter"
-                                        Grid.RowSpan="2"
-                                        Grid.ColumnSpan="2"
-                                        CanContentScroll="{TemplateBinding CanContentScroll}"
-                                        KeyboardNavigation.DirectionalNavigation="Local" />
-                                </DockPanel>
+                                    Grid.Column="0"
+                                    CanContentScroll="{TemplateBinding CanContentScroll}"
+                                    KeyboardNavigation.DirectionalNavigation="Local" />
+                                <!--  右端の縦スクロールバー  -->
                                 <ScrollBar
                                     Name="PART_VerticalScrollBar"
                                     Grid.Row="0"
@@ -733,18 +742,28 @@ XAML上で2つのスクロールを連動させるための添付プロパティ
                                     ViewportSize="{TemplateBinding ViewportHeight}"
                                     Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}"
                                     Value="{TemplateBinding VerticalOffset}" />
+                                <!--  最下段の横スクロールバー  -->
                                 <ScrollBar
                                     Name="PART_HorizontalScrollBar"
-                                    Grid.Row="2"
+                                    Grid.Row="3"
+                                    Grid.Column="0"
                                     VerticalAlignment="Bottom"
                                     Maximum="{TemplateBinding ScrollableWidth}"
                                     Orientation="Horizontal"
                                     ViewportSize="{TemplateBinding ViewportWidth}"
                                     Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}"
                                     Value="{TemplateBinding HorizontalOffset}" />
+                                <!--  右下の大きさを変えるアイコン  -->
+                                <ResizeGrip
+                                    Grid.Row="3"
+                                    Grid.Column="1"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Stretch"
+                                    Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}" />
                             </Grid>
                         </ControlTemplate>
                     </ScrollViewer.Template>
+                    <!--  データ部分  -->
                     <ItemsPresenter />
                 </ScrollViewer>
             </ControlTemplate>
@@ -805,4 +824,212 @@ wpf itemscontrol issharedsizescope
                     <ColumnDefinition Width="Auto" SharedSizeGroup="sharedWidth"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
+```
+
+---
+
+## WPFのScrollViewerやScrollBarのスクロール位置を同期させる
+
+[WPFのScrollViewerやScrollBarのスクロール位置を同期させる](https://days-of-programming.blogspot.com/2015/01/wpfscrollviewerscrollbar.html)  
+
+ItemsControlとはずれるが、DataGridサンプルで使う必要があったのでこちらにまとめる。  
+
+``` XML : 使い方
+<ScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden">
+    <!-- 中略 -->
+    <i:Interaction.Behaviors>
+        <!-- スクロールを同期させたいモノをScrollGroupに同じ名前で登録する -->
+        <b:ScrollSyncronizingBehavior ScrollGroup="Group1" Orientation="Vertical" />
+    </i:Interaction.Behaviors>
+</ScrollViewer>
+```
+
+``` C#
+// Behaviorを使うためにはnugetからMicrosoft.Xaml.Behaviorsをインストールしないといけない
+// <https://livealoneblog.com/wpf-behavior/>
+using Microsoft.Xaml.Behaviors;
+using System.Collections.Generic;
+using System.Linq;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+
+namespace ItemsControl2
+{
+    /// <summary>
+    /// ScrollViewerのスクロール位置を同期するビヘイビア
+    /// </summary>
+    public class ScrollSyncronizingBehavior : Behavior<Control>
+    {
+        static readonly Dictionary<string, List<Control>> SyncGroups = new Dictionary<string, List<Control>>();
+
+        private static readonly DependencyProperty ScrollGroupProperty = DependencyProperty.Register(
+            "ScrollGroup",
+            typeof(string),
+            typeof(ScrollSyncronizingBehavior),
+            new FrameworkPropertyMetadata((d, e) =>
+            {
+                if (d is ScrollSyncronizingBehavior me)
+                {
+                    me.RemoveSyncGroup((string)e.OldValue);
+                    me.AddSyncGroup((string)e.NewValue);
+                }
+            })
+        );
+        /// <summary>
+        /// スクロールグループ
+        /// </summary>
+        public string ScrollGroup
+        {
+            get { return (string)GetValue(ScrollGroupProperty); }
+            set { SetValue(ScrollGroupProperty, value); }
+        }
+
+
+        private static readonly DependencyProperty OrientationProperty = DependencyProperty.Register(
+            "Orientation",
+            typeof(Orientation),
+            typeof(ScrollSyncronizingBehavior),
+            new FrameworkPropertyMetadata()
+        );
+        /// <summary>
+        /// スクロールの向き
+        /// </summary>
+        public Orientation Orientation
+        {
+            get { return (Orientation)GetValue(OrientationProperty); }
+            set { SetValue(OrientationProperty, value); }
+        }
+
+        protected override void OnAttached()
+        {
+            base.OnAttached();
+            AddSyncGroup(ScrollGroup);
+        }
+
+        protected override void OnDetaching()
+        {
+            base.OnDetaching();
+            RemoveSyncGroup(ScrollGroup);
+        }
+
+        /// <summary>
+        /// 同期グループに追加するメソッド
+        /// </summary>
+        /// <param name="GroupName">グループ名</param>
+        /// <returns>成功したかどうか</returns>
+        private bool AddSyncGroup(string GroupName)
+        {
+            if (string.IsNullOrEmpty(ScrollGroup))
+            {
+                return false;
+            }
+
+            if (AssociatedObject is ScrollViewer sv)
+            {
+                add();
+                sv.ScrollChanged += ScrollViewerScrolled;
+                return true;
+            }
+            if (AssociatedObject is ScrollBar sb)
+            {
+                add();
+                sb.ValueChanged += ScrollBarScrolled;
+                return true;
+            }
+            return false;
+
+            void add()
+            {
+                if (!SyncGroups.ContainsKey(GroupName))
+                {
+                    SyncGroups.Add(GroupName, new List<Control>());
+                }
+                SyncGroups[GroupName].Add(AssociatedObject);
+            }
+        }
+
+        /// <summary>
+        /// 同期グループから削除するメソッド
+        /// </summary>
+        /// <param name="GroupName">グループ名</param>
+        /// <returns>成功したかどうか</returns>
+        private bool RemoveSyncGroup(string GroupName)
+        {
+            if (!string.IsNullOrEmpty(ScrollGroup)
+                && (AssociatedObject is ScrollViewer || AssociatedObject is ScrollBar))
+            {
+                if (AssociatedObject is ScrollViewer sv)
+                {
+                    sv.ScrollChanged -= ScrollViewerScrolled;
+                }
+                if (AssociatedObject is ScrollBar sb)
+                {
+                    sb.ValueChanged -= ScrollBarScrolled;
+                }
+
+                SyncGroups[GroupName].Remove(AssociatedObject);
+                if (SyncGroups[GroupName].Count == 0)
+                {
+                    SyncGroups.Remove(GroupName);
+                }
+
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// ScrollViewerの場合の変更通知イベントハンドラ
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ScrollViewerScrolled(object sender, ScrollChangedEventArgs e)
+        {
+            UpdateScrollValue(
+                sender,
+                Orientation == Orientation.Horizontal ? e.HorizontalOffset : e.VerticalOffset
+            );
+        }
+
+        /// <summary>
+        /// ScrollBarの場合の変更通知イベントハンドラ
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ScrollBarScrolled(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            UpdateScrollValue(sender, e.NewValue);
+        }
+
+        /// <summary>
+        /// スクロール値を設定するメソッド
+        /// </summary>
+        /// <param name="sender">スクロール値を更新してきたコントロール</param>
+        /// <param name="NewValue">新しいスクロール値</param>
+        private void UpdateScrollValue(object sender, double NewValue)
+        {
+            IEnumerable<Control> others = SyncGroups[ScrollGroup].Where(p => p != sender);
+
+            foreach (ScrollBar sb in others.OfType<ScrollBar>().Where(p => p.Orientation == Orientation))
+            {
+                sb.Value = NewValue;
+            }
+            foreach (ScrollViewer sv in others.OfType<ScrollViewer>())
+            {
+                if (Orientation == Orientation.Horizontal)
+                {
+                    sv.ScrollToHorizontalOffset(NewValue);
+                }
+                else
+                {
+                    sv.ScrollToVerticalOffset(NewValue);
+                }
+            }
+        }
+    }
+}
 ```

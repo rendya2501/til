@@ -207,3 +207,9 @@ Behaviorでの話。
 
 [WPF4.5入門 その59「Behaviorの自作」](https://blog.okazuki.jp/entry/2014/12/22/235048)  
 [【WPF】Behaviorで快適WPFライフ](https://anopara.net/2014/06/20/cool-behavior-life/)  
+
+---
+
+## XAMLのコントロール
+
+[C#のWPFのコントロール一覧](https://water2litter.net/rye/post/c_control_list/#my_mokuji10)  

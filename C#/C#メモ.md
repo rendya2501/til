@@ -51,9 +51,11 @@ public class Hello{
 ```
 
 <https://ufcpp.net/study/csharp/datatype/typeswitch/>  
-元々のis演算子の仕様でもあるんですが、nullには型がなくて常にisに失敗します(falseを返す)。  
-なるほどね。is演算子は実行時の変数の中身を見るが、nullは型がないので、エラーになるわけか。  
-納得。  
+>元々のis演算子の仕様でもあるんですが、nullには型がなくて常にisに失敗します(falseを返す)。  
+
+なるほどね。  
+is演算子は実行時の変数の中身を見るが、nullは型がないので、エラーになるわけか。  
+
 しかし、言語仕様で困ったらマイクロソフトではなく未確認飛行Cを見るのが一番だな。  
 こっちのほうがわかりやすい。  
 
@@ -1541,3 +1543,35 @@ private void SwapRepre(ReservationPlayerView obj)
 ## C#からDB接続でSQLServerに接続してSELECT文を実行する方法
 
 [C#からDB接続でSQLServerに接続してSELECT文を実行する方法](https://rainbow-engine.com/csharp-dbconnection-sqlserver/)
+
+---
+
+## 演算の優先順位の確認
+
+decimal?型にnullが入って来た場合、null合体演算子と反転処理は同居させてもエラーにならないか気になったので調査。  
+`-1 × null` でエラーになりそうに見える。  
+なのでかっこでくくって演算の優先順位を決めてあげたほうがよさそうに見えた。  
+→`-1 × (aa ?? decimal.zero)`  
+
+結果はかっこで括らなくても「0」と表示されたので、内部的にちゃんと評価されている模様。  
+
+``` C#
+    decimal? aa = null;
+    // -(aa ?? decimal.zero)と括って上げたほうがよさそうに見える。
+    var aac = -aa ?? decimal.Zero;
+    // 「0」と表示されたので内部的に評価されている模様。
+    System.Console.WriteLine(aac);
+```
+
+タプルで先頭の要素に入れた値を後の要素で使えないか気になったので調査。  
+ダメだった。  
+同時に値を入れるので、先頭とか関係ない模様。  
+
+``` C#
+    // Main.cs(10,20): error CS0103: The name `Disp' does not exist in the current context
+    var www = (
+        Disp: aa,
+        Calc: -Disp
+    );    
+    System.Console.WriteLine(www.Calc);
+```
