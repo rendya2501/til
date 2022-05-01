@@ -1,5 +1,7 @@
 # Windows技術
 
+[[Microsoft] Windowsデスクトップ向け業務アプリ開発は.NETと.NET Frameworkどっち？ - 2020年3月版](https://qiita.com/sengoku/items/a93d0be65483479f1253#fn3)  
+
 ---
 
 ## ActiveDirectory
@@ -174,7 +176,7 @@ ClickOnceはWindows FormsやWindows Presentation Foundation（WPF）のアプリ
 .NET Framework 2.0以降から利用可能。JavaプラットフォームにおけるJava Web Startに相当する。  
 
 ClickOnceの主な目標はクライアントアプリケーションの導入を容易にし、信頼性を向上させることである。  
-ClickOnceでは、Webページのリンクをクリックするだけでアプリケーションの実行が行われる。   
+ClickOnceでは、Webページのリンクをクリックするだけでアプリケーションの実行が行われる。  
 さらに、従来のアプリケーション配置モデルにあった  
 
 ・アプリケーションのアップデートの困難さ  
