@@ -261,3 +261,49 @@ release/1.0といった感じで切ればいい。
 push出来なくなってしまったので、エラー文で検索したら色々ヒットした。  
 
 git fetch,git mergeを実行したらいけたので備忘録として残しておく。  
+
+---
+
+## VisualStudioでの対処色々
+
+後でちゃんとまとめる。  
+
+右クリック、リセット、変更を削除(--hard)に該当するコマンドは`git reset --hard`の模様。  
+
+git reset --hard HEAD  
+編集・ステージングいずれの変更内容を取り消し、最後にコミットした状態に戻す  
+
+--hardはヘッドの位置をずらすという認識っぽい。
+
+大き目の別のブランチをマージした場合、直近のコミットを取り消すのではなく、その根本から取り消す必要がある模様。  
+これが分からなくて、明らかに整合性が取れていない状態でしか戻せないのに納得が行かなくて午前をつぶしてしまった。
+
+基本的に、ある特定のコミットだけを取り消すことはできないらしい。
+と、思ったが調べればごまんとでてくるぞ。
+
+
+revert は指定したコミットを打ち消す。
+
+reset はHEADを移動させる。
+
+
+resetはノードのnextを書き換える感じかな。
+revertは履歴は残るので、指定したコミットはそのままでそれを打ち消すコミットを作るだけ。
+
+VSから右クリックの時とgit bashを使った時で動作が違う？
+なんか
+
+
+git 特定のコミット 取り消し  
+<https://rurukblog.com/post/git-merge-delete/>  
+git 別のブランチ reset
+https://nanayaku.com/git-delete-reset/
+git revert
+
+https://qiita.com/rch1223/items/9377446c3d010d91399b
+https://qiita.com/aki4000/items/bec93ba631a83b687fb4
+https://naomi-homma.hatenablog.com/entry/2020/08/11/170039
+https://qiita.com/shuntaro_tamura/items/06281261d893acf049ed
+https://blog.shibayu36.org/entry/20100517/1274099459
+https://qiita.com/MitsukiYamauchi/items/8229cd55d4cf58b0db89
+https://qiita.com/S42100254h/items/db435c98c2fc9d4a68c2
