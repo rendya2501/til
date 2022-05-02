@@ -798,6 +798,163 @@ XAML上で2つのスクロールを連動させるための添付プロパティ
     </ItemsControl>
 ```
 
+``` XML : 完成3
+<ItemsControl
+    Width="200"
+    Height="100"
+    Margin="0,10,0,0"
+    Focusable="False"
+    Grid.IsSharedSizeScope="True"
+    ItemTemplate="{DynamicResource ItemTemplate}"
+    ItemsSource="{Binding DepositTypeList, Mode=OneWay}"
+    ScrollViewer.CanContentScroll="False"
+    Template="{DynamicResource MainContentTemplate}"
+    VirtualizingPanel.IsVirtualizing="True">
+    <ItemsControl.Resources>
+        <Style x:Key="HorizontalGridSplitter" TargetType="{x:Type GridSplitter}">
+            <Setter Property="Height" Value="1" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="Background" Value="Red" />
+        </Style>
+        <Style x:Key="VerticalGridSplitter" TargetType="{x:Type GridSplitter}">
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="Width" Value="1" />
+            <Setter Property="Background" Value="Red" />
+        </Style>
+
+        <!--  自信のリソースに定義した場合、DynamicResourceでバインド可能な模様  -->
+
+        <!--  ヘッダーレイアウト定義  -->
+        <ControlTemplate x:Key="HeaderTemplate">
+            <Border BorderBrush="Black" BorderThickness="1,1,1,0">
+                <Grid Background="Yellow">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" SharedSizeGroup="DepositTypeName" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" SharedSizeGroup="Amount" />
+                    </Grid.ColumnDefinitions>
+                    <Label
+                        Grid.Column="0"
+                        HorizontalContentAlignment="Center"
+                        Content="精算方法"
+                        FontSize="15" />
+                    <GridSplitter Grid.Column="1" Style="{StaticResource VerticalGridSplitter}" />
+                    <Label
+                        Grid.Column="2"
+                        HorizontalContentAlignment="Center"
+                        Content="精算金額"
+                        FontSize="15" />
+                </Grid>
+            </Border>
+        </ControlTemplate>
+
+        <!--  データレイアウト定義  -->
+        <DataTemplate x:Key="ItemTemplate">
+            <Border
+                Margin="0"
+                Padding="0"
+                BorderBrush="Black"
+                BorderThickness="1,0,1,1">
+                <Grid Height="Auto">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" SharedSizeGroup="DepositTypeName" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" SharedSizeGroup="Amount" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock
+                        Grid.Column="0"
+                        Margin="5,0,10,0"
+                        Text="{Binding DepositTypeName}" />
+                    <GridSplitter Grid.Column="1" Style="{StaticResource VerticalGridSplitter}" />
+                    <TextBlock
+                        Grid.Column="2"
+                        Margin="5,0,10,0"
+                        Text="{Binding Amount}" />
+                </Grid>
+            </Border>
+        </DataTemplate>
+
+        <!--  ヘッダーとデータを載せるテンプレートの定義  -->
+        <ControlTemplate x:Key="MainContentTemplate" TargetType="{x:Type ItemsControl}">
+            <!--  ヘッダーとデータをScrollViewerに収める  -->
+            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                <i:Interaction.Behaviors>
+                    <local:ScrollSyncronizingBehavior Orientation="Horizontal" ScrollGroup="Group3" />
+                </i:Interaction.Behaviors>
+                <ScrollViewer.Template>
+                    <ControlTemplate TargetType="{x:Type ScrollViewer}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <!--  ヘッダー部分  -->
+                            <DockPanel
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Margin="{TemplateBinding Padding}">
+                                <ScrollViewer
+                                    DockPanel.Dock="Top"
+                                    HorizontalScrollBarVisibility="Hidden"
+                                    Template="{DynamicResource HeaderTemplate}"
+                                    VerticalScrollBarVisibility="Hidden">
+                                    <i:Interaction.Behaviors>
+                                        <local:ScrollSyncronizingBehavior Orientation="Horizontal" ScrollGroup="Group3" />
+                                    </i:Interaction.Behaviors>
+                                </ScrollViewer>
+                                <!--  ヘッダーとデータの間の線  -->
+                                <GridSplitter IsHitTestVisible="False" Style="{StaticResource HorizontalGridSplitter}" />
+                                <!--  ScrollViewerのコンテンツ  -->
+                                <!--  ここにデータ部分が乗っているはず  -->
+                                <ScrollContentPresenter
+                                    Name="PART_ScrollContentPresenter"
+                                    CanContentScroll="{TemplateBinding CanContentScroll}"
+                                    KeyboardNavigation.DirectionalNavigation="Local" />
+                            </DockPanel>
+                            <!--  右端の縦スクロールバー  -->
+                            <ScrollBar
+                                Name="PART_VerticalScrollBar"
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Stretch"
+                                Maximum="{TemplateBinding ScrollableHeight}"
+                                ViewportSize="{TemplateBinding ViewportHeight}"
+                                Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}"
+                                Value="{TemplateBinding VerticalOffset}" />
+                            <!--  最下段の横スクロールバー  -->
+                            <ScrollBar
+                                Name="PART_HorizontalScrollBar"
+                                Grid.Row="1"
+                                Grid.Column="0"
+                                VerticalAlignment="Bottom"
+                                Maximum="{TemplateBinding ScrollableWidth}"
+                                Orientation="Horizontal"
+                                ViewportSize="{TemplateBinding ViewportWidth}"
+                                Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}"
+                                Value="{TemplateBinding HorizontalOffset}" />
+                            <!--  右下の大きさを変えるアイコン  -->
+                            <ResizeGrip
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Stretch"
+                                Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}" />
+                        </Grid>
+                    </ControlTemplate>
+                </ScrollViewer.Template>
+                <!--  データ部分  -->
+                <ItemsPresenter />
+            </ScrollViewer>
+        </ControlTemplate>
+    </ItemsControl.Resources>
+</ItemsControl>
+```
+
 ---
 
 ## ItemsControlでIsSharedSizeScopeを適応させる方法
