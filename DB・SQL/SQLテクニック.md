@@ -1348,3 +1348,17 @@ GROUP BY
 ORDER BY
     [TMa_PaymentCls].[PaymentClsCD]
 ```
+
+---
+
+## 1件でもあれば1、なければ0を返すクエリ
+
+初見でびっくりしたのでまとめる。  
+`TOP 1 1`ってなんやねんと思ったけど、そういうことか。  
+
+1件でもあればよく、処理速度を挙げるためにTOP1。  
+で、1を取得するって意味で`TOP 1 1`。  
+
+``` SQL
+SELECT ISNULL((SELECT TOP 1 1 FROM [Table] WHERE [Table].[Field] = 'hoge' ) , 0 )
+```
