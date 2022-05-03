@@ -823,6 +823,12 @@ XAML上で2つのスクロールを連動させるための添付プロパティ
         </Style>
 
         <!--  自信のリソースに定義した場合、DynamicResourceでバインド可能な模様  -->
+        <!-- 
+            StaticResourceとDynamicResourceを勉強した後に追記。
+            StaticResourceは性質上、使う時より上で定義していないと使えない。
+            その制約がないDynamicResourceであるが、接続を常に監視する性質上、できるならStaticResourceであるべき。
+            また、自身のResourceで完結しているように見えるが、これなら各Templateにそれぞれぶち込んだほうがよさそうに見える。
+         -->
 
         <!--  ヘッダーレイアウト定義  -->
         <ControlTemplate x:Key="HeaderTemplate">
