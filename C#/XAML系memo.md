@@ -41,9 +41,8 @@ PassEventArgsToCommandはEventArgsをViewModelに渡してくれるオプショ�
 
 ## ViewModelからコントロールのメソッドを実行する方法
 
-C1MultiSelectコントロールの実装中において、選択状態を初期化をしたいなーって時にUnselectAllというメソッドが用意されているのは分かったので、  
-それを直接呼び出せないか調べていたら、CallMethodActionという、まさしくな仕組みがあったのでまとめ。  
-[ビューモデルからビューのメソッドを呼ぶ](https://qiita.com/tera1707/items/d184c85d0c181e6563ea)
+C1MultiSelectコントロールの実装中において、選択状態を初期化をしたいなーって時にUnselectAllというメソッドが用意されているのは分かったので、それを直接呼び出せないか調べていたら、CallMethodActionという、まさしくな仕組みがあったのでまとめ。  
+[ビューモデルからビューのメソッドを呼ぶ](https://qiita.com/tera1707/items/d184c85d0c181e6563ea)  
 
 ``` XML : View
 <i:Interaction.Triggers>
@@ -67,6 +66,58 @@ CallMethodActionはWPF側が用意しているものらしい。
     MethodName="Add"
     MethodParameter="{Binding SelectedIndex}"
     MethodTarget="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type c1:C1MultiSelect}}, Path=ListBox.SelectedItems}" />
+```
+
+---
+
+## イベントを観測してコントロールのメソッドを実行したりプロパティを変更する方法
+
+[Blend SDKのChangePropertyActionを使ってみる](http://nineworks2.blog.fc2.com/blog-entry-33.html?sp)  
+[【WPF】EventTriggerとChangePropertyAction](http://pro.art55.jp/?eid=1303828)  
+
+いつぞや解決したと思っていたFlexGridの幅ギリギリまで列を定義した時に横スクロールが表示されてしまう問題に対応するため色々やった。  
+その時にItemsSourceが切り替わったら横スクロールを消してから再度設定しなおしたらいけないだろうかと考えて、イベントの発火を観測してメソッドを実行したりプロパティを変更したりできないか調べた。  
+
+``` xml : 基本
+<i:Interaction.Triggers>
+    <!-- いつも使っているやり方 -->
+    <l:InteractionMessageTrigger MessageKey="FlexGridInvalidateAction" Messenger="{Binding Messenger}">
+        <i:CallMethodAction MethodName="ArrangeScroll" />
+    </l:InteractionMessageTrigger>
+
+    <!-- イベントを観測する場合はEventTriggerを使う -->
+    <i:EventTrigger EventName="GotFocus">
+        <!-- プロパティを変更したい場合ChangePropertyActionを使う -->
+        <i:ChangePropertyAction PropertyName="HorizontalScrollBarVisibility" Value="Hidden" />
+        <!-- 同じ要領でコントロールのメソッドを実行することも可能 -->
+        <i:CallMethodAction MethodName="OnSizeChanged" />
+    </i:EventTrigger>
+</i:Interaction.Triggers>
+```
+
+``` XML : バグに対応するためにあれこれやったやつ
+<i:Interaction.Triggers>
+    <l:InteractionMessageTrigger MessageKey="FlexGridInvalidateAction" Messenger="{Binding Messenger}">
+        <!-- CustomFlexGridにスクロールバーの大きさを変えるっぽいメソッドがあったので呼び出してみたが駄目だった。 -->
+        <i:CallMethodAction MethodName="ArrangeScroll" TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ctrl:CustomFlexGrid}}}" />
+        <!-- CustomFlexGrid側でもItemsSourceChangedの最後に実行しているが、それだけでは駄目で、描画された後にDispatcher.Invokeで改めて実行したら行けた -->
+        <i:CallMethodAction MethodName="InvalidateVisual" />
+        <!-- データをセットしたらスクロールバーを消して、もう一度設定しなおしたらいけないか試したけど駄目だった。 -->
+        <i:ChangePropertyAction PropertyName="HorizontalScrollBarVisibility" Value="Hidden" />
+        <i:ChangePropertyAction PropertyName="HorizontalScrollBarVisibility" Value="Auto" />
+    </l:InteractionMessageTrigger>
+
+    <!-- 中身が変わったタイミングでいけないか色々やってみた -->
+    <i:EventTrigger EventName="ItemsSourceChanging">
+        <!-- これは上でも書いたけど駄目 -->
+        <i:ChangePropertyAction PropertyName="HorizontalScrollBarVisibility" Value="Hidden" />
+        <i:ChangePropertyAction PropertyName="HorizontalScrollBarVisibility" Value="Auto" />
+        <!-- ソートしたら治るので、疑似的なソートに関係する処理を実行させたらどうかと思ったが駄目だった。 -->
+        <i:CallMethodAction MethodName="Clear" TargetObject="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ctrl:CustomFlexGrid}}, Path=CollectionView.SortDescriptions}" />
+        <!-- アイテムが変わっているタイミングでの再描画は駄目だった。もちろんChangedでも駄目。 -->
+        <i:CallMethodAction MethodName="InvalidateVisual" />
+    </i:EventTrigger>
+</i:Interaction.Triggers>
 ```
 
 ---
@@ -1822,3 +1873,5 @@ BindingのPathに添付プロパティを指定する場合、カッコをつけ
   </ListView>
 </Window>
 ```
+
+---

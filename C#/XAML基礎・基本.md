@@ -167,9 +167,9 @@ DependencyProperty→バインディングができるようにする。コン�
 ### プロパティ属性構文(Attribute Syntax)
 
 要素の属性にテキストを使用して設定する。  
-値を文字列で指定できる（文字列そのもの or 文字列から直接変換可能な型）プロパティの場合はこの構文を使うと便利です。  
+値を文字列で指定できる（文字列そのもの or 文字列から直接変換可能な型）プロパティの場合はこの構文を使うと便利。  
 
-``` XML
+``` XML : プロパティ属性構文(Attribute Syntax)
 <TextBox 
   Width = "100" FontSize = "30" Text = "text 1"
   Background = "White" Foreground = "Blue" />
@@ -178,10 +178,10 @@ DependencyProperty→バインディングができるようにする。コン�
 ### プロパティ要素構文(Property Element Syntax)
 
 要素のinnerText・innerXMLを使用してプロパティを設定する。
-では、もっと複雑な型を持つプロパティの場合にはどうすればいいかと言うと、 XML 要素の子要素としてプロパティの値を設定する Property Element Syntax という構文も用意されています。
-例えば、上の例を Property Element Syntax で書き直すと以下のようになります。
+複雑な型を持つプロパティの場合に有効。  
+XML 要素の子要素としてプロパティの値を設定する構文。  
 
-``` XML
+``` XML : プロパティ要素構文(Property Element Syntax)
 <TextBox>
   <TextBox.Width>100</TextBox.Width>
   <TextBox.FontSize>30</TextBox.FontSize>
@@ -191,7 +191,22 @@ DependencyProperty→バインディングができるようにする。コン�
 </TextBox>
 ```
 
-`<SETTER>`はStyleタグでのみ有効な模様。
+### Styleの書き方
+
+`<SETTER>`タグはStyle内でのみ有効な模様。  
+
+``` XML
+<Style TargetType="TextBlock">
+    <Setter Property="Text" Value="{Binding}" />
+    <Setter Property="LayoutTransform">
+        <Setter.Value>
+            <DataTemplate>
+                <ScaleTransform ScaleX="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type metro:MetroWindow}}, Path=DataContext.Magnification, Mode=TwoWay}" ScaleY="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type metro:MetroWindow}}, Path=DataContext.Magnification, Mode=TwoWay}" />
+            </DataTemplate>
+        </Setter.Value>
+    </Setter>
+</Style>
+```
 
 ---
 
@@ -217,3 +232,60 @@ Behaviorでの話。
 ## XAMLのコントロール
 
 [C#のWPFのコントロール一覧](https://water2litter.net/rye/post/c_control_list/#my_mokuji10)  
+
+---
+
+## Gridの行列の幅や高さの定義
+
+[C#WPFの道#3！Gridの使い方をわかりやすく解説！](https://anderson02.com/cs/wpf/wpf-3/)  
+
+GridのWidthやHeightに[*]や[Auto]を指定した時の動作が曖昧だったのでまとめ。  
+
+- 数値 : 絶対値でピクセルを指定します。  
+
+- [*] : 均等な比率を割り当てます。  
+例)  
+3列宣言していて、すべての列の定義が「＊」の場合は、均等に3列の幅が作られます。  
+「２＊」などと、数字を＊の前に記述すると、その列のみ2倍などの指定した値の倍率で確保されます。  
+
+- [Auto] : 設置したコントロールの幅で動的に変動します。  
+  おそらく、内部のコントロールが動的に変化する場合、Gridの大きさ同じように変化すると思われる。  
+
+---
+
+## Resourceで定義したStyleを当てる方法
+
+[WPF のリソース](http://var.blog.jp/archives/67298406.html)  
+[[WPF/xaml]リソースディクショナリを作って、画面のコントロールのstyleを変える](https://qiita.com/tera1707/items/a462678cdfb61a87334b)  
+[[WPF] Styleでできることと書き方](https://qiita.com/tera1707/items/cb8ad4c40107ae25b565)  
+
+---
+
+## StaticResourceとDynamicResourceの違い
+
+[WPFのStaticResourceとDynamicResourceの違いMSDN](https://social.msdn.microsoft.com/Forums/ja-JP/3bbcdc48-2a47-495e-9406-2555dc515c3a/wpf12398staticresource12392dynamicresource123983694912356?forum=wpfja)  
+[WPFのStaticResourceとDynamicResourceの違い](https://tocsworld.wordpress.com/2014/06/26/wpf%E3%81%AEstaticresource%E3%81%A8dynamicresource%E3%81%AE%E9%81%95%E3%81%84/)  
+[WPF4.5入門 その51 「リソース」](https://blog.okazuki.jp/entry/2014/09/06/124431)  
+
+### StaticResource
+
+リソースとバインド先の依存関係プロパティの対応付けは起動時の1回のみ。  
+ただしクラスは参照なのでリソースのプロパティの変更はバインド先も影響を受ける。  
+
+StaticResourceマークアップ拡張は、実質的にはリソースの値を代入するのと等価です。  
+
+### DynamicResource
+
+リソースとバインド先の依存関係プロパティの対応付けは起動時および起動中(リソースに変更がある度)。  
+つまりリソースのオブジェクトが変わってもバインド先は影響を受けるし、当然リソースのプロパティ変更はバインド先も影響を受ける。  
+
+DynamicResourceマークアップ拡張は、設定したキーのリソースが変更されるかどうかを実行時に監視していて、リソースが変わったタイミングで再代入が行われます。  
+
+### 比較・まとめ
+
+DyanmicResourceマークアップ拡張を使うと、例えばアプリケーションのテーマの切り替えといったことが可能になります。  
+しかし、必要でない限りStaticResourceマークアップ拡張を使うべきです。  
+その理由は、単純にStaticResourceマークアップ拡張のほうがDynamicResourceマークアップ拡張よりもパフォーマンスが良いからです。  
+
+StaticResourceマークアップ拡張を使う時の注意点として、単純な代入という特徴から、使用するよりも前でリソースが定義されてないといけないという特徴があります。  
+DynamicResourceマークアップ拡張は、このような制約が無いため、どうしても前方でリソースの宣言が出来ないときもDynamicResourceマークアップ拡張を使う理由になります。  
