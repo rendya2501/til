@@ -1,13 +1,32 @@
 # C#基本まとめ
 
-## C#のバージョン早見表
+## .NetのバージョンとC#のバージョン早見表
 
+[【C# 機能別】知らん書き方が出てきたらこれを見ろ！C# 10 までの進化を1ページで](https://oita.oika.me/2021/12/23/csharp-10-history)  
+[C# の歴史](https://docs.microsoft.com/ja-jp/dotnet/csharp/whats-new/csharp-version-history)  
 [.NET Framework のバージョン対応表](https://qiita.com/nskydiving/items/3af8bab5a0a63ccb9893)  
-公式を見るよりよっぽどいい。  
 
-- .NetFramework 4.8 : C# 7.3  
-- .NetCore3.0 : C# 8.0
-- .NetCore5 : C#9.0
+``` txt : 早見表
+C#   | year  | .NET      | .NET | .NET | Visual Studio
+     |       | Framework | Core |      |
+-----+-------+-----------+------+------+----------------
+1.0  | 2002  |  1.0      |      |      | 2002
+1.2  | 2003  |  1.1      |      |      | 2003
+2.0  | 2005  |  2.0      |      |      | 2005
+3.0  | 2007  |  3.5      |      |      | 2008
+4.0  | 2010  |  4.0      |      |      | 2010
+5.0  | 2012  |  4.5      |      |      | 2012
+6.0  | 2015  |  4.6      | 1.0  |      | 2015
+7.0  | 2017  |  4.7      |      |      | 2017
+7.1  | 2017  |  2.0      |      |      | 2017
+7.2  | 2017  |  2.1      |      |      | 2017
+7.3  | 2018  |  4.8      | 2.2  |      | 2017
+8.0  | 2019  |           | 3.0  |      | 2019
+9.0  | 2020  |           |      | 5    | 2019
+10.0 | 2021  |           |      | 6    | 2022
+11.0 | 2022  |           |      |      | 2022
+
+```
 
 ---
 
@@ -929,7 +948,8 @@ class Program
 
 ## 範囲アクセス
 
-`a[i..j]` という書き方で「i番目からj番目の要素を取り出す」というような操作ができるようになりました。
+`a[i..j]` という書き方で「i番目からj番目の要素を取り出す」というような操作ができるようになりました。  
+C# 8.0からの機能なので、.NetFramework(C# 7.3)では使えません。  
 
 ``` C#
 class Program
@@ -1011,8 +1031,7 @@ int[ ][ ]  array ={ {1,2,3},{1,2} };
 
 ## 条件演算子のターゲット型推論の強化
 
-東さんに三項演算子でnull許可のboolを受け取るとき、「片方を変換しないといけないのキモイね」って言われたので、  
-「受け取り側をvarじゃなくてbool?にすれば行けますよ」って言ったけどエラーになった。  
+東さんに三項演算子でnull許可のboolを受け取るとき、「片方を変換しないといけないのキモイね」って言われたので、「受け取り側をvarじゃなくてbool?にすれば行けますよ」って言ったけどエラーになった。  
 どうやらこれが有効なのはC#9からみたいで、Framework4.8のC#7.3では無理だった。  
 家でやるサンプルは基本的に最新版なので、バージョンを意識することがない。  
 それを意識するいい体験だったのでまとめた。  
@@ -1021,6 +1040,7 @@ int[ ][ ]  array ={ {1,2,3},{1,2} };
 // この記述が許されるのはC#9から。
 // これはC#9の条件演算子のターゲット型推論の強化に当たるらしい。
 bool? aa = true ? false : null;
+
 // C#9以前はこのように書くしかない。
 var aa = true ? (bool?)false : null;
 ```
@@ -1102,4 +1122,34 @@ where T : <クラス名>            指定したクラスのみで制約
 where T : <インターフェース名>  指定したインターフェースのみで制約
 where T : new()                 引数なしのパブリックコンストラクタがある型のみで制約
 where T : U                     Uに基づいた型で制約される
+```
+
+---
+
+## String .Equals ==演算子 違い
+
+[==演算子とEqualsメソッドの違いとは？［C#］](https://atmarkit.itmedia.co.jp/ait/articles/1802/28/news028.html)  
+[2つの値が等しいか調べる、等値演算子(==)とEqualsメソッドの違い](https://dobon.net/vb/dotnet/beginner/equality.html)  
+[【C#】文字列を比較する（== 演算子、Equalメソッド、Compareメソッド）](https://nyanblog2222.com/programming/c-sharp/193/)  
+
+``` C#
+    string A = "AA";
+    string B = "BB";
+
+    Console.WriteLine(A.Equals(B));
+    Console.WriteLine( A == B);
+    Console.WriteLine(Equals(A, B));
+
+    B = "AA";
+
+    Console.WriteLine(A.Equals(B));
+    Console.WriteLine(A == B);
+    Console.WriteLine(Equals(A, B));
+
+    A = null;
+    B = null;
+
+    Console.WriteLine(A == B);
+    Console.WriteLine(A?.Equals(B) ?? false);
+    Console.WriteLine(Equals(A, B));
 ```

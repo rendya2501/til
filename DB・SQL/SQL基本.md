@@ -4,20 +4,25 @@
 
 <https://itsakura.com/sql-insert>  
 
-``` sql
--- ●INSERT文 (列名を書かない)  
+・列名指定あり・なし  
+・VALUESかSELECTか  
+この2つの組み合わせさえ分かっていれば問題はない。  
+
+``` sql : 基本
+-- ●列名指定なし + VALUES
 INSERT INTO テーブル名 VALUES ( '値1' [ , '値2' ]・・・);
 
--- ●INSERT文 (列名を書く)
+-- ●列名指定あり + VALUES
 INSERT INTO テーブル名 ( テーブルの列名1 [ , テーブルの列名2 ]・・・) VALUES ( '値1' [ , '値2' ]・・・);
 
--- ●INSERT文 (selectの結果をinsertする)
+-- ●列名指定なし + SELECT (selectの結果をinsertする)
 INSERT INTO テーブル名 SELECT 項目名 FROM テーブル名
 
--- ●INSERT文 (selectの結果+列名の指定)
+-- ●列名指定あり + SELECT (selectの指定した結果だけをinsertする)
 INSERT INTO テーブル名 ( [テーブルの列名1], [テーブルの列名2]... ) SELECT [項目名1],[項目名2]... FROM 別テーブル名
+```
 
--- SELECTした結果をINSERTできたよなぁーと思ってやったら一発で行けたので備忘録として載せておく。
+``` sql : SELECTした結果をINSERTできたよなぁーと思ってやったら一発で行けたので備忘録として載せておく。
 INSERT INTO Round3SysC3.dbo.TSm_ReportFileSetting
 (WindowName,TemplateName,ReportName,ValidFlag,Sort,ApiUri,Remarks)
 SELECT WindowName,TemplateName,ReportName,ValidFlag,Sort,ApiUri,Remarks
@@ -28,44 +33,43 @@ AND TemplateName = 'RN3.Wpf.Front.CheckOut.SettlementH.rdlx'
 
 疑問
 
-### 列名を書くタイプのINSERT文で別名を定義して
+### 列名指定 + VALUESタイプ で列名をあべこべに設定したらどうなるか
 
-`INSERT INTO テーブル名 ([列1],[列2]) VALUES ('値1' AS [列2],‘値2’ AS [列1])`
-ってやった場合どうなる？  
-→そもそも構文エラーになる。
+`INSERT INTO テーブル名 ([列1],[列2]) VALUES ('値1' AS [列2], '値2' AS [列1])`  
 
-`INSERT INTO TMa_Route2 (OfficeCD,RouteCD) VALUES ('ALP' AS [AAA],100 AS [BBB])`
-→
-`メッセージ 156、レベル 15、状態 1、行 5 キーワード 'AS' 付近に不適切な構文があります。`
+A. 構文エラーになる。  
+VALUES句の中でAS句は使えない模様。  
 
-### 列名を書くタイプのINSERTは列の数が一致しないとエラーになる
+実行結果  
+`INSERT INTO TMa_Route2 (OfficeCD,RouteCD) VALUES ('ALP' AS [AAA],100 AS [BBB])`  
+→  
+`メッセージ 156、レベル 15、状態 1、行 5 キーワード 'AS' 付近に不適切な構文があります。`  
 
-`INSERT INTO TMa_Route2 VALUES ('ALP',102)`
-→
-`メッセージ 213、レベル 16、状態 1、行 5 列名または指定された値の数がテーブルの定義と一致しません。`
+### 列名指定 + SELECTタイプ で列名に対する別名をあべこべに定義した場合
 
-### SELECTを用いたタイプで別名を定義した場合も同義
+・構文エラーになることはないが、別名は関係なく、左から順番通りに入る。  
+・定義していない列にはデフォルト値が入る  
 
-→こっちは行ける。でもって別名関係なく、順番通りに入る。  
-
-・定義していない列はデフォルト値が入る？  
-→そう  
-
-`INSERT INTO TMa_Route2 (OfficeCD,RouteCD) SELECT 'ALP' AS [AAA],100 AS [BBB]`
-→
+`INSERT INTO TMa_Route2 (OfficeCD,RouteCD) SELECT 'ALP' AS [AAA],100 AS [BBB]`  
+→  
 
 ``` txt
 OfficeCD    RouteCD    RouteName    RouteShortName    ClsCD    Color    BackgroundColor    Sort    ValidFlag    SearchKey    InsertDateTime    InsertStaffCD    InsertStaffName    InsertProgram    InsertTerminal    UpdateDateTime    UpdateStaffCD    UpdateStaffName    UpdateProgram    UpdateTerminal
 ALP    100    NULL    NULL    NULL    NULL    NULL    NULL    NULL    NULL    NULL    NULL    NULL    NULL    NULL    NULL    NULL    NULL    NULL    NULL
 ```
 
-### 値を設定するタイプは設定した列の数があっていればおｋ?
+### 列名指定なし + VALUESタイプ では列の数が一致しないとエラーになる
 
-→そうみたい。
+`INSERT INTO TMa_Route2 VALUES ('ALP',102)`  
+→  
+`メッセージ 213、レベル 16、状態 1、行 5 列名または指定された値の数がテーブルの定義と一致しません。`  
+
+列名を指定しない場合は、列数と同じデータを用意しないとエラーになる。  
+
+### 列名指定 + VALUESタイプ は列数とVALUESの列数が一致している必要がある
 
 `INSERT INTO TMa_Route2 (OfficeCD,RouteCD) VALUES ('ALP',100,22)`  
-→
-
+→  
 `メッセージ 110、レベル 15、状態 1、行 5`  
 `VALUES 句で指定された値よりも INSERT ステートメントの列数が少なすぎます。VALUES 句の値の数は、INSERT ステートメントで指定される列数と一致させてください。`  
 
@@ -76,7 +80,6 @@ ALP    100    NULL    NULL    NULL    NULL    NULL    NULL    NULL    NULL    NU
 <https://qiita.com/ryota_i/items/d17c7630bacb36d26864>  
 
 特定テーブルにおける、条件に当てはまるレコードの特定のカラムの値を任意の値に書き換える。  
-日本語に直して予約語さえ覚えてしまえば、なんてことはないな。  
 
 ```sql
 -- ●基本
@@ -153,7 +156,7 @@ WHERE
 
 ---
 
-## DELETE文
+## DELETE
 
 ```sql
 -- ●基本

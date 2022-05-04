@@ -1561,6 +1561,10 @@ decimal?型にnullが入って来た場合、null合体演算子と反転処理�
     var aac = -aa ?? decimal.Zero;
     // 「0」と表示されたので内部的に評価されている模様。
     System.Console.WriteLine(aac);
+
+    // 後日これを実行してみたらaacはnullになったので、
+    // -aa ?? decimal.Zero は -1 * (aa ?? decimal.zero) ではなく (null ?? decimal.zero)の状態になっていたことが分かった。
+    var aac = -aa;
 ```
 
 タプルで先頭の要素に入れた値を後の要素で使えないか気になったので調査。  

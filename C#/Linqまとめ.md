@@ -1089,7 +1089,7 @@ foreachなどの評価で初めてクエリが外部ソースに発行され結�
 
 ・タプルでも、内部の型が複数になるとエラーになる。
 ・3つ以上のキーで持ってソートした場合、OrderByThenBy方式とタプル方式で本当に値が同じになるのか試して見る。
-・OrderBy中にタプルを使うのは.NetFramework4.8でも行けたC#(7.3)
+・OrderBy中にタプルを使うのは.NetFramework4.8(C# 7.3)でも行けた
 
 ``` C#
     var list = new List<(int Data1, int Data2)>

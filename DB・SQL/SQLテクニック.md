@@ -1033,13 +1033,55 @@ values('aaa')
 ## Time型をString型に変換する
 
 Time(7)型の`07:23:00.0000000`を`07:23`にしたかった。  
-[SQL Serverで日付型を文字列に変換する](https://it-engineer-info.com/database/2630/)
 
 ``` sql
     -- 108 → HH:MM:SS → 07:23:00
     CONVERT(NVARCHAR,[Frame].[StartTime],108)
-
+    -- 07:23:00 → 07:23
     LEFT(CONVERT(NVARCHAR,[Frame].[StartTime],108), 5)
+```
+
+[SQL Serverで日付型を文字列に変換する](https://it-engineer-info.com/database/2630/)  
+108[HH:mm:ss]と112[YYYYMMDD]を多用すると思われる。  
+
+``` txt
+Style  日付
+
+100    01 2 2019 3:04AM
+101    01/02/2019
+102    2019.01.02
+103    02/01/2019
+104    02.01.2019
+105    02-01-2019
+106    02 01 2019
+107    01 02, 2019
+108    03:04:05
+109    01 2 2019 3:04:05:677AM
+110    01-02-2019
+111    2019/01/02
+112    20190102
+113    02 01 2019 03:04:05:677
+114    03:04:05:677
+120    2019-01-02 03:04:05
+121    2019-01-02 03:04:05.677
+126    2019-01-02T03:04:05.677
+127    2019-01-02T03:04:05.677
+```
+
+---
+
+## FORMAT関数による時間の変換の代替案
+
+SQLServer2008R2ではFORMAT関数が使えない模様。  
+変わりにCONVERT関数で代用。  
+
+※FORMAT関数は SQL Server 2017 以降の模様。  
+[SQL Serverで日付型を文字列に変換する](https://it-engineer-info.com/database/2630/)  
+
+``` sql
+--FORMAT([スタート時間], 'HH:mm:ss') as StartTime,
+--→
+CONVERT(VARCHAR, [スタート時間], 108),
 ```
 
 ---
@@ -1258,41 +1300,31 @@ select COALESCE(
 
 ---
 
-## aaa
+## WHEREの実行タイミングで結果が変わる
 
 WHEREをどのタイミングで実行するかによって結果が変わってくるパターンに遭遇したのでメモっておく。  
 
 - 全部JoinしてからWHERE  
 - Joinする最中にWHERE  
-- WHEREしてJoinしたサブテーブル  
+- WHEREで絞った結果をサブテーブルで受け取ってJoin
 
-``` sql
---1 カード 166666.00
---2 QR 0.00
+``` txt
+出力されてほしい結果
+1 カード 166666.00
+2 QR 0.00
 
-SELECT
-    [TMa_PaymentCls].[PaymentClsCD],
-    [TMa_PaymentCls].[PaymentClsName],
-    SUM(ISNULL([TCs_CardBalance].[TodayAccountsReceivable],0)) AS [Price]
-FROM
-    [TMa_PaymentCls]
-    LEFT OUTER JOIN [TMa_PaymentType] 
-    ON [TMa_PaymentCls].[OfficeCD] = [TMa_PaymentType].[OfficeCD]
-    AND [TMa_PaymentCls].[PaymentClsCD] = [TMa_PaymentType].[PaymentClsCD]
-    LEFT OUTER JOIN [TCs_CardBalance]
-    ON [TMa_PaymentType].[OfficeCD] = [TCs_CardBalance].[OfficeCD]
-    AND [TMa_PaymentType].[PaymentTypeCD] = [TCs_CardBalance].[PaymentTypeCD]
-    AND [TCs_CardBalance].[OfficeCD] = 'ESV'
-    AND [TCs_CardBalance].[BusinessDate] = '2022/04/02'
-GROUP BY
-    [TMa_PaymentCls].[PaymentClsCD],
-    [TMa_PaymentCls].[PaymentClsName]
-ORDER BY
-    [TMa_PaymentCls].[PaymentClsCD]
+間違った結果
+1 カード 166666.00
 ```
 
-``` sql
---1 カード 166666.00
+QRレコードが表示されてほしいのだが、全部JOINしてからWHEREするパターンでは間違った結果になってしまう。  
+愚直にWHEREした結果をサブテーブルで受け取ってからJOINすることで解決したが、それ以外にもJOIN中に条件を指定することでも解決できた。  
+
+``` sql : 全部JoinしてからWHERE
+-- 最後に結果の評価を行うので、消してほしくないものまで対象になってしまった。
+
+-- 結果
+-- 1 カード 166666.00
 
 SELECT
     [TMa_PaymentCls].[PaymentClsCD],
@@ -1316,9 +1348,41 @@ ORDER BY
     [TMa_PaymentCls].[PaymentClsCD]
 ```
 
-``` sql
---1 カード 166666.00
---2 QR 0.00
+``` sql : Joinする最中にWHERE
+-- 一番スマートな解決法だと思われる
+
+-- 結果
+-- 1 カード 166666.00
+-- 2 QR 0.00
+
+SELECT
+    [TMa_PaymentCls].[PaymentClsCD],
+    [TMa_PaymentCls].[PaymentClsName],
+    SUM(ISNULL([TCs_CardBalance].[TodayAccountsReceivable],0)) AS [Price]
+FROM
+    [TMa_PaymentCls]
+    LEFT OUTER JOIN [TMa_PaymentType] 
+    ON [TMa_PaymentCls].[OfficeCD] = [TMa_PaymentType].[OfficeCD]
+    AND [TMa_PaymentCls].[PaymentClsCD] = [TMa_PaymentType].[PaymentClsCD]
+    LEFT OUTER JOIN [TCs_CardBalance]
+    ON [TMa_PaymentType].[OfficeCD] = [TCs_CardBalance].[OfficeCD]
+    AND [TMa_PaymentType].[PaymentTypeCD] = [TCs_CardBalance].[PaymentTypeCD]
+    AND [TCs_CardBalance].[OfficeCD] = 'ESV'
+    AND [TCs_CardBalance].[BusinessDate] = '2022/04/02'
+GROUP BY
+    [TMa_PaymentCls].[PaymentClsCD],
+    [TMa_PaymentCls].[PaymentClsName]
+ORDER BY
+    [TMa_PaymentCls].[PaymentClsCD]
+```
+
+``` sql : WHEREで絞った結果をサブテーブルで受け取ってJoin
+-- 一番愚直ではあるが、一番長く野暮ったい
+
+-- 結果
+-- 1 カード 166666.00
+-- 2 QR 0.00
+
 SELECT
     [TMa_PaymentCls].[PaymentClsCD],
     [TMa_PaymentCls].[PaymentClsName],
@@ -1361,4 +1425,20 @@ ORDER BY
 
 ``` SQL
 SELECT ISNULL((SELECT TOP 1 1 FROM [Table] WHERE [Table].[Field] = 'hoge' ) , 0 )
+```
+
+---
+
+## IF NOT EXIST
+
+なければ実行、あれば何もしないサンプル
+
+``` sql
+IF NOT EXISTS
+(
+    SELECT TOP 1 1 FROM Round3DatOCC.dbo.TMa_TimeFrameType WHERE [TimeFrameTypeCD] = 99
+)
+    INSERT INTO
+    ~~~
+GO
 ```
