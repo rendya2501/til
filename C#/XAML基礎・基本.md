@@ -289,3 +289,25 @@ DyanmicResourceマークアップ拡張を使うと、例えばアプリケー�
 
 StaticResourceマークアップ拡張を使う時の注意点として、単純な代入という特徴から、使用するよりも前でリソースが定義されてないといけないという特徴があります。  
 DynamicResourceマークアップ拡張は、このような制約が無いため、どうしても前方でリソースの宣言が出来ないときもDynamicResourceマークアップ拡張を使う理由になります。  
+
+### ItemsControl製作中の例
+
+StaticResourceとDynamicResourceを勉強した後に追記。  
+StaticResourceは性質上、使う時より上で定義していないと使えない。  
+その制約がないDynamicResourceであれば、下のような書き方ができるが、接続を常に監視する性質上、パフォーマンスは落ちてしまう模様。  
+それならItemsControlをGridで囲み、Gridのリソースとして定義してStaticResourceを指定すべきだと感じた。  
+また、自分自身のResourceで完結しているように見えるが、これなら各Templateにそれぞれぶち込んだほうがよさそうに見える。  
+
+まぁ、こういうこともできるよということで書いたけど、実際に使うことはないだろう。  
+
+``` XML : 完成3
+<ItemsControl
+    ItemTemplate="{DynamicResource ItemTemplate}"
+    Template="{DynamicResource MainContentTemplate}">
+    <!--  自分自身のリソースに定義してDynamicResourceでバインド  -->
+    <ItemsControl.Resources>
+        <DataTemplate x:Key="ItemTemplate"/>
+        <ControlTemplate x:Key="MainContentTemplate" TargetType="{x:Type ItemsControl}"/>
+    </ItemsControl.Resources>
+</ItemsControl>
+```

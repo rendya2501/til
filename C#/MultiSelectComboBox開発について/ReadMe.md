@@ -109,15 +109,6 @@ Styleでは、Triggerを使うことでプロパティの値に応じてプロ�
 ・TemplateBinding
 親の設定を子にも適応させるやつ。
 
-・StaticResource  
-対象のプロパティに1度だけ設定が行われます。
-リソースとバインド先の依存関係プロパティの対応付けは起動時の1回のみ、ただしクラスは参照なのでリソースのプロパティの変更はバインド先も影響を受ける。
-
-・DynamicResource
-リソースの内容が変更されたら対象のプロパティも変更されます。
-リソースとバインド先の依存関係プロパティの対応付けは起動時および起動中(リソースに変更がある度)。つまりリソースのオブジェクトが変わってもバインド先は影響を受けるし、当然リソースのプロパティ変更はバインド先も影響を受ける。
-
-
 ・ControlTemplate
 コントロールのためのテンプレート。
 なんかControlTemplate定義してるところは全部Gridから始まっているけど何なのだろうか。そういうものなのか？  
@@ -138,15 +129,25 @@ ControlTemplate単体で定義して、x:keyで指定することも可能な模
 
 ・いろいろなコントロールが組み合わさってモノができているのはわかるけど、その中のこのコントロールの大しての設定！みたいな指定ってどこでやってるんだ？
 
-[WPFのStaticResourceとDynamicResourceの違い](https://tocsworld.wordpress.com/2014/06/26/wpf%E3%81%AEstaticresource%E3%81%A8dynamicresource%E3%81%AE%E9%81%95%E3%81%84/)  
-[MSDN_WPFのStaticResourceとDynamicResourceの違い](https://social.msdn.microsoft.com/Forums/ja-JP/3bbcdc48-2a47-495e-9406-2555dc515c3a/wpf12398staticresource12392dynamicresource123983694912356?forum=wpfja)  
 [コントロールのためのテンプレートを作成する方法 (WPF.NET)](https://docs.microsoft.com/ja-jp/dotnet/desktop/wpf/controls/how-to-create-apply-template?view=netdesktop-5.0)  
 [テンプレート（WPF）](https://ufcpp.net/study/dotnet/wpf_template.html)  
+
 [[WPF]ComboBoxのControlTemplateを使ってシンプルかつMouseOrver時に色が変わるComboBoxを作ってみた](https://qiita.com/nori0__/items/61bc195ff6e07ff1daa5)  
-
-
 
 ・SnapsToDevicePixels
 
 エッジをシャープにするオプションらしい。
 これがないとぼやけるっぽいので常につけておけばいいんじゃないかな。
+
+---
+
+## 自作マルチセレクトコンボボックス
+
+[【C#】ListBoxで項目を追加、取得する方法(CheckedListBoxも解説)](https://www.sejuku.net/blog/57045)  
+
+[CheckBox Styles and Templates 公式ソース](https://docs.microsoft.com/en-us/previous-versions/windows/silverlight/dotnet-windows-silverlight/cc278078(v=vs.95))
+
+・ディスプレイメンバー
+・セレクトバリュー
+・中間状態の見た目
+・そもそもの解析

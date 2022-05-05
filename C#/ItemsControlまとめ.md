@@ -22,6 +22,7 @@
 
 [WPF】ItemsControlの基本的な使い方](https://qiita.com/ebipilaf/items/c3e9e501eb0560a12ce8)  
 [ItemsControlのテンプレートをカスタマイズする](https://mvrck.jp/documents/dotnet/wpf/itemscontrol-template/)  
+[WPFのListBoxをカスタムする](https://qiita.com/tera1707/items/363d2a33eadcb3eb275a)  
 
 ``` txt
 プロパティ名        | 概要                                         | 設定で使用するコントロール
@@ -133,7 +134,7 @@ ContentPresenterには、ItemTemplateの内容が入る。
 
 チェックアウトで作ったやつと何か違うと思ったら、参考にしたサンプルはヘッダー部分はGridをそのまま使ってるのか。  
 
-``` XML
+``` XML : サンプルの写経
 <Window 略>
     <Window.DataContext>
         <local:MainWindowViewModel />
@@ -144,15 +145,11 @@ ContentPresenterには、ItemTemplateの内容が入る。
                 <Setter Property="Height" Value="1" />
                 <Setter Property="HorizontalAlignment" Value="Stretch" />
                 <Setter Property="Background" Value="Red" />
-                <Setter Property="Padding" Value="0" />
-                <Setter Property="Margin" Value="0" />
             </Style>
             <Style x:Key="VerticalGridSplitter" TargetType="{x:Type GridSplitter}">
                 <Setter Property="HorizontalAlignment" Value="Stretch" />
                 <Setter Property="Width" Value="1" />
                 <Setter Property="Background" Value="Red" />
-                <Setter Property="Padding" Value="0" />
-                <Setter Property="Margin" Value="0" />
             </Style>
         </Grid.Resources>
         <Grid.RowDefinitions>
@@ -287,12 +284,6 @@ ContentPresenterには、ItemTemplateの内容が入る。
         }
     }
 
-    public sealed class Deposit
-    {
-        public string DepositTypeName { get; set; }
-        public decimal Amount { get; set; }
-    }
-
     public class MainWindowViewModel
     {
         public ReadOnlyObservableCollection<Person> Persons { get; set; } =
@@ -321,18 +312,12 @@ ContentPresenterには、ItemTemplateの内容が入る。
                     new Person(20, "佐伯誠治"  , "1985/03/21" , 37),
                 }
             );
-        public List<Deposit> DepositTypeList { get; set; } =
-            new List<Deposit>()
-            {
-                new Deposit(){DepositTypeName="test1",Amount=100 },
-                new Deposit(){DepositTypeName="test2",Amount=200 },
-                new Deposit(){DepositTypeName="test3",Amount=300 },
-                new Deposit(){DepositTypeName="test4",Amount=400 },
-                new Deposit(){DepositTypeName="test5",Amount=500 },
-                new Deposit(){DepositTypeName="test6",Amount=600 },  
-            };
     }
 ```
+
+### チェックアウトのItemsControl
+
+比較参考としてチェックアウトにおいてあったItemsControlも載せておく
 
 ``` XML : チェックアウトのItemsControl
 <ItemsControl
@@ -449,6 +434,402 @@ ContentPresenterには、ItemTemplateの内容が入る。
 </ItemsControl>
 ```
 
+---
+
+## ItemsControlをDataGridみたいに使うをアレンジ
+
+サンプルを参考にFlexGridみたいにできないかいろいろやって見た。  
+2つの完成品ができたので、まとめる。  
+
+選択している要素が必要ないならItemsControl単品でよさそう。
+選択している要素が必要ならListBoxで囲むといいかも。
+
+``` XML : ItemsControlバージョン
+    <Grid>
+        <Grid.Resources>
+            <Style x:Key="HorizontalGridSplitter" TargetType="{x:Type GridSplitter}">
+                <Setter Property="Height" Value="1" />
+                <Setter Property="HorizontalAlignment" Value="Stretch" />
+                <Setter Property="Background" Value="Red" />
+            </Style>
+            <Style x:Key="VerticalGridSplitter" TargetType="{x:Type GridSplitter}">
+                <Setter Property="HorizontalAlignment" Value="Stretch" />
+                <Setter Property="Width" Value="1" />
+                <Setter Property="Background" Value="Red" />
+            </Style>
+
+            <!--  ヘッダーレイアウト定義  -->
+            <Border
+                x:Key="HeaderTemplate"
+                Background="Yellow"
+                BorderBrush="Black"
+                BorderThickness="1,1,1,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" SharedSizeGroup="DepositTypeName" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" SharedSizeGroup="Amount" />
+                    </Grid.ColumnDefinitions>
+                    <Label
+                        Grid.Column="0"
+                        HorizontalContentAlignment="Center"
+                        Content="精算方法"
+                        FontSize="15" />
+                    <GridSplitter Grid.Column="1" Style="{StaticResource VerticalGridSplitter}" />
+                    <Label
+                        Grid.Column="2"
+                        HorizontalContentAlignment="Center"
+                        Content="精算金額"
+                        FontSize="15" />
+                </Grid>
+            </Border>
+
+            <!--  データレイアウト定義  -->
+            <DataTemplate x:Key="ItemTemplate">
+                <Border BorderBrush="Black" BorderThickness="1,0,1,1">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" SharedSizeGroup="DepositTypeName" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" SharedSizeGroup="Amount" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock
+                            Grid.Column="0"
+                            Margin="5,0,10,0"
+                            Text="{Binding DepositTypeName}" />
+                        <GridSplitter Grid.Column="1" Style="{StaticResource VerticalGridSplitter}" />
+                        <TextBlock
+                            Grid.Column="2"
+                            Margin="5,0,10,0"
+                            Text="{Binding Amount}" />
+                    </Grid>
+                </Border>
+            </DataTemplate>
+
+            <!--  ヘッダーとデータを載せるテンプレートの定義  -->
+            <ControlTemplate x:Key="MainContentTemplate" TargetType="{x:Type ItemsControl}">
+                <!--  ヘッダーとデータをScrollViewerに収める  -->
+                <!-- ScrollBarVisibilityプロパティの設定は必須。じゃないと横スクロールができない。1敗 -->
+                <ScrollViewer
+                    Grid.IsSharedSizeScope="True"
+                    HorizontalScrollBarVisibility="Auto"
+                    VerticalScrollBarVisibility="Auto">
+                    <i:Interaction.Behaviors>
+                        <local:ScrollSyncronizingBehavior Orientation="Horizontal" ScrollGroup="Group1" />
+                    </i:Interaction.Behaviors>
+                    <ScrollViewer.Template>
+                        <ControlTemplate TargetType="{x:Type ScrollViewer}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Row="0" Grid.Column="0">
+                                    <Grid.RowDefinitions>
+                                        <!--  ヘッダー部分のHeightはAutoじゃないと縦スクロールが利かない。1敗  -->
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="*" />
+                                    </Grid.RowDefinitions>
+                                    <!--  ヘッダー部分  -->
+                                    <ScrollViewer
+                                        Grid.Row="0"
+                                        Content="{StaticResource HeaderTemplate}"
+                                        HorizontalScrollBarVisibility="Hidden"
+                                        VerticalScrollBarVisibility="Hidden">
+                                        <i:Interaction.Behaviors>
+                                            <local:ScrollSyncronizingBehavior Orientation="Horizontal" ScrollGroup="Group1" />
+                                        </i:Interaction.Behaviors>
+                                    </ScrollViewer>
+                                    <!--  ヘッダーとデータの間の線  -->
+                                    <GridSplitter
+                                        Grid.Row="1"
+                                        IsHitTestVisible="False"
+                                        Style="{StaticResource HorizontalGridSplitter}" />
+                                    <!--  ScrollViewerのコンテンツ  -->
+                                    <!--  ここにデータ部分が乗っているはず  -->
+                                    <ScrollContentPresenter
+                                        Name="PART_ScrollContentPresenter"
+                                        Grid.Row="2"
+                                        KeyboardNavigation.DirectionalNavigation="Local" />
+                                </Grid>
+                                <!--  右端の縦スクロールバー  -->
+                                <ScrollBar
+                                    Name="PART_VerticalScrollBar"
+                                    Grid.Row="0"
+                                    Grid.Column="1"
+                                    Maximum="{TemplateBinding ScrollableHeight}"
+                                    ViewportSize="{TemplateBinding ViewportHeight}"
+                                    Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}"
+                                    Value="{TemplateBinding VerticalOffset}" />
+                                <!--  最下段の横スクロールバー  -->
+                                <ScrollBar
+                                    Name="PART_HorizontalScrollBar"
+                                    Grid.Row="1"
+                                    Grid.Column="0"
+                                    Maximum="{TemplateBinding ScrollableWidth}"
+                                    Orientation="Horizontal"
+                                    ViewportSize="{TemplateBinding ViewportWidth}"
+                                    Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}"
+                                    Value="{TemplateBinding HorizontalOffset}" />
+                                <!--  右下の大きさを変えるアイコン  -->
+                                <ResizeGrip
+                                    Grid.Row="1"
+                                    Grid.Column="1"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Stretch"
+                                    Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}" />
+                            </Grid>
+                        </ControlTemplate>
+                    </ScrollViewer.Template>
+                    <!--  データ部分  -->
+                    <ItemsPresenter />
+                </ScrollViewer>
+            </ControlTemplate>
+        </Grid.Resources>
+
+        <ItemsControl
+            Width="200"
+            Height="100"
+            Margin="0,10,0,0"
+            Focusable="False"
+            ItemTemplate="{StaticResource ItemTemplate}"
+            ItemsSource="{Binding DepositTypeList, Mode=OneWay}"
+            Template="{StaticResource MainContentTemplate}"
+            VirtualizingPanel.IsVirtualizing="True" />
+    </Grid>
+```
+
+``` XML : ListBoxバージョン
+    <Grid>
+        <Grid.Resources>
+            <Style x:Key="HorizontalGridSplitter" TargetType="{x:Type GridSplitter}">
+                <Setter Property="Height" Value="1" />
+                <Setter Property="HorizontalAlignment" Value="Stretch" />
+                <Setter Property="Background" Value="Red" />
+            </Style>
+
+
+            <Style x:Key="VerticalGridSplitter" TargetType="{x:Type GridSplitter}">
+                <Setter Property="HorizontalAlignment" Value="Stretch" />
+                <Setter Property="Width" Value="1" />
+                <Setter Property="Background" Value="Red" />
+            </Style>
+
+            <!--  ヘッダーレイアウト定義  -->
+            <Border
+                x:Key="HeaderTemplate"
+                Background="Yellow"
+                BorderBrush="Black"
+                BorderThickness="1,1,1,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" SharedSizeGroup="DepositTypeName" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" SharedSizeGroup="Amount" />
+                    </Grid.ColumnDefinitions>
+                    <Label
+                        Grid.Column="0"
+                        HorizontalContentAlignment="Center"
+                        VerticalContentAlignment="Center"
+                        Content="精算方法"
+                        FontSize="15" />
+                    <GridSplitter Grid.Column="1" Style="{StaticResource VerticalGridSplitter}" />
+                    <Label
+                        Grid.Column="2"
+                        HorizontalContentAlignment="Center"
+                        VerticalContentAlignment="Center"
+                        Content="精算金額"
+                        FontSize="15" />
+                </Grid>
+            </Border>
+
+            <!--  データレイアウト定義  -->
+            <DataTemplate x:Key="ItemTemplate">
+                <Border BorderBrush="Black" BorderThickness="1,0,1,1">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" SharedSizeGroup="DepositTypeName" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" SharedSizeGroup="Amount" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock
+                            Grid.Column="0"
+                            Margin="10,0,10,0"
+                            Text="{Binding DepositTypeName}" />
+                        <GridSplitter
+                            Grid.Column="1"
+                            IsHitTestVisible="False"
+                            Style="{StaticResource VerticalGridSplitter}" />
+                        <TextBlock
+                            Grid.Column="2"
+                            Margin="10,0,10,0"
+                            Text="{Binding Amount}" />
+                    </Grid>
+                </Border>
+            </DataTemplate>
+
+            <!--  ヘッダーとデータを載せるテンプレートの定義  -->
+            <ControlTemplate x:Key="MainContentTemplate" TargetType="{x:Type ListBox}">
+                <!--  ヘッダーとデータをScrollViewerに収める  -->
+                <ScrollViewer Grid.IsSharedSizeScope="True">
+                    <i:Interaction.Behaviors>
+                        <local:ScrollSyncronizingBehavior Orientation="Horizontal" ScrollGroup="Group2" />
+                    </i:Interaction.Behaviors>
+                    <ScrollViewer.Template>
+                        <ControlTemplate TargetType="{x:Type ScrollViewer}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Row="0" Grid.Column="0">
+                                    <Grid.RowDefinitions>
+                                        <!--  ヘッダー部分のHeightはAutoじゃないと縦スクロールが利かない。1敗  -->
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="*" />
+                                    </Grid.RowDefinitions>
+                                    <!--  ヘッダー部分  -->
+                                    <ScrollViewer
+                                        Grid.Row="0"
+                                        Content="{StaticResource HeaderTemplate}"
+                                        HorizontalScrollBarVisibility="Hidden"
+                                        VerticalScrollBarVisibility="Hidden">
+                                        <i:Interaction.Behaviors>
+                                            <local:ScrollSyncronizingBehavior Orientation="Horizontal" ScrollGroup="Group2" />
+                                        </i:Interaction.Behaviors>
+                                    </ScrollViewer>
+                                    <!--  ヘッダーとデータの間の線  -->
+                                    <GridSplitter
+                                        Grid.Row="1"
+                                        IsHitTestVisible="False"
+                                        Style="{StaticResource HorizontalGridSplitter}" />
+                                    <!--
+                                        ScrollViewerのコンテンツ
+                                        ここにデータ部分が乗っているはず
+                                    -->
+                                    <ScrollContentPresenter
+                                        Name="PART_ScrollContentPresenter"
+                                        Grid.Row="2"
+                                        KeyboardNavigation.DirectionalNavigation="Local" />
+                                </Grid>
+                                <!--  右端の縦スクロールバー  -->
+                                <ScrollBar
+                                    Name="PART_VerticalScrollBar"
+                                    Grid.Row="0"
+                                    Grid.Column="1"
+                                    Maximum="{TemplateBinding ScrollableHeight}"
+                                    ViewportSize="{TemplateBinding ViewportHeight}"
+                                    Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}"
+                                    Value="{TemplateBinding VerticalOffset}" />
+                                <!--  最下段の横スクロールバー  -->
+                                <ScrollBar
+                                    Name="PART_HorizontalScrollBar"
+                                    Grid.Row="1"
+                                    Grid.Column="0"
+                                    Maximum="{TemplateBinding ScrollableWidth}"
+                                    Orientation="Horizontal"
+                                    ViewportSize="{TemplateBinding ViewportWidth}"
+                                    Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}"
+                                    Value="{TemplateBinding HorizontalOffset}" />
+                                <!--  右下の大きさを変えるアイコン  -->
+                                <ResizeGrip
+                                    Grid.Row="1"
+                                    Grid.Column="1"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Stretch"
+                                    Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}" />
+                            </Grid>
+                        </ControlTemplate>
+                    </ScrollViewer.Template>
+                    <!--  データ部分  -->
+                    <ItemsPresenter />
+                </ScrollViewer>
+            </ControlTemplate>
+
+            <!--  ItemContainerStyleとItemTemplateの両方で同じプロパティを設定するとItemTemplateが勝つっぽい  -->
+            <!--  コンテナー要素のカスタマイズ  -->
+            <!--  項目ごとに区切り線を入れたり、項目が選択されたときの外観などを定義  -->
+            <Style x:Key="ItemContainerStyle" TargetType="ListBoxItem">
+                <Setter Property="OverridesDefaultStyle" Value="True" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type ContentControl}">
+                            <Border Background="{TemplateBinding Background}">
+                                <ContentPresenter />
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+                <Style.Triggers>
+                    <Trigger Property="IsSelected" Value="True">
+                        <Setter Property="Background" Value="Plum" />
+                    </Trigger>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Background" Value="LightGray" />
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+        </Grid.Resources>
+
+        <ListBox
+            Width="200"
+            Height="100"
+            Margin="0,10,0,10"
+            ItemContainerStyle="{StaticResource ItemContainerStyle}"
+            ItemTemplate="{StaticResource ItemTemplate}"
+            ItemsSource="{Binding DepositTypeList}"
+            Template="{StaticResource MainContentTemplate}"
+            VirtualizingPanel.IsVirtualizing="True" />
+    </Grid>
+```
+
+``` C# : このサンプルにおけるViewModel
+    /// <summary>
+    /// Interaction logic for MainWindow.xaml
+    /// </summary>
+    public partial class MainWindow : Window
+    {
+        public MainWindow()
+        {
+            InitializeComponent();
+        }
+    }
+
+    public sealed class Deposit
+    {
+        public string DepositTypeName { get; set; }
+        public decimal Amount { get; set; }
+    }
+
+    public class MainWindowViewModel
+    {
+        public List<Deposit> DepositTypeList { get; set; } =
+            new List<Deposit>()
+            {
+                new Deposit(){DepositTypeName="test1",Amount=100 },
+                new Deposit(){DepositTypeName="test2",Amount=200 },
+                new Deposit(){DepositTypeName="test3",Amount=300 },
+                new Deposit(){DepositTypeName="test4",Amount=400 },
+                new Deposit(){DepositTypeName="test5",Amount=500 },
+                new Deposit(){DepositTypeName="test6",Amount=600 },  
+            };
+    }
+```
+
+### 試行錯誤の跡
+
+全体の形はできているが、スクロールが甘い状態。  
+
 ``` xml : 完成形の途中
 <ItemsControl
     Width="200"
@@ -522,7 +903,8 @@ ContentPresenterには、ItemTemplateの内容が入る。
 </ItemsControl>
 ```
 
-## 完成1
+一番最初に完成したと思ったやつ。  
+ヘッダーもスクロールできることに気が付いたのでボツになった。  
 
 ``` XML : 完成1
 <ItemsControl
@@ -539,15 +921,11 @@ ContentPresenterには、ItemTemplateの内容が入る。
             <Setter Property="Height" Value="1" />
             <Setter Property="HorizontalAlignment" Value="Stretch" />
             <Setter Property="Background" Value="Red" />
-            <Setter Property="Padding" Value="0" />
-            <Setter Property="Margin" Value="0" />
         </Style>
         <Style x:Key="VerticalGridSplitter" TargetType="{x:Type GridSplitter}">
             <Setter Property="HorizontalAlignment" Value="Stretch" />
             <Setter Property="Width" Value="1" />
             <Setter Property="Background" Value="Red" />
-            <Setter Property="Padding" Value="0" />
-            <Setter Property="Margin" Value="0" />
         </Style>
     </ItemsControl.Resources>
     <ItemsControl.Template>
@@ -629,7 +1007,14 @@ ContentPresenterには、ItemTemplateの内容が入る。
 </ItemsControl>
 ```
 
-### 完成2
+---
+
+## 横スクロール問題
+
+[ItemsControlをDataGridみたいに使う]研究の一環としてまとめ。  
+
+縦スクロールにヘッダーを含めるのはできたけど、それだと、データ部分とヘッダー部分で別れるので、横スクロールが同期しない問題が発生した。  
+その時にいろいろまとめた。  
 
 wpf scrollviewer overlap  
 
@@ -637,329 +1022,10 @@ wpf scrollviewer overlap
 [GridViewHeaderRowPresenter scrolls with custom TreeListView control](https://stackoverflow.com/questions/28605052/gridviewheaderrowpresenter-scrolls-with-custom-treelistview-control)  
 [【WPF】ListBoxからListViewもどきを作る（再考）](http://pro.art55.jp/?eid=1075922)  
 
-ScrollViewで囲むのはデータ部分だけにして、スタイルをいじってヘッダーまで長さを延長することで、  
-疑似的にDataGridみたいにした案。  
+ScrollViewで囲むのはデータ部分だけにして、スタイルをいじってヘッダーまで長さを延長することで、疑似的にDataGridみたいにした案。  
 また完璧にできたと思ったけど、今度は横スクロールが聞かなくなってしまった。  
 これからわかるに、どう頑張ってもコードビハインドは必要そうだということだ。  
 XAML上で2つのスクロールを連動させるための添付プロパティみたいなのがあれば話は別ですが、どこのサイトもビヘイビアでやってるのでそんなものはないのでしょう。  
-
-``` XML : 完成2
-    <ItemsControl
-        Width="200"
-        Height="100"
-        Margin="0,10,0,0"
-        Focusable="False"
-        Grid.IsSharedSizeScope="True"
-        ItemsSource="{Binding DepositTypeList, Mode=OneWay}"
-        ScrollViewer.CanContentScroll="False"
-        VirtualizingPanel.IsVirtualizing="True">
-        <ItemsControl.Resources>
-            <Style x:Key="HorizontalGridSplitter" TargetType="{x:Type GridSplitter}">
-                <Setter Property="Height" Value="1" />
-                <Setter Property="HorizontalAlignment" Value="Stretch" />
-                <Setter Property="Background" Value="Red" />
-            </Style>
-            <Style x:Key="VerticalGridSplitter" TargetType="{x:Type GridSplitter}">
-                <Setter Property="HorizontalAlignment" Value="Stretch" />
-                <Setter Property="Width" Value="1" />
-                <Setter Property="Background" Value="Red" />
-            </Style>
-        </ItemsControl.Resources>
-        <ItemsControl.Template>
-            <ControlTemplate TargetType="{x:Type ItemsControl}">
-                <!--  ヘッダーとデータをScrollViewerに収める  -->
-                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-                    <i:Interaction.Behaviors>
-                        <local:ScrollSyncronizingBehavior Orientation="Horizontal" ScrollGroup="Group3" />
-                    </i:Interaction.Behaviors>
-                    <ScrollViewer.Template>
-                        <ControlTemplate TargetType="{x:Type ScrollViewer}">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="*" />
-                                    <RowDefinition Height="Auto" />
-                                </Grid.RowDefinitions>
-                                <!--  ヘッダー部分  -->
-                                <ScrollViewer
-                                    Grid.Row="0"
-                                    Grid.Column="0"
-                                    VerticalAlignment="Top"
-                                    HorizontalScrollBarVisibility="Hidden"
-                                    VerticalScrollBarVisibility="Hidden">
-                                    <i:Interaction.Behaviors>
-                                        <local:ScrollSyncronizingBehavior Orientation="Horizontal" ScrollGroup="Group3" />
-                                    </i:Interaction.Behaviors>
-                                    <Border BorderBrush="Black" BorderThickness="1,1,1,0">
-                                        <Grid Background="Yellow">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto" SharedSizeGroup="DepositTypeName" />
-                                                <ColumnDefinition Width="Auto" />
-                                                <ColumnDefinition Width="Auto" SharedSizeGroup="Amount" />
-                                            </Grid.ColumnDefinitions>
-                                            <Label
-                                                Grid.Column="0"
-                                                HorizontalContentAlignment="Center"
-                                                Content="精算方法"
-                                                FontSize="15" />
-                                            <GridSplitter Grid.Column="1" Style="{StaticResource VerticalGridSplitter}" />
-                                            <Label
-                                                Grid.Column="2"
-                                                HorizontalContentAlignment="Center"
-                                                Content="精算金額"
-                                                FontSize="15" />
-                                        </Grid>
-                                    </Border>
-                                </ScrollViewer>
-                                <!--  ヘッダーとデータの間の線  -->
-                                <GridSplitter
-                                    Grid.Row="1"
-                                    Grid.Column="0"
-                                    IsHitTestVisible="False"
-                                    Style="{StaticResource HorizontalGridSplitter}" />
-                                <!--  ScrollViewerのコンテンツ  -->
-                                <!--  ここにデータ部分が乗っているはず  -->
-                                <ScrollContentPresenter
-                                    Name="PART_ScrollContentPresenter"
-                                    Grid.Row="2"
-                                    Grid.Column="0"
-                                    CanContentScroll="{TemplateBinding CanContentScroll}"
-                                    KeyboardNavigation.DirectionalNavigation="Local" />
-                                <!--  右端の縦スクロールバー  -->
-                                <ScrollBar
-                                    Name="PART_VerticalScrollBar"
-                                    Grid.Row="0"
-                                    Grid.RowSpan="3"
-                                    Grid.Column="1"
-                                    HorizontalAlignment="Right"
-                                    VerticalAlignment="Stretch"
-                                    Maximum="{TemplateBinding ScrollableHeight}"
-                                    ViewportSize="{TemplateBinding ViewportHeight}"
-                                    Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}"
-                                    Value="{TemplateBinding VerticalOffset}" />
-                                <!--  最下段の横スクロールバー  -->
-                                <ScrollBar
-                                    Name="PART_HorizontalScrollBar"
-                                    Grid.Row="3"
-                                    Grid.Column="0"
-                                    VerticalAlignment="Bottom"
-                                    Maximum="{TemplateBinding ScrollableWidth}"
-                                    Orientation="Horizontal"
-                                    ViewportSize="{TemplateBinding ViewportWidth}"
-                                    Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}"
-                                    Value="{TemplateBinding HorizontalOffset}" />
-                                <!--  右下の大きさを変えるアイコン  -->
-                                <ResizeGrip
-                                    Grid.Row="3"
-                                    Grid.Column="1"
-                                    HorizontalAlignment="Right"
-                                    VerticalAlignment="Stretch"
-                                    Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}" />
-                            </Grid>
-                        </ControlTemplate>
-                    </ScrollViewer.Template>
-                    <!--  データ部分  -->
-                    <ItemsPresenter />
-                </ScrollViewer>
-            </ControlTemplate>
-        </ItemsControl.Template>
-        <!--  データ部分本体  -->
-        <ItemsControl.ItemTemplate>
-            <DataTemplate>
-                <Border
-                    Margin="0"
-                    Padding="0"
-                    BorderBrush="Black"
-                    BorderThickness="1,0,1,1">
-                    <Grid Height="Auto">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" SharedSizeGroup="DepositTypeName" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="Auto" SharedSizeGroup="Amount" />
-                        </Grid.ColumnDefinitions>
-                        <TextBlock
-                            Grid.Column="0"
-                            Margin="5,0,10,0"
-                            Text="{Binding DepositTypeName}" />
-                        <GridSplitter Grid.Column="1" Style="{StaticResource VerticalGridSplitter}" />
-                        <TextBlock
-                            Grid.Column="2"
-                            Margin="5,0,10,0"
-                            Text="{Binding Amount}" />
-                    </Grid>
-                </Border>
-            </DataTemplate>
-        </ItemsControl.ItemTemplate>
-    </ItemsControl>
-```
-
-``` XML : 完成3
-<ItemsControl
-    Width="200"
-    Height="100"
-    Margin="0,10,0,0"
-    Focusable="False"
-    Grid.IsSharedSizeScope="True"
-    ItemTemplate="{DynamicResource ItemTemplate}"
-    ItemsSource="{Binding DepositTypeList, Mode=OneWay}"
-    ScrollViewer.CanContentScroll="False"
-    Template="{DynamicResource MainContentTemplate}"
-    VirtualizingPanel.IsVirtualizing="True">
-    <ItemsControl.Resources>
-        <Style x:Key="HorizontalGridSplitter" TargetType="{x:Type GridSplitter}">
-            <Setter Property="Height" Value="1" />
-            <Setter Property="HorizontalAlignment" Value="Stretch" />
-            <Setter Property="Background" Value="Red" />
-        </Style>
-        <Style x:Key="VerticalGridSplitter" TargetType="{x:Type GridSplitter}">
-            <Setter Property="HorizontalAlignment" Value="Stretch" />
-            <Setter Property="Width" Value="1" />
-            <Setter Property="Background" Value="Red" />
-        </Style>
-
-        <!--  自信のリソースに定義した場合、DynamicResourceでバインド可能な模様  -->
-        <!-- 
-            StaticResourceとDynamicResourceを勉強した後に追記。
-            StaticResourceは性質上、使う時より上で定義していないと使えない。
-            その制約がないDynamicResourceであるが、接続を常に監視する性質上、できるならStaticResourceであるべき。
-            また、自身のResourceで完結しているように見えるが、これなら各Templateにそれぞれぶち込んだほうがよさそうに見える。
-         -->
-
-        <!--  ヘッダーレイアウト定義  -->
-        <ControlTemplate x:Key="HeaderTemplate">
-            <Border BorderBrush="Black" BorderThickness="1,1,1,0">
-                <Grid Background="Yellow">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" SharedSizeGroup="DepositTypeName" />
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="Auto" SharedSizeGroup="Amount" />
-                    </Grid.ColumnDefinitions>
-                    <Label
-                        Grid.Column="0"
-                        HorizontalContentAlignment="Center"
-                        Content="精算方法"
-                        FontSize="15" />
-                    <GridSplitter Grid.Column="1" Style="{StaticResource VerticalGridSplitter}" />
-                    <Label
-                        Grid.Column="2"
-                        HorizontalContentAlignment="Center"
-                        Content="精算金額"
-                        FontSize="15" />
-                </Grid>
-            </Border>
-        </ControlTemplate>
-
-        <!--  データレイアウト定義  -->
-        <DataTemplate x:Key="ItemTemplate">
-            <Border
-                Margin="0"
-                Padding="0"
-                BorderBrush="Black"
-                BorderThickness="1,0,1,1">
-                <Grid Height="Auto">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" SharedSizeGroup="DepositTypeName" />
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="Auto" SharedSizeGroup="Amount" />
-                    </Grid.ColumnDefinitions>
-                    <TextBlock
-                        Grid.Column="0"
-                        Margin="5,0,10,0"
-                        Text="{Binding DepositTypeName}" />
-                    <GridSplitter Grid.Column="1" Style="{StaticResource VerticalGridSplitter}" />
-                    <TextBlock
-                        Grid.Column="2"
-                        Margin="5,0,10,0"
-                        Text="{Binding Amount}" />
-                </Grid>
-            </Border>
-        </DataTemplate>
-
-        <!--  ヘッダーとデータを載せるテンプレートの定義  -->
-        <ControlTemplate x:Key="MainContentTemplate" TargetType="{x:Type ItemsControl}">
-            <!--  ヘッダーとデータをScrollViewerに収める  -->
-            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-                <i:Interaction.Behaviors>
-                    <local:ScrollSyncronizingBehavior Orientation="Horizontal" ScrollGroup="Group3" />
-                </i:Interaction.Behaviors>
-                <ScrollViewer.Template>
-                    <ControlTemplate TargetType="{x:Type ScrollViewer}">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="*" />
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
-                            <!--  ヘッダー部分  -->
-                            <DockPanel
-                                Grid.Row="0"
-                                Grid.Column="0"
-                                Margin="{TemplateBinding Padding}">
-                                <ScrollViewer
-                                    DockPanel.Dock="Top"
-                                    HorizontalScrollBarVisibility="Hidden"
-                                    Template="{DynamicResource HeaderTemplate}"
-                                    VerticalScrollBarVisibility="Hidden">
-                                    <i:Interaction.Behaviors>
-                                        <local:ScrollSyncronizingBehavior Orientation="Horizontal" ScrollGroup="Group3" />
-                                    </i:Interaction.Behaviors>
-                                </ScrollViewer>
-                                <!--  ヘッダーとデータの間の線  -->
-                                <GridSplitter IsHitTestVisible="False" Style="{StaticResource HorizontalGridSplitter}" />
-                                <!--  ScrollViewerのコンテンツ  -->
-                                <!--  ここにデータ部分が乗っているはず  -->
-                                <ScrollContentPresenter
-                                    Name="PART_ScrollContentPresenter"
-                                    CanContentScroll="{TemplateBinding CanContentScroll}"
-                                    KeyboardNavigation.DirectionalNavigation="Local" />
-                            </DockPanel>
-                            <!--  右端の縦スクロールバー  -->
-                            <ScrollBar
-                                Name="PART_VerticalScrollBar"
-                                Grid.Row="0"
-                                Grid.Column="1"
-                                HorizontalAlignment="Right"
-                                VerticalAlignment="Stretch"
-                                Maximum="{TemplateBinding ScrollableHeight}"
-                                ViewportSize="{TemplateBinding ViewportHeight}"
-                                Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}"
-                                Value="{TemplateBinding VerticalOffset}" />
-                            <!--  最下段の横スクロールバー  -->
-                            <ScrollBar
-                                Name="PART_HorizontalScrollBar"
-                                Grid.Row="1"
-                                Grid.Column="0"
-                                VerticalAlignment="Bottom"
-                                Maximum="{TemplateBinding ScrollableWidth}"
-                                Orientation="Horizontal"
-                                ViewportSize="{TemplateBinding ViewportWidth}"
-                                Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}"
-                                Value="{TemplateBinding HorizontalOffset}" />
-                            <!--  右下の大きさを変えるアイコン  -->
-                            <ResizeGrip
-                                Grid.Row="1"
-                                Grid.Column="1"
-                                HorizontalAlignment="Right"
-                                VerticalAlignment="Stretch"
-                                Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}" />
-                        </Grid>
-                    </ControlTemplate>
-                </ScrollViewer.Template>
-                <!--  データ部分  -->
-                <ItemsPresenter />
-            </ScrollViewer>
-        </ControlTemplate>
-    </ItemsControl.Resources>
-</ItemsControl>
-```
 
 ---
 
@@ -968,8 +1034,9 @@ XAML上で2つのスクロールを連動させるための添付プロパティ
 [ItemsControlをDataGridみたいに使う]研究の一環としてまとめ。  
 理想の動作を実現する過程において、ヘッダーのGritSpliterを操作してもデータ本体まで伝播しない問題が解決できなかった。  
 元祖DataGridみたいに使うサイトでやっているサンプルでは出来ていたのだが、そもそもの構造が違っていたのでどのように適応していいのか分からなかった。  
-GridのIsSharedSizeScopeなるものがキーであるのは間違いなかったので、それを素直にItemsControlに適応することはできないか探していたら、ズバリな記事に行き当たり、  
-その通りに実装したら見事に解決できたのでまとめる。  
+GridのIsSharedSizeScopeなるものがキーであるのは間違いなかったので、それを素直にItemsControlに適応することはできないか探していたら、ズバリな記事に行き当たり、その通りに実装したら見事に解決できたのでまとめる。  
+
+結論としてItemsControl自信に Grid.IsSharedSizeScope="True" を適応すればよいだけの話であった。  
 
 [WPF Grid.IsSharedSizeScope in ItemsControl and ScrollViewer](https://stackoverflow.com/questions/54922513/wpf-grid-issharedsizescope-in-itemscontrol-and-scrollviewer)  
 wpf itemscontrol issharedsizescope  
@@ -1007,7 +1074,7 @@ ItemsControlとはずれるが、DataGridサンプルで使う必要があった
 </ScrollViewer>
 ```
 
-``` C#
+``` C# : ScrollSyncronizingBehavior
 // Behaviorを使うためにはnugetからMicrosoft.Xaml.Behaviorsをインストールしないといけない
 // <https://livealoneblog.com/wpf-behavior/>
 using Microsoft.Xaml.Behaviors;
@@ -1195,4 +1262,121 @@ namespace ItemsControl2
         }
     }
 }
+```
+
+---
+
+## XAMLで定義したデータをバインドする方法
+
+[ListBoxコントロールにデータをバインディングする - XAMLのXMLをバインディングする (WPFプログラミング)](https://www.ipentec.com/document/csharp-wpf-listbox-data-bind-from-xaml-xml)  
+
+ItemsControl研究で発見した。  
+MVVMバインドさせるのが面倒な時にいいかも。  
+
+``` XML : StaticResourceとして指定する方法
+    <Grid>
+        <Grid.Resources>
+            <!-- バインドデータを定義 -->
+            <XmlDataProvider x:Key="BlogData" XPath="Blogs/Blog">
+                <x:XData>
+                    <Blogs xmlns="">
+                        <Blog>
+                            <BlogSite>simplegeek.com</BlogSite>
+                            <Blogger OnlineStatus="Offline">Chris Anderson</Blogger>
+                        </Blog>
+                        <Blog>
+                            <BlogSite>fortes.com</BlogSite>
+                            <Blogger OnlineStatus="Offline">Fil Fortes</Blogger>
+                        </Blog>
+                        <Blog>
+                            <BlogSite>Longhorn Blogs</BlogSite>
+                            <Blogger OnlineStatus="Online">Rob Relyea</Blogger>
+                        </Blog>
+                    </Blogs>
+                </x:XData>
+            </XmlDataProvider>
+            <!-- XmlDataProviderで定義した内容をコントロールにバインドする場合 -->
+            <DataTemplate x:Key="BlogDataTemplate">
+                <Grid TextBlock.FontSize="20">
+                    <TextBlock Text="{Binding XPath=Blogger}" />
+                    <TextBlock Text="{Binding XPath=BlogSite}" />
+                    <!-- XPath指定は必要な模様。 -->
+                    <!-- Blogger要素にあるOnlineStatusをバインドする場合は/@でアクセス可能な模様 -->
+                    <TextBlock Text="{Binding XPath=Blogger/@OnlineStatus}" />
+                </Grid>
+            </DataTemplate>
+        </Grid.Resources>
+
+        <ListBox
+            ItemTemplate="{StaticResource BlogDataTemplate}"
+            ItemsSource="{Binding Source={StaticResource BlogData}}"/>
+    </Grid>
+```
+
+直接指定もできなくはないが、基本的にリソースに定義することをおすすめする。  
+
+``` XML : 直接指定する方法
+<ListBox>
+    <ListBox.ItemsSource>
+        <Binding>
+            <Binding.Source>
+                <XmlDataProvider XPath="Blogs/Blog">
+                    <x:XData>
+                        <Blogs xmlns="">
+                            <Blog>
+                                <BlogSite>simplegeek.com</BlogSite>
+                                <Blogger OnlineStatus="Offline">Chris Anderson</Blogger>
+                                <Url>http://simplegeek.com</Url>
+                            </Blog>
+                            <Blog>
+                                <BlogSite>fortes.com</BlogSite>
+                                <Blogger OnlineStatus="Offline">Fil Fortes</Blogger>
+                                <Url>http://fortes.com/work</Url>
+                            </Blog>
+                            <Blog>
+                                <BlogSite>Longhorn Blogs</BlogSite>
+                                <Blogger OnlineStatus="Online">Rob Relyea</Blogger>
+                                <Url>http://www.longhornblogs.com/rrelyea/</Url>
+                            </Blog>
+                        </Blogs>
+                    </x:XData>
+                </XmlDataProvider>
+            </Binding.Source>
+        </Binding>
+    </ListBox.ItemsSource>
+</ListBox>
+```
+
+DataTemplateをResourceで定義する方法でもまとめた内容だが、全体的によくできているのでそのまま持ってくる
+
+``` XML : Arrayを使用した場合
+<Window>
+  <Window.Resources>
+    <DataTemplate x:Key="Header">
+      <TextBlock Foreground="Orange" Background="Yellow" Text="{Binding}"/>
+    </DataTemplate>
+    <DataTemplate x:Key="Name">
+      <TextBlock Foreground="White" Background="Black" Text="{Binding Name}"/>
+    </DataTemplate>
+    <DataTemplate x:Key="Age">
+      <TextBlock Foreground="Red" Background="Green" Text="{Binding Age}"/>
+    </DataTemplate>
+    <x:Array x:Key="Office" Type="{x:Type local:Person}">
+      <local:Person Name="Michael" Age="40"/>
+      <local:Person Name="Jim" Age="30"/>
+      <local:Person Name="Dwight" Age="30"/>
+    </x:Array>
+  </Window.Resources>
+
+  <ListView ItemsSource="{Binding Source={StaticResource Office}}">
+    <ListView.View>
+      <GridView>
+        <GridView.Columns>
+          <GridViewColumn Width="140" Header="Column 1" HeaderTemplate="{StaticResource Header}" CellTemplate="{StaticResource Name}"/>
+          <GridViewColumn Width="140" Header="Column 2" HeaderTemplate="{StaticResource Header}" CellTemplate="{StaticResource Age}"/>
+        </GridView.Columns>
+      </GridView>
+    </ListView.View>
+  </ListView>
+</Window>
 ```
