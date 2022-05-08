@@ -81,13 +81,13 @@ ALP    100    NULL    NULL    NULL    NULL    NULL    NULL    NULL    NULL    NU
 
 特定テーブルにおける、条件に当てはまるレコードの特定のカラムの値を任意の値に書き換える。  
 
-```sql
--- ●基本
+``` sql : 基本
 UPDATE テーブル名
 SET 列名1 = 値1 [,列名2 = 値2]・・・
 WHERE (条件);
+```
 
-
+``` sql : 副問い合わせ
 -- ●UPDATE文のset句で副問合せを使用する
 UPDATE syain
 SET name = (
@@ -96,8 +96,21 @@ SET name = (
     where id = 2)
 WHERE id = 2;
 
+-- テーブルの値を別テーブルの値でUPDATEする(其の弐)
+UPDATE
+    [Round3Dat_Test].[dbo].[TMa_ProductCls]
+SET
+    [Round3Dat_Test].[dbo].[TMa_ProductCls].[DepartmentCD] = (
+        SELECT
+            [DepartmentCD]
+        FROM
+            [Round3Dat_20210205].[dbo].[TMa_ProductCls]
+        WHERE
+            [Round3Dat_Test].[dbo].[TMa_ProductCls].[ProductClsCD] = [Round3Dat_20210205].[dbo].[TMa_ProductCls].[ProductClsCD]
+    )
 
 -- ●UPDATE文のwhere句で副問合せを使用する(where in)
+-- テーブルの更新条件を副問い合わせで取ってくる
 -- https://sqlazure.jp/r/sql-server/403/
 UPDATE syain
 SET name = 'テスト'
@@ -105,9 +118,12 @@ WHERE id in (
     select id from test
     where name = 'TEST'
 );
+```
 
--- ●inner join 1
--- UPDATE SET FROM JOIN WHERE の流れを意識すれば、まぁ何とか鳴るでしょう。  
+``` sql : inner join 1
+-- UPDATE SET FROM JOIN WHERE の流れを意識すれば、まぁ何とかなるでしょう。  
+-- UPDATEしようとしているテーブルの情報をサブクエリに使うこともできたのね。
+
 UPDATE
     [Table]
 SET
@@ -119,15 +135,16 @@ FROM
         [other_table]
     ON
         [Table].id = [other_table].id
+```
 
-
--- ●inner join 2
+``` sql : inner join 2
 UPDATE
     テーブル名1 
     INNER JOIN テーブル名2 
     ON テーブル名1.列名X = テーブル名2.列名X
 SET
     テーブル名1.列名1 = テーブル名2.列名2;
+
 -- 下記でも同じ
 UPDATE
     テーブル名1,テーブル名2
@@ -135,9 +152,9 @@ SET
     テーブル名1.列名1 = テーブル名2.列名2
 WHERE
     テーブル名1.列名X = テーブル名2.列名X;
+```
 
-
--- ●UPDATE文でCASE式を使用する
+``` sql : UPDATE文でCASE式を使用する
 UPDATE
     syain
 SET
@@ -186,6 +203,45 @@ FROM M_UserData As User
 LEFT JOIN T_TimeCard AS Time
 ON User.UserId = Time.UserId
 WHERE User.UserId = 1
+```
+
+---
+
+## ALTER TABLE
+
+### テーブルのカラム名を変更するSQL
+
+```SQL
+-- MariaDB
+ALTER TABLE [TMa_Product] RENAME COLUMN [RevenuTypeCD] TO [RevenueTypeCD]
+
+-- SQL Server
+-- https://docs.microsoft.com/ja-jp/sql/relational-databases/system-stored-procedures/sp-rename-transact-sql?view=sql-server-ver15
+-- 珍しく公式サイトが参考になった。
+EXEC sp_rename 'スキーマ名.テーブル名.現在のカラム名', '新しいカラム名', 'COLUMN';
+
+-- テーブルを指定したい場合はUSEでテーブルを切り替えて実行するしかないみたい。
+USE Round3Dat_Test;
+GO
+EXEC sp_rename 'TMa_Supplier.ValidFalg','ValidFlag','COLUMN';
+GO
+```
+
+### テーブルのデータ型を変更するSQL
+
+```SQL
+-- SQL Server
+ALTER TABLE (操作対象テーブル) ALTER column (データ型を変更する列名) (変更するデータ型)
+
+-- 例 : TMa_ProductテーブルのRevenueTypeCDカラムの型をintに変更するクエリ
+ALTER TABLE [TMa_Product] ALTER column [RevenueTypeCD] int
+
+--- MariaDB,カラム追加
+-- TmOpenPlanPGMWEBテーブルのHolidayExtraPriceOneBagフィールドの後にTaxSelectionStatusTypeを追加。型はboolで初期値は0。コメント付き。
+ALTER TABLE `TmOpenPlanPGMWEB` ADD COLUMN `TaxSelectionStatusType` TINYINT(1) NOT NULL DEFAULT 0 comment '税選択状態区分 税抜(外税):0 税込(内税):1' AFTER `HolidayExtraPriceOneBag`;
+
+-- TmOpenPlanGDOテーブルからMailPushSendFlagフィールドを削除する
+ALTER TABLE TmOpenPlanGDO DROP COLUMN MailPushSendFlag;
 ```
 
 ---
@@ -296,6 +352,18 @@ score には 60点 / 70点 / 80点の三種類がある。
 
 こんな感じでも書ける  
 なる。 5,2  
+
+---
+
+## SUM
+
+GROUP BY しなくても合計を求めることができる。  
+
+```sql
+select SUM(RoundCount)  
+from TRe_ReservationFrame  
+where BusinessDate = '20210215'  
+```
 
 ---
 
