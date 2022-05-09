@@ -1,5 +1,8 @@
 # ItemsControlまとめ
 
+ItemsControlとは、複数のオブジェクトを指定された表示方法で並べるためのコントロールです。  
+コントロールを並べるためのコントロールとでも言えばいいか。  
+
 [ItemsControl 攻略 ～ 外観のカスタマイズ](http://grabacr.net/archives/1240)  
 [WPF Reference ScrollContentPresenter of ScrollViewer Template](https://stackoverflow.com/questions/945542/wpf-reference-scrollcontentpresenter-of-scrollviewer-template)  
 [How to place a ScrollViewer on top of the content it should scroll](https://stackoverflow.com/questions/490784/how-to-place-a-scrollviewer-on-top-of-the-content-it-should-scroll)  
