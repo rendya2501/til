@@ -1049,21 +1049,15 @@ var aa = true ? (bool?)false : null;
 
 ## 構造体
 
-値型なので、newする必要はない。でもnewもできる。  
-newはコンストラクタを呼ぶ。  
-newしない場合コンストラクタを呼ばない。  
-そういう棲み分けができる。  
-
-言語仕様に近いので中々濃い内容になっている。  
-とりあえず、ざっくりとした特徴と宣言の仕方くらいをまとめられれば十分かな。  
-実務ではまず使わないからガッツリやったところでねぇって感じはする。  
-
 - 構造体は値型、クラスは参照型  
 - 構造体はスタック領域に展開され、クラスはヒープ領域に展開される。  
 - int等と同じなので、メソッドを抜けたらメモリから解放される。  
 - もちろんクラスより軽量。newの処理も早いし、メモリも食わない。  
 - 構造体の初期状態は0初期化状態という。→構造体の既定値(default value)と呼ぶ。クラスの初期状態はnull。  
-- newできる。でもint等と同じなので、newしなくても使える。  
+- 値型なので、newする必要はない。でもnewできる。  
+  - int型をnewしているのと同じ意味になる。  
+  - newはコンストラクタを呼ぶ。  
+  - newしない場合、コンストラクタを呼ばない。  
 
 ``` C#
     public struct Circle
@@ -1132,6 +1126,8 @@ where T : U                     Uに基づいた型で制約される
 [2つの値が等しいか調べる、等値演算子(==)とEqualsメソッドの違い](https://dobon.net/vb/dotnet/beginner/equality.html)  
 [【C#】文字列を比較する（== 演算子、Equalメソッド、Compareメソッド）](https://nyanblog2222.com/programming/c-sharp/193/)  
 
+[バグのもと!?”==”と”Equals”の使い分け](https://fledglingengineer.xyz/equals/)  
+
 ``` C#
     string A = "AA";
     string B = "BB";
@@ -1152,4 +1148,95 @@ where T : U                     Uに基づいた型で制約される
     Console.WriteLine(A == B);
     Console.WriteLine(A?.Equals(B) ?? false);
     Console.WriteLine(Equals(A, B));
+```
+
+---
+
+## out と ref
+
+[C# out と ref](https://qiita.com/muro/items/f88b17b5fea3b4537ba7)  
+
+どちらも参照渡しのためのパラメーター修飾子です。  
+
+### out
+
+out修飾子はreturn以外でメソッド内からメソッド外へデータを受け渡す場合で使用されます。  
+よく使われるものとしてはTryParseメソッドがあります。  
+
+``` C#
+    // 呼び出し側
+    int val;
+
+    // trueが返りつつ、valは10となる。
+    if (OutHoge(out val))
+    {
+        // C# 7.0から out 引数の利用時に同時に変数宣言できるようになり、あらかじめ変数を宣言しておく必要がなくなりました。
+        // if (OutHoge(out int val)) こうできる
+        Console.WriteLine(val);
+    }
+
+    // 呼び出し先
+    bool OutHoge(out int x)
+    {
+        x = 10;
+        return true;
+    }
+```
+
+### ref
+
+ref修飾子はメソッド外からメソッド内へデータを渡し、変更を外部へ反映させる必要がある場合に使用します。  
+
+``` C#
+    int x = 0;
+    // RefPiyoを抜けた後、xは10になっている。
+    RefPiyo(ref x);
+
+    void RefPiyo(ref int x)
+    {
+        x = 10;
+    }
+```
+
+### 参照型の参照渡し
+
+``` C#
+    // Age = 20 で初期化
+    var p = new Person("John", 20);
+    // Ageに10足す
+    Hoge(p);
+    // 反映される
+    Console.WriteLine($"Name={p.Name}, Age={p.Age}"); // Name=John, Age=30
+
+    void Hoge(Person p) => p.Age += 10;
+```
+
+``` C#
+    // Age = 20 で初期化
+    var p = new Person("John", 20);
+    // Hogeの中でpに新しいインスタンスを代入し、Ageに10足す
+    Hoge(p);
+    // 反映されない
+    Console.WriteLine($"Name={p.Name}, Age={p.Age}"); // Name=John, Age=20
+
+    void Hoge(Person p)
+    {
+        p = new Person("Mike", 33);
+        p.Age += 10;
+    }
+```
+
+``` C#
+    // Age = 20 で初期化
+    var p = new Person("John", 20);
+    // p に新しいインスタンスを代入し、Ageに10足す
+    Hoge(ref p);
+    // 反映される
+    Console.WriteLine($"Name={p.Name}, Age={p.Age}"); // Name=Mike, Age=43
+
+    void Hoge(ref Person p)
+    {
+        p = new Person("Mike", 33);
+        p.Age += 10;
+    }
 ```
