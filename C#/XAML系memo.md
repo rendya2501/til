@@ -1877,3 +1877,118 @@ BindingのPathに添付プロパティを指定する場合、カッコをつけ
 ```
 
 ---
+
+## XAMLで定義したデータをバインドする方法
+
+[ListBoxコントロールにデータをバインディングする - XAMLのXMLをバインディングする (WPFプログラミング)](https://www.ipentec.com/document/csharp-wpf-listbox-data-bind-from-xaml-xml)  
+
+ItemsControl研究で発見した。  
+MVVMバインドさせるのが面倒な時にいいかも。  
+
+``` XML : StaticResourceとして指定する方法
+    <Grid>
+        <Grid.Resources>
+            <!-- バインドデータを定義 -->
+            <XmlDataProvider x:Key="BlogData" XPath="Blogs/Blog">
+                <x:XData>
+                    <Blogs xmlns="">
+                        <Blog>
+                            <BlogSite>simplegeek.com</BlogSite>
+                            <Blogger OnlineStatus="Offline">Chris Anderson</Blogger>
+                        </Blog>
+                        <Blog>
+                            <BlogSite>fortes.com</BlogSite>
+                            <Blogger OnlineStatus="Offline">Fil Fortes</Blogger>
+                        </Blog>
+                        <Blog>
+                            <BlogSite>Longhorn Blogs</BlogSite>
+                            <Blogger OnlineStatus="Online">Rob Relyea</Blogger>
+                        </Blog>
+                    </Blogs>
+                </x:XData>
+            </XmlDataProvider>
+            <!-- XmlDataProviderで定義した内容をコントロールにバインドする場合 -->
+            <DataTemplate x:Key="BlogDataTemplate">
+                <Grid TextBlock.FontSize="20">
+                    <TextBlock Text="{Binding XPath=Blogger}" />
+                    <TextBlock Text="{Binding XPath=BlogSite}" />
+                    <!-- XPath指定は必要な模様。 -->
+                    <!-- Blogger要素にあるOnlineStatusをバインドする場合は/@でアクセス可能な模様 -->
+                    <TextBlock Text="{Binding XPath=Blogger/@OnlineStatus}" />
+                </Grid>
+            </DataTemplate>
+        </Grid.Resources>
+
+        <ListBox
+            ItemTemplate="{StaticResource BlogDataTemplate}"
+            ItemsSource="{Binding Source={StaticResource BlogData}}"/>
+    </Grid>
+```
+
+直接指定もできなくはないが、基本的にリソースに定義することをおすすめする。  
+
+``` XML : 直接指定する方法
+<ListBox>
+    <ListBox.ItemsSource>
+        <Binding>
+            <Binding.Source>
+                <XmlDataProvider XPath="Blogs/Blog">
+                    <x:XData>
+                        <Blogs xmlns="">
+                            <Blog>
+                                <BlogSite>simplegeek.com</BlogSite>
+                                <Blogger OnlineStatus="Offline">Chris Anderson</Blogger>
+                                <Url>http://simplegeek.com</Url>
+                            </Blog>
+                            <Blog>
+                                <BlogSite>fortes.com</BlogSite>
+                                <Blogger OnlineStatus="Offline">Fil Fortes</Blogger>
+                                <Url>http://fortes.com/work</Url>
+                            </Blog>
+                            <Blog>
+                                <BlogSite>Longhorn Blogs</BlogSite>
+                                <Blogger OnlineStatus="Online">Rob Relyea</Blogger>
+                                <Url>http://www.longhornblogs.com/rrelyea/</Url>
+                            </Blog>
+                        </Blogs>
+                    </x:XData>
+                </XmlDataProvider>
+            </Binding.Source>
+        </Binding>
+    </ListBox.ItemsSource>
+</ListBox>
+```
+
+DataTemplateをResourceで定義する方法でもまとめた内容だが、全体的によくできているのでそのまま持ってくる
+
+``` XML : Arrayを使用した場合
+<Window>
+  <Window.Resources>
+    <DataTemplate x:Key="Header">
+      <TextBlock Foreground="Orange" Background="Yellow" Text="{Binding}"/>
+    </DataTemplate>
+    <DataTemplate x:Key="Name">
+      <TextBlock Foreground="White" Background="Black" Text="{Binding Name}"/>
+    </DataTemplate>
+    <DataTemplate x:Key="Age">
+      <TextBlock Foreground="Red" Background="Green" Text="{Binding Age}"/>
+    </DataTemplate>
+    <x:Array x:Key="Office" Type="{x:Type local:Person}">
+      <local:Person Name="Michael" Age="40"/>
+      <local:Person Name="Jim" Age="30"/>
+      <local:Person Name="Dwight" Age="30"/>
+    </x:Array>
+  </Window.Resources>
+
+  <ListView ItemsSource="{Binding Source={StaticResource Office}}">
+    <ListView.View>
+      <GridView>
+        <GridView.Columns>
+          <GridViewColumn Width="140" Header="Column 1" HeaderTemplate="{StaticResource Header}" CellTemplate="{StaticResource Name}"/>
+          <GridViewColumn Width="140" Header="Column 2" HeaderTemplate="{StaticResource Header}" CellTemplate="{StaticResource Age}"/>
+        </GridView.Columns>
+      </GridView>
+    </ListView.View>
+  </ListView>
+</Window>
+```
