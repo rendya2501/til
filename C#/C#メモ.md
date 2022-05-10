@@ -1612,3 +1612,45 @@ Usingはビルド時にそのクラスの一番上で定義されていなけれ
 ## C#リフレクションTIPS 55連発
 
 [C#リフレクションTIPS 55連発](https://qiita.com/gushwell/items/91436bd1871586f6e663)  
+
+---
+
+## EnumのGetValueOrDefault
+
+EnumのGetValueOrDefaultは何が帰ってくるのか気になった。  
+Byteなので普通に0だが、面白いのは定義したEnumが1から始まるものでもデフォルトは0とされること。  
+
+``` C#
+    CaddyType? caddyType = null;
+    // Enumが1から始まっていても0となる。
+    var aa  = (int)caddyType.GetValueOrDefault();
+
+    enum CaddyType : byte
+    {
+        None = 1,
+        Use =2,
+        UseTwo = 3,
+    }
+```
+
+---
+
+## Listにnullのオブジェクトをいれる
+
+``` C#
+    Person person = null;
+    // a1.Count = 1
+    // 1番目の要素はnull
+    var a1 = new List<Person>() { person };
+
+    person = new Person();
+    // a2.Count = 1
+    // 1番目の要素はPersonインスタンス
+    var a2 = new List<Person>() { person };
+
+    // a1がnullだとエラーになるのでnew Listにnullをいれるのは罠
+    foreach(var aa in a1)
+    {
+
+    }
+```
