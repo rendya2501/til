@@ -58,9 +58,11 @@ ItemsPanelTemplate でコレクションをどう並べるかを指定します�
 指定できるのはPanelクラスの派生クラスである以下の3つです。
 なお、デフォルトで StackPanel が指定されているので、何も指定されていない場合は要素が縦に並びます。
 
+``` txt
 StacPanel : 縦に並ぶ  
 WrapPanel : 横に並ぶ  
-Grid      : 指定はできるが子要素を並べる機能がないためすべて重なる  
+Grid      : 指定はできるが子要素を並べる機能がないためすべて重なる。選ぶ意味はほぼない。  
+```
 
 ``` XML
 <ItemsControl.ItemsPanel>
@@ -116,6 +118,206 @@ ContentPresenterには、ItemTemplateの内容が入る。
         <TextBlock Text="{Binding Name}"/>
     </DataTemplate>
 </ItemsControl.ItemTemplate>
+```
+
+### サンプル集
+
+``` XML
+    <ListBox ItemsSource="{Binding Mall}">
+        <!--  コントロール全体の設定  -->
+        <ListBox.Template>
+            <ControlTemplate TargetType="{x:Type ListBox}">
+                <Border
+                    Background="LightGray"
+                    BorderBrush="Red"
+                    BorderThickness="5">
+                    <ItemsPresenter Margin="5" />
+                </Border>
+            </ControlTemplate>
+        </ListBox.Template>
+        <!--  ItemsPanelTemplate でコレクションをどう並べるかを指定します。  -->
+        <ListBox.ItemsPanel>
+            <ItemsPanelTemplate>
+                <WrapPanel Orientation="Horizontal" />
+            </ItemsPanelTemplate>
+        </ListBox.ItemsPanel>
+        <!--  DataTemplate でコレクションの項目をどのように表示するかを指定します。  -->
+        <ListBox.ItemTemplate>
+            <DataTemplate>
+                <StackPanel>
+                    <TextBlock>
+                        <TextBlock.Text>
+                            <MultiBinding StringFormat="【{0}】{1}">
+                                <Binding Path="Prefecture" />
+                                <Binding Path="Name" />
+                            </MultiBinding>
+                        </TextBlock.Text>
+                    </TextBlock>
+                    <TextBlock Text="{Binding FavoriteCount, StringFormat=お気に入り：{0}}" />
+                </StackPanel>
+            </DataTemplate>
+        </ListBox.ItemTemplate>
+        <!--  Style を指定します。ItemTemplate と同じく要素ごとの表示方法を指定するプロパティです。  -->
+        <ListBox.ItemContainerStyle>
+            <Style TargetType="ListBoxItem">
+                <Setter Property="OverridesDefaultStyle" Value="True" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type ContentControl}">
+                            <Border Background="{TemplateBinding Background}">
+                                <ContentPresenter />
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="Margin" Value="10" />
+                <!--  追加したStykle その1  -->
+                <Setter Property="Width" Value="100" />
+                <!--  追加したStykle その2  -->
+                <Setter Property="Height" Value="50" />
+                <!--  追加したStykle その3  -->
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Background" Value="LightBlue" />
+                    </Trigger>
+                    <Trigger Property="IsSelected" Value="True">
+                        <Setter Property="Background" Value="LightGreen" />
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+        </ListBox.ItemContainerStyle>
+    </ListBox>
+```
+
+``` C# : このサンプルにおけるViewModel
+    public MainWindow()
+    {
+        InitializeComponent();
+        DataContext = new MainViewModel();
+    }
+
+    class MainViewModel
+    {
+        public List<Store> Mall { get; set; } = Enumerable.Range(1, 20).Select(x => new Store()
+        {
+            Name = "お店" + x,
+            Prefecture = "東京都",
+            FavoriteCount = x * 10,
+        }).ToList();
+    }
+
+    class Store
+    {
+        public string Name { get; set; }
+        public string Prefecture { get; set; }
+        public int FavoriteCount { get; set; }
+    }
+```
+
+[ItemsControl クラス](https://docs.microsoft.com/ja-jp/dotnet/api/system.windows.controls.itemscontrol?view=windowsdesktop-6.0)  
+
+``` XML : マイクロソフト公式のサンプル
+    <Grid>
+        <Grid.Resources>
+            <XmlDataProvider x:Key="myTodoList" XPath="myTodoList/Todo">
+                <x:XData>
+                    <myTodoList xmlns="">
+                        <Todo>
+                            <Priority>2</Priority>
+                            <TaskName OnlineStatus="Offline">Shopping</TaskName>
+                            <Description>test</Description>
+                        </Todo>
+                        <Todo>
+                            <Priority>2</Priority>
+                            <TaskName OnlineStatus="Offline">Laundry</TaskName>
+                            <Description>test</Description>
+                        </Todo>
+                        <Todo>
+                            <Priority>1</Priority>
+                            <TaskName OnlineStatus="Online">Email</TaskName>
+                            <Description>test</Description>
+                        </Todo>
+                        <Todo>
+                            <Priority>3</Priority>
+                            <TaskName OnlineStatus="Online">Clean</TaskName>
+                            <Description>test</Description>
+                        </Todo>
+                        <Todo>
+                            <Priority>1</Priority>
+                            <TaskName OnlineStatus="Online">Dinner</TaskName>
+                            <Description>test</Description>
+                        </Todo>
+                        <Todo>
+                            <Priority>2</Priority>
+                            <TaskName OnlineStatus="Online">Proposals</TaskName>
+                            <Description>test</Description>
+                        </Todo>
+                    </myTodoList>
+                </x:XData>
+            </XmlDataProvider>
+        </Grid.Resources>
+
+        <ItemsControl
+            Width="200"
+            Height=" 100"
+            Margin="10"
+            ItemsSource="{Binding Source={StaticResource myTodoList}}">
+            <!--  コントロール全体の設定  -->
+            <ItemsControl.Template>
+                <ControlTemplate TargetType="ItemsControl">
+                    <Border
+                        BorderBrush="Aqua"
+                        BorderThickness="1"
+                        CornerRadius="15">
+                        <ItemsPresenter />
+                    </Border>
+                </ControlTemplate>
+            </ItemsControl.Template>
+            <!--  コレクションの並べ方の設定  -->
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <!--  コレクションの表現方法の設定  -->
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <DataTemplate.Resources>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="FontSize" Value="18" />
+                            <Setter Property="HorizontalAlignment" Value="Center" />
+                        </Style>
+                    </DataTemplate.Resources>
+                    <Grid>
+                        <Ellipse Fill="Silver" />
+                        <StackPanel>
+                            <TextBlock Margin="3,3,3,0" Text="{Binding XPath=Priority}" />
+                            <TextBlock Margin="3,0,3,7" Text="{Binding XPath=TaskName}" />
+                        </StackPanel>
+                    </Grid>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+            
+            <!-- ItemsControl単体でもマウスオーバー時にツールチップや背景色の変更は可能な模様。 -->
+            <!-- しかし、このサンプルではうまく動作しない。一応できるってことだけは言っておく -->
+            <ItemsControl.ItemContainerStyle>
+                <Style>
+                    <Setter Property="Control.Width" Value="100" />
+                    <Setter Property="Control.Margin" Value="5" />
+                    <Style.Triggers>
+                        <Trigger Property="Control.IsMouseOver" Value="True">
+                            <Setter Property="Control.ToolTip" Value="{Binding XPath=Description}" />
+                            <Setter Property="Control.Background" Value="LightBlue" />
+                        </Trigger>
+                        <!-- IsSelectedはListBoxに格納しないとダメな模様 -->
+                        <!--<Trigger Property="Control.IsSelected" Value="True">
+                            <Setter Property="Control.Background" Value="LightGreen" />
+                        </Trigger>-->
+                    </Style.Triggers>
+                </Style>
+            </ItemsControl.ItemContainerStyle>
+        </ItemsControl>
+    </Grid>
 ```
 
 ---
