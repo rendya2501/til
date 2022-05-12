@@ -1261,6 +1261,7 @@ int i1 = 1;
 int i2 = i1 * i1;
 Console.WriteLine(i1 == i2); //true
 Console.WriteLine(i1.Equals(i2)); //true
+Console.WriteLine(object.Equals(i1, i2)); //true
 
 //参照型の等価を調べる
 //o1とo2は別のインスタンス
@@ -1268,11 +1269,13 @@ object o1 = new object();
 object o2 = new object();
 Console.WriteLine(o1 == o2); //false
 Console.WriteLine(o1.Equals(o2)); //false
+Console.WriteLine(object.Equals(o1, o2)); //false
 
 //o1とo2は同じインスタンス
 o2 = o1;
 Console.WriteLine(o1 == o2); //true
 Console.WriteLine(o1.Equals(o2)); //true
+Console.WriteLine(object.Equals(o1, o2)); //true
 
 //String型の等価を調べる
 //s1とs2は同じ値だが、別のインスタンス
@@ -1281,6 +1284,7 @@ string s2 = new string('a', 10);
 Console.WriteLine(s1 == s2); //true
 Console.WriteLine(s1.Equals(s2)); //true
 Console.WriteLine(object.ReferenceEquals(s1, s2)); //false
+Console.WriteLine(object.Equals(s1, s2)); //true
 ```
 
 ``` C# : なんか個人でいろいろ頑張った後
