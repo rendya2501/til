@@ -1,6 +1,21 @@
 # XAML基礎・基本まとめ
 
-[WPFのgitレポジトリ](https://github.com/dotnet/wpf)  
+[WPFのソースコード](https://github.com/dotnet/wpf)  
+[コントロールのスタイルとテンプレート](http://msdn.microsoft.com/ja-jp/library/aa970773(v=vs.110).aspx)  
+[WPFのコントロール一覧](https://water2litter.net/rye/post/c_control_list/#my_mokuji10)  
+
+[kazuki_WPF入門](https://blog.okazuki.jp/entry/2014/12/27/200015)  
+[WPF4.5入門](https://www.slideshare.net/okazuki0130/wpf45-38048141)  
+
+[DataGridView編メニュー](https://dobon.net/vb/dotnet/datagridview/)  
+[PrismとLivetで画面を閉じるMVVM](https://redwarrior.hateblo.jp/entry/2020/08/31/090000)  
+[Windows Presentation Foundation実践](http://kisuke0303.sakura.ne.jp/blog/wordpress/wp-content/uploads/2016/08/4843696230c1698ad8ff7d086b998344.pdf)
+
+[[C# WPF] なんとかしてWPFの描画を速くしたい「Canvas.Childrenへのオブジェクト追加」](https://www.peliphilo.net/archives/2390)
+[WPF で ENTER キーを押したらフォーカス移動するようにする](https://rksoftware.wordpress.com/2016/05/04/001-14/)
+
+[【WPF】【MVVM】GUIのマウス/キー操作処理をコードビハインドから駆逐する](https://qiita.com/hotelmoskva_/items/13ecc724bdad00078c16)  
+[ダブルクリックイベントを持っていないコントロールで判定を拾う](https://www.hos.co.jp/blog/20200331/)  
 
 ---
 
@@ -19,10 +34,10 @@
 
 [when to use {x:Type …}?](https://stackoverflow.com/questions/11167536/when-to-use-xtype)  
 
-効果に違いはありません。どちらの場合もTargetTypeプロパティはtypeof(Border)に設定されます。  
-最初のバージョン{x:Type Border}は、WPFの最初のバージョンで必要とされたもので、  
-コンパイラが文字列をTypeオブジェクトに変換するためにTypeConverterクラスを使用せず、  
-それを行うためにTypeExtensionクラスを指定する必要があったためです。  
+>効果に違いはありません。  
+>どちらの場合もTargetTypeプロパティはtypeof(Border)に設定されます。  
+>
+>最初のバージョン{x:Type Border}は、WPFの最初のバージョンで必要とされたもので、コンパイラが文字列をTypeオブジェクトに変換するためにTypeConverterクラスを使用せず、それを行うためにTypeExtensionクラスを指定する必要があったためです。  
 
 これを考えれば、今は文字列での指定もできるようになったということか。  
 まぁ、単純な文字列としてよりは型として認識してもらったほうがより厳密でいいだろうから、そうしてるって程度だろうな。  
@@ -140,10 +155,11 @@ public class HexConverter : IValueConverter
 
 [【WPF】依存関係プロパティでユーザーコントロールをバインド対応する！](https://resanaplaza.com/%E3%80%90wpf%E3%80%91%E4%BE%9D%E5%AD%98%E9%96%A2%E4%BF%82%E3%83%97%E3%83%AD%E3%83%91%E3%83%86%E3%82%A3%E3%81%A7%E3%83%A6%E3%83%BC%E3%82%B6%E3%83%BC%E3%82%B3%E3%83%B3%E3%83%88%E3%83%AD%E3%83%BC/)
 
-DependencyProperty→バインディングができるようにする。コントロールにそういう機能がある。
+DependencyProperty→バインディングができるようにする。  
+コントロールにそういう機能がある。  
 
-バインディングをしたときに、バインド間で通知をしてくれる。
-この処理は.Net側の処理なので、その先で何をやっているかはわからない。
+バインディングをしたときに、バインド間で通知をしてくれる。  
+この処理は.Net側の処理なので、その先で何をやっているかはわからない。  
 
 ---
 
@@ -177,7 +193,7 @@ DependencyProperty→バインディングができるようにする。コン�
 
 ### プロパティ要素構文(Property Element Syntax)
 
-要素のinnerText・innerXMLを使用してプロパティを設定する。
+要素のinnerText・innerXMLを使用してプロパティを設定する。  
 複雑な型を持つプロパティの場合に有効。  
 XML 要素の子要素としてプロパティの値を設定する構文。  
 
@@ -226,12 +242,6 @@ Behaviorでの話。
 
 [WPF4.5入門 その59「Behaviorの自作」](https://blog.okazuki.jp/entry/2014/12/22/235048)  
 [【WPF】Behaviorで快適WPFライフ](https://anopara.net/2014/06/20/cool-behavior-life/)  
-
----
-
-## XAMLのコントロール
-
-[C#のWPFのコントロール一覧](https://water2litter.net/rye/post/c_control_list/#my_mokuji10)  
 
 ---
 
@@ -402,3 +412,50 @@ public partial class SimpleUserControl : UserControl
     </Grid>
 </Window>
 ```
+
+---
+
+## ControlTemplate
+
+[WPF4.5入門 その52 「コントロールテンプレート」](https://blog.okazuki.jp/entry/2014/09/07/195335)  
+
+WPFのコントロールは、見た目を完全にカスタマイズする方法が提供されています。  
+コントロールは、TemplateというプロパティにControlTemplateを設定することで、見た目を100%カスタマイズすることが出来るようになっています。  
+
+→  
+ItemsControlの時にTemplateプロパティの直下に配置したあれ。  
+Templateプロパティ自体、ControlTemplateクラスしか許可していなかったので、そういうものなんだなとしか理解していなかった。  
+
+``` XML : コントロールのTemplateの差し替え例
+<!-- WPFのLabelコントロールには、Windows Formと異なりClickイベントが提供されていません。 -->
+<!-- ここではClick可能なLabelの実現のために、Buttonコントロールの見た目をLabelにします。 -->
+
+<Button Content="ラベル" Click="Button_Click">
+    <Button.Template>
+        <ControlTemplate TargetType="{x:Type Button}">
+            <Label Content="{TemplateBinding Content}" />
+        </ControlTemplate>
+    </Button.Template>
+</Button>
+```
+
+ControlTemplateは、TargetTypeにテンプレートを適用するコントロールの型を指定します。  
+そして、ControlTemplateの中に、コントロールの見た目を定義します。  
+
+このとき、TemplateBindingという特殊なBindingを使うことで、コントロールのプロパティをバインドすることが出来ます。  
+上記の例ではButtonのContentに設定された値をLabelのContentにBindingしています。  
+
+### 必要な構成要素があるコントロールを上書きする場合
+
+コントロールには、そのコントロールが動作するために必要な構成要素がある場合があります。  
+スクロールバーのバーやバーを左右に移動するためのボタンなど、見た目だけでなく、操作することが出来る要素がそれにあたります。  
+このようなコントロールは、ControlTemplate内に、コントロールごとに決められた名前で定義する必要があります。  
+どのように定義しているかは、MSDNにある、デフォルトのコントロールテンプレートの例を参照してください。  
+
+[コントロールのスタイルとテンプレート](http://msdn.microsoft.com/ja-jp/library/aa970773(v=vs.110).aspx)  
+
+→  
+チェックボックスの例を見たときに、やたら複雑に書かれていたのはこういう仕組みがあったからか。  
+スタイルを適応するときも、元のコントロールと同じように再定義しないといけないのもこの仕組みのためだろうか。  
+
+---
