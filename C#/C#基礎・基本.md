@@ -32,11 +32,11 @@ C#   | year  | .NET      | .NET | .NET | Visual Studio
 ## 演算子の名称
 
 ``` txt
-null合体演算子         : ??
-null条件演算子         : ?.
-null合体代入演算子     : ??=
-複合代入演算子         : +=, -=, *=, /=, %=, &=, |=, ^=, <<=, >>=
-条件演算子(三項演算子) : ?:
+null合体演算子         | ??
+null条件演算子         | ?.
+null合体代入演算子     | ??=  → 8.0から使用可能
+複合代入演算子         | +=, -=, *=, /=, %=, &=, |=, ^=, <<=, >>=
+条件演算子(三項演算子) | ?:
 ```
 
 ---
@@ -182,7 +182,7 @@ Listでも、配列のようにアクセスできるのはインデクサーの�
 
 ・前かっこは変換に失敗するとエラー(System.InvalidCastException)になる。  
 ・as は変換に失敗するとnullになる。エラーにはならない。  
-・is はif文で使うので、失敗したらelseに流れるだけ。  
+・is はif文で使うので、失敗したらelseに流れる。  
 
 ## TryParseとConvertの違い
 
@@ -269,18 +269,30 @@ static void Deconstruct()
 
 ## プロパティ
 
-### プロパティってそもそも何？
+[未確認飛行C](https://ufcpp.net/study/csharp/oo_property.html)  
 
-そのクラスのプライベートフィールドの値の読み取り、書き込み等を行うメンバー。  
-Javaにはプロパティは存在しないらしい。  
-なので、クラスのプライベートフィールドへのアクセスはGetterとSetterを自分で実装しないといけない。  
-そうすると、コード量がすごいことになるのでそれを軽減するための仕組みがプロパティという印象を受けた。  
+プロパティ（property：所有物、特性）  
+クラス外部から見るとメンバー変数のように振る舞い、 クラス内部から見るとメソッドのように振舞うものです。  
+JavaやC++にはない(Visual Basicにはある)機能。  
 
-<https://teratail.com/questions/304645>  
+乱暴な言い方すると、JavaのGetter,Setterに相当するモノ。  
+Javaはプロパティがないので、自分でGetter,Setterを実装する必要があるが、C#なら自動実装プロパティなら1行で済む。  
+
+### 内部で使用する場合、メンバ変数に直接アクセスしていいのか、プロパティからアクセスすればいいのかどっちがいいの？
+
+[クラス内でプロパティを通してフィールドにアクセスすることの是非](https://teratail.com/questions/304645)  
+
+「クラス内からであっても、private のメンバー変数には直接アクセスせず、 プロパティを通してアクセスする方が後々の保守がしやすかったりします」  
+→  
+クラスの内側でも「プロパティ」による抽象化の恩恵に与りたいのか否か，程度の話なんじゃないかな，と。  
+→  
+日次帳票でやった、内部クラス(印刷データ生成クラス)なら、直接フィールドでやり取りしていいのではないだろうか。  
+外部に公開するわけでもないし、内部で使うだけだし、抽象化する必要性もないし、そういう場合はフィールドでよさそうな気はする。  
+それ以外はプロパティ自体をprivateで宣言して使えば、フィールドを使っているのと同じ様なものでは無かろうか。  
+しかし、プロパティのほうが参照元を表示してくれるので、プロパティを使ったほうが便利といえば便利。  
 
 ``` txt
-(1) オブジェクト指向の概念の一つ「カプセル化」を実現するため、通常クラス内の各フィールドへの直接アクセスは禁止するようにしておき、
-外部からはパブリックプロパティで各フィールドの値を取得したり設定したりするということがもともとのプロパティの目的です。 
+(1) オブジェクト指向の概念の一つ「カプセル化」を実現するため、通常クラス内の各フィールドへの直接アクセスは禁止するようにしておき、外部からはパブリックプロパティで各フィールドの値を取得したり設定したりするということがもともとのプロパティの目的です。 
 
 (2) プロパティを使う目的には、開発者が意図した規則に基づいてフィールドを正しく使用できるよう保証するということもあります。
 
@@ -308,17 +320,92 @@ Javaにはプロパティは存在しないらしい。
 ・メンバー変数の値の取得・変更を行うためのメソッドのことをアクセサー(accessor)といいます。  
 ・setterに渡す値にはsetter内からvalueという変数でアクセスできます。  
 
-### 内部で使用する場合、メンバ変数に直接アクセスしていいのか、プロパティからアクセスすればいいのかどっちがいいの？
+---
 
-<https://teratail.com/questions/304645>  
-「クラス内からであっても、private のメンバー変数には直接アクセスせず、 プロパティを通してアクセスする方が後々の保守がしやすかったりします」  
-→  
-クラスの内側でも「プロパティ」による抽象化の恩恵に与りたいのか否か，程度の話なんじゃないかな，と。  
-→  
-日次帳票でやった、内部クラス(印刷データ生成クラス)なら、直接フィールドでやり取りしていいのではないだろうか。  
-外部に公開するわけでもないし、内部で使うだけだし、抽象化する必要性もないし、そういう場合はフィールドでよさそうな気はする。  
-それ以外はプロパティ自体をprivateで宣言して使えば、フィールドを使っているのと同じ様なものでは無かろうか。  
-しかし、プロパティのほうが参照元を表示してくれるので、プロパティを使ったほうが便利といえば便利。  
+## 自動実装プロパティ
+
+サードパーティー製のライブラリを使わない場合のINotifyPropertyChanged実装はどうやるのか研究してたら、プロパティの自動実装で色々発見というか、知らないことが多々あったのでまとめることにした。  
+
+[未確認飛行C](https://ufcpp.net/study/csharp/oo_property.html)  
+
+### 自動プロパティの基本
+
+C# 3.0 では、プロパティの get/set の中身の省略もできるようになりました。  
+この機能を自動プロパティ（auto-property, auto-implemented property）といいます。  
+
+``` C# : 自動プロパティの基本
+// get; set; とだけ書いておくと、以下のというようなコードに相当するものが自動的に生成されます。  
+public string Name { get; set; }
+
+// ↓こう書いたのと同じ
+
+private string __name;
+public string Name
+{
+  get { return this.__name; }
+  set { this.__name = value; }
+}
+```
+
+[__name] はコンパイラーによって生成されるフィールドで、バック フィールド(baking field: 後援フィールド)と呼ばれます。  
+バック フィールド([__name])はプログラマが参照できるものではありません。  
+
+### 自動実装プロパティの初期化
+
+``` C# : 自動実装プロパティの初期化
+    // C# 6 以降では、フィールドと同様に自動実装プロパティを初期化することができます。
+    public string FirstName { get; set; } = "Jane";
+```
+
+### get onlyプロパティ
+
+C# 6 では、get アクセサーだけのプロパティを定義できるようになりました。
+
+``` C# : get only
+    // 1. これは MyCommand { get; } と同じ意味であり、3.と同じことを意味する
+    public ICommand MyCommand => new RelayCommand(() => Count++);
+
+    // 2. こう書くこともできる
+    public ICommand MyCommand { get => new RelayCommand(() => Count++); }
+
+    // 3. 1.2.を愚直に書くとこうなる
+    public RelayCommand MyCommand
+    {
+        // ちなみに ??= はnull合体代入演算子であり、_myCommandがnullであればnew RelayCommandを代入するという代物。
+        // 8.0から使用可能
+        get => _myCommand ??= new RelayCommand(() => Count++);
+    }
+    private RelayCommand _myCommand;
+```
+
+### aa
+
+[WisdomSofg_自動実装プロパティ](http://www.wisdomsoft.jp/182.html)  
+
+自動実装プロパティは get アクセッサと set アクセッサの両方でセミコロンを本体にしなければなりません。  
+一方をブロックの本体にしたり、片方のアクセッサのみを指定するということはできません。  
+必ず両方のアクセッサを記述し、セミコロンの本体を指定します。  
+
+``` C#
+    // 毎回こうやって書くのはだるい
+    public int Count
+    {
+       get { return _Count; }
+       set
+       {
+           _Count = value;
+           PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Count)));
+       }
+    }
+    private int _Count;
+
+    // 理想はこうだが、これはだめらしい。
+    // abstract、extern、または partial に指定されていないため、本体を宣言する必要があります。というエラーが発生する
+    public int Count { 
+        get;
+        set => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Count))); 
+    }
+```
 
 ---
 
@@ -528,23 +615,6 @@ class UsingStaticSample
     }
 }
 ```
-
----
-
-## ObservableCollection
-
-[【WPF】ItemsSourceにObservableCollectionを選ぶのはなぜ](https://itwebmemory.com/itemssource-observablecollection-explanation)  
-なんとなく使ってはいるが、なぜ使うのか、どういうものなのかずっとわからなかったのでまとめることにした。  
-
-``` txt
-項目が追加または削除されたとき、あるいはリスト全体が更新されたときに通知を行う動的なデータ コレクションを表します。
-https://docs.microsoft.com/ja-jp/dotnet/api/system.collections.objectmodel.observablecollection-1?view=netcore-3.1
-```
-
-ざっくりいうと、INotifyPropertyChangedを実装したリストっぽい。  
-正確には、INotifyCollectionChangedインターフェイスを実装したデータコレクションの組み込み実装クラス。  
-というわけで、View側からの項目の追加、削除、内容の変更を観測できるし、ViewModel側からView側へ逆に反映させることができるわけだ。  
-だから、項目の追加や削除が必要な場合には、ObservableCollectionを採用するというわけね。  
 
 ---
 

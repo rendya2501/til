@@ -63,12 +63,14 @@ TargetNullValueはこの値が来たらnullとして扱うことを設定する�
 
 ---
 
-## Binding ConverterParameterプロパティを使う
-
-<http://cswpf.seesaa.net/article/313843710.html>
+## BindingのConverterParameterプロパティ
 
 今まで地味に謎だった、Converterの第3引数`parameter`に値を入れるサンプル。  
-「ConverterParameterもBindingして動的に変更できればいいのですがそれができないのであまり使えません。」  
+
+<http://cswpf.seesaa.net/article/313843710.html>
+>「ConverterParameterもBindingして動的に変更できればいいのですがそれができないのであまり使えません。」  
+
+→  
 バインドできないのか・・・。  
 これを使うくらいならMultiBinding使ったほうがいいという記事が散見される。  
 というわけで、MultiBindの概念を勉強する必要がありそうですね。  
@@ -226,9 +228,36 @@ XML 要素の子要素としてプロパティの値を設定する構文。
 
 ---
 
-## DataContextとは?
+## DataContext
 
-[データ・バインディングを理解する](https://marikooota.hatenablog.com/entry/2017/05/30/002059)
+[データ・バインディングを理解する](https://marikooota.hatenablog.com/entry/2017/05/30/002059)  
+
+>データ・バインディングとは、MVVMパターンでいうViewとViewModelを結び付けるために提供されている仕組み。  
+>ViewとViewModel間のやりとりはDataContextというプロパティを介してやりとりします。  
+>Viewで表示したいViewModelのデータ・ソースをDataContextプロパティに渡すだけで、結び付けることができるのです。  
+
+``` XML : Xamlで設定する場合
+<!-- 名前空間:クラス名  の形で指定するので名前空間にViewModelを通しておく-->
+<!-- 例 xmlns:vm="clr-namespace:WpfApp.ViewModel -->
+
+<Window.DataContext>
+    <local:ViewModel />
+</Window.DataContext>
+```
+
+``` C# : コードビハインドで設定する場合
+    /// <summary>
+    /// Interaction logic for MainWindow.xaml
+    /// </summary>
+    public partial class MainWindow : Window
+    {
+        public MainWindow()
+        {
+            InitializeComponent();
+            DataContext = new ViewModel();
+        }
+    }
+```
 
 ---
 
@@ -247,19 +276,16 @@ Behaviorでの話。
 
 ## Gridの行列の幅や高さの定義
 
-[C#WPFの道#3！Gridの使い方をわかりやすく解説！](https://anderson02.com/cs/wpf/wpf-3/)  
-
-GridのWidthやHeightに[*]や[Auto]を指定した時の動作が曖昧だったのでまとめ。  
-
 - 数値 : 絶対値でピクセルを指定します。  
-
 - [*] : 均等な比率を割り当てます。  
 例)  
 3列宣言していて、すべての列の定義が「＊」の場合は、均等に3列の幅が作られます。  
 「２＊」などと、数字を＊の前に記述すると、その列のみ2倍などの指定した値の倍率で確保されます。  
-
 - [Auto] : 設置したコントロールの幅で動的に変動します。  
   おそらく、内部のコントロールが動的に変化する場合、Gridの大きさ同じように変化すると思われる。  
+
+[C#WPFの道#3！Gridの使い方をわかりやすく解説！](https://anderson02.com/cs/wpf/wpf-3/)  
+GridのWidthやHeightに[*]や[Auto]を指定した時の動作が曖昧だったのでまとめ。  
 
 ---
 
@@ -271,7 +297,7 @@ GridのWidthやHeightに[*]や[Auto]を指定した時の動作が曖昧だっ�
 
 ---
 
-## StaticResourceとDynamicResourceの違い
+## StaticResourceとDynamicResource
 
 [WPFのStaticResourceとDynamicResourceの違いMSDN](https://social.msdn.microsoft.com/Forums/ja-JP/3bbcdc48-2a47-495e-9406-2555dc515c3a/wpf12398staticresource12392dynamicresource123983694912356?forum=wpfja)  
 [WPFのStaticResourceとDynamicResourceの違い](https://tocsworld.wordpress.com/2014/06/26/wpf%E3%81%AEstaticresource%E3%81%A8dynamicresource%E3%81%AE%E9%81%95%E3%81%84/)  
@@ -324,7 +350,7 @@ StaticResourceは性質上、使う時より上で定義していないと使え
 
 ---
 
-## UserControlの作り方
+## UserControl
 
 [簡単なユーザーコントロール(WPF)の作り方](https://qiita.com/tera1707/items/8d24b21a05ad84a1c92f)
 
@@ -459,3 +485,323 @@ ControlTemplateは、TargetTypeにテンプレートを適用するコントロ�
 スタイルを適応するときも、元のコントロールと同じように再定義しないといけないのもこの仕組みのためだろうか。  
 
 ---
+
+## INotifyPropertyChanged
+
+[WPF4.5入門 その60「データバインディングを前提としたプログラミングモデル」](https://blog.okazuki.jp/entry/2014/12/23/180413)  
+
+INotifyPropertyChangedインターフェースはPropertyChangedイベントのみをもつシンプルなインターフェースです。  
+このイベントを通じてModelからViewModel、ViewModelからViewへの変更通知が行われます。  
+
+[世界で一番短いサンプルで覚えるMVVM入門](https://resanaplaza.com/%E4%B8%96%E7%95%8C%E3%81%A7%E4%B8%80%E7%95%AA%E7%9F%AD%E3%81%84%E3%82%B5%E3%83%B3%E3%83%97%E3%83%AB%E3%81%A7%E8%A6%9A%E3%81%88%E3%82%8Bmvvm%E5%85%A5%E9%96%80/)  
+
+``` C# : INotifyPropertyChangedの最小実装
+    // 1. INotifyPropertyChangedの継承
+    internal class ViewModel : INotifyPropertyChanged
+    {
+        // 2. PropertyChangedEventHandlerイベントハンドラの記述
+        /// <summary>
+        /// INotifyPropertyChangedインターフェース実装イベント
+        /// </summary>
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        /// <summary>
+        /// カウント数
+        /// </summary>
+        public int Count
+        {
+            get { return _Count; }
+            set
+            {
+                _Count = value;
+                // 3. プロパティの set 内でのPropertyChangedEventHandlerイベントハンドラの呼び出し
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Count)));
+            }
+        }
+        private int _Count;
+    }
+```
+
+INotifyPropertyChangedインターフェースの実装をすべてのプロパティに実装するのは負荷が高いため、一般的に以下のようなヘルパークラスが作成されます。  
+
+→  
+これが実務でも見るViewModelBaseに記述されてるあれになるわけだ。  
+
+``` C# : INotifyPropertyChangedのヘルパークラス(BindableBase)
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+
+    /// <summary>
+    /// INotifyPropertyChangedのヘルパークラス
+    /// </summary>
+    public class BindableBase : INotifyPropertyChanged
+    {
+        /// <summary>
+        /// INotifyPropertyChangedインターフェース実装イベント
+        /// </summary>
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        /// <summary>
+        /// 値のセットと通知を行う
+        /// </summary>
+        protected virtual bool SetProperty<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
+        {
+            // 同じ値なら処理しない
+            if (Equals(field, value))
+            {
+                return false;
+            }
+            // 値を反映
+            field = value;
+            // プロパティ発火
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            // 正常に終了したことを通知
+            return true;
+        }
+    }
+```
+
+``` C# : BindableBaseの実装例
+    public class ViewModel : BindableBase
+    {
+
+        /// <summary>
+        /// カウント数
+        /// </summary>
+        public int Count
+        {
+            get { return _Count; }
+            set { SetProperty(ref _Count, value); }
+        }
+        private int _Count;
+    }
+```
+
+---
+
+## ICommand
+
+INotifyPropertyChangedをやったなら、ボタンを押したときの実装もするだろう。  
+というわけで、原初のICommandを実装してみたが、クソ面倒くさいなこれ。  
+これをプレーンのままで実装するなんて考えられない。  
+
+``` C# : Commandクラスに実装すべき内容
+public class CountDownCommand : ICommand
+{
+    public event EventHandler CanExecuteChanged
+    {
+         ・・・・・
+    }
+ 
+    public bool CanExecute(object parameter)
+    {
+         ・・・・・
+    }
+ 
+    public void Execute(object parameter)
+    {
+         ・・・・・
+    }
+ }
+```
+
+[MVVM:とにかく適当なICommandを実装したい時のサンプル](https://running-cs.hatenablog.com/entry/2016/09/03/211015)  
+
+``` C# : IComandの最小実装
+    internal class ViewModel : INotifyPropertyChanged
+    {
+        // ICommand で宣言すること
+        public ICommand PlaneCountDownCommand => new RelayCommand(() => Count++);
+    }
+
+    /// <summary>
+    /// MVVMのViewModelから呼び出されるコマンドの定義
+    /// コマンド1つにつき1つのクラスを定義する
+    /// </summary>
+    public class CountDownCommand : ICommand
+    {
+        /// <summary>
+        /// Command実行時に実行するアクション
+        /// 引数を受け取りたい場合はこのActionをAction<object>などにする
+        /// </summary>
+        private Action _action;
+
+        /// <summary>
+        /// コンストラクタ
+        /// Actionを登録
+        /// </summary>
+        /// <param name="action"></param>
+        public CountDownCommand(Action action) => _action = action;
+
+        #region ICommandインターフェースの必須実装
+        /// <summary>
+        /// コマンドのルールとして必ず実装しておくイベントハンドラ
+        /// 通常、このメソッドを丸ごとコピーすればOK
+        /// RaiseCanExecuteChanged が呼び出されたときに生成されます。
+        /// </summary>
+        public event EventHandler? CanExecuteChanged
+        {
+            add { CommandManager.RequerySuggested += value; }
+            remove { CommandManager.RequerySuggested -= value; }
+        }
+
+        /// <summary>
+        /// コマンドの有効／無効を判定するメソッド
+        /// コマンドのルールとして必ず実装しておくメソッド
+        /// 有効／無効を制御する必要が無ければ、無条件にTrueを返しておく
+        /// </summary>
+        /// <param name="parameter"></param>
+        /// <returns></returns>
+        public bool CanExecute(object? parameter)
+        {
+            //とりあえずActionがあれば実行可能
+            return _action != null;
+        }
+
+        /// <summary>
+        /// コマンドの動作を定義するメソッド
+        /// コマンドのルールとして必ず実装しておくメソッド
+        /// </summary>
+        /// <param name="parameter"></param>
+        public void Execute(object? parameter)
+        {
+            //今回は引数を使わずActionを実行
+            _action?.Invoke();
+        }
+        #endregion
+    }
+```
+
+そこでPrismになるわけだが、Prismはマイクロソフトが開発しているサポートライブラリなので気にせずどんどん入れよう。  
+でもって、VSが新しいためかは知らないが、DelegateCommandって入力して[Ctrl + .]でおすすめを表示させると、Prismをインストールしてusingまで通してくれる選択肢が出てくる。  
+簡単にインストールできてしかも軽いので、コマンドの実装するなら使わない手はない。  
+nugetから入れようとすると、まず開くので重くて、調べるので重くて、インストールがだるいという3重苦だが、ここまで軽くて簡単に入れられるならマストで入れるべきだ。  
+
+Prismでの実装ならたった1行で済む。控えめに言って神。  
+
+``` C# : Prismでの実装
+using Prism.Commands;
+
+    internal class ViewModel : INotifyPropertyChanged
+    {
+        public DelegateCommand DelegateCountDownCommand => new DelegateCommand(() => Count++);
+    }
+```
+
+CanExecuteとかFunc<T>とか実装したいならこのサイトを参考に実装すればいいと思うけど、ならDelegateCommand使えという話。  
+[XAMLからViewModelのメソッドにバインドする～RelayCommand～](https://sourcechord.hatenablog.com/entry/2014/01/13/200039)  
+
+---
+
+## ObservableCollection
+
+なんとなく使ってはいるが、なぜ使うのか、どういうものなのかずっとわからなかったのでまとめることにした。  
+
+[マイクロソフト公式](https://docs.microsoft.com/ja-jp/dotnet/api/system.collections.objectmodel.observablecollection-1?view=netcore-3.1)  
+>項目が追加または削除されたとき、あるいはリスト全体が更新されたときに通知を行う動的なデータ コレクションを表します。  
+
+[意外と知らない！？ C#の便利なコレクション！](https://qiita.com/hiki_neet_p/items/75bf39838ce580cca92d)  
+>コレクションのアイテムに対する、追加、削除、変更、移動操作があった場合、またはリスト全体が更新されたとき、CollectionChanged イベントを発生させることができるコレクションです。  
+>「Observable」という名前がついていますが、IObservable<T> や IObserver<T> とは直接の関連はありません。  
+>むしろ、INotifyPropertyChanged に近いイメージです。  
+>ObservableCollection<T> は INotifyPropertyChanged も実装していますが、そのイベントを直接購読することはできないようになっています。
+
+→  
+追加や削除した時にイベントを発生させるので、追加、削除した時に何かやりたい時はObservableCollectionを使う必要がある。  
+
+``` C# : 実装例
+    public class ViewModel
+    {
+        /// <summary>
+        /// コレクション本体
+        /// </summary>
+        public ObservableCollection<Person> People { get; set; } 
+            = new ObservableCollection<Person>(Enumerable.Range(1, 10).Select(x => new Person { Name = "tanaka" + x, Age = x }));
+        /// <summary>
+        /// コレクションに要素を追加する
+        /// </summary>
+        public DelegateCommand AddItem 
+            => new DelegateCommand(() => People.Add(new Person { Name = "追加したtanaka", Age = People.Count + 1 }));
+        /// <summary>
+        /// コレクションの要素を削除する。
+        /// </summary>
+        public DelegateCommand RemoveItem 
+            => new DelegateCommand(() => People.RemoveAt(People.Count - 1 ));
+
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        public ViewModel()
+        {
+            // ObservableCollectionにイベント登録
+            People.CollectionChanged += People_CollectionChanged;
+        }
+
+        /// <summary>
+        /// ObservableCollectionのAddやRemoveされた時実行される処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void People_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            Console.WriteLine("Action for this event: {0}", e.Action);
+
+            switch (e.Action)
+            {
+                // They added something. 
+                case NotifyCollectionChangedAction.Add:
+                    // Now show the NEW items that were inserted.
+                    Console.WriteLine("Here are the NEW items:");
+                    foreach (Person p in e.NewItems)
+                    {
+                        Console.WriteLine(p.ToString());
+                    }
+                    break;
+                // They removed something. 
+                case NotifyCollectionChangedAction.Remove:
+                    Console.WriteLine("Here are the OLD items:");
+                    foreach (Person p in e.OldItems)
+                    {
+                        Console.WriteLine(p.ToString());
+                    }
+                    break;
+                case NotifyCollectionChangedAction.Replace:
+                case NotifyCollectionChangedAction.Move:
+                case NotifyCollectionChangedAction.Reset:
+                default:
+                    break;
+            }
+
+            Console.WriteLine();
+        }
+    }
+```
+
+``` XML
+<Window>
+    <Window.DataContext>
+        <local:ViewModel />
+    </Window.DataContext>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Menu Grid.Row="0">
+            <MenuItem Command="{Binding AddItem}" Header="追加" />
+            <MenuItem Command="{Binding RemoveItem}" Header="削除" />
+        </Menu>
+        <ListBox Grid.Row="1" ItemsSource="{Binding People}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBox Text="{Binding Name}" />
+                        <TextBox Text="{Binding Age}" />
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </Grid>
+</Window>
+
+```
