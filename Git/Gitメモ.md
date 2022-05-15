@@ -169,7 +169,7 @@ pullではなくcloneなら普通にありました。
 
 ---
 
-## gitのローカルのブランチ名を変更したい
+## ローカルのブランチ名を変更する方法
 
 [gitのローカルのブランチ名を変更したい](https://qiita.com/suin/items/96c110b218d919168d64)  
 
@@ -182,9 +182,16 @@ pullではなくcloneなら普通にありました。
 
 ---
 
-## gitignoreでディレクトリを除外する
+## gitignoreでディレクトリを除外する方法
 
-``` txt
+[[Git] .gitignoreの仕様詳解](https://qiita.com/anqooqie/items/110957797b3d5280c44f)  
+
+`*/ディレクトリ名`  
+
+例  
+以下のようなフォルダ構成があった時にassetsディレクトリ以下を除外したい場合。  
+
+``` txt : フォルダ構成
 src
 ├─assets
 ├─components
@@ -199,14 +206,10 @@ src
 └─views
 ```
 
-assetsを除外したい場合。  
-
-``` .gitignore
+``` txt : gitignore
 .DS_Store
 */assets
 ```
-
-[[Git] .gitignoreの仕様詳解](https://qiita.com/anqooqie/items/110957797b3d5280c44f)  
 
 ---
 
@@ -389,3 +392,12 @@ https://qiita.com/S42100254h/items/db435c98c2fc9d4a68c2
 
 ※要: シェルの場所はボタンでダイアログを開いて選択すべし
 ```
+
+---
+
+## 現在のブランチ以外から新しいブランチを作成する方法
+
+[developブランチ以外のブランチから切ってpushするまで](https://zenn.dev/suzuki_yu/articles/a1b8a13bea39c2)  
+
+大き目の修正をやっているときに、ブランチを切り替えずに新しいブランチを作成する方法。  
+バックアップブランチを作成しないといけない時とか  
