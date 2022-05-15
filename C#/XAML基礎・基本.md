@@ -522,6 +522,8 @@ INotifyPropertyChangedインターフェースはPropertyChangedイベントの�
     }
 ```
 
+### ヘルパークラス
+
 INotifyPropertyChangedインターフェースの実装をすべてのプロパティに実装するのは負荷が高いため、一般的に以下のようなヘルパークラスが作成されます。  
 
 →  
