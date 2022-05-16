@@ -2,12 +2,12 @@
 
 [【git stash】コミットはせずに変更を退避したいとき](https://qiita.com/chihiro/items/f373873d5c2dfbd03250)  
 
----
+「とあるブランチで作業中だけど、いますぐやりたいことができた。作業がすごく中途半端だからコミットはしたくない。」  
+というときに、stashが使えます。  
+stashを使用すると、コミットしていない変更を退避することができます。  
+stashで現在の変更を退避して、今すぐやりたい作業をして、退避させていた変更を戻して作業を再開することができます。  
 
-「とあるブランチで作業中だけど、いますぐやりたいことができた。作業がすごく中途半端だからコミットはしたくない。」
-というときに、stashが使えます。
-stashを使用すると、コミットしていない変更を退避することができます。
-stashで現在の変更を退避して、今すぐやりたい作業をして、退避させていた変更を戻して作業を再開することができます。
+---
 
 ## 変更を退避する
 
@@ -22,16 +22,19 @@ stashで現在の変更を退避して、今すぐやりたい作業をして、
 
 以下のコマンドで退避した作業の一覧を見ることができます。
 
+``` bash
 $ git stash list
 stash@{0}: WIP on test: xxxx
 stash@{1}: WIP on commit-sample: xxxx
+```
+
 stash@{n}から始まる1行が1回分のstashになります。
 WIP onのあとはブランチ名です。
 xxxxはstashをしたときのHEADのコミットハッシュとコミットメッセージになります。
 
 ## 退避した作業を戻す
 
-$ git stash apply stash@{0}
+`$ git stash apply stash@{0}`  
 stash@{0} の作業をもとに戻します。
 
 git stash apply stash名にて退避した作業を元に戻すことができます。
@@ -44,7 +47,7 @@ stash@{0} のstash名は省略することもできます。省略した場合�
 上記のコマンドだと、addしていた変更もaddされていない状態で戻ります(stagedされていた変更もnot stagedととして戻る)。
 addした状態そのままにもどしたいときは、上記のコマンドに--indexオプションを付けて実行します。
 
-$ git stash apply stash@{0} --index
+`$ git stash apply stash@{0} --index`
 
 ## 退避した作業を消す
 
@@ -52,15 +55,16 @@ stashを使用して退避した作業を元に戻しても、退避した情報
 git stash listを実行すると、退避した情報はそのまま残っているはずです。
 退避した作業を消すには、以下のコマンドを使用します。
 
-$ git stash drop stash@{0}
+`$ git stash drop stash@{0}`
 stash@{0} をstashのリストから削除します
 
 dropと同様、 stash名（stash@{0}）を省略すると、直近にstashした情報を消すことができます。
 
-退避した作業を元に戻すと同時に、stashのリストから消す
+## 退避した作業を元に戻すと同時に、stashのリストから消す
+
 退避した作業を消すにはdropを使用する必要がありましたが、作業をもとに戻すと同時に消すこともできます。
 
-$ git stash pop stash@{0}
+`$ git stash pop stash@{0}`
 stash@{0} の作業をもとに戻すと同時に、退避作業の中から削除します
 
 こちらもstash名（stash@{0}）を省略すると、直近にstashした情報を消すことができます。
@@ -68,28 +72,32 @@ stash@{0} の作業をもとに戻すと同時に、退避作業の中から削�
 
 ## 作業を退避するときにメッセージを付ける
 
+``` bash
 $ git stash save "stash message"
 
 $ git stash list
 stash@{0}: On test: stash message
+```
+
 コミットハッシュ+コミットメッセージが表示されていた部分が、指定したメッセージになっています。
 
 ## 退避した変更の詳細をみる
 
-$ git stash show stash@{0}
+`$ git stash show stash@{0}`
 変更ファイルの一覧を見ることができます。
 また、-pオプションをつけることで、変更内容の詳細をみることもできます。
 
-$ git stash show stash@{0} -p
+`$ git stash show stash@{0} -p`
 
 ## addした変更以外を退避させる
 
 オプションを何もつけない場合、addした変更もaddしていない変更も退避されます(新規追加ファイルは例外)。
 -k(もしくは--keep-index)をつけて実行すると、addした変更は退避されません。
 
-$ git stash -k
+`$ git stash -k`
 
 ## 退避した作業をすべて消す
 
-$ git stash clear
+`$ git stash clear`  
+
 git stash listを実行すると、退避した情報がすべて消えていることが確認できます。

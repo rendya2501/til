@@ -1616,6 +1616,19 @@ Usingはビルド時にそのクラスの一番上で定義されていなけれ
 
 [C#リフレクションTIPS 55連発](https://qiita.com/gushwell/items/91436bd1871586f6e663)  
 
+### 47.プロパティの値を取得する
+
+``` C#
+// 1行で完結させたやつ
+object value = obj.GetType().GetProperty("MyProperty").GetValue(obj);
+
+// ばらしたやつ
+Type type = obj.GetType();
+PropertyInfo prop = type.GetProperty("MyProperty");
+object value = prop.GetValue(obj);
+Console.WriteLine(value);   
+```
+
 ---
 
 ## EnumのGetValueOrDefault

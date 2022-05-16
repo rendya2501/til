@@ -35,6 +35,7 @@ git config --global alias.nccommit 'commit -a --allow-empty-message -m ""'
 
 ## エイリアスの設定
 
-`hoge = !echo hogehoge`
+`hoge = !echo hogehoge`  
+
 これはエイリアステスト用のエイリアス。  
 `git hoge` と入力すると `hogehoge` と表示される。
