@@ -500,6 +500,11 @@ configuration of the system
 
 フレームワークにおいて使う場合、アプリケーションを効率的に構築するためにある程度まで必要な状態を作ってくれる機能のことをいう。  
 
+## duration
+
+名
+〔時間の〕継続、持続
+
 ---
 
 ## Delete,Erase,Remove,Eliminate

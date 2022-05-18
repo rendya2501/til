@@ -1,5 +1,83 @@
 
-# MVVM(Model View ViewModel)
+# GUIフレームワークまとめ
+
+## MVC(Model View Controler)
+
+MVCとは、設計手法の一つ。  
+実装を、Model-View-Controllerの三つの領域に分けて行う。  
+この設計を用いることで、画面変更が容易になったりする。  
+
+[やはりお前らのmvcは間違っている](https://www.slideshare.net/MugeSo/mvc-14469802)  
+[PHPerのMVCの一体どこが間違っていたのか](https://mugeso.hatenadiary.org/entry/20121224/1356345261)  
+[MVCとは？ MVVMとは？ 特徴やメリットはなにか](https://demi-urge.com/mvc-mvvm-features/)  
+[MVC、本当にわかってますか？](https://qiita.com/tshinsay/items/5b1724baf32b8b5113c2)  
+
+### 使用目的
+
+ビジネスロジックを、画面表示から独立させるために用いる。  
+→画面変更の影響を、ビジネスロジックが受けないようにするため。  
+
+### 前提条件
+
+画面表示は頻繁に変更されるが、ビジネスロジックはあまり変更されない。  
+したがって、画面変更によって、ビジネスロジックを変更しないですむようにしたい。  
+
+### MVCの責務
+
+#### Model
+
+Viewから独立した処理を担う。
+
+#### View
+
+UI、データの表示、装飾、などを担う。
+例１、データ入力で、数値入力させるか、セレクトボックスで選ばせるか。
+例２、同じデータでも、数値表示するか、グラフ表示するか。
+など、どのように人に見せるかを担う。
+
+#### Controller
+
+ViewとModelをつなぐ役割。
+
+### 依存関係
+
+#### Model
+
+独立
+
+#### View
+
+Modelに依存
+
+#### Controller
+
+ViewとModelに依存
+
+### MVCを利用するメリット・デメリット
+
+メリット
+Viewを変更しやすい
+
+デメリット
+MVCの構造は冗長。コード量が増え、構造が複雑化する。
+
+### なぜMVCは廃れたのか
+
+[mvcモデルがもう古いという理由を教えてください。](http://w3q.jp/t/9347)  
+
+Smalltalkから生まれたのだからそりゃ  
+80年代の概念だしな。業界からみたらだいぶ古いほうだね。  
+
+アプリケーションの肥大化に対応しづらい。  
+web系のアプリケーション開発の規模が一昔前より増大しているから。  
+Controlerが肥大化しやすい。
+
+ModelとControlerの境界が曖昧なので練度の低い人間がMVCを採用するとスパゲッティになりやすい。
+Modelに業務ロジックを記述すべきなのに、ルーティングや制御係のControllerに業務ロジックを記載し、Controllerを太らせてしまうことを言います。
+
+---
+
+## MVVM(Model View ViewModel)
 
 [世界で一番短いサンプルで覚えるMVVM入門](https://resanaplaza.com/%E4%B8%96%E7%95%8C%E3%81%A7%E4%B8%80%E7%95%AA%E7%9F%AD%E3%81%84%E3%82%B5%E3%83%B3%E3%83%97%E3%83%AB%E3%81%A7%E8%A6%9A%E3%81%88%E3%82%8Bmvvm%E5%85%A5%E9%96%80/)  
 [[C#/WPF/MVVM]今さらMVVMについて調べた](https://qiita.com/mitsu_at3/items/49d21ba5fb38f15ea922)  
@@ -18,9 +96,7 @@ MVVMパターンは、View（XAML + コードビハインド）とViewModelと�
 処理とUIを切り離すのが目的。
 WindownFormはコードビハインドにビジネスロジックもコントロールのイベントも全部載せていたので、UI制御とビジネスロジックが1つのコードの中に含まれてしまっていた。  
 
----
-
-## 目的
+### 目的
 
 - デザイナーとプログラマーの分担開発  
 → 生産性の向上  
@@ -91,32 +167,17 @@ ViewModelからパラメータを貰って処理を行う。
 - 結果をプロパティに格納  
 - プロパティ変更をViewに通知（INotifyPropertyChanged  
 
+### ViewModelとControllerの違い
+
+ViewModelは、ViewとViewModelの二つで一組である。  
+ViewModelはViewと対応した「データ」と「処理(関数)」を持つが、Controllerは必ずしもViewと対応した「データ」や「処理」は持たない。  
+これがMVVMとMVCの違いである。  
+
+なお、ModelとViewの橋渡しを行う点は、ViewModelもControllerと同じである。  
+
 ### aaaaa
 
 [DIYプログラミングでMVVMを推奨しない理由](https://resanaplaza.com/2020/08/13/%E3%80%90wpf%E3%80%91diy%E3%83%97%E3%83%AD%E3%82%B0%E3%83%A9%E3%83%9F%E3%83%B3%E3%82%B0%E3%81%A7mvvm%E3%82%92%E6%8E%A8%E5%A5%A8%E3%81%97%E3%81%AA%E3%81%84%E7%90%86%E7%94%B1/)  
-
----
-
-## MVC(Model View Controler)
-
-やはりお前らのmvcは間違っている  
-[PHPerのMVCの一体どこが間違っていたのか](https://mugeso.hatenadiary.org/entry/20121224/1356345261)  
-
-MVCとは、設計手法の一つ。  
-実装を、Model-View-Controllerの三つの領域に分けて行う。  
-この設計を用いることで、画面変更が容易になったりする。  
-
-### 使用目的
-
-ビジネスロジックを、画面表示から独立させるために用いる。  
-→画面変更の影響を、ビジネスロジックが受けないようにするため。  
-
-### 前提条件
-
-画面表示は頻繁に変更されるが、ビジネスロジックはあまり変更されない。  
-したがって、画面変更によって、ビジネスロジックを変更しないですむようにしたい。  
-
-### なぜMVCは廃れたのか
 
 ---
 
