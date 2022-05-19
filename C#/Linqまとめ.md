@@ -1347,3 +1347,15 @@ FirstOrDefaultしたものがプリミティブなら、Listは変更されな�
             return taxSlip;
         }).ToList();
 ```
+
+---
+
+## Union
+
+[要素が重複しないようにして、複数の配列（またはコレクション）をマージする（和集合を取得する）](https://dobon.net/vb/dotnet/programing/arrayunion.html)  
+
+在席リストと空き席リストの予約枠番号を統合して重複を排除した合計が1より大きいか？みたいな判定する時に使ったのでメモ。
+
+``` C#
+if (selectedSeatList.Select(s => s.ReservationFrameNo).Union(emptieList.Select(s => s.ReservationFrameNo)).Distinct().Count(w => !string.IsNullOrEmpty(w)) > 1)
+```
