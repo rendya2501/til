@@ -167,6 +167,16 @@ pullではなくcloneなら普通にありました。
 →  
 `git checkout -b development origin/development`  
 
+2022/05/20 追記  
+
+普通にありました。  
+
+[リモートから特定のブランチを指定してcloneする](https://qiita.com/icoxfog417/items/5776e0f0f758f0f0e48a)  
+
+リモートから特定のブランチを指定してcloneする方法
+
+`git clone -b ブランチ名 https://リポジトリのアドレス`
+
 ---
 
 ## ローカルのブランチ名を変更する方法

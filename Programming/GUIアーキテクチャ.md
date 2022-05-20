@@ -1,6 +1,8 @@
 
 # GUIアーキテクチャまとめ
 
+[最近のアプリ界隈での「設計」の違和感](https://quesera2.hatenablog.jp/entry/2018/06/14/022504)  
+
 ## MVC(Model View Controler)
 
 MVCとは、設計手法の一つ。  

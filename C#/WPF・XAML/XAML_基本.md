@@ -1,4 +1,4 @@
-# XAML基礎・基本まとめ
+# XAML_基本まとめ
 
 [WPFのソースコード](https://github.com/dotnet/wpf)  
 [コントロールのスタイルとテンプレート](http://msdn.microsoft.com/ja-jp/library/aa970773(v=vs.110).aspx)  
@@ -113,26 +113,6 @@ public class HexConverter : IValueConverter
         return int.TryParse(s, NumberStyles.AllowHexSpecifier, null, out int v) ? v : 0;
     }
 }
-```
-
----
-
-## 左右に分けて配置するテク
-
-結構需要はあるのだが、毎回忘れるのでメモすることにした。  
-
-``` XML
-    <Grid Grid.Row="1">
-        <!-- 左のまとまり -->
-        <StackPanel HorizontalAlignment="Left" Orientation="Horizontal">
-            <!-- 内容 -->
-        </StackPanel>
-        
-        <!-- 右のまとまり -->
-        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
-            <!-- 内容 -->
-        </StackPanel>
-    </Grid>
 ```
 
 ---

@@ -807,151 +807,6 @@ C1MultiSelectコントロールの選択項目のバインド方法がわから�
 
 ---
 
-## Enumを任意の文字列に変換するコンバーター
-
-Enumのメンバーを任意の文字列に変換するため業務中に作った作品。  
-割とうまくできたので、備忘録として乗せておく。  
-方針としてはDisplayアノテーションの内容を変換文字列として使う方法。  
-
-``` C# : Common.Converter
-    /// <summary>
-    /// 
-    /// </summary>
-    public class EnumToStringConverter : IValueConverter
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            try
-            {
-                FieldInfo field = value?.GetType().GetField(value?.ToString());
-                DisplayAttribute attr = field.GetCustomAttribute<DisplayAttribute>();
-                return attr != null
-                    ? attr.Name
-                    : value.ToString();
-            }
-            catch
-            {
-                return string.Empty;
-            }
-        }
-        /// <summary>
-        /// 使わない
-        /// </summary>
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
-    }
-}
-```
-
-``` C#: Common.Data.Enum
-    /// <summary>
-    /// 課税区分項目
-    /// </summary>
-    public enum TaxationType : byte
-    {
-        /// <summary>
-        /// 外税
-        /// </summary>
-        [Display(Name = "外税")]
-        OutsideTax = 1,
-        /// <summary>
-        /// 内税
-        /// </summary>
-        [Display(Name = "内税")]
-        InsideTax = 2,
-        /// <summary>
-        /// 非課税
-        /// </summary>
-        [Display(Name = "非課税")]
-        TaxFree = 3
-    }
-```
-
-``` XML : 使い方
-<c1:Column
-    Width="65"
-    HorizontalAlignment="Left"
-    VerticalAlignment="Center"
-    Binding="{Binding TaxationType, Converter={StaticResource EnumToStringConverter}, Mode=OneWay}"
-    ColumnName="TaxationTypeName"
-    Header="課税"
-    HeaderHorizontalAlignment="Center"
-    HeaderVerticalAlignment="Center" />
-```
-
----
-
-## KeyValuePairConverter
-
-いつぞや、ディクショナリーの値をコンボボックスに配置するために作ったコンバーター。  
-うまくできたので置いておく。  
-
-``` C# : KeyValuePairConverter
-    /// <summary>
-    /// KeyValuePairのKeyをValueに変換するコンバーター
-    /// </summary>
-    public class KeyValuePairConverter : IValueConverter
-    {
-        /// <summary>
-        /// KeyValuePairのKeyをValueに変換します。
-        /// </summary>
-        /// <param name="value">バインディング ソースによって生成された値</param>
-        /// <param name="targetType">バインディング ターゲット プロパティの型</param>
-        /// <param name="parameter">使用するコンバーター パラメーター</param>
-        /// <param name="culture">コンバーターで使用するカルチャ</param>
-        /// <returns></returns>
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            // null判定
-            if (parameter == null) throw new Exception(string.Format(Message.Invalid, "値"));
-            // 型の判定とIListへ変換
-            if (!(parameter is IList list)) throw new Exception(string.Format(Message.Invalid, "型"));
-            // 要素をループ
-            foreach (var item in list)
-            {
-                // 値が一般的であることを確認
-                Type valueType = item.GetType();
-                if (valueType.IsGenericType)
-                {
-                    // ジェネリック型の定義を抽出
-                    Type baseType = valueType.GetGenericTypeDefinition();
-                    // KeyValuePair型の判定
-                    if (baseType == typeof(KeyValuePair<,>))
-                    {
-                        // KeyとValueの取得
-                        var kvpKey = valueType.GetProperty("Key")?.GetValue(item, null);
-                        var kvpValue = valueType.GetProperty("Value")?.GetValue(item, null);
-                        // Keyと引数valueの比較
-                        if (kvpKey?.Equals(value) ?? kvpKey == value)
-                        {
-                            return kvpValue;
-                        }
-                    }
-                }
-            }
-            // Keyに合致するものがなければnullを返却。
-            return null;
-        }
-
-        /// <summary>
-        /// OneWayでのBindingでしか使用しません。
-        /// </summary>
-        /// <param name="value">バインディング ソースによって生成された値</param>
-        /// <param name="targetType">バインディング ターゲット プロパティの型</param>
-        /// <param name="parameter">使用するコンバーター パラメーター</param>
-        /// <param name="culture">コンバーターで使用するカルチャ</param>
-        /// <returns></returns>
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
-    }
-```
-
----
-
 ## DependencyProperyのSetterの値がNullになってしまう問題
 
 [Why does my Dependency Property send null to my view model?](https://stackoverflow.com/questions/38958177/why-does-my-dependency-property-send-null-to-my-view-model)  
@@ -1199,81 +1054,6 @@ DataGridでは再現できたので、それをFlexGridにも当てたら最終�
             <TextBlock/>
         </StackPanel>
      </StackPanel>
-```
-
----
-
-## スタイルの定義
-
-``` XML
-    <StackPanel Margin="20" Orientation="Vertical">
-        <StackPanel.Resources>
-            <Style
-                x:Key="TitleLabel"
-                BasedOn="{StaticResource {x:Type ctrl:CustomLabel}}"
-                TargetType="ctrl:CustomLabel">
-                <Setter Property="Margin" Value="0,0,10,0" />
-                <Setter Property="HorizontalContentAlignment" Value="Right" />
-                <Setter Property="VerticalAlignment" Value="Center" />
-            </Style>
-            <Style
-                x:Key="TitleLabelCol3"
-                BasedOn="{StaticResource TitleLabel}"
-                TargetType="ctrl:CustomLabel">
-                <Setter Property="Width" Value="65" />
-            </Style>
-        </StackPanel.Resources>
-    </StackPanel>
-
-    <!-- 使うとき1 -->
-      <ctrl:CustomLabel Content="委託" Style="{StaticResource TitleLabelCol3}" />
-
-
-    <Grid.Resources>
-        <Style x:Key="TitleLabel" TargetType="{x:Type Button}">
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="{StaticResource MahApps.Brushes.WindowButtonCommands.Background.MouseOver}" />
-                </Trigger>
-                <Trigger Property="IsPressed" Value="True">
-                    <Setter Property="Background" Value="{StaticResource MahApps.Brushes.AccentBase}" />
-                    <Setter Property="Foreground" Value="{StaticResource MahApps.Brushes.IdealForeground}" />
-                </Trigger>
-                <Trigger Property="IsEnabled" Value="False">
-                    <Setter Property="Foreground" Value="{StaticResource MahApps.Brushes.IdealForegroundDisabled}" />
-                </Trigger>
-            </Style.Triggers>
-            <Setter Property="Background" Value="{StaticResource MahApps.Brushes.Transparent}" />
-            <Setter Property="Foreground" Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type FrameworkElement}}, Path=(TextElement.Foreground)}" />
-            <Setter Property="HorizontalContentAlignment" Value="Center" />
-            <Setter Property="Padding" Value="0" />
-            <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
-            <Setter Property="Focusable" Value="False" />
-            <Setter Property="IsTabStop" Value="False" />
-        </Style>
-    </Grid.Resources>
-
-    <!-- 使うとき2 -->
-    <Button
-        Grid.Column="0"
-        Width="60"
-        Command="{Binding ShowReservationSearchWindowCommand}"
-        ToolTip="予約検索">
-        <Button.Style>
-            <Style BasedOn="{StaticResource TitleLabel}" TargetType="{x:Type Button}">
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="{x:Type Button}">
-                            <Border Background="{TemplateBinding Background}">
-                                <Image Source="{StaticResource White_Search_24}" Stretch="None" />
-                            </Border>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-            </Style>
-        </Button.Style>
-    </Button>
 ```
 
 ---
@@ -1831,6 +1611,26 @@ Windowに乗っているならAncestorTypeはWindowだし、UsercontrolならAnc
         get { return (string)GetValue(SelectAllContentProperty); }
         set { SetValue(SelectAllContentProperty, value); }
     }
+```
+
+---
+
+## 左右に分けて配置するテク
+
+結構需要はあるのだが、毎回忘れるのでメモすることにした。  
+
+``` XML
+    <Grid Grid.Row="1">
+        <!-- 左のまとまり -->
+        <StackPanel HorizontalAlignment="Left" Orientation="Horizontal">
+            <!-- 内容 -->
+        </StackPanel>
+        
+        <!-- 右のまとまり -->
+        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+            <!-- 内容 -->
+        </StackPanel>
+    </Grid>
 ```
 
 ---
