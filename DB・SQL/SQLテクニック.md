@@ -927,7 +927,6 @@ where kosuu =
   max(kosuu)
   from employee_with b 
   where a.category = b.category);
-
 ```
 
 ---

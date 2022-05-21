@@ -1,8 +1,18 @@
 # XAML_Styleまとめ
 
+[[WPF] Styleでできることと書き方](https://qiita.com/tera1707/items/cb8ad4c40107ae25b565)  
+
 ## BaseOn
 
 [[WPF/xaml]BasedOnを使って元のstyleを受け継ぐ](https://qiita.com/tera1707/items/3c4f598c5d022e4987a2)  
+
+---
+
+## Resourceで定義したStyleを当てる方法
+
+[WPF のリソース](http://var.blog.jp/archives/67298406.html)  
+[[WPF/xaml]リソースディクショナリを作って、画面のコントロールのstyleを変える](https://qiita.com/tera1707/items/a462678cdfb61a87334b)  
+[[WPF] Styleでできることと書き方](https://qiita.com/tera1707/items/cb8ad4c40107ae25b565)  
 
 ---
 

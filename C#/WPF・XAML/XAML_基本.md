@@ -282,14 +282,6 @@ GridのWidthやHeightに[*]や[Auto]を指定した時の動作が曖昧だっ�
 
 ---
 
-## Resourceで定義したStyleを当てる方法
-
-[WPF のリソース](http://var.blog.jp/archives/67298406.html)  
-[[WPF/xaml]リソースディクショナリを作って、画面のコントロールのstyleを変える](https://qiita.com/tera1707/items/a462678cdfb61a87334b)  
-[[WPF] Styleでできることと書き方](https://qiita.com/tera1707/items/cb8ad4c40107ae25b565)  
-
----
-
 ## StaticResourceとDynamicResource
 
 [WPFのStaticResourceとDynamicResourceの違いMSDN](https://social.msdn.microsoft.com/Forums/ja-JP/3bbcdc48-2a47-495e-9406-2555dc515c3a/wpf12398staticresource12392dynamicresource123983694912356?forum=wpfja)  
