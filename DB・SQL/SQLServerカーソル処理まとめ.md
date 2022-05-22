@@ -1,16 +1,105 @@
-# SQLSERVERループ処理サンプル
+# SQLServerカーソル処理まとめ
+
+---
+
+## カーソル処理基本
+
+[SELECT した結果をカーソルを使用してループ処理をする方法](https://www.projectgroup.info/tips/SQLServer/SQL/SQL000028.html)  
+
+``` sql
+--カーソルの値を取得する変数宣言
+DECLARE @W_COL1 varchar(50)
+DECLARE @W_COL2 decimal(18,0)
+
+--カーソル定義
+DECLARE CUR_AAA CURSOR FOR
+    SELECT COL1
+          ,COL2
+    FROM   TAB_A
+    WHERE  TAB_A.COL1 = ＜条件値＞
+
+--カーソルオープン
+OPEN CUR_AAA;
+
+--最初の1行目を取得して変数へ値をセット
+FETCH NEXT FROM CUR_AAA
+INTO @W_COL1,@W_COL2;
+
+--データの行数分ループ処理を実行する
+WHILE @@FETCH_STATUS = 0
+BEGIN
+
+    -- ========= ループ内の実際の処理 ここから===
+    INSERT INTO TAB_B
+    VALUES (
+        @W_COL1
+       ,@W_COL2
+    )
+    -- ========= ループ内の実際の処理 ここまで===
+
+    --次の行のデータを取得して変数へ値をセット
+    FETCH NEXT FROM CUR_AAA
+    INTO @W_COL1,@W_COL2;
+END
+
+--カーソルを閉じる
+CLOSE CUR_AAA;
+DEALLOCATE CUR_AAA;
+```
+
+---
+
+## WHILEループ
+
+[SQL Server - WHILEによるループ(T-SQL)](https://www.curict.com/item/bb/bb80194.html)  
+
+``` SQL : WHILEの書き方
+WHILE *ループ継続条件*
+BEGIN
+    *繰り返し実行したいコード*
+END
+-- ループ内でBREAKEが実行されるとループを抜けます。
+-- ループ内でCONTINUEが実行されるとループの先頭に戻ります。
+```
+
+``` SQL : WHILE 10回ループ
+--変数宣言
+DECLARE @index INTEGER
+--ループ用変数を初期化
+SET @index = 0
+
+WHILE @index < 10
+BEGIN
+    --ループ用変数をインクリメント
+    SET @index = @index + 1
+    PRINT @index
+END
+```
+
+``` SQL : 10回ループ(BREAKでループを抜ける)(まぁつかわんやろ)
+--変数宣言
+DECLARE @index INTEGER
+--ループ用変数を初期化
+SET @index = 0
+
+WHILE 1=1
+BEGIN
+    --ループ用変数をインクリメント
+    SET @index = @index + 1
+    IF @index > 10
+    BEGIN
+        --ループ終了
+        BREAK
+    END
+    PRINT @index
+END
+```
+
+---
+
+## 2重ループ最小サンプル
 
 [SQL SERVERでFOR文を2回まわす(2重ループ)](<https://shishimaruby.hatenadiary.org/entry/20100531/1275314636>)
-[SELECT した結果をカーソルを使用してループ処理をする方法](https://www.projectgroup.info/tips/SQLServer/SQL/SQL000028.html)
-[直前のINSERTで自動採番したIDENTITY列の値を取得する](https://lightgauge.net/database/sqlserver/get-identity-before/)
-
-実務でうまく作れたのでまとめ。  
-SELECTした結果をループしながら計算して別テーブルにINSERTという芸当をするには、  
-1クエリでやるにはやばすぎたので、SQLで変数とForやwhileなどのループを使って実現した。  
-複数のテーブルにINSERTできる`INSERT ALL`なるものも存在する見たいだが、ループ中の計算を再現しながらそれは困難だった。  
-
-最小のサンプル作りたいと思ったけど、これが既に最小のサンプルだった。  
-とりあえず、コメント書きまくって補完する。  
 
 ``` SQL : 最小サンプル
 -- カーソルの値を取得する変数宣言
@@ -49,6 +138,18 @@ CLOSE CUR_AAA;
 -- カーソルを破棄する
 DEALLOCATE CUR_AAA;
 ```
+
+---
+
+## 2重ループ実務で作ったサンプル
+
+[SELECT した結果をカーソルを使用してループ処理をする方法](https://www.projectgroup.info/tips/SQLServer/SQL/SQL000028.html)
+[直前のINSERTで自動採番したIDENTITY列の値を取得する](https://lightgauge.net/database/sqlserver/get-identity-before/)
+
+実務でうまく作れたのでまとめ。  
+SELECTした結果をループしながら計算して別テーブルにINSERTという芸当をするには、  
+1クエリでやるにはやばすぎたので、SQLで変数とForやwhileなどのループを使って実現した。  
+複数のテーブルにINSERTできる`INSERT ALL`なるものも存在する見たいだが、ループ中の計算を再現しながらそれは困難だった。  
 
 単純なFor出はなく、色々組み合わせたのでまとめる。
 ・selectした結果を変数に代入  
@@ -268,5 +369,4 @@ DECLARE CUR_TCs_AccountsReceivableDetail CURSOR FOR
 -- 売掛明細カーソルを閉じる
 CLOSE CUR_TCs_AccountsReceivableDetail;
 DEALLOCATE CUR_TCs_AccountsReceivableDetail;
-
 ```

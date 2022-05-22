@@ -4,9 +4,10 @@
 
 <https://itsakura.com/sql-insert>  
 
-・列名指定あり・なし  
-・VALUESかSELECTか  
-この2つの組み合わせさえ分かっていれば問題はない。  
+大別して2パターンの組み合わせがわかっていればよい。  
+
+- 列名指定あり・なし  
+- VALUESかSELECTか  
 
 ``` sql : 基本
 -- ●列名指定なし + VALUES
@@ -30,8 +31,6 @@ FROM Round3Sys_Test.dbo.TSm_ReportFileSetting
 WHERE WindowName = 'RN3.Wpf.Front.CheckOut.Views.CheckOutWindow'
 AND TemplateName = 'RN3.Wpf.Front.CheckOut.SettlementH.rdlx'
 ```
-
-疑問
 
 ### 列名指定 + VALUESタイプ で列名をあべこべに設定したらどうなるか
 
@@ -78,14 +77,15 @@ ALP    100    NULL    NULL    NULL    NULL    NULL    NULL    NULL    NULL    NU
 ## UPDATE
 
 <https://qiita.com/ryota_i/items/d17c7630bacb36d26864>  
-
-特定テーブルにおける、条件に当てはまるレコードの特定のカラムの値を任意の値に書き換える。  
+>特定テーブルにおける、条件に当てはまるレコードの特定のカラムの値を任意の値に書き換える。  
 
 ``` sql : 基本
 UPDATE テーブル名
 SET 列名1 = 値1 [,列名2 = 値2]・・・
 WHERE (条件);
 ```
+
+### 副問い合わせを使ったUPDATE
 
 ``` sql : 副問い合わせ
 -- ●UPDATE文のset句で副問合せを使用する
@@ -120,32 +120,84 @@ WHERE id in (
 );
 ```
 
-``` sql : inner join 1
--- UPDATE SET FROM JOIN WHERE の流れを意識すれば、まぁ何とかなるでしょう。  
--- UPDATEしようとしているテーブルの情報をサブクエリに使うこともできたのね。
+### SQLServerにおけるUPDATE JOIN
 
+**SQLServerでJoinしつつUpdateするならパターン1のように書く必要がある**。  
+肝はUPDATE文に指定するテーブル名は別名でなければいけないということ。  
+
+後はFROM JOIN WHERE の流れは普通のSELECT文と同じ。  
+UPDATEしようとしているテーブルの情報をサブクエリに使うこともできたのね。
+
+[SQL Serverで、SELECT結果でUPDATEする方法](https://sqlazure.jp/r/sql-server/403/)  
+
+``` sql : パターン1
 UPDATE
-    [Table]
+    [Alias]
 SET
-    [Table].col1 = [other_table].col1,
-    [Table].col2 = [other_table].col2
+    [Alias].col1 = [other_table].col1,
+    [Alias].col2 = [other_table].col2
 FROM
-    [Table]
-    INNER JOIN
-        [other_table]
-    ON
-        [Table].id = [other_table].id
+    [Alias] AS [Alias]
+    JOIN [other_table]
+    ON [Alias].id = [other_table].id
 ```
 
-``` sql : inner join 2
+[SQLServer にて他のテーブルのSELECT結果を利用したUPDATE](https://pg.4696.info/db/mssql/sqlserver-sql.html)  
+別名でなくてもいける？  
+もう少し深堀する必要がありけり。  
+
+``` sql :
+UPDATE [会員テーブル]
+SET 
+    [とあるコード]= sub1.[とあるコード]
+    ,[更新日時] = SYSDATETIME ()
+FROM 
+    [会員テーブル]
+    inner join 
+    (
+        select
+            e1.ID
+            ,e1.[とあるコード]
+        from
+            [エントリーテーブル] as e1
+        inner join 
+        (
+            select 
+                ID
+                ,MAX([登録日時]) as '最大登録日時'
+            from
+                [エントリーテーブル]
+            where
+                [とあるコード] is not null
+                and [とあるコード] != '0'
+            group by
+                ID
+        ) AS e2
+        ON 
+            e1.ID = e2.ID
+            AND e1.[登録日時] = e2.'最大登録日時'
+    ) AS sub1
+    ON 
+        [会員テーブル].ID = sub1.ID
+where 
+    [会員テーブル].[とあるコード] = '';
+```
+
+### UPDATE JOIN の他のパターン
+
+SQLServerではパターン2,パターン3の形式は使えない。  
+
+``` sql : パターン2
 UPDATE
     テーブル名1 
     INNER JOIN テーブル名2 
     ON テーブル名1.列名X = テーブル名2.列名X
 SET
     テーブル名1.列名1 = テーブル名2.列名2;
+```
 
--- 下記でも同じ
+``` sql : パターン3
+-- パターン2と同じ意味
 UPDATE
     テーブル名1,テーブル名2
 SET
@@ -153,6 +205,8 @@ SET
 WHERE
     テーブル名1.列名X = テーブル名2.列名X;
 ```
+
+### UPDATEでCASE式
 
 ``` sql : UPDATE文でCASE式を使用する
 UPDATE
@@ -171,15 +225,182 @@ WHERE
     id in(1, 2, 3)
 ```
 
+### 行けそうだけどいけないUPDATE
+
+ネットの記事を参考にして色々やってみたのだが、sqlserverでは受け付けてもらえなかった。  
+でも、なんか行けそうなので備忘録として残しておく。  
+
+2022/05/22 Sun 追記  
+21日SQLServerにおけるJoinサンプルを実現させた後から見ると、UPDATEのテーブル指定に別名を指定していないからではないかと思われる。  
+パターン2のUPDATE中にJoin句を書くのはSQLServerでは受け付けてくれない。  
+
+``` sql : 例1
+UPDATE [TB_会員]
+SET
+    日付0 = MAX(CASE WHEN [AA].ItemCD = '101' THEN [AA].[Date] ELSE NULL END),
+    日付1 = MAX(CASE WHEN [AA].ItemCD = '102' THEN [AA].[Date] ELSE NULL END),
+    日付2 = MAX(CASE WHEN [AA].ItemCD = '103' THEN [AA].[Date] ELSE NULL END),
+    日付3 = MAX(CASE WHEN [AA].ItemCD = '104' THEN [AA].[Date] ELSE NULL END),
+    日付4 = MAX(CASE WHEN [AA].ItemCD = '105' THEN [AA].[Date] ELSE NULL END),
+    日付5 = MAX(CASE WHEN [AA].ItemCD = '106' THEN [AA].[Date] ELSE NULL END),
+    日付6 = MAX(CASE WHEN [AA].ItemCD = '107' THEN [AA].[Date] ELSE NULL END),
+    日付7 = MAX(CASE WHEN [AA].ItemCD = '108' THEN [AA].[Date] ELSE NULL END),
+    日付8 = MAX(CASE WHEN [AA].ItemCD = '109' THEN [AA].[Date] ELSE NULL END),
+    日付9 = MAX(CASE WHEN [AA].ItemCD = '110' THEN [AA].[Date] ELSE NULL END),
+    数値0 = MAX(CASE WHEN [AA].ItemCD = '111' THEN [AA].[Number] ELSE NULL END),
+    数値1 = MAX(CASE WHEN [AA].ItemCD = '112' THEN [AA].[Number] ELSE NULL END),
+    数値2 = MAX(CASE WHEN [AA].ItemCD = '113' THEN [AA].[Number] ELSE NULL END),
+    数値3 = MAX(CASE WHEN [AA].ItemCD = '114' THEN [AA].[Number] ELSE NULL END),
+    数値4 = MAX(CASE WHEN [AA].ItemCD = '115' THEN [AA].[Number] ELSE NULL END),
+    数値5 = MAX(CASE WHEN [AA].ItemCD = '116' THEN [AA].[Number] ELSE NULL END),
+    数値6 = MAX(CASE WHEN [AA].ItemCD = '117' THEN [AA].[Number] ELSE NULL END),
+    数値7 = MAX(CASE WHEN [AA].ItemCD = '118' THEN [AA].[Number] ELSE NULL END),
+    数値8 = MAX(CASE WHEN [AA].ItemCD = '119' THEN [AA].[Number] ELSE NULL END),
+    数値9 = MAX(CASE WHEN [AA].ItemCD = '120' THEN [AA].[Number] ELSE NULL END),
+    名称0 = MAX(CASE WHEN [AA].ItemCD = '121' THEN [AA].[Text] ELSE '' END),
+    名称1 = MAX(CASE WHEN [AA].ItemCD = '122' THEN [AA].[Text] ELSE '' END),
+    名称2 = MAX(CASE WHEN [AA].ItemCD = '123' THEN [AA].[Text] ELSE '' END),
+    名称3 = MAX(CASE WHEN [AA].ItemCD = '124' THEN [AA].[Text] ELSE '' END),
+    名称4 = MAX(CASE WHEN [AA].ItemCD = '125' THEN [AA].[Text] ELSE '' END),
+    名称5 = MAX(CASE WHEN [AA].ItemCD = '126' THEN [AA].[Text] ELSE '' END),
+    名称6 = MAX(CASE WHEN [AA].ItemCD = '127' THEN [AA].[Text] ELSE '' END),
+    名称7 = MAX(CASE WHEN [AA].ItemCD = '128' THEN [AA].[Text] ELSE '' END),
+    名称8 = MAX(CASE WHEN [AA].ItemCD = '129' THEN [AA].[Text] ELSE '' END),
+    名称9 = MAX(CASE WHEN [AA].ItemCD = '130' THEN [AA].[Text] ELSE '' END)
+FROM
+    [TB_会員]
+    INNER JOIN Round3DatBRK_20220308.dbo.TMc_CustomerGenericInfoContent AS [AA]
+    ON [TB_会員].[顧客CD] = REPLACE([AA].[CustomerCD],'BRK','')
+    AND [AA].[UpdateProgram] LIKE 'RN3.WPF%'
+    GROUP BY [TB_会員].[顧客CD]
+```
+
+``` sql : 例2
+UPDATE
+    [TB_会員]
+    INNER JOIN Round3DatBRK_20220308.dbo.TMc_CustomerGenericInfoContent AS [RN3_Cus] 
+    ON [TB_会員].顧客CD = REPLACE([RN3_Cus].[CustomerCD],'BRK','')
+    AND [RN3_Cus].[UpdateProgram] LIKE 'RN3.WPF%'
+SET
+    日付0 = MAX(CASE WHEN ItemCD = '101' THEN [Date] ELSE NULL END) AS [日付0],
+    日付1 = MAX(CASE WHEN ItemCD = '102' THEN [Date] ELSE NULL END) AS [日付1],
+    日付2 = MAX(CASE WHEN ItemCD = '103' THEN [Date] ELSE NULL END) AS [日付2],
+    日付3 = MAX(CASE WHEN ItemCD = '104' THEN [Date] ELSE NULL END) AS [日付3],
+    日付4 = MAX(CASE WHEN ItemCD = '105' THEN [Date] ELSE NULL END) AS [日付4],
+    日付5 = MAX(CASE WHEN ItemCD = '106' THEN [Date] ELSE NULL END) AS [日付5],
+    日付6 = MAX(CASE WHEN ItemCD = '107' THEN [Date] ELSE NULL END) AS [日付6],
+    日付7 = MAX(CASE WHEN ItemCD = '108' THEN [Date] ELSE NULL END) AS [日付7],
+    日付8 = MAX(CASE WHEN ItemCD = '109' THEN [Date] ELSE NULL END) AS [日付8],
+    日付9 = MAX(CASE WHEN ItemCD = '110' THEN [Date] ELSE NULL END) AS [日付9],
+    数値0 = MAX(CASE WHEN ItemCD = '111' THEN [Number] ELSE NULL END) AS [数値0],
+    数値1 = MAX(CASE WHEN ItemCD = '112' THEN [Number] ELSE NULL END) AS [数値1],
+    数値2 = MAX(CASE WHEN ItemCD = '113' THEN [Number] ELSE NULL END) AS [数値2],
+    数値3 = MAX(CASE WHEN ItemCD = '114' THEN [Number] ELSE NULL END) AS [数値3],
+    数値4 = MAX(CASE WHEN ItemCD = '115' THEN [Number] ELSE NULL END) AS [数値4],
+    数値5 = MAX(CASE WHEN ItemCD = '116' THEN [Number] ELSE NULL END) AS [数値5],
+    数値6 = MAX(CASE WHEN ItemCD = '117' THEN [Number] ELSE NULL END) AS [数値6],
+    数値7 = MAX(CASE WHEN ItemCD = '118' THEN [Number] ELSE NULL END) AS [数値7],
+    数値8 = MAX(CASE WHEN ItemCD = '119' THEN [Number] ELSE NULL END) AS [数値8],
+    数値9 = MAX(CASE WHEN ItemCD = '120' THEN [Number] ELSE NULL END) AS [数値9],
+    名称0 = MAX(CASE WHEN ItemCD = '121' THEN [Text] ELSE NULL END) AS [名称0],
+    名称1 = MAX(CASE WHEN ItemCD = '122' THEN [Text] ELSE NULL END) AS [名称1],
+    名称2 = MAX(CASE WHEN ItemCD = '123' THEN [Text] ELSE NULL END) AS [名称2],
+    名称3 = MAX(CASE WHEN ItemCD = '124' THEN [Text] ELSE NULL END) AS [名称3],
+    名称4 = MAX(CASE WHEN ItemCD = '125' THEN [Text] ELSE NULL END) AS [名称4],
+    名称5 = MAX(CASE WHEN ItemCD = '126' THEN [Text] ELSE NULL END) AS [名称5],
+    名称6 = MAX(CASE WHEN ItemCD = '127' THEN [Text] ELSE NULL END) AS [名称6],
+    名称7 = MAX(CASE WHEN ItemCD = '128' THEN [Text] ELSE NULL END) AS [名称7],
+    名称8 = MAX(CASE WHEN ItemCD = '129' THEN [Text] ELSE NULL END) AS [名称8],
+    名称9 = MAX(CASE WHEN ItemCD = '130' THEN [Text] ELSE NULL END) AS [名称9]
+WHERE
+    [TB_会員].顧客CD = REPLACE([RN3_Cus].[CustomerCD],'BRK','')
+```
+
+``` sql : 例3
+UPDATE [TB_会員]
+SET
+    [日付0] = [SQ].[日付0],
+    [日付1] = [SQ].[日付1],
+    [日付2] = [SQ].[日付2],
+    [日付3] = [SQ].[日付3],
+    [日付4] = [SQ].[日付4],
+    [日付5] = [SQ].[日付5],
+    [日付6] = [SQ].[日付6],
+    [日付7] = [SQ].[日付7],
+    [日付8] = [SQ].[日付8],
+    [日付9] = [SQ].[日付9],
+    [数値0] = [SQ].[数値0],
+    [数値1] = [SQ].[数値1],
+    [数値2] = [SQ].[数値2],
+    [数値3] = [SQ].[数値3],
+    [数値4] = [SQ].[数値4],
+    [数値5] = [SQ].[数値5],
+    [数値6] = [SQ].[数値6],
+    [数値7] = [SQ].[数値7],
+    [数値8] = [SQ].[数値8],
+    [数値9] = [SQ].[数値9],
+    [名称0] = [SQ].[名称0],
+    [名称1] = [SQ].[名称1],
+    [名称2] = [SQ].[名称2],
+    [名称3] = [SQ].[名称3],
+    [名称4] = [SQ].[名称4],
+    [名称5] = [SQ].[名称5],
+    [名称6] = [SQ].[名称6],
+    [名称7] = [SQ].[名称7],
+    [名称8] = [SQ].[名称8],
+    [名称9] = [SQ].[名称9]
+FROM( 
+    SELECT
+        [TB_会員].[顧客CD],
+        MAX(CASE WHEN [AA].[ItemCD] = '101' THEN [AA].[Date] ELSE NULL END) AS [日付0],
+        MAX(CASE WHEN [AA].[ItemCD] = '102' THEN [AA].[Date] ELSE NULL END) AS [日付1],
+        MAX(CASE WHEN [AA].[ItemCD] = '103' THEN [AA].[Date] ELSE NULL END) AS [日付2],
+        MAX(CASE WHEN [AA].[ItemCD] = '104' THEN [AA].[Date] ELSE NULL END) AS [日付3],
+        MAX(CASE WHEN [AA].[ItemCD] = '105' THEN [AA].[Date] ELSE NULL END) AS [日付4],
+        MAX(CASE WHEN [AA].[ItemCD] = '106' THEN [AA].[Date] ELSE NULL END) AS [日付5],
+        MAX(CASE WHEN [AA].[ItemCD] = '107' THEN [AA].[Date] ELSE NULL END) AS [日付6],
+        MAX(CASE WHEN [AA].[ItemCD] = '108' THEN [AA].[Date] ELSE NULL END) AS [日付7],
+        MAX(CASE WHEN [AA].[ItemCD] = '109' THEN [AA].[Date] ELSE NULL END) AS [日付8],
+        MAX(CASE WHEN [AA].[ItemCD] = '110' THEN [AA].[Date] ELSE NULL END) AS [日付9],
+        MAX(CASE WHEN [AA].[ItemCD] = '111' THEN [AA].[Number] ELSE NULL END) AS [数値0],
+        MAX(CASE WHEN [AA].[ItemCD] = '112' THEN [AA].[Number] ELSE NULL END) AS [数値1],
+        MAX(CASE WHEN [AA].[ItemCD] = '113' THEN [AA].[Number] ELSE NULL END) AS [数値2],
+        MAX(CASE WHEN [AA].[ItemCD] = '114' THEN [AA].[Number] ELSE NULL END) AS [数値3],
+        MAX(CASE WHEN [AA].[ItemCD] = '115' THEN [AA].[Number] ELSE NULL END) AS [数値4],
+        MAX(CASE WHEN [AA].[ItemCD] = '116' THEN [AA].[Number] ELSE NULL END) AS [数値5],
+        MAX(CASE WHEN [AA].[ItemCD] = '117' THEN [AA].[Number] ELSE NULL END) AS [数値6],
+        MAX(CASE WHEN [AA].[ItemCD] = '118' THEN [AA].[Number] ELSE NULL END) AS [数値7],
+        MAX(CASE WHEN [AA].[ItemCD] = '119' THEN [AA].[Number] ELSE NULL END) AS [数値8],
+        MAX(CASE WHEN [AA].[ItemCD] = '120' THEN [AA].[Number] ELSE NULL END) AS [数値9],
+        MAX(CASE WHEN [AA].[ItemCD] = '121' THEN [AA].[Text] ELSE '' END) AS [名称0],
+        MAX(CASE WHEN [AA].[ItemCD] = '122' THEN [AA].[Text] ELSE '' END) AS [名称1],
+        MAX(CASE WHEN [AA].[ItemCD] = '123' THEN [AA].[Text] ELSE '' END) AS [名称2],
+        MAX(CASE WHEN [AA].[ItemCD] = '124' THEN [AA].[Text] ELSE '' END) AS [名称3],
+        MAX(CASE WHEN [AA].[ItemCD] = '125' THEN [AA].[Text] ELSE '' END) AS [名称4],
+        MAX(CASE WHEN [AA].[ItemCD] = '126' THEN [AA].[Text] ELSE '' END) AS [名称5],
+        MAX(CASE WHEN [AA].[ItemCD] = '127' THEN [AA].[Text] ELSE '' END) AS [名称6],
+        MAX(CASE WHEN [AA].[ItemCD] = '128' THEN [AA].[Text] ELSE '' END) AS [名称7],
+        MAX(CASE WHEN [AA].[ItemCD] = '129' THEN [AA].[Text] ELSE '' END) AS [名称8],
+        MAX(CASE WHEN [AA].[ItemCD] = '130' THEN [AA].[Text] ELSE '' END) AS [名称9]
+    FROM [TB_会員]
+    INNER JOIN [Round3DatBRK_20220308].[dbo].[TMc_CustomerGenericInfoContent] AS [AA]
+    ON [AA].[OfficeCD]+[TB_会員].[顧客CD] = [AA].[CustomerCD]
+    AND [AA].[UpdateProgram] LIKE 'RN3.WPF%'
+    GROUP BY [TB_会員].[顧客CD]
+) AS [SQ]
+WHERE
+    [TB_会員].顧客CD = [SQ].[顧客CD]
+```
+
 ---
 
 ## DELETE
 
-```sql
--- ●基本
+```sql : DELTE 基本
 DELETE FROM テーブル名 WHERE (条件);
+```
 
-
+``` sql : join
 -- ●join
 -- https://stackoverflow.com/questions/16481379/how-can-i-delete-using-inner-join-with-sql-server
 -- DELETE FROM JOIN WHEREの流れは基本的に同じ見たい。それさえ分かれば後は十分だろう。
@@ -189,20 +410,38 @@ FROM WorkRecord2 w
 INNER JOIN Employee e
 ON EmployeeRun=EmployeeNo
 WHERE Company = '1' AND Date = '2013-05-06'
+```
 
+### 複数テーブルの削除
 
--- ●複数テーブルの削除
--- https://hamalabo.net/mysql-multi-delete
+[【MySQL】共通のIDのデータを複数テーブルからDELETEする](https://hamalabo.net/mysql-multi-delete)  
+
+``` sql
 -- 通常の場合
 DELETE FROM M_UserData WHERE UserId = 1;
 DELETE FROM T_TimeCard WHERE UserId = 1;
 
 -- 複数テーブルの場合
-DELETE User,Time
-FROM M_UserData As User
-LEFT JOIN T_TimeCard AS Time
+DELETE [User],[Time]
+FROM M_UserData As [User]
+LEFT JOIN T_TimeCard AS [Time]
 ON User.UserId = Time.UserId
 WHERE User.UserId = 1
+```
+
+---
+
+## CREATE TABLE
+
+``` sql
+CREATE TABLE [dbo].[Customers]
+(
+    CustomerID  nchar(5)      NOT NULL,
+    CompanyName nvarchar(50)  NOT NULL,
+    ContactName nvarchar (50) NULL,
+    Phone       nvarchar (24) NULL,
+    CONSTRAINT [PK_Customers] PRIMARY KEY ([CustomerID])
+)
 ```
 
 ---
@@ -265,7 +504,7 @@ SELECT 2 AS NUM;
 
 ## COUNT
 
-<https://medium-company.com/sql-count/#:~:text=COUNT%E9%96%A2%E6%95%B0%E3%81%AE%E5%BC%95%E6%95%B0%E3%81%AB%E5%88%97%E5%90%8D%E3%82%92%E6%8C%87%E5%AE%9A%E3%81%99%E3%82%8B,%E3%81%99%E3%82%8B%E3%81%93%E3%81%A8%E3%81%8C%E3%81%A7%E3%81%8D%E3%81%BE%E3%81%99%E3%80%82&text=%E3%80%8CID%3D%221005%22%E3%80%8D,%E7%B5%90%E6%9E%9C%E3%81%8C%E5%8F%96%E5%BE%97%E3%81%A7%E3%81%8D%E3%81%BE%E3%81%99%E3%80%82>
+[【SQL】COUNTの使い方（レコード数取得）](https://medium-company.com/sql-count/#:~:text=COUNT%E9%96%A2%E6%95%B0%E3%81%AE%E5%BC%95%E6%95%B0%E3%81%AB%E5%88%97%E5%90%8D%E3%82%92%E6%8C%87%E5%AE%9A%E3%81%99%E3%82%8B,%E3%81%99%E3%82%8B%E3%81%93%E3%81%A8%E3%81%8C%E3%81%A7%E3%81%8D%E3%81%BE%E3%81%99%E3%80%82&text=%E3%80%8CID%3D%221005%22%E3%80%8D,%E7%B5%90%E6%9E%9C%E3%81%8C%E5%8F%96%E5%BE%97%E3%81%A7%E3%81%8D%E3%81%BE%E3%81%99%E3%80%829)  
 
 ### COUNT(*) : 件数を取得
 
@@ -279,7 +518,7 @@ COUNT関数の引数に列名を指定することで、指定した列がNULL�
 
 COUNT関数の引数にDISTINCT 列名を指定することで、重複を除いたレコード数を取得することができます。
 
-## COUNT(*)の意味とNULLのCOUNT
+### COUNT(*)の意味とNULLのCOUNT
 
 [COUNT(*)　が何を意味しているのかわからない](https://ja.stackoverflow.com/questions/42915/count-%E3%81%8C%E4%BD%95%E3%82%92%E6%84%8F%E5%91%B3%E3%81%97%E3%81%A6%E3%81%84%E3%82%8B%E3%81%AE%E3%81%8B%E3%82%8F%E3%81%8B%E3%82%89%E3%81%AA%E3%81%84)  
 →そもそも構文エラーになる。  
@@ -298,7 +537,7 @@ COUNT(*)ではレコードの内容を取得するため、COUNT('X')やSUM(1)�
 なるほど。COUNTはNULLはカウントしないのね。  
 動作的にCOUNT(name)見たいにフィールド名を指定したほうが高速化できるっぽいけど、単純にレコード数を取得したいならCOUNT(*)でいいのか。  
 
-## COUNT(*)とCOUNT(カラム名)の違い
+### COUNT(*)とCOUNT(カラム名)の違い
 
 基本情報27年春の問題にて遭遇。  
 なんだかんだわかってなかったのでまとめ。  
@@ -369,18 +608,21 @@ where BusinessDate = '20210215'
 
 ## LIKE句
 
-基本情報技術者過去問題 平成31年春期 午後問3より。  
-
 LIKE句は、指定したパターンと文字列比較を行うための演算子で、次の特殊記号を用いて文字列のパターンを指定します。  
-・`_` … 任意の1文字  
-・`%` … 0文字以上の任意の文字列  
+
+- `_` … 任意の1文字  
+- `%` … 0文字以上の任意の文字列  
+
+### 基本情報技術者過去問題 平成31年春期 午後問3
+
+エ : `= '201%'`  
+
+ワイルドカードを使用した文字列は、LIKE句と同時に使用しなければ効果を生じません。  
+年度が"201%"の行は存在しませんので結果は0行になります。  
+エを選択したけど、との事。  
 
 `_`が任意の1文字だとは知らなかった。  
 つまり、普段よく使っている`LIKE '%○○%'`は、どこでもいいから○○があるかどうかを調べているってわけか。  
-
-エ : `= '201%'`  
-を選択したけど、ワイルドカードを使用した文字列は、LIKE句と同時に使用しなければ効果を生じません。年度が"201%"の行は存在しませんので結果は0行になります。  
-との事。  
 
 ---
 
@@ -499,7 +741,12 @@ Oracleは最大値扱いだが、SQLServerは最小値扱い見たい。
 ### NULLをキャスト
 
 (NULL AS CHAR)→NULLのまま
-NULL -1 = NULL
+
+### NULLとの演算
+
+全てNULLになる  
+
+`NULL -1 = NULL`  
 
 ### NULLのSUM
 

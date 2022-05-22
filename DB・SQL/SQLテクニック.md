@@ -159,50 +159,82 @@ select ROW_NUMBER() OVER (), * from TMa_Product
 
 ---
 
-## SQL Server ループ処理
+## 連番生成
 
-[SQL Server - WHILEによるループ(T-SQL)](https://www.curict.com/item/bb/bb80194.html)  
+### 範囲で連番生成
 
-``` SQL : WHILEの書き方
-WHILE *ループ継続条件*
-BEGIN
-    *繰り返し実行したいコード*
-END
--- ループ内でBREAKEが実行されるとループを抜けます。
--- ループ内でCONTINUEが実行されるとループの先頭に戻ります。
+``` sql
+SELECT * FROM (
+    SELECT TOP (1000)
+        ROW_NUMBER() OVER (ORDER BY object_id) AS SeqNo,
+        ROW_NUMBER() OVER (ORDER BY object_id)+6 AS SeqNoTo
+    FROM sys.all_objects
+    ORDER BY SeqNo
+) AS rn_q
+WHERE rn_q.SeqNo%6 = 0
 ```
 
-``` SQL : WHILE 10回ループ
---変数宣言
-DECLARE @index INTEGER
---ループ用変数を初期化
-SET @index = 0
-
-WHILE @index < 10
-BEGIN
-    --ループ用変数をインクリメント
-    SET @index = @index + 1
-    PRINT @index
-END
+``` sql
+-- 0    4
+-- 5    9
+-- 10    14
+-- 15    19
+-- 20    24
+-- 25    29
+-- 30    34
+SELECT * FROM (
+    SELECT   TOP (1000)
+             ROW_NUMBER() OVER (ORDER BY object_id)-1 AS SeqNo,
+             ROW_NUMBER() OVER (ORDER BY object_id)+3 AS SeqNoTo
+    FROM     sys.all_objects
+    ORDER BY SeqNo
+) AS rn_q
+WHERE rn_q.SeqNo%5 = 0
 ```
 
-``` SQL : 10回ループ(BREAKでループを抜ける)(まぁつかわんやろ)
---変数宣言
-DECLARE @index INTEGER
---ループ用変数を初期化
-SET @index = 0
+---
 
-WHILE 1=1
-BEGIN
-    --ループ用変数をインクリメント
-    SET @index = @index + 1
-    IF @index > 10
-    BEGIN
-        --ループ終了
-        BREAK
-    END
-    PRINT @index
-END
+## 文字列分割
+
+[SQLServerで指定した文字で文字列を分割する](https://it-engineer-info.com/database/divide-string)  
+
+### SUBSTRING方式
+
+``` sql
+DECLARE    @separator   VARCHAR(MAX) = ','
+DECLARE    @target_str  VARCHAR(MAX)='123,45678'
+ 
+--文字列を「-」で前後に分割する
+SELECT
+     SUBSTRING( @target_str, 1, CHARINDEX( @separator, @target_str ) - 1 ) AS before
+    ,SUBSTRING( @target_str, CHARINDEX( @separator, @target_str ) + 1, LEN( @target_str ) - CHARINDEX( @separator, @target_str )) AS after
+```
+
+### STRING_SPLIT
+
+SQL Server 2016以降では「STRING_SPLIT」という関数が実装されています。  
+
+[【T-SQL】文字列を分割して〇番目の値を取得したい場合 (string_split)](http://ubisnews.blogspot.com/2018/07/t-sql-stringsplit.html)  
+>T-SQL(SQLSERVER)で文字列を分割したいと思ったところ、調べるとstring_split関数というものが利用できるとわかりました。  
+>ただ分割した文字列は表になり分割後の文字をサクッと取り出す方法が探しても見つからなかったのでメモしておこうと思います。  
+>例えば、abc,def,ghiという文字列をカンマ(,)で分割して2番目の値(ここではdef)を取り出したい場合  
+
+``` sql
+DECLARE @Val AS VARCHAR(10) --取得する値を格納する変数
+
+SELECT @Val = (
+    SELECT A.value FROM
+    (
+        SELECT
+            ROW_NUMBER() OVER (ORDER BY (SELECT 1)) AS "Id",
+            value
+        FROM
+            STRING_SPLIT(N'abc,def,ghi', N',')
+    ) A
+    WHERE A.Id = 1
+)
+
+SELECT @Val
 ```
 
 ---
@@ -1105,171 +1137,6 @@ WHERE
 
 ---
 
-## 行けそうだけどいけないUPDATE
-
-ネットの記事を参考にして色々やってみたのだが、sqlserverでは受け付けてもらえなかった。  
-でも、なんか行けそうなので備忘録として残しておく。  
-
-``` sql : 例1
-UPDATE [TB_会員]
-SET
-    日付0 = MAX(CASE WHEN [AA].ItemCD = '101' THEN [AA].[Date] ELSE NULL END),
-    日付1 = MAX(CASE WHEN [AA].ItemCD = '102' THEN [AA].[Date] ELSE NULL END),
-    日付2 = MAX(CASE WHEN [AA].ItemCD = '103' THEN [AA].[Date] ELSE NULL END),
-    日付3 = MAX(CASE WHEN [AA].ItemCD = '104' THEN [AA].[Date] ELSE NULL END),
-    日付4 = MAX(CASE WHEN [AA].ItemCD = '105' THEN [AA].[Date] ELSE NULL END),
-    日付5 = MAX(CASE WHEN [AA].ItemCD = '106' THEN [AA].[Date] ELSE NULL END),
-    日付6 = MAX(CASE WHEN [AA].ItemCD = '107' THEN [AA].[Date] ELSE NULL END),
-    日付7 = MAX(CASE WHEN [AA].ItemCD = '108' THEN [AA].[Date] ELSE NULL END),
-    日付8 = MAX(CASE WHEN [AA].ItemCD = '109' THEN [AA].[Date] ELSE NULL END),
-    日付9 = MAX(CASE WHEN [AA].ItemCD = '110' THEN [AA].[Date] ELSE NULL END),
-    数値0 = MAX(CASE WHEN [AA].ItemCD = '111' THEN [AA].[Number] ELSE NULL END),
-    数値1 = MAX(CASE WHEN [AA].ItemCD = '112' THEN [AA].[Number] ELSE NULL END),
-    数値2 = MAX(CASE WHEN [AA].ItemCD = '113' THEN [AA].[Number] ELSE NULL END),
-    数値3 = MAX(CASE WHEN [AA].ItemCD = '114' THEN [AA].[Number] ELSE NULL END),
-    数値4 = MAX(CASE WHEN [AA].ItemCD = '115' THEN [AA].[Number] ELSE NULL END),
-    数値5 = MAX(CASE WHEN [AA].ItemCD = '116' THEN [AA].[Number] ELSE NULL END),
-    数値6 = MAX(CASE WHEN [AA].ItemCD = '117' THEN [AA].[Number] ELSE NULL END),
-    数値7 = MAX(CASE WHEN [AA].ItemCD = '118' THEN [AA].[Number] ELSE NULL END),
-    数値8 = MAX(CASE WHEN [AA].ItemCD = '119' THEN [AA].[Number] ELSE NULL END),
-    数値9 = MAX(CASE WHEN [AA].ItemCD = '120' THEN [AA].[Number] ELSE NULL END),
-    名称0 = MAX(CASE WHEN [AA].ItemCD = '121' THEN [AA].[Text] ELSE '' END),
-    名称1 = MAX(CASE WHEN [AA].ItemCD = '122' THEN [AA].[Text] ELSE '' END),
-    名称2 = MAX(CASE WHEN [AA].ItemCD = '123' THEN [AA].[Text] ELSE '' END),
-    名称3 = MAX(CASE WHEN [AA].ItemCD = '124' THEN [AA].[Text] ELSE '' END),
-    名称4 = MAX(CASE WHEN [AA].ItemCD = '125' THEN [AA].[Text] ELSE '' END),
-    名称5 = MAX(CASE WHEN [AA].ItemCD = '126' THEN [AA].[Text] ELSE '' END),
-    名称6 = MAX(CASE WHEN [AA].ItemCD = '127' THEN [AA].[Text] ELSE '' END),
-    名称7 = MAX(CASE WHEN [AA].ItemCD = '128' THEN [AA].[Text] ELSE '' END),
-    名称8 = MAX(CASE WHEN [AA].ItemCD = '129' THEN [AA].[Text] ELSE '' END),
-    名称9 = MAX(CASE WHEN [AA].ItemCD = '130' THEN [AA].[Text] ELSE '' END)
-FROM
-    [TB_会員]
-    INNER JOIN Round3DatBRK_20220308.dbo.TMc_CustomerGenericInfoContent AS [AA]
-    ON [TB_会員].[顧客CD] = REPLACE([AA].[CustomerCD],'BRK','')
-    AND [AA].[UpdateProgram] LIKE 'RN3.WPF%'
-    GROUP BY [TB_会員].[顧客CD]
-```
-
-``` sql : 例2
-UPDATE
-    [TB_会員]
-    INNER JOIN Round3DatBRK_20220308.dbo.TMc_CustomerGenericInfoContent AS [RN3_Cus] 
-    ON [TB_会員].顧客CD = REPLACE([RN3_Cus].[CustomerCD],'BRK','')
-    AND [RN3_Cus].[UpdateProgram] LIKE 'RN3.WPF%'
-SET
-    日付0 = MAX(CASE WHEN ItemCD = '101' THEN [Date] ELSE NULL END) AS [日付0],
-    日付1 = MAX(CASE WHEN ItemCD = '102' THEN [Date] ELSE NULL END) AS [日付1],
-    日付2 = MAX(CASE WHEN ItemCD = '103' THEN [Date] ELSE NULL END) AS [日付2],
-    日付3 = MAX(CASE WHEN ItemCD = '104' THEN [Date] ELSE NULL END) AS [日付3],
-    日付4 = MAX(CASE WHEN ItemCD = '105' THEN [Date] ELSE NULL END) AS [日付4],
-    日付5 = MAX(CASE WHEN ItemCD = '106' THEN [Date] ELSE NULL END) AS [日付5],
-    日付6 = MAX(CASE WHEN ItemCD = '107' THEN [Date] ELSE NULL END) AS [日付6],
-    日付7 = MAX(CASE WHEN ItemCD = '108' THEN [Date] ELSE NULL END) AS [日付7],
-    日付8 = MAX(CASE WHEN ItemCD = '109' THEN [Date] ELSE NULL END) AS [日付8],
-    日付9 = MAX(CASE WHEN ItemCD = '110' THEN [Date] ELSE NULL END) AS [日付9],
-    数値0 = MAX(CASE WHEN ItemCD = '111' THEN [Number] ELSE NULL END) AS [数値0],
-    数値1 = MAX(CASE WHEN ItemCD = '112' THEN [Number] ELSE NULL END) AS [数値1],
-    数値2 = MAX(CASE WHEN ItemCD = '113' THEN [Number] ELSE NULL END) AS [数値2],
-    数値3 = MAX(CASE WHEN ItemCD = '114' THEN [Number] ELSE NULL END) AS [数値3],
-    数値4 = MAX(CASE WHEN ItemCD = '115' THEN [Number] ELSE NULL END) AS [数値4],
-    数値5 = MAX(CASE WHEN ItemCD = '116' THEN [Number] ELSE NULL END) AS [数値5],
-    数値6 = MAX(CASE WHEN ItemCD = '117' THEN [Number] ELSE NULL END) AS [数値6],
-    数値7 = MAX(CASE WHEN ItemCD = '118' THEN [Number] ELSE NULL END) AS [数値7],
-    数値8 = MAX(CASE WHEN ItemCD = '119' THEN [Number] ELSE NULL END) AS [数値8],
-    数値9 = MAX(CASE WHEN ItemCD = '120' THEN [Number] ELSE NULL END) AS [数値9],
-    名称0 = MAX(CASE WHEN ItemCD = '121' THEN [Text] ELSE NULL END) AS [名称0],
-    名称1 = MAX(CASE WHEN ItemCD = '122' THEN [Text] ELSE NULL END) AS [名称1],
-    名称2 = MAX(CASE WHEN ItemCD = '123' THEN [Text] ELSE NULL END) AS [名称2],
-    名称3 = MAX(CASE WHEN ItemCD = '124' THEN [Text] ELSE NULL END) AS [名称3],
-    名称4 = MAX(CASE WHEN ItemCD = '125' THEN [Text] ELSE NULL END) AS [名称4],
-    名称5 = MAX(CASE WHEN ItemCD = '126' THEN [Text] ELSE NULL END) AS [名称5],
-    名称6 = MAX(CASE WHEN ItemCD = '127' THEN [Text] ELSE NULL END) AS [名称6],
-    名称7 = MAX(CASE WHEN ItemCD = '128' THEN [Text] ELSE NULL END) AS [名称7],
-    名称8 = MAX(CASE WHEN ItemCD = '129' THEN [Text] ELSE NULL END) AS [名称8],
-    名称9 = MAX(CASE WHEN ItemCD = '130' THEN [Text] ELSE NULL END) AS [名称9]
-WHERE
-    [TB_会員].顧客CD = REPLACE([RN3_Cus].[CustomerCD],'BRK','')
-```
-
-``` sql : 例3
-UPDATE [TB_会員]
-SET
-    [日付0] = [SQ].[日付0],
-    [日付1] = [SQ].[日付1],
-    [日付2] = [SQ].[日付2],
-    [日付3] = [SQ].[日付3],
-    [日付4] = [SQ].[日付4],
-    [日付5] = [SQ].[日付5],
-    [日付6] = [SQ].[日付6],
-    [日付7] = [SQ].[日付7],
-    [日付8] = [SQ].[日付8],
-    [日付9] = [SQ].[日付9],
-    [数値0] = [SQ].[数値0],
-    [数値1] = [SQ].[数値1],
-    [数値2] = [SQ].[数値2],
-    [数値3] = [SQ].[数値3],
-    [数値4] = [SQ].[数値4],
-    [数値5] = [SQ].[数値5],
-    [数値6] = [SQ].[数値6],
-    [数値7] = [SQ].[数値7],
-    [数値8] = [SQ].[数値8],
-    [数値9] = [SQ].[数値9],
-    [名称0] = [SQ].[名称0],
-    [名称1] = [SQ].[名称1],
-    [名称2] = [SQ].[名称2],
-    [名称3] = [SQ].[名称3],
-    [名称4] = [SQ].[名称4],
-    [名称5] = [SQ].[名称5],
-    [名称6] = [SQ].[名称6],
-    [名称7] = [SQ].[名称7],
-    [名称8] = [SQ].[名称8],
-    [名称9] = [SQ].[名称9]
-FROM( 
-    SELECT
-        [TB_会員].[顧客CD],
-        MAX(CASE WHEN [AA].[ItemCD] = '101' THEN [AA].[Date] ELSE NULL END) AS [日付0],
-        MAX(CASE WHEN [AA].[ItemCD] = '102' THEN [AA].[Date] ELSE NULL END) AS [日付1],
-        MAX(CASE WHEN [AA].[ItemCD] = '103' THEN [AA].[Date] ELSE NULL END) AS [日付2],
-        MAX(CASE WHEN [AA].[ItemCD] = '104' THEN [AA].[Date] ELSE NULL END) AS [日付3],
-        MAX(CASE WHEN [AA].[ItemCD] = '105' THEN [AA].[Date] ELSE NULL END) AS [日付4],
-        MAX(CASE WHEN [AA].[ItemCD] = '106' THEN [AA].[Date] ELSE NULL END) AS [日付5],
-        MAX(CASE WHEN [AA].[ItemCD] = '107' THEN [AA].[Date] ELSE NULL END) AS [日付6],
-        MAX(CASE WHEN [AA].[ItemCD] = '108' THEN [AA].[Date] ELSE NULL END) AS [日付7],
-        MAX(CASE WHEN [AA].[ItemCD] = '109' THEN [AA].[Date] ELSE NULL END) AS [日付8],
-        MAX(CASE WHEN [AA].[ItemCD] = '110' THEN [AA].[Date] ELSE NULL END) AS [日付9],
-        MAX(CASE WHEN [AA].[ItemCD] = '111' THEN [AA].[Number] ELSE NULL END) AS [数値0],
-        MAX(CASE WHEN [AA].[ItemCD] = '112' THEN [AA].[Number] ELSE NULL END) AS [数値1],
-        MAX(CASE WHEN [AA].[ItemCD] = '113' THEN [AA].[Number] ELSE NULL END) AS [数値2],
-        MAX(CASE WHEN [AA].[ItemCD] = '114' THEN [AA].[Number] ELSE NULL END) AS [数値3],
-        MAX(CASE WHEN [AA].[ItemCD] = '115' THEN [AA].[Number] ELSE NULL END) AS [数値4],
-        MAX(CASE WHEN [AA].[ItemCD] = '116' THEN [AA].[Number] ELSE NULL END) AS [数値5],
-        MAX(CASE WHEN [AA].[ItemCD] = '117' THEN [AA].[Number] ELSE NULL END) AS [数値6],
-        MAX(CASE WHEN [AA].[ItemCD] = '118' THEN [AA].[Number] ELSE NULL END) AS [数値7],
-        MAX(CASE WHEN [AA].[ItemCD] = '119' THEN [AA].[Number] ELSE NULL END) AS [数値8],
-        MAX(CASE WHEN [AA].[ItemCD] = '120' THEN [AA].[Number] ELSE NULL END) AS [数値9],
-        MAX(CASE WHEN [AA].[ItemCD] = '121' THEN [AA].[Text] ELSE '' END) AS [名称0],
-        MAX(CASE WHEN [AA].[ItemCD] = '122' THEN [AA].[Text] ELSE '' END) AS [名称1],
-        MAX(CASE WHEN [AA].[ItemCD] = '123' THEN [AA].[Text] ELSE '' END) AS [名称2],
-        MAX(CASE WHEN [AA].[ItemCD] = '124' THEN [AA].[Text] ELSE '' END) AS [名称3],
-        MAX(CASE WHEN [AA].[ItemCD] = '125' THEN [AA].[Text] ELSE '' END) AS [名称4],
-        MAX(CASE WHEN [AA].[ItemCD] = '126' THEN [AA].[Text] ELSE '' END) AS [名称5],
-        MAX(CASE WHEN [AA].[ItemCD] = '127' THEN [AA].[Text] ELSE '' END) AS [名称6],
-        MAX(CASE WHEN [AA].[ItemCD] = '128' THEN [AA].[Text] ELSE '' END) AS [名称7],
-        MAX(CASE WHEN [AA].[ItemCD] = '129' THEN [AA].[Text] ELSE '' END) AS [名称8],
-        MAX(CASE WHEN [AA].[ItemCD] = '130' THEN [AA].[Text] ELSE '' END) AS [名称9]
-    FROM [TB_会員]
-    INNER JOIN [Round3DatBRK_20220308].[dbo].[TMc_CustomerGenericInfoContent] AS [AA]
-    ON [AA].[OfficeCD]+[TB_会員].[顧客CD] = [AA].[CustomerCD]
-    AND [AA].[UpdateProgram] LIKE 'RN3.WPF%'
-    GROUP BY [TB_会員].[顧客CD]
-) AS [SQ]
-WHERE
-    [TB_会員].顧客CD = [SQ].[顧客CD]
-```
-
----
-
 ## 検索条件にマッチするデータが存在しない場合にデフォルト値を返す
 
 レコードが存在したらそのままINSERTして、レコードがなければデフォルト値をINSERTしたい。  
@@ -1522,7 +1389,159 @@ IF NOT EXISTS
 (
     SELECT TOP 1 1 FROM Round3DatOCC.dbo.TMa_TimeFrameType WHERE [TimeFrameTypeCD] = 99
 )
+    -- 上記select文の結果がfalseならInsertが実行される。
     INSERT INTO
     ~~~
 GO
+```
+
+---
+
+## テーブルを複製する方法
+
+[[SQLServer]テーブルをまるっとコピーする方法](https://ameblo.jp/nature3298type-s/entry-10313449987.html)
+
+``` sql
+SELECT * INTO <コピー先テーブル名> FROM <コピー元テーブル名>
+```
+
+`<コピー元テーブル名>`は名前の指定だけあればよい。  
+あらかじめテーブルを作成する必要は無し。  
+実行するとテーブルもSQLServerが自動でテーブルも作成してくれます。  
+※注：ただし、テーブルは規定の領域（なにも設定してなければPrimary）に作られるので、ファイルグループ管理は要注意。  
+
+---
+
+## SQL てく
+
+2022年5月21日  
+名前の苗字を北海道の市区町村に置き換えたい。  
+カタカナも置き換えたい。  
+他のフィールドにある名前も置き換えたい。  
+そんな要求を実現したのでまとめ。  
+
+奇跡的に姓名がスペースで別れていたので、スペースでsplit。  
+苗字の1文字目のUNICODEを取得して3桁を見る。  
+その3桁が別テーブルに定義したFromToのどの範囲に当たるか検索。
+対象FromToの市区町村名を取得。  
+その市区町村名を苗字に割り当てる。  
+苗字の置き換えはREPLACE関数で行った。  
+
+``` SQL
+-- 改良後
+UPDATE [Base]
+SET
+    [MemberName] = REPLACE([Base].[MemberName],[Base].[Myouji],[CT].[Name]),
+    [MemberKana] = REPLACE([Base].[MemberKana],[Base].[MyoujiKana],[CT].[Kana]),
+    [SearchKeyName] = REPLACE([Base].[SearchKeyName],[Base].[Myouji],[CT].[Name]),
+    [SearchKeyKana] = REPLACE([Base].[SearchKeyKana],[Base].[MyoujiKana],[CT].[Kana]),
+    [SearchKeyNameIdentification] = REPLACE([Base].[SearchKeyNameIdentification],[Base].[myouji],[CT].[Name])
+FROM
+    (
+        SELECT 
+            CASE 
+                WHEN REPLACE(SUBSTRING([MemberName], 1, CHARINDEX(' ', [MemberName] )),' ','') <> '' 
+                THEN REPLACE(SUBSTRING([MemberName], 1, CHARINDEX(' ', [MemberName] )),' ','')
+                ELSE [MemberName]
+            END AS [Myouji],
+            CASE 
+                WHEN REPLACE(SUBSTRING([MemberKana], 1, CHARINDEX(' ', [MemberKana] )),' ','') <> '' 
+                THEN REPLACE(SUBSTRING([MemberKana], 1, CHARINDEX(' ', [MemberKana] )),' ','')
+                ELSE [MemberKana]
+            END AS [MyoujiKana],
+            *
+        FROM TMc_Member
+    ) AS [Base]
+    JOIN [ConversionTable] AS [CT]
+    ON RIGHT(UNICODE(LEFT([Base].[myouji],1)),3) BETWEEN [CT].[From] AND [CT].[To]
+
+
+-- 改良前
+UPDATE [Base]
+SET 
+    -- わざわざ左から苗字の文字数分を指定してるけど、そんなことする必要なかった。
+    -- REPLACE関数は苗字と同じ部分だけを置き換えてくれるから。
+    [MemberName] = REPLACE([Base].[MemberName],LEFT([Base].[MemberName],LEN([SQ].[Myouji])),[CT].[Name]),
+    [MemberKana] = REPLACE([Base].[MemberKana],LEFT([Base].[MemberKana],LEN([SQ].[MyoujiKana])),[CT].[Kana]),
+    SearchKeyName = REPLACE([Base].[SearchKeyName],LEFT([Base].SearchKeyName,LEN([SQ].[Myouji])),[CT].[Name]),
+    SearchKeyKana = REPLACE([Base].[SearchKeyKana],LEFT([Base].[SearchKeyKana],LEN([SQ].[MyoujiKana])),[CT].[Kana]),
+    SearchKeyNameIdentification = REPLACE([Base].SearchKeyNameIdentification,LEFT([Base].SearchKeyNameIdentification,LEN(myouji)),[CT].[Name])
+FROM
+    -- わざわざ自分自身テーブルと改めてJOINする必要はなかった。
+    TMc_Member AS [Base]
+    JOIN 
+    (
+        SELECT 
+            CASE 
+                WHEN REPLACE(SUBSTRING([MemberName], 1, CHARINDEX(' ', [MemberName] )),' ','') <> '' 
+                THEN REPLACE(SUBSTRING([MemberName], 1, CHARINDEX(' ', [MemberName] )),' ','')
+                ELSE [MemberName]
+            END AS [Myouji],
+            CASE 
+                WHEN REPLACE(SUBSTRING([MemberKana], 1, CHARINDEX(' ', [MemberKana] )),' ','') <> '' 
+                THEN REPLACE(SUBSTRING([MemberKana], 1, CHARINDEX(' ', [MemberKana] )),' ','')
+                ELSE [MemberKana]
+            END AS [MyoujiKana],
+            *
+        FROM TMc_Member
+    ) AS [SQ]
+    ON [Base].MemberCD = [SQ].MemberCD
+    AND [Base].[HistoryNo] = [SQ].[HistoryNo]
+    JOIN [ConversionTable] AS [CT]
+    ON RIGHT(UNICODE(LEFT([SQ].[myouji],1)),3) BETWEEN [CT].[From] AND [CT].[To]
+```
+
+``` sql
+select * from TMc_Customer
+select * from TMc_CustomerAddress
+select * from TMc_Member
+select * from TRe_Reservation
+select * from TRe_ReservationPlayer
+
+
+--文字列を「-」で前後に分割する
+SELECT
+     CASE WHEN LEN(ISNULL(CustomerName,0)) > 1 THEN SUBSTRING(CustomerName, 1, CHARINDEX(' ', CustomerName )  ) ELSE CustomerName END AS before
+    -- ,SUBSTRING( CustomerName, CHARINDEX( @separator, CustomerName ) + 1, LEN( @target_str ) - CHARINDEX( @separator, @target_str )) AS after
+FROM
+    TMc_Customer
+
+    --文字列を「-」で前後に分割する
+SELECT
+    CHARINDEX(' ', CustomerName ),
+     SUBSTRING(CustomerName, 1, CASE WHEN CHARINDEX(' ', CustomerName ) > 0 THEN CHARINDEX(' ', CustomerName ) -1 ELSE 0 END) AS before
+    -- ,SUBSTRING( CustomerName, CHARINDEX( @separator, CustomerName ) + 1, LEN( @target_str ) - CHARINDEX( @separator, @target_str )) AS after
+FROM
+    TMc_Customer
+
+
+
+select * from ConversionTable
+where [Name] = '鶴居'
+
+
+select (UNICODE('井')),(UNICODE('五'))
+select RIGHT(UNICODE('井'),3),RIGHT(UNICODE('五'),3)
+
+
+
+
+
+DECLARE @Count INT = 100;
+SELECT   TOP (@Count)
+         ROW_NUMBER() OVER (ORDER BY object_id)-1 AS SeqNo
+FROM     sys.all_objects
+ORDER BY SeqNo;
+
+
+
+SELECT * FROM (
+    SELECT   TOP (1000)
+             ROW_NUMBER() OVER (ORDER BY object_id)-1 AS SeqNo,
+             ROW_NUMBER() OVER (ORDER BY object_id)+3 AS SeqNoTo
+    FROM     sys.all_objects
+    ORDER BY SeqNo
+) AS rn_q
+WHERE rn_q.SeqNo%5 = 0
+
 ```

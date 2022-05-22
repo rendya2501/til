@@ -2,6 +2,8 @@
 
 [Git 基本の用語集](https://qiita.com/toshi_um/items/72c9d929a600323b2e77)  
 
+[Git で「追跡ブランチ」って言うのやめましょう](https://qiita.com/uasi/items/69368c17c79e99aaddbf)
+
 ---
 
 ## git pull
