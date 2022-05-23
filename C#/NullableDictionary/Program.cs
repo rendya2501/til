@@ -5,14 +5,6 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace NullableDictionary
 {
-    class Program
-    {
-        static void Main(string[] args)
-        {
-            Console.WriteLine("Hello World!");
-        }
-    }
-
   class NullableDict<K, V> : IDictionary<K, V>
   {
     public V this[K key] { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }

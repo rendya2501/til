@@ -1,5 +1,0 @@
-C:\Users\shun\Desktop\til\C#\NullableDictionary\obj\Debug\net5.0\NullableDictionary.csprojAssemblyReference.cache
-C:\Users\shun\Desktop\til\C#\NullableDictionary\obj\Debug\net5.0\NullableDictionary.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\shun\Desktop\til\C#\NullableDictionary\obj\Debug\net5.0\NullableDictionary.AssemblyInfoInputs.cache
-C:\Users\shun\Desktop\til\C#\NullableDictionary\obj\Debug\net5.0\NullableDictionary.AssemblyInfo.cs
-C:\Users\shun\Desktop\til\C#\NullableDictionary\obj\Debug\net5.0\NullableDictionary.csproj.CoreCompileInputs.cache

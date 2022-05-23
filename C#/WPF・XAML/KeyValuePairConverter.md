@@ -7,6 +7,8 @@
 当時は無理だと思っていたけど、探せばそれなりにサンプルがあったのでちょっと形を整えて無事に行けた。  
 と、思ったらちゃんとwikiに記事を残していたので引っ張ってきます。  
 
+[C# Reflection - How can I tell if object o is of type KeyValuePair and then cast it?](https://stackoverflow.com/questions/2729614/c-sharp-reflection-how-can-i-tell-if-object-o-is-of-type-keyvaluepair-and-then)  
+
 ---
 
 ## 概要
