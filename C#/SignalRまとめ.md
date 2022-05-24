@@ -229,27 +229,201 @@ SignalRのClientとつくものを全てインストールしていればこん�
 SignalR発火の起点はAccessorによる受信か？  
 それをどうやってViewModelはイベントとして感知している？  
 
-``` C# : Web Send
+``` C# : Web Hub
     /// <summary>
-    /// 更新枠を送信します。
+    /// スタートハブ
     /// </summary>
-    /// <param name="param"></param>
-    /// <returns></returns>
-    public Task SendUpdateStartFrame(string param)
+    public class StartHub : Microsoft.AspNetCore.SignalR.Hub
     {
-        return Clients.All.SendAsync("ReceiveUpdateStartFrame", param);
-    }
+        /// <summary>
+        /// 更新プレイヤーを送信します。
+        /// </summary>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        public Task SendUpdateStartPlayer(IEnumerable<UpdateParam<TSheetStartPlayer>> param)
+        {
+            return Clients.All.SendAsync("ReceiveUpdateStartPlayer", param);
+        }
 
         /// <summary>
-    /// 更新予約枠を送信します。
-    /// </summary>
-    /// <param name="group"></param>
-    /// <param name="param"></param>
-    /// <returns></returns>
-    public Task SendUpdateReservationFrame(DateTime group, string param)
-    {
-        return Clients.Group(ConvertGroupName(group)).SendAsync("ReceiveUpdateReservationFrame", param);
+        /// 更新枠を送信します。
+        /// </summary>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        public Task SendUpdateStartFrame(string param)
+        {
+            return Clients.All.SendAsync("ReceiveUpdateStartFrame", param);
+        }
+
+        /// <summary>
+        /// 更新予約排他を送信します。
+        /// </summary>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        public Task SendUpdateReservationExclusive(IEnumerable<UpdateParam<TSheetReservationExclusive>> param)
+        {
+            return Clients.All.SendAsync("ReceiveUpdateReservationExclusive", param);
+        }
+
+        /// <summary>
+        /// 入替スタートを送信します。
+        /// </summary>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        public Task SendSwapStart(IEnumerable<PlayerSwapParam> param)
+        {
+            return Clients.All.SendAsync("ReceiveSwapStart", param);
+        }
     }
+
+    /// <summary>
+    /// 予約ハブ
+    /// </summary>
+    public class ReservationHub : Microsoft.AspNetCore.SignalR.Hub
+    {
+        /// <summary>
+        /// 更新予約を送信します。
+        /// </summary>
+        /// <param name="group"></param>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        public Task SendUpdateReservation(DateTime group, IEnumerable<UpdateParam<TSheetReservationPlayer>> param)
+        {
+            return Clients.Group(ConvertGroupName(group)).SendAsync("ReceiveUpdateReservation", param);
+        }
+
+        /// <summary>
+        /// 更新予約枠を送信します。
+        /// </summary>
+        /// <param name="group"></param>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        public Task SendUpdateReservationFrame(DateTime group, string param)
+        {
+            return Clients.Group(ConvertGroupName(group)).SendAsync("ReceiveUpdateReservationFrame", param);
+        }
+
+        /// <summary>
+        /// 更新予約排他を送信します。
+        /// </summary>
+        /// <param name="group"></param>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        public Task SendUpdateReservationExclusive(DateTime group, IEnumerable<UpdateParam<TSheetReservationExclusive>> param)
+        {
+            return Clients.Group(ConvertGroupName(group)).SendAsync("ReceiveUpdateReservationExclusive", param);
+        }
+
+        /// <summary>
+        /// 日付グループを設定する
+        /// サーバからの呼び出しは行わないでください。(connectionIDを正しく設定できないため)
+        /// </summary>
+        /// <param name="connectionID"></param>
+        /// <param name="date"></param>
+        public Task AddGroup_BusinessDate(string connectionID, DateTime date)
+        {
+            //新しい日付グループに入る
+            return Groups.AddToGroupAsync(connectionID, ConvertGroupName(date));
+        }
+
+        /// <summary>
+        /// 日付グループを解除する
+        /// サーバからの呼び出しは行わないでください。(connectionIDを正しく設定できないため)
+        /// </summary>
+        /// <param name="connectionID"></param>
+        /// <param name="date"></param>
+        /// <returns></returns>
+        public Task RemoveGroup_BusinessDate(string connectionID, DateTime date)
+        {
+            //現在の日付グループから抜ける
+            return Groups.RemoveFromGroupAsync(connectionID, ConvertGroupName(date));
+        }
+
+        /// <summary>
+        /// グループ名に変換します。
+        /// </summary>
+        /// <param name="date"></param>
+        /// <returns></returns>
+        private static string ConvertGroupName(DateTime date)
+        {
+            return date.ToString("yyyyMMdd");
+        }
+    }
+```
+
+``` C# Web StartUp
+        /// <summary>
+        /// アプリケーションが HTTP 要求にどのように応答するかを設定します。
+        /// </summary>
+        /// <param name="app"></param>
+        /// <param name="env"></param>
+        /// <param name="errorHandler"></param>
+        /// <remarks>
+        /// 要求パイプラインは、ミドルウェア コンポーネントを IApplicationBuilder インスタンスに追加することで構成されます。
+        /// IApplicationBuilder は Configure メソッドから使用できますが、サービス コンテナーに登録されていません。
+        /// ホスティングによって IApplicationBuilder が作成され、Configure に直接渡されます。
+        /// </remarks>
+        [Obsolete]
+        public void Configure(IApplicationBuilder app, Microsoft.AspNetCore.Hosting.IHostingEnvironment env, ErrorHandler errorHandler)
+        {
+            if (env.IsDevelopment())
+            {
+                app.UseStaticFiles();
+                app.UseDeveloperExceptionPage();
+                // ミドルウェアにSwaggerを登録
+                app.UseSwagger();
+                // ミドルウェアにSwaggerUIを登録
+                app.UseSwaggerUI(setupAction =>
+                {
+                    // JSONエンドポイントを登録
+                    setupAction.SwaggerEndpoint("./accounts_receivable/swagger.json", "RN3 API AccountsReceivable");
+                    setupAction.SwaggerEndpoint("./analysis/swagger.json", "RN3 API Analysis");
+                    setupAction.SwaggerEndpoint("./caddy/swagger.json", "RN3 API Caddy");
+                    setupAction.SwaggerEndpoint("./common/swagger.json", "RN3 API Common");
+                    setupAction.SwaggerEndpoint("./competition/swagger.json", "RN3 API Competition");
+                    setupAction.SwaggerEndpoint("./front/swagger.json", "RN3 API Front");
+                    setupAction.SwaggerEndpoint("./inventory_management/swagger.json", "RN3 API InventoryManagement");
+                    setupAction.SwaggerEndpoint("./master/swagger.json", "RN3 API Master");
+                    setupAction.SwaggerEndpoint("./member_and_customer/swagger.json", "RN3 API MemberAndCustomer");
+                    setupAction.SwaggerEndpoint("./option/swagger.json", "RN3 API Option");
+                    setupAction.SwaggerEndpoint("./reservation/swagger.json", "RN3 API Reservation");
+                    setupAction.SwaggerEndpoint("./start_up/swagger.json", "RN3 API StartUp");
+                    setupAction.SwaggerEndpoint("./sys/swagger.json", "RN3 API System");
+                });
+            }
+            else
+            {
+                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+                app.UseHsts();
+            }
+            // エラー処理
+            app.UseExceptionHandler(errorApp =>
+            {
+                errorApp.Run(errorHandler.Handle);
+            });
+
+            //app.UseHttpsRedirection();
+
+            // 社員名変換ミドルウェア
+            app.UseConvertStaffName();
+            // アクセスログミドルウェア
+            app.UseAccessLog();
+
+            app.UseRouting();
+
+            // 認証ミドルウェア
+            app.UseAuthentication();
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+                endpoints.MapHub<ReservationHub>("/reservation");
+                endpoints.MapHub<StartHub>("/start");
+                endpoints.MapHub<CTIHub>("/cti");
+                endpoints.MapHub<AggregateHub>("/aggregate");
+            });
+        }
 ```
 
 ``` C# : Front Recieve
@@ -614,4 +788,51 @@ namespace RN3.Wpf.Common.Accessor
         }
     }
 }
+```
+
+``` C#
+namespace RN3.Wpf.Front.StartTSheet
+{
+    /// <summary>
+    /// アプリケーション情報を扱います。
+    /// </summary>
+    public class AppInfo : IAppInfo
+    {
+        /// <summary>
+        /// クラス登録
+        /// </summary>
+        /// <param name="containerRegistry"></param>
+        public void RegisterTypes(IUnityContainer containerRegistry)
+        {
+            containerRegistry.RegisterType<StartHub>()
+                .RegisterType<SignalRAccessor<StartHub>>()
+                .RegisterType<ListServiceAdapter>()
+                .RegisterType<PrintSettingServiceAdapter>();
+        }
+    }
+}
+
+        private SignalRAccessor<AggregateHub> _AggregateAccessor;
+        /// <summary>
+        /// SignalRアクセサAggregateHub
+        /// </summary>
+        [Dependency]
+        public SignalRAccessor<AggregateHub> AggregateAccessor
+        {
+            get { return _AggregateAccessor; }
+            set { SetProperty(ref _AggregateAccessor, value); }
+        }
+
+        #region RAccessor
+        private SignalRAccessor<ReservationHub> _RAccessor;
+        /// <summary>
+        /// SignalRアクセサ
+        /// </summary>
+        [Dependency]
+        public SignalRAccessor<ReservationHub> RAccessor
+        {
+            get { return _RAccessor; }
+            set { SetProperty(ref _RAccessor, value); }
+        }
+        #endregion
 ```

@@ -128,6 +128,7 @@ WHERE id in (
 後はFROM JOIN WHERE の流れは普通のSELECT文と同じ。  
 UPDATEしようとしているテーブルの情報をサブクエリに使うこともできたのね。
 
+[UPDATE と JOIN を使ってデータを更新する](https://sql55.com/t-sql/t-sql-update-1.php)  
 [SQL Serverで、SELECT結果でUPDATEする方法](https://sqlazure.jp/r/sql-server/403/)  
 
 ``` sql : パターン1
@@ -225,6 +226,83 @@ WHERE
     id in(1, 2, 3)
 ```
 
+### UPDATEでWITH句を使う
+
+[SQLでwith句とupdateを使う方法 サブクエリを共通テーブル式で置き換えるサンプルコード](https://style.potepan.com/articles/30390.html)  
+
+OrderByして最初のレコードだけを更新対象としたいときに、どうしても一回 SELECT FROM 別名 WHERE Seq = 1 で取らないと行けなかった。  
+ならサブクエリの部分をWITHに書けば、わざわざ一段階SELECTを挟まないで直接UPDATEまでできるのではないかと考えた。  
+
+結果的に出来たが、移行クエリでやることなので、パット見わかりにくいかなと思ったのと、SELECTで一回取得しても大した量ではなかったのでやめておいた。  
+しかし、出来た事に変わりはないので備忘録として残す。  
+
+Withのほうがインデントが浅くなる。  
+それだけかもしれない。  
+普通に書いたほうが意味も通じる。
+
+``` sql : 実務でうまくいったパターン
+WITH SQ AS
+(
+    SELECT
+        ROW_NUMBER() OVER(PARTITION BY [Reserve].[ReservationNo] ORDER BY [Player].[PlayerNo]) AS Seq,
+        [Player].*
+    FROM
+        TRe_Reservation AS [Reserve]
+        JOIN TRe_ReservationPlayer AS [Player]
+        ON [Reserve].[ReservationNo] = [Player].[ReservationNo]
+        AND [Reserve].[RepreCustomerCD] = [Player].[CustomerCD]
+        AND ISNULL([Reserve].[ReservationCancelFlag],1) = 0
+        AND REPLACE(REPLACE(ISNULL([Reserve].[RepreCustomerCD],''),' ',''),'　','') <> ''
+)
+UPDATE SQ
+SET    ReservationRepreFlag =1
+WHERE  SQ.Seq = 1;
+```
+
+普通に書いてもそれなりに分かる。
+
+``` sql
+UPDATE [SQ]
+SET [SQ].[ReservationRepreFlag] = 1
+FROM
+    (
+        SELECT
+            ROW_NUMBER() OVER(PARTITION BY [Reserve].[ReservationNo] ORDER BY [Player].[PlayerNo]) AS Seq,
+            [Player].*
+        FROM
+            [TRe_Reservation] AS [Reserve]
+            JOIN [TRe_ReservationPlayer_Test] AS [Player]
+            ON [Reserve].[ReservationNo] = [Player].[ReservationNo]
+            AND [Reserve].[RepreCustomerCD] = [Player].[CustomerCD]
+            AND ISNULL([Reserve].[ReservationCancelFlag],1) = 0
+            AND REPLACE(REPLACE(ISNULL([Reserve].[RepreCustomerCD],''),' ',''),'　','') <> ''
+    ) AS [SQ]
+WHERE
+    [SQ].[Seq] = 1
+```
+
+[SQL ROW_NUMBER with INNER JOIN](https://stackoverflow.com/questions/9752361/sql-row-number-with-inner-join)  
+[How to Select the First Row in Each GROUP BY Group](https://learnsql.com/cookbook/how-to-select-the-first-row-in-each-group-by-group/)  
+ROW_NUMBER join
+
+そもそも、JOINの条件にROW_NUMBERを使えないかも調べた。  
+そしたらWITHで保持する方法を発見したんだ。  
+ROW_NUMBERはSELECTでしか使えない見たい。  
+その制限がある限り、絶対にワンクッションSELECTしないといけない。  
+
+``` sql
+-- 結局、こうやるしかないみたい。
+WITH added_row_number AS (
+  SELECT
+    *,
+    ROW_NUMBER() OVER(PARTITION BY year ORDER BY result DESC) AS row_number
+  FROM exam_results
+)
+SELECT *
+FROM added_row_number
+WHERE row_number = 1;
+```
+
 ### 行けそうだけどいけないUPDATE
 
 ネットの記事を参考にして色々やってみたのだが、sqlserverでは受け付けてもらえなかった。  
@@ -276,6 +354,8 @@ FROM
 ```
 
 ``` sql : 例2
+-- こいつは確実に無理。
+-- UPDATE句のなかでINNER JOINするパターンはSQL Serverは許可していないはず。
 UPDATE
     [TB_会員]
     INNER JOIN Round3DatBRK_20220308.dbo.TMc_CustomerGenericInfoContent AS [RN3_Cus] 
@@ -390,6 +470,87 @@ FROM(
 ) AS [SQ]
 WHERE
     [TB_会員].顧客CD = [SQ].[顧客CD]
+
+
+
+-- こっちなら行けた。
+-- GROUP BYしてCASEでMAXを取得する以上、そういうテーブルを定義するしかないのだろうねぇ。
+UPDATE [TB_会員_Test]
+SET
+    [日付0] = [SQ].[日付0],
+    [日付1] = [SQ].[日付1],
+    [日付2] = [SQ].[日付2],
+    [日付3] = [SQ].[日付3],
+    [日付4] = [SQ].[日付4],
+    [日付5] = [SQ].[日付5],
+    [日付6] = [SQ].[日付6],
+    [日付7] = [SQ].[日付7],
+    [日付8] = [SQ].[日付8],
+    [日付9] = [SQ].[日付9],
+    [数値0] = [SQ].[数値0],
+    [数値1] = [SQ].[数値1],
+    [数値2] = [SQ].[数値2],
+    [数値3] = [SQ].[数値3],
+    [数値4] = [SQ].[数値4],
+    [数値5] = [SQ].[数値5],
+    [数値6] = [SQ].[数値6],
+    [数値7] = [SQ].[数値7],
+    [数値8] = [SQ].[数値8],
+    [数値9] = [SQ].[数値9],
+    [名称0] = [SQ].[名称0],
+    [名称1] = [SQ].[名称1],
+    [名称2] = [SQ].[名称2],
+    [名称3] = [SQ].[名称3],
+    [名称4] = [SQ].[名称4],
+    [名称5] = [SQ].[名称5],
+    [名称6] = [SQ].[名称6],
+    [名称7] = [SQ].[名称7],
+    [名称8] = [SQ].[名称8],
+    [名称9] = [SQ].[名称9]
+FROM
+    [TB_会員_Test]
+    JOIN
+    ( 
+        SELECT
+            [Kaiin].[顧客CD],
+            MAX(CASE WHEN [AA].[ItemCD] = '101' THEN [AA].[Date] ELSE NULL END) AS [日付0],
+            MAX(CASE WHEN [AA].[ItemCD] = '102' THEN [AA].[Date] ELSE NULL END) AS [日付1],
+            MAX(CASE WHEN [AA].[ItemCD] = '103' THEN [AA].[Date] ELSE NULL END) AS [日付2],
+            MAX(CASE WHEN [AA].[ItemCD] = '104' THEN [AA].[Date] ELSE NULL END) AS [日付3],
+            MAX(CASE WHEN [AA].[ItemCD] = '105' THEN [AA].[Date] ELSE NULL END) AS [日付4],
+            MAX(CASE WHEN [AA].[ItemCD] = '106' THEN [AA].[Date] ELSE NULL END) AS [日付5],
+            MAX(CASE WHEN [AA].[ItemCD] = '107' THEN [AA].[Date] ELSE NULL END) AS [日付6],
+            MAX(CASE WHEN [AA].[ItemCD] = '108' THEN [AA].[Date] ELSE NULL END) AS [日付7],
+            MAX(CASE WHEN [AA].[ItemCD] = '109' THEN [AA].[Date] ELSE NULL END) AS [日付8],
+            MAX(CASE WHEN [AA].[ItemCD] = '110' THEN [AA].[Date] ELSE NULL END) AS [日付9],
+            MAX(CASE WHEN [AA].[ItemCD] = '111' THEN [AA].[Number] ELSE NULL END) AS [数値0],
+            MAX(CASE WHEN [AA].[ItemCD] = '112' THEN [AA].[Number] ELSE NULL END) AS [数値1],
+            MAX(CASE WHEN [AA].[ItemCD] = '113' THEN [AA].[Number] ELSE NULL END) AS [数値2],
+            MAX(CASE WHEN [AA].[ItemCD] = '114' THEN [AA].[Number] ELSE NULL END) AS [数値3],
+            MAX(CASE WHEN [AA].[ItemCD] = '115' THEN [AA].[Number] ELSE NULL END) AS [数値4],
+            MAX(CASE WHEN [AA].[ItemCD] = '116' THEN [AA].[Number] ELSE NULL END) AS [数値5],
+            MAX(CASE WHEN [AA].[ItemCD] = '117' THEN [AA].[Number] ELSE NULL END) AS [数値6],
+            MAX(CASE WHEN [AA].[ItemCD] = '118' THEN [AA].[Number] ELSE NULL END) AS [数値7],
+            MAX(CASE WHEN [AA].[ItemCD] = '119' THEN [AA].[Number] ELSE NULL END) AS [数値8],
+            MAX(CASE WHEN [AA].[ItemCD] = '120' THEN [AA].[Number] ELSE NULL END) AS [数値9],
+            MAX(CASE WHEN [AA].[ItemCD] = '121' THEN [AA].[Text] ELSE '' END) AS [名称0],
+            MAX(CASE WHEN [AA].[ItemCD] = '122' THEN [AA].[Text] ELSE '' END) AS [名称1],
+            MAX(CASE WHEN [AA].[ItemCD] = '123' THEN [AA].[Text] ELSE '' END) AS [名称2],
+            MAX(CASE WHEN [AA].[ItemCD] = '124' THEN [AA].[Text] ELSE '' END) AS [名称3],
+            MAX(CASE WHEN [AA].[ItemCD] = '125' THEN [AA].[Text] ELSE '' END) AS [名称4],
+            MAX(CASE WHEN [AA].[ItemCD] = '126' THEN [AA].[Text] ELSE '' END) AS [名称5],
+            MAX(CASE WHEN [AA].[ItemCD] = '127' THEN [AA].[Text] ELSE '' END) AS [名称6],
+            MAX(CASE WHEN [AA].[ItemCD] = '128' THEN [AA].[Text] ELSE '' END) AS [名称7],
+            MAX(CASE WHEN [AA].[ItemCD] = '129' THEN [AA].[Text] ELSE '' END) AS [名称8],
+            MAX(CASE WHEN [AA].[ItemCD] = '130' THEN [AA].[Text] ELSE '' END) AS [名称9]
+        FROM [TB_会員_Test] AS [Kaiin]
+        INNER JOIN Round3DatKHG_Ibayashi.[dbo].[TMc_CustomerGenericInfoContent] AS [AA]
+        ON [AA].[OfficeCD]+[Kaiin].[顧客CD] = [AA].[CustomerCD]
+        AND [AA].[UpdateProgram] LIKE 'CONV'
+        GROUP BY [Kaiin].[顧客CD]
+    ) AS [SQ]
+    ON [TB_会員_Test].[顧客CD] = [SQ].[顧客CD]
+
 ```
 
 ---
@@ -442,6 +603,218 @@ CREATE TABLE [dbo].[Customers]
     Phone       nvarchar (24) NULL,
     CONSTRAINT [PK_Customers] PRIMARY KEY ([CustomerID])
 )
+```
+
+``` sql
+CREATE TABLE ConversionTable  
+(
+    [Id] int IDENTITY(1,1),  
+    [From] int,  
+    [To] int,  
+    [Name] nvarchar(255),
+    [Kana] nvarchar(255)  
+);
+
+INSERT INTO ConversionTable VALUES (0,4,'愛別','ｱｲﾍﾞﾂ')
+INSERT INTO ConversionTable VALUES (5,9,'赤井川','ｱｶｲｶﾞﾜ')
+INSERT INTO ConversionTable VALUES (10,14,'赤平','ｱｶﾋﾞﾗ')
+INSERT INTO ConversionTable VALUES (15,19,'阿寒','ｱｶﾝ')
+INSERT INTO ConversionTable VALUES (20,24,'旭川','ｱｻﾋｶﾜ')
+INSERT INTO ConversionTable VALUES (25,29,'朝日','ｱｻﾋ')
+INSERT INTO ConversionTable VALUES (30,34,'芦別','ｱｼﾍﾞﾂ')
+INSERT INTO ConversionTable VALUES (35,39,'足寄','ｱｼｮﾛ')
+INSERT INTO ConversionTable VALUES (40,44,'厚岸','ｱｯｹ')
+INSERT INTO ConversionTable VALUES (45,49,'厚沢部','ｱｯｻﾌﾞ')
+INSERT INTO ConversionTable VALUES (50,54,'厚田','ｱﾂﾀ')
+INSERT INTO ConversionTable VALUES (55,59,'厚真','ｱﾂﾏ')
+INSERT INTO ConversionTable VALUES (60,64,'網走','ｱﾊﾞｼﾘ')
+INSERT INTO ConversionTable VALUES (65,69,'安平','ｱﾋﾞﾗ')
+INSERT INTO ConversionTable VALUES (70,74,'虻田','ｱﾌﾞﾀ')
+INSERT INTO ConversionTable VALUES (75,79,'生田原','ｲｸﾀﾊﾗ')
+INSERT INTO ConversionTable VALUES (80,84,'池田','ｲｹﾀﾞ')
+INSERT INTO ConversionTable VALUES (85,89,'石狩','ｲｼｶﾘ')
+INSERT INTO ConversionTable VALUES (90,94,'今金','ｲﾏｶﾈ')
+INSERT INTO ConversionTable VALUES (95,99,'岩内','ｲﾜﾅｲ')
+INSERT INTO ConversionTable VALUES (100,104,'岩見沢','ｲﾜﾐｻﾞﾜ')
+INSERT INTO ConversionTable VALUES (105,109,'歌志内','ｳﾀｼﾅｲ')
+INSERT INTO ConversionTable VALUES (110,114,'歌登','ｳﾀﾉﾎﾞﾘ')
+INSERT INTO ConversionTable VALUES (115,119,'浦臼','ｳﾗｳｽ')
+INSERT INTO ConversionTable VALUES (120,124,'浦河','ｳﾗｶﾜ')
+INSERT INTO ConversionTable VALUES (125,129,'浦幌','ｳﾗﾎﾛ')
+INSERT INTO ConversionTable VALUES (130,134,'雨竜','ｳﾘｭｳ')
+INSERT INTO ConversionTable VALUES (135,139,'江差','ｴｻ')
+INSERT INTO ConversionTable VALUES (140,144,'枝幸','ｴｻ')
+INSERT INTO ConversionTable VALUES (145,149,'恵山','ｴｻﾝ')
+INSERT INTO ConversionTable VALUES (150,154,'恵庭','ｴﾆﾜ')
+INSERT INTO ConversionTable VALUES (155,159,'江部乙','ｴﾍﾞｵﾂ')
+INSERT INTO ConversionTable VALUES (160,164,'江別','ｴﾍﾞﾂ')
+INSERT INTO ConversionTable VALUES (165,169,'えりも','ｴﾘﾓ')
+INSERT INTO ConversionTable VALUES (170,174,'遠軽','ｴﾝｶﾞﾙ')
+INSERT INTO ConversionTable VALUES (175,179,'遠別','ｴﾝﾍﾞﾂ')
+INSERT INTO ConversionTable VALUES (180,184,'追分','ｵｲﾜｹ')
+INSERT INTO ConversionTable VALUES (185,189,'雄武','ｵｳﾑ')
+INSERT INTO ConversionTable VALUES (190,194,'大空','ｵｵｿﾞﾗ')
+INSERT INTO ConversionTable VALUES (195,199,'大滝','ｵｵﾀｷ')
+INSERT INTO ConversionTable VALUES (200,204,'大野','ｵｵﾉ')
+INSERT INTO ConversionTable VALUES (205,209,'奥尻','ｵｸｼﾘ')
+INSERT INTO ConversionTable VALUES (210,214,'置戸','ｵｹﾄ')
+INSERT INTO ConversionTable VALUES (215,219,'興部','ｵｺｯﾍﾟ')
+INSERT INTO ConversionTable VALUES (220,224,'長万部','ｵｼｬﾏﾝﾍﾞ')
+INSERT INTO ConversionTable VALUES (225,229,'小樽','ｵﾀﾙ')
+INSERT INTO ConversionTable VALUES (230,234,'音威子府','ｵﾄｲﾈｯﾌﾟ')
+INSERT INTO ConversionTable VALUES (235,239,'音更','ｵﾄﾌｹ')
+INSERT INTO ConversionTable VALUES (240,244,'乙部','ｵﾄﾍﾞ')
+INSERT INTO ConversionTable VALUES (245,249,'帯広','ｵﾋﾞﾋﾛ')
+INSERT INTO ConversionTable VALUES (250,254,'小平','ｵﾋﾞﾗ')
+INSERT INTO ConversionTable VALUES (255,259,'音別','ｵﾝﾍﾞﾂ')
+INSERT INTO ConversionTable VALUES (260,264,'上磯','ｶﾐｲｿ')
+INSERT INTO ConversionTable VALUES (265,269,'上川','ｶﾐｶﾜ')
+INSERT INTO ConversionTable VALUES (270,274,'上士幌','ｶﾐｼﾎﾛ')
+INSERT INTO ConversionTable VALUES (275,279,'上砂川','ｶﾐｽﾅｶﾞﾜ')
+INSERT INTO ConversionTable VALUES (280,284,'上ノ国','ｶﾐﾉｸﾆ')
+INSERT INTO ConversionTable VALUES (285,289,'上富良野','ｶﾐﾌﾗﾉ')
+INSERT INTO ConversionTable VALUES (290,294,'上湧別','ｶﾐﾕｳﾍﾞﾂ')
+INSERT INTO ConversionTable VALUES (295,299,'亀田','ｶﾒﾀﾞ')
+INSERT INTO ConversionTable VALUES (300,304,'神恵内','ｶﾓｴﾅｲ')
+INSERT INTO ConversionTable VALUES (305,309,'木古内','ｷｺﾅｲ')
+INSERT INTO ConversionTable VALUES (310,314,'北檜山','ｷﾀﾋﾔﾏ')
+INSERT INTO ConversionTable VALUES (315,319,'北広島','ｷﾀﾋﾛｼﾏ')
+INSERT INTO ConversionTable VALUES (320,324,'北見','ｷﾀﾐ')
+INSERT INTO ConversionTable VALUES (325,329,'北','ｷﾀ')
+INSERT INTO ConversionTable VALUES (330,334,'喜茂別','ｷﾓﾍﾞﾂ')
+INSERT INTO ConversionTable VALUES (335,339,'京極','ｷｮｳｺﾞｸ')
+INSERT INTO ConversionTable VALUES (340,344,'共和','ｷｮｳﾜ')
+INSERT INTO ConversionTable VALUES (345,349,'清里','ｷﾖｻﾄ')
+INSERT INTO ConversionTable VALUES (350,354,'釧路','ｸｼﾛ')
+INSERT INTO ConversionTable VALUES (355,359,'倶知安','ｸｯﾁｬﾝ')
+INSERT INTO ConversionTable VALUES (360,364,'熊石','ｸﾏｲ')
+INSERT INTO ConversionTable VALUES (365,369,'栗沢','ｸﾘｻﾜ')
+INSERT INTO ConversionTable VALUES (370,374,'栗山','ｸﾘﾔﾏ')
+INSERT INTO ConversionTable VALUES (375,379,'黒松内','ｸﾛﾏﾂﾅｲ')
+INSERT INTO ConversionTable VALUES (380,384,'訓子府','ｸﾝﾈｯﾌﾟ')
+INSERT INTO ConversionTable VALUES (385,389,'剣淵','ｹﾝﾌﾞﾁ')
+INSERT INTO ConversionTable VALUES (390,394,'小清水','ｺｼﾐｽﾞ')
+INSERT INTO ConversionTable VALUES (395,399,'札幌','ｻｯﾎﾟﾛ')
+INSERT INTO ConversionTable VALUES (400,404,'様似','ｻﾏﾆ')
+INSERT INTO ConversionTable VALUES (405,409,'更別','ｻﾗﾍﾞﾂ')
+INSERT INTO ConversionTable VALUES (410,414,'猿払','ｻﾙﾌﾂ')
+INSERT INTO ConversionTable VALUES (415,419,'佐呂間','ｻﾛﾏ')
+INSERT INTO ConversionTable VALUES (420,424,'砂原','ｻﾜﾗ')
+INSERT INTO ConversionTable VALUES (425,429,'鹿追','ｼｶｵｲ')
+INSERT INTO ConversionTable VALUES (430,434,'鹿部','ｼｶﾍﾞ')
+INSERT INTO ConversionTable VALUES (435,439,'色丹','ｼｺﾀﾝ')
+INSERT INTO ConversionTable VALUES (440,444,'静内','ｼｽﾞﾅｲ')
+INSERT INTO ConversionTable VALUES (445,449,'標茶','ｼﾍﾞﾁｬ')
+INSERT INTO ConversionTable VALUES (450,454,'士別','ｼﾍﾞﾂ')
+INSERT INTO ConversionTable VALUES (455,459,'標津','ｼﾍﾞﾂ')
+INSERT INTO ConversionTable VALUES (460,464,'蘂取','ｼﾍﾞﾄﾛ')
+INSERT INTO ConversionTable VALUES (465,469,'士幌','ｼﾎﾛ')
+INSERT INTO ConversionTable VALUES (470,474,'島牧','ｼﾏﾏｷ')
+INSERT INTO ConversionTable VALUES (475,479,'清水','ｼﾐｽﾞ')
+INSERT INTO ConversionTable VALUES (480,484,'占冠','ｼﾑｶｯﾌﾟ')
+INSERT INTO ConversionTable VALUES (485,489,'下川','ｼﾓｶﾜ')
+INSERT INTO ConversionTable VALUES (490,494,'積丹','ｼｬｺﾀﾝ')
+INSERT INTO ConversionTable VALUES (495,499,'紗那','ｼｬﾅ')
+INSERT INTO ConversionTable VALUES (500,504,'斜里','ｼｬﾘ')
+INSERT INTO ConversionTable VALUES (505,509,'初山別','ｼｮｻﾝﾍﾞﾂ')
+INSERT INTO ConversionTable VALUES (510,514,'白老','ｼﾗｵｲ')
+INSERT INTO ConversionTable VALUES (515,519,'白滝','ｼﾗﾀｷ')
+INSERT INTO ConversionTable VALUES (520,524,'白糠','ｼﾗﾇｶ')
+INSERT INTO ConversionTable VALUES (525,529,'知内','ｼﾘｳﾁ')
+INSERT INTO ConversionTable VALUES (530,534,'尻岸内','ｼﾘｷｼﾅｲ')
+INSERT INTO ConversionTable VALUES (535,539,'新篠津','ｼﾝｼﾉﾂ')
+INSERT INTO ConversionTable VALUES (540,544,'新得','ｼﾝﾄｸ')
+INSERT INTO ConversionTable VALUES (545,549,'新十津川','ｼﾝﾄﾂｶﾜ')
+INSERT INTO ConversionTable VALUES (550,554,'新ひだか','ｼﾝﾋﾀﾞｶ')
+INSERT INTO ConversionTable VALUES (555,559,'寿都','ｽｯﾂ')
+INSERT INTO ConversionTable VALUES (560,564,'砂川','ｽﾅｶﾞﾜ')
+INSERT INTO ConversionTable VALUES (565,569,'せたな','ｾﾀﾅ')
+INSERT INTO ConversionTable VALUES (570,574,'壮瞥','ｿｳﾍﾞﾂ')
+INSERT INTO ConversionTable VALUES (575,579,'大樹','ﾀｲｷ')
+INSERT INTO ConversionTable VALUES (580,584,'大成','ﾀｲｾｲ')
+INSERT INTO ConversionTable VALUES (585,589,'鷹栖','ﾀｶｽ')
+INSERT INTO ConversionTable VALUES (590,594,'滝川','ﾀｷｶﾜ')
+INSERT INTO ConversionTable VALUES (595,599,'滝上','ﾀｷﾉｳｴ')
+INSERT INTO ConversionTable VALUES (600,604,'端野','ﾀﾝﾉ')
+INSERT INTO ConversionTable VALUES (605,609,'伊達','ﾀﾞﾃ')
+INSERT INTO ConversionTable VALUES (610,614,'秩父別','ﾁｯﾌﾟﾍﾞﾂ')
+INSERT INTO ConversionTable VALUES (615,619,'千歳','ﾁﾄｾ')
+INSERT INTO ConversionTable VALUES (620,624,'忠類','ﾁｭｳﾙｲ')
+INSERT INTO ConversionTable VALUES (625,629,'月形','ﾂｷｶﾞﾀ')
+INSERT INTO ConversionTable VALUES (630,634,'津別','ﾂﾍﾞﾂ')
+INSERT INTO ConversionTable VALUES (635,639,'鶴居','ﾂﾙｲ')
+INSERT INTO ConversionTable VALUES (640,644,'天塩','ﾃｼｵ')
+INSERT INTO ConversionTable VALUES (645,649,'弟子屈','ﾃｼｶｶﾞ')
+INSERT INTO ConversionTable VALUES (650,654,'戸井','ﾄｲ')
+INSERT INTO ConversionTable VALUES (655,659,'当別','ﾄｳﾍﾞﾂ')
+INSERT INTO ConversionTable VALUES (660,664,'当麻','ﾄｳﾏ')
+INSERT INTO ConversionTable VALUES (665,669,'洞爺湖','ﾄｳﾔｺ')
+INSERT INTO ConversionTable VALUES (670,674,'洞爺','ﾄｳﾔ')
+INSERT INTO ConversionTable VALUES (675,679,'常呂','ﾄｺﾛ')
+INSERT INTO ConversionTable VALUES (680,684,'椴法華','ﾄﾄﾞﾎｯｹ')
+INSERT INTO ConversionTable VALUES (685,689,'苫小牧','ﾄﾏｺﾏｲ')
+INSERT INTO ConversionTable VALUES (690,694,'苫前','ﾄﾏﾏｴ')
+INSERT INTO ConversionTable VALUES (695,699,'泊','ﾄﾏﾘ')
+INSERT INTO ConversionTable VALUES (700,704,'豊浦','ﾄﾖｳﾗ')
+INSERT INTO ConversionTable VALUES (705,709,'豊頃','ﾄﾖｺﾛ')
+INSERT INTO ConversionTable VALUES (710,714,'豊富','ﾄﾖﾄﾐ')
+INSERT INTO ConversionTable VALUES (715,719,'奈井江','ﾅｲｴ')
+INSERT INTO ConversionTable VALUES (720,724,'中川','ﾅｶｶﾞﾜ')
+INSERT INTO ConversionTable VALUES (725,729,'中札内','ﾅｶｻﾂﾅｲ')
+INSERT INTO ConversionTable VALUES (730,734,'中標津','ﾅｶｼﾍﾞﾂ')
+INSERT INTO ConversionTable VALUES (735,739,'中頓別','ﾅｶﾄﾝﾍﾞﾂ')
+INSERT INTO ConversionTable VALUES (740,744,'中富良野','ﾅｶﾌﾗﾉ')
+INSERT INTO ConversionTable VALUES (745,749,'長沼','ﾅｶﾞﾇﾏ')
+INSERT INTO ConversionTable VALUES (750,754,'七飯','ﾅﾅｴ')
+INSERT INTO ConversionTable VALUES (755,759,'名寄','ﾅﾖﾛ')
+INSERT INTO ConversionTable VALUES (760,764,'南幌','ﾅﾝﾎﾟﾛ')
+INSERT INTO ConversionTable VALUES (765,769,'新冠','ﾆｲｶｯﾌﾟ')
+INSERT INTO ConversionTable VALUES (770,774,'仁木','ﾆｷ')
+INSERT INTO ConversionTable VALUES (775,779,'西興部','ﾆｼｵｺｯﾍﾟ')
+INSERT INTO ConversionTable VALUES (780,784,'ニセコ','ﾆｾｺ')
+INSERT INTO ConversionTable VALUES (785,789,'沼田','ﾇﾏﾀ')
+INSERT INTO ConversionTable VALUES (790,794,'根室','ﾈﾑﾛ')
+INSERT INTO ConversionTable VALUES (795,799,'登別','ﾉﾎﾞﾘﾍﾞﾂ')
+INSERT INTO ConversionTable VALUES (800,804,'函館','ﾊｺﾀﾞﾃ')
+INSERT INTO ConversionTable VALUES (805,809,'羽幌','ﾊﾎﾞﾛ')
+INSERT INTO ConversionTable VALUES (810,814,'浜頓別','ﾊﾏﾄﾝﾍﾞﾂ')
+INSERT INTO ConversionTable VALUES (815,819,'浜中','ﾊﾏﾅｶ')
+INSERT INTO ConversionTable VALUES (820,824,'浜益','ﾊﾏﾏｽ')
+INSERT INTO ConversionTable VALUES (825,829,'早来','ﾊﾔｷﾀ')
+INSERT INTO ConversionTable VALUES (830,834,'東神楽','ﾋｶﾞｼｶｸﾞﾗ')
+INSERT INTO ConversionTable VALUES (835,839,'東川','ﾋｶﾞｼｶﾜ')
+INSERT INTO ConversionTable VALUES (840,844,'東鷹栖','ﾋｶﾞｼﾀｶｽ')
+INSERT INTO ConversionTable VALUES (845,849,'東藻琴','ﾋｶﾞｼﾓｺﾄ')
+INSERT INTO ConversionTable VALUES (850,854,'東利尻','ﾋｶﾞｼﾘｼﾘ')
+INSERT INTO ConversionTable VALUES (855,859,'日高','ﾋﾀﾞｶ')
+INSERT INTO ConversionTable VALUES (860,864,'広尾','ﾋﾛｵ')
+INSERT INTO ConversionTable VALUES (865,869,'広島','ﾋﾛｼﾏ')
+INSERT INTO ConversionTable VALUES (870,874,'美瑛','ﾋﾞｴｲ')
+INSERT INTO ConversionTable VALUES (875,879,'美唄','ﾋﾞﾊﾞｲ')
+INSERT INTO ConversionTable VALUES (880,884,'美深','ﾋﾞﾌｶ')
+INSERT INTO ConversionTable VALUES (885,889,'美幌','ﾋﾞﾎﾛ')
+INSERT INTO ConversionTable VALUES (890,894,'平取','ﾋﾞﾗﾄﾘ')
+INSERT INTO ConversionTable VALUES (895,899,'比布','ﾋﾟｯﾌﾟ')
+INSERT INTO ConversionTable VALUES (900,904,'風連','ﾌｳﾚﾝ')
+INSERT INTO ConversionTable VALUES (905,909,'深川','ﾌｶｶﾞﾜ')
+INSERT INTO ConversionTable VALUES (910,914,'福島','ﾌｸｼﾏ')
+INSERT INTO ConversionTable VALUES (915,919,'富良野','ﾌﾗﾉ')
+INSERT INTO ConversionTable VALUES (920,924,'古平','ﾌﾙﾋﾞﾗ')
+INSERT INTO ConversionTable VALUES (925,929,'別海','ﾍﾞｯｶｲ')
+INSERT INTO ConversionTable VALUES (930,934,'北斗','ﾎｸﾄ')
+INSERT INTO ConversionTable VALUES (935,939,'北竜','ﾎｸﾘｭｳ')
+INSERT INTO ConversionTable VALUES (940,944,'穂別','ﾎﾍﾞﾂ')
+INSERT INTO ConversionTable VALUES (945,949,'幌泉','ﾎﾛｲｽﾞﾐ')
+INSERT INTO ConversionTable VALUES (950,954,'幌加内','ﾎﾛｶﾅｲ')
+INSERT INTO ConversionTable VALUES (955,959,'幌延','ﾎﾛﾉﾍﾞ')
+INSERT INTO ConversionTable VALUES (960,964,'本別','ﾎﾝﾍﾞﾂ')
+INSERT INTO ConversionTable VALUES (965,969,'幕別','ﾏｸﾍﾞﾂ')
+INSERT INTO ConversionTable VALUES (970,974,'増毛','ﾏｼｹ')
+INSERT INTO ConversionTable VALUES (975,979,'真狩','ﾏｯｶﾘ')
+INSERT INTO ConversionTable VALUES (980,984,'松前','ﾏﾂﾏｴ')
+INSERT INTO ConversionTable VALUES (985,989,'丸瀬布','ﾏﾙｾｯﾌﾟ')
+INSERT INTO ConversionTable VALUES (990,994,'三笠','ﾐｶｻ')
+INSERT INTO ConversionTable VALUES (995,999,'三石','ﾐﾂｲ')
 ```
 
 ---
@@ -793,5 +1166,29 @@ National Languageは国語という意味ではなく「様々な国の文字」
 DISTINCTとワイルドカード `*` を併用したら.NETFrameworkでは実行速度が遅くなるらしい  
 
 ---
+
+## REPLACE
+
+[SQLServerのREPLACE 文字列を置換する](https://sql-oracle.com/sqlserver/?p=195)  
+
+``` sql
+--文字列'SATOU'をREPLACEで連結する
+--[結果] 'KATOU'
+SELECT REPLACE('SATOU','S','K') ;
+```
+
+``` sql
+--置換対象がない
+--[結果] 'SATOU'
+SELECT REPLACE('SATOU','Z','Y') ;
+```
+
+ここではREPLACEを使って「SATOU」の「Z」を「Y」に置換しようとしました。  
+しかし、「SATOU」には「Z」が含まれないので「Y」には置換されませんでした。  
+置換する対象がない場合はそのままの文字列が返ってきます。  
+
+---
+
+## NULLを排除した設計
 
 [NULLを排除した設計①](http://onefact.jp/wp/2014/08/26/null%E3%82%92%E6%8E%92%E9%99%A4%E3%81%97%E3%81%9F%E8%A8%AD%E8%A8%88/)  
