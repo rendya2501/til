@@ -1,5 +1,9 @@
 # SQLServer関係メモ
 
+[SQL Serverチートシート](https://qiita.com/esflat/items/7885e53737163eb955fe)  
+
+---
+
 ## SQL Serverのデータ型
 
 [[SQLServer] データ型一覧](http://teabreak.info/%E3%83%A1%E3%83%A2/sqlserver-%E3%82%AB%E3%83%A9%E3%83%A0%E5%9E%8B%E4%B8%80%E8%A6%A7/)  
@@ -181,9 +185,5 @@ ROLLBACK TRANSACTION
    ・スクリプトを作成するデータの種類をデータのみに設定  
 8. クリップボードにコピーか新しいクエリウィンドウに保存  
 9. 次へを押していけば完了  
-
----
-
-[SQL Serverチートシート](https://qiita.com/esflat/items/7885e53737163eb955fe)  
 
 ---

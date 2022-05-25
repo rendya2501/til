@@ -551,6 +551,84 @@ FROM
     ) AS [SQ]
     ON [TB_会員_Test].[顧客CD] = [SQ].[顧客CD]
 
+
+-- Withで書いたら多分こうなる。
+-- ここまで長ったらしいサブクエリを切り出すならWITHを使ったほうが見やすいかもしれない。
+WITH SQ AS ( 
+    SELECT
+        [Kaiin].[顧客CD],
+        MAX(CASE WHEN [AA].[ItemCD] = '101' THEN [AA].[Date] ELSE NULL END) AS [日付0],
+        MAX(CASE WHEN [AA].[ItemCD] = '102' THEN [AA].[Date] ELSE NULL END) AS [日付1],
+        MAX(CASE WHEN [AA].[ItemCD] = '103' THEN [AA].[Date] ELSE NULL END) AS [日付2],
+        MAX(CASE WHEN [AA].[ItemCD] = '104' THEN [AA].[Date] ELSE NULL END) AS [日付3],
+        MAX(CASE WHEN [AA].[ItemCD] = '105' THEN [AA].[Date] ELSE NULL END) AS [日付4],
+        MAX(CASE WHEN [AA].[ItemCD] = '106' THEN [AA].[Date] ELSE NULL END) AS [日付5],
+        MAX(CASE WHEN [AA].[ItemCD] = '107' THEN [AA].[Date] ELSE NULL END) AS [日付6],
+        MAX(CASE WHEN [AA].[ItemCD] = '108' THEN [AA].[Date] ELSE NULL END) AS [日付7],
+        MAX(CASE WHEN [AA].[ItemCD] = '109' THEN [AA].[Date] ELSE NULL END) AS [日付8],
+        MAX(CASE WHEN [AA].[ItemCD] = '110' THEN [AA].[Date] ELSE NULL END) AS [日付9],
+        MAX(CASE WHEN [AA].[ItemCD] = '111' THEN [AA].[Number] ELSE NULL END) AS [数値0],
+        MAX(CASE WHEN [AA].[ItemCD] = '112' THEN [AA].[Number] ELSE NULL END) AS [数値1],
+        MAX(CASE WHEN [AA].[ItemCD] = '113' THEN [AA].[Number] ELSE NULL END) AS [数値2],
+        MAX(CASE WHEN [AA].[ItemCD] = '114' THEN [AA].[Number] ELSE NULL END) AS [数値3],
+        MAX(CASE WHEN [AA].[ItemCD] = '115' THEN [AA].[Number] ELSE NULL END) AS [数値4],
+        MAX(CASE WHEN [AA].[ItemCD] = '116' THEN [AA].[Number] ELSE NULL END) AS [数値5],
+        MAX(CASE WHEN [AA].[ItemCD] = '117' THEN [AA].[Number] ELSE NULL END) AS [数値6],
+        MAX(CASE WHEN [AA].[ItemCD] = '118' THEN [AA].[Number] ELSE NULL END) AS [数値7],
+        MAX(CASE WHEN [AA].[ItemCD] = '119' THEN [AA].[Number] ELSE NULL END) AS [数値8],
+        MAX(CASE WHEN [AA].[ItemCD] = '120' THEN [AA].[Number] ELSE NULL END) AS [数値9],
+        MAX(CASE WHEN [AA].[ItemCD] = '121' THEN [AA].[Text] ELSE '' END) AS [名称0],
+        MAX(CASE WHEN [AA].[ItemCD] = '122' THEN [AA].[Text] ELSE '' END) AS [名称1],
+        MAX(CASE WHEN [AA].[ItemCD] = '123' THEN [AA].[Text] ELSE '' END) AS [名称2],
+        MAX(CASE WHEN [AA].[ItemCD] = '124' THEN [AA].[Text] ELSE '' END) AS [名称3],
+        MAX(CASE WHEN [AA].[ItemCD] = '125' THEN [AA].[Text] ELSE '' END) AS [名称4],
+        MAX(CASE WHEN [AA].[ItemCD] = '126' THEN [AA].[Text] ELSE '' END) AS [名称5],
+        MAX(CASE WHEN [AA].[ItemCD] = '127' THEN [AA].[Text] ELSE '' END) AS [名称6],
+        MAX(CASE WHEN [AA].[ItemCD] = '128' THEN [AA].[Text] ELSE '' END) AS [名称7],
+        MAX(CASE WHEN [AA].[ItemCD] = '129' THEN [AA].[Text] ELSE '' END) AS [名称8],
+        MAX(CASE WHEN [AA].[ItemCD] = '130' THEN [AA].[Text] ELSE '' END) AS [名称9]
+    FROM [TB_会員_Test] AS [Kaiin]
+    INNER JOIN Round3DatKHG_Ibayashi.[dbo].[TMc_CustomerGenericInfoContent] AS [AA]
+    ON [AA].[OfficeCD]+[Kaiin].[顧客CD] = [AA].[CustomerCD]
+    AND [AA].[UpdateProgram] LIKE 'CONV'
+    GROUP BY [Kaiin].[顧客CD]
+)
+UPDATE [TB_会員_Test]
+SET
+    [日付0] = [SQ].[日付0],
+    [日付1] = [SQ].[日付1],
+    [日付2] = [SQ].[日付2],
+    [日付3] = [SQ].[日付3],
+    [日付4] = [SQ].[日付4],
+    [日付5] = [SQ].[日付5],
+    [日付6] = [SQ].[日付6],
+    [日付7] = [SQ].[日付7],
+    [日付8] = [SQ].[日付8],
+    [日付9] = [SQ].[日付9],
+    [数値0] = [SQ].[数値0],
+    [数値1] = [SQ].[数値1],
+    [数値2] = [SQ].[数値2],
+    [数値3] = [SQ].[数値3],
+    [数値4] = [SQ].[数値4],
+    [数値5] = [SQ].[数値5],
+    [数値6] = [SQ].[数値6],
+    [数値7] = [SQ].[数値7],
+    [数値8] = [SQ].[数値8],
+    [数値9] = [SQ].[数値9],
+    [名称0] = [SQ].[名称0],
+    [名称1] = [SQ].[名称1],
+    [名称2] = [SQ].[名称2],
+    [名称3] = [SQ].[名称3],
+    [名称4] = [SQ].[名称4],
+    [名称5] = [SQ].[名称5],
+    [名称6] = [SQ].[名称6],
+    [名称7] = [SQ].[名称7],
+    [名称8] = [SQ].[名称8],
+    [名称9] = [SQ].[名称9]
+FROM
+    [TB_会員_Test]
+    JOIN [SQ]
+    ON [TB_会員_Test].[顧客CD] = [SQ].[顧客CD]
 ```
 
 ---

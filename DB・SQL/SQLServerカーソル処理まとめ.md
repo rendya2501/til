@@ -141,6 +141,53 @@ DEALLOCATE CUR_AAA;
 
 ---
 
+## カーソル処理のIF EXISTS
+
+[テーブルなどのデータベースオブジェクトの存在確認](https://johobase.com/exists-database-object-sqlserver/#IF_EXISTS_ELSE)  
+[Using cursor to update if exists and insert if not](https://dba.stackexchange.com/questions/218994/using-cursor-to-update-if-exists-and-insert-if-not)  
+
+カーソル処理の `IF EXISTS ELSE` には閉じる構文がない。  
+ELSE以降のNEXT FETCHがELSEでしか実行されないことを心配したが大丈夫であることを確認できた。  
+とりあえずBEGIN ENDで処理を囲めばよいらしい。  
+
+``` sql : 実際にうまくいった例
+    -- カーソル定義
+    DECLARE myCursor CURSOR FOR 
+    SELECT ~~ FROM ~~ WHERE ~~
+
+    -- カーソルオープン
+    OPEN myCursor
+
+    -- カーソルから変数に値をいれて、次のカーソルを参照
+    FETCH NEXT FROM myCursor INTO @~~
+
+    BEGIN
+        -- 存在したらUPDATE
+        IF EXISTS(SELECT ~~ FROM ~~ WHERE ~~)
+            -- IFの処理
+            BEGIN
+                UPDATE ~~
+                SET ~~
+            END
+        -- 存在しなければINSERT
+        ELSE
+            -- ELSEの処理
+            BEGIN
+                INSERT INTO ~~
+            END
+
+        -- if文外で実行したい場合はここにBEGIN ENDで囲って書くと実行される。
+        BEGIN
+            INSERT INTO ~~
+        END
+    END
+    
+    -- カーソルを次に進める。
+    FETCH NEXT FROM myCursor4 INTO @~~
+```
+
+---
+
 ## 2重ループ実務で作ったサンプル
 
 [SELECT した結果をカーソルを使用してループ処理をする方法](https://www.projectgroup.info/tips/SQLServer/SQL/SQL000028.html)

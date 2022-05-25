@@ -836,50 +836,6 @@ WHERE
 
 ---
 
-## ストアドのIF EXISTS
-
-[テーブルなどのデータベースオブジェクトの存在確認](https://johobase.com/exists-database-object-sqlserver/#IF_EXISTS_ELSE)  
-[Using cursor to update if exists and insert if not](https://dba.stackexchange.com/questions/218994/using-cursor-to-update-if-exists-and-insert-if-not)  
-
-ストアドの `IF EXISTS ELSE` には閉じる構文がない。  
-ELSE以降のNEXT FETCHがELSEでしか実行されないことを心配したが大丈夫であることを確認できた。  
-とりあえずBEGIN ENDで処理を囲めばよいらしい。  
-
-``` sql : 実際にうまくいったストアド
-    -- カーソル定義
-    DECLARE myCursor CURSOR FOR 
-    SELECT ~~ FROM ~~ WHERE ~~
-    -- カーソルオープン
-    OPEN myCursor
-    -- カーソルから変数に値をいれて、次のカーソルを参照
-    FETCH NEXT FROM myCursor INTO @~~
-
-    BEGIN
-        -- 存在したらUPDATE
-        IF EXISTS(SELECT ~~ FROM ~~ WHERE ~~)
-            -- IFの処理
-            BEGIN
-                UPDATE ~~
-                SET ~~
-            END
-        -- 存在しなければINSERT
-        ELSE
-            -- ELSEの処理
-            BEGIN
-                INSERT INTO ~~
-            END
-
-        -- if文外で実行したい場合はここにBEGIN ENDで囲って書くと実行される。
-        BEGIN
-            INSERT INTO ~~
-        END
-    END
-    -- カーソルを次に進める。
-    FETCH NEXT FROM myCursor4 INTO @~~
-```
-
----
-
 ## WITH句
 
 [SQL WITH句で同じSQLを１つのSQLに共通化する](https://zukucode.com/2017/09/sql-with.html)  
