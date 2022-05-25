@@ -280,6 +280,12 @@ git fetch,git mergeを実行したらいけたので備忘録として残して�
 
 ---
 
+## Please make sure you have the correct access rights and the repository exists
+
+[【解決方法(画像付き)】急に。git pushしたら「Please make sure you have the correct access rights and the repository exists.」](https://kenjimorita.jp/please-make-sure-you-have-the-correct-access-rights-and-the-repository-exists/)  
+
+---
+
 ## VisualStudioでの対処色々
 
 後でちゃんとまとめる。  
@@ -366,6 +372,8 @@ https://qiita.com/S42100254h/items/db435c98c2fc9d4a68c2
 大き目の修正をやっているときに、ブランチを切り替えずに新しいブランチを作成する方法。  
 バックアップブランチを作成しないといけない時とか  
 
+---
+
 ## 集中管理と分散管理の違い
 
 ### 分散管理 (Git)
@@ -392,11 +400,20 @@ Subversion（SVN）のようなシステムではリポジトリはリモート�
 
 [ローカルリポジトリとリモートリポジトリについて〜SourceTreeでGitを使う](https://itstudio.co/2016/07/22/6014/)  
 
+ファイルやディレクトリの履歴を管理する場所のこと。  
+
+リポジトリ : 貯蔵庫  
+
 ### リモートリポジトリ
 
 専用のサーバに配置して複数人で共有するためのリポジトリです。
 
-#### originとは？
+### ローカルリポジトリ
+
+ユーザーがローカルマシン上で作業するために利用するリポジトリです。  
+基本的にそのユーザーはこの領域にて変更履歴を管理しつつ、作業を行います。  
+
+### originとは？
 
 [Gitでよく使う「origin」って何？わかりやすく説明します](https://reasonable-code.com/git-origin/)  
 
@@ -412,7 +429,7 @@ Subversion（SVN）のようなシステムではリポジトリはリモート�
 ただのエイリアスなので、URLで直接指定してプッシュすることも可能  
 `git push https://github.com/donchan922/rails-board.git master`
 
-#### リモートリポジトリってたいていoriginだけど、origin以外にもリポジトリって作れるの？  
+### リモートリポジトリってたいていoriginだけど、origin以外にもリポジトリって作れるの？  
 
 ローカルでGitプロジェクトを作成するときに、git initしますよね。  
 そのあとに以下のようなコマンドでリモートリポジトリの設定を行っているはずです。  
@@ -429,7 +446,15 @@ teelaはhotfixとdevelopってどうやっていたか。
 同じリポジトリの中でブランチを分けていたか、そもそもリポジトリが別だったか。  
 次回出社時に確認してみる。  
 
-### ローカルリポジトリ
+``` txt
+origin  http://192.168.150.42/osp-dev/hotfix-alp.git (fetch)
+origin  http://192.168.150.42/osp-dev/hotfix-alp.git (push)
+pgm     http://192.168.150.21/pgm-osp/pgmweb.git (fetch)
+pgm     http://192.168.150.21/pgm-osp/pgmweb.git (push)
+pgmweb  http://192.168.150.21/PGM-OSP/pgmweb.git (fetch)
+pgmweb  http://192.168.150.21/PGM-OSP/pgmweb.git (push)
+```
 
-ユーザーがローカルマシン上で作業するために利用するリポジトリです。  
-基本的にそのユーザーはこの領域にて変更履歴を管理しつつ、作業を行います。  
+ALP側開発用リポジトリとTeela側リポジトリで分かれていた。  
+ローカルリポジトリでoriginが使われている場合、新規でリポジトリを追加する場合はorigin以外を指定しないといけない。  
+1つのローカル環境で複数のリポジトリを管理しないといけない場合、必然的にorigin以外の名前をつけることになるだろう。  

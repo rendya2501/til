@@ -210,10 +210,11 @@ short  long           mean
 
 ### git pull コマンド実行例
 
-`git pull pgmweb fix-366`
-
 425をやっているうちにbug-fix-develop-alpに適応された変更を425にマージしておきたい。  
 `git pull origin bug-fix-develop-alp`  
+
+bug-fix-develop-alpを最新にするための取得先とコマンド  
+`git pull pgmweb develop`  
 
 ---
 
