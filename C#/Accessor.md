@@ -4,6 +4,18 @@
 
 ## 最低限のアクセサーの実装
 
+``` C# : API起点
+/// <summary>
+/// コース一覧を取得します。
+/// </summary>
+/// <param name="request"></param>
+/// <returns></returns>
+public async Task<IEnumerable<CourseParam>> GetCourseList(CourseListGetRequest request)
+{
+    return await _Accessor.GetResultAsync<IEnumerable<CourseParam>>(PATH + "/course/get/list", request);
+}
+```
+
 ``` C# : Accessor
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
