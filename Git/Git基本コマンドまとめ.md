@@ -1,5 +1,7 @@
 # Git 基本コマンドまとめ
 
+[基本的なGitコマンドまとめ](https://qiita.com/2m1tsu3/items/6d49374230afab251337)  
+
 ``` txt : 早見表
 clone    :: リポジトリのクローンを作成する
 init     :: リポジトリを新規作成する、または既存のリポジトリを初期化する
@@ -163,8 +165,8 @@ git push -u origin main
 カレントブランチをpushする  
 `git push origin HEAD`  
 
-リモートリポジトリ origin の mainブランチにプッシュする。その際、mainブランチを上流ブランチとして設定する。
-`git push -u origin main`
+リモートリポジトリ origin の mainブランチにプッシュする。その際、mainブランチを上流ブランチとして設定する。  
+`git push -u origin main`  
 
 ### git pushの主なオプション
 

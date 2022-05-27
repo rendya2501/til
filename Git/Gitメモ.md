@@ -133,6 +133,13 @@ pullではなくcloneなら普通にありました。
 
 ---
 
+## Git で特定のコミットからブランチを切りたい（作成したい）
+
+[Git で特定のコミットからブランチを切りたい（作成したい）](https://qiita.com/wnoguchi/items/dabe6e05388faf75f00c)  
+
+
+---
+
 ## ローカルのブランチ名を変更する方法
 
 [gitのローカルのブランチ名を変更したい](https://qiita.com/suin/items/96c110b218d919168d64)  

@@ -686,7 +686,7 @@ CREATE TABLE [dbo].[Customers]
 ``` sql
 CREATE TABLE ConversionTable  
 (
-    [Id] int IDENTITY(1,1),  
+    [Id] INT NOT NULL IDENTITY(1,1) PRIMARY KEY,  
     [From] int,  
     [To] int,  
     [Name] nvarchar(255),
