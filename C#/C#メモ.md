@@ -871,22 +871,22 @@ Process.Start(
 ## StringBuilderで先頭にWHEREを追加する方法
 
 ``` C#
-            var whereQuery = new StringBuilder();
-            if (!string.IsNullOrEmpty(settlementPlayerNo))
-            {
-                whereQuery.AppendLine("AND [SettlementPlayerNo] = @settlementPlayerNo");
-            }
-            if (!string.IsNullOrEmpty(settlementID))
-            {
-                whereQuery.AppendLine("AND [SettlementID] = @settlementID");
-            }
-            // 現金振替マイナスの伝票は除く
-            if (isExclueCashAdvanceMinus)
-            {
-                whereQuery.AppendLine("AND [DetailType] <> @cashAdvanceMinus");
-            }
-            // 先頭のAND消してWHEREにする。
-            whereQuery.Remove(0, 3).Insert(0, "WHERE");
+    var whereQuery = new StringBuilder();
+    if (!string.IsNullOrEmpty(settlementPlayerNo))
+    {
+        whereQuery.AppendLine("AND [SettlementPlayerNo] = @settlementPlayerNo");
+    }
+    if (!string.IsNullOrEmpty(settlementID))
+    {
+        whereQuery.AppendLine("AND [SettlementID] = @settlementID");
+    }
+    // 現金振替マイナスの伝票は除く
+    if (isExclueCashAdvanceMinus)
+    {
+        whereQuery.AppendLine("AND [DetailType] <> @cashAdvanceMinus");
+    }
+    // 先頭のAND消してWHEREにする。
+    whereQuery.Remove(0, 3).Insert(0, "WHERE");
 ```
 
 ---
@@ -987,508 +987,6 @@ var test = dt?.Date;
 
 ---
 
-## プロパティのSwap奮闘記
-
-FrmaeのPlayer1とPlayer2の入れ替えを実現するために色々やったのでまとめ。  
-普通のスワップなら気にする必要もないのだが、プロパティの中身を全て入れ替える場合は単純なSwapではうまく行かなかった。  
-
-``` C# : 最初に作った駄目な奴
-    private void CopyRepre(ReservationPlayerView obj)
-    {
-        if (obj == null)
-        {
-            return;
-        }
-
-        void Swap(ref ReservationPlayerView x, ref ReservationPlayerView y)
-        {
-            ReservationPlayerView tmp = y;
-            y = x;
-            x = tmp;
-        }
-
-        // temp代表者
-        ReservationPlayerView TempRepre = null;
-        // 代表者を押した場所にする
-        foreach (var frame in SelectedReservation.ReservationFrameList)
-        {
-            Func<ReservationPlayerView, ReservationPlayerView> Selected = (select) =>
-            {
-                if (frame.ReservationPlayer1 == select)
-                {
-                    return frame.ReservationPlayer1;
-                }
-                if (frame.ReservationPlayer2 == select)
-                {
-                    return frame.ReservationPlayer2;
-                }
-                if (frame.ReservationPlayer3 == select)
-                {
-                    return frame.ReservationPlayer3;
-                }
-                if (frame.ReservationPlayer4 == select)
-                {
-                    return frame.ReservationPlayer4;
-                }
-                return null;
-            };
-
-
-            if (frame.ReservationPlayer1 != obj && (frame.ReservationPlayer1?.ReservationRepreFlag ?? false))
-            {
-                //TempRepre = frame.ReservationPlayer1;
-                //frame.ReservationPlayer1 = obj;
-                TempRepre = frame.ReservationPlayer1;
-                var TempSelect = Selected(obj);
-                frame.ReservationPlayer1 = TempSelect;
-                TempSelect = TempRepre;
-
-                frame.ReservationPlayer1.ReservationRepreFlag = false;
-            }
-            if (frame.ReservationPlayer2 != obj && (frame.ReservationPlayer2?.ReservationRepreFlag ?? false))
-            {
-                //TempRepre = frame.ReservationPlayer2;
-                //frame.ReservationPlayer2 = obj;
-                TempRepre = frame.ReservationPlayer2;
-                var TempSelect = Selected(obj);
-                frame.ReservationPlayer2 = TempSelect;
-                TempSelect = TempRepre;
-
-                frame.ReservationPlayer2.ReservationRepreFlag = false;
-            }
-            if (frame.ReservationPlayer3 != obj && (frame.ReservationPlayer3?.ReservationRepreFlag ?? false))
-            {
-                if (frame.ReservationPlayer1 == obj)
-                {
-                    TempRepre = frame.ReservationPlayer3;
-                    frame.ReservationPlayer3 = frame.ReservationPlayer1;
-                    frame.ReservationPlayer1 = TempRepre;
-                }
-                if (frame.ReservationPlayer2 == obj)
-                {
-                    TempRepre = frame.ReservationPlayer3;
-                    frame.ReservationPlayer3 = frame.ReservationPlayer2;
-                    frame.ReservationPlayer2 = TempRepre;
-                }
-                if (frame.ReservationPlayer3 == obj)
-                {
-                    TempRepre = frame.ReservationPlayer3;
-                    frame.ReservationPlayer3 = frame.ReservationPlayer3;
-                    frame.ReservationPlayer2 = TempRepre;
-                }
-                if (frame.ReservationPlayer4 == obj)
-                {
-                    TempRepre = frame.ReservationPlayer3;
-                    frame.ReservationPlayer3 = frame.ReservationPlayer4;
-                    frame.ReservationPlayer4 = TempRepre;
-                }
-                frame.ReservationPlayer3.ReservationRepreFlag = false;
-            }
-            if (frame.ReservationPlayer4 != obj && (frame.ReservationPlayer4?.ReservationRepreFlag ?? false))
-            {
-                //TempRepre = frame.ReservationPlayer4;
-                //frame.ReservationPlayer4 = obj;
-                TempRepre = frame.ReservationPlayer4;
-                var TempSelect = Selected(obj);
-                frame.ReservationPlayer4 = TempSelect;
-                TempSelect = TempRepre;
-
-                frame.ReservationPlayer4.ReservationRepreFlag = false;
-            }
-        }
-    }
-```
-
-``` C# : 愚直にやって何とか形にしたやつ
-    /// <summary>
-    /// 代表者入れ替え
-    /// </summary>
-    private void SwapRepre(ReservationPlayerView obj)
-    {
-        if (obj == null)
-        {
-            return;
-        }
-        // 今の代表者と押した場所を入れ替える
-        foreach (var repre in SelectedReservation.ReservationFrameList)
-        {
-            // 今の代表者を観測する
-            if (repre.ReservationPlayer1 != obj && (repre.ReservationPlayer1?.ReservationRepreFlag ?? false))
-            {
-                // 今の代表者を観測したら、押された場所を観測する
-                foreach (var pushFrom in SelectedReservation.ReservationFrameList)
-                {
-                    // 押された場所を観測できたら入れ替えを実行する
-                    if (pushFrom.ReservationPlayer1 == obj)
-                    {
-                        (repre.ReservationPlayer1, pushFrom.ReservationPlayer1) = (pushFrom.ReservationPlayer1, repre.ReservationPlayer1);
-                    }
-                    else if (pushFrom.ReservationPlayer2 == obj)
-                    {
-                        (repre.ReservationPlayer1, pushFrom.ReservationPlayer2) = (pushFrom.ReservationPlayer2, repre.ReservationPlayer1);
-                    }
-                    else if (pushFrom.ReservationPlayer3 == obj)
-                    {
-                        (repre.ReservationPlayer1, pushFrom.ReservationPlayer3) = (pushFrom.ReservationPlayer3, repre.ReservationPlayer1);
-                    }
-                    else if (pushFrom.ReservationPlayer4 == obj)
-                    {
-                        (repre.ReservationPlayer1, pushFrom.ReservationPlayer4) = (pushFrom.ReservationPlayer4, repre.ReservationPlayer1);
-                    }
-                }
-                break;
-            }
-            if (repre.ReservationPlayer2 != obj && (repre.ReservationPlayer2?.ReservationRepreFlag ?? false))
-            {
-                foreach (var pushFrom in SelectedReservation.ReservationFrameList)
-                {
-                    if (pushFrom.ReservationPlayer1 == obj)
-                    {
-                        (repre.ReservationPlayer2, pushFrom.ReservationPlayer1) = (pushFrom.ReservationPlayer1, repre.ReservationPlayer2);
-                    }
-                    else if (pushFrom.ReservationPlayer2 == obj)
-                    {
-                        (repre.ReservationPlayer2, pushFrom.ReservationPlayer2) = (pushFrom.ReservationPlayer2, repre.ReservationPlayer2);
-                    }
-                    else if (pushFrom.ReservationPlayer3 == obj)
-                    {
-                        (repre.ReservationPlayer2, pushFrom.ReservationPlayer3) = (pushFrom.ReservationPlayer3, repre.ReservationPlayer2);
-                    }
-                    else if (pushFrom.ReservationPlayer4 == obj)
-                    {
-                        (repre.ReservationPlayer2, pushFrom.ReservationPlayer4) = (pushFrom.ReservationPlayer4, repre.ReservationPlayer2);
-                    }
-                }
-                break;
-            }
-            if (repre.ReservationPlayer3 != obj && (repre.ReservationPlayer3?.ReservationRepreFlag ?? false))
-            {
-                foreach (var pushFrom in SelectedReservation.ReservationFrameList)
-                {
-                    if (pushFrom.ReservationPlayer1 == obj)
-                    {
-                        (repre.ReservationPlayer3, pushFrom.ReservationPlayer1) = (pushFrom.ReservationPlayer1, repre.ReservationPlayer3);
-                    }
-                    else if (pushFrom.ReservationPlayer2 == obj)
-                    {
-                        (repre.ReservationPlayer3, pushFrom.ReservationPlayer2) = (pushFrom.ReservationPlayer2, repre.ReservationPlayer3);
-                    }
-                    else if (pushFrom.ReservationPlayer3 == obj)
-                    {
-                        (repre.ReservationPlayer3, pushFrom.ReservationPlayer3) = (pushFrom.ReservationPlayer3, repre.ReservationPlayer3);
-                    }
-                    else if (pushFrom.ReservationPlayer4 == obj)
-                    {
-                        (repre.ReservationPlayer3, pushFrom.ReservationPlayer4) = (pushFrom.ReservationPlayer4, repre.ReservationPlayer3);
-                    }
-                }
-                break;
-            }
-            if (repre.ReservationPlayer4 != obj && (repre.ReservationPlayer4?.ReservationRepreFlag ?? false))
-            {
-                foreach (var pushFrom in SelectedReservation.ReservationFrameList)
-                {
-                    if (pushFrom.ReservationPlayer1 == obj)
-                    {
-                        (repre.ReservationPlayer4, pushFrom.ReservationPlayer1) = (pushFrom.ReservationPlayer1, repre.ReservationPlayer4);
-                    }
-                    else if (pushFrom.ReservationPlayer2 == obj)
-                    {
-                        (repre.ReservationPlayer4, pushFrom.ReservationPlayer2) = (pushFrom.ReservationPlayer2, repre.ReservationPlayer4);
-                    }
-                    else if (pushFrom.ReservationPlayer3 == obj)
-                    {
-                        (repre.ReservationPlayer4, pushFrom.ReservationPlayer3) = (pushFrom.ReservationPlayer3, repre.ReservationPlayer4);
-                    }
-                    else if (pushFrom.ReservationPlayer4 == obj)
-                    {
-                        (repre.ReservationPlayer4, pushFrom.ReservationPlayer4) = (pushFrom.ReservationPlayer4, repre.ReservationPlayer4);
-                    }
-                }
-                break;
-            }
-        }
-    }
-```
-
-``` C# : 愚直に作った後、家で閃いたやつ
-// プロパティを特定したうえでの代入はできるんだったら、デリゲートをフルに使って何とかできなかったのか？と今更ながらに思う。
-var repreTemp = null;
-var sourceTemp = null;
-Action repre = null;
-Action source = null;
-
-foreach(frame){
-    // 現在の代表者の場所を求める
-    if (player1) {
-        repreTemp = player1;
-        repre = (obj) => player1 = obj;
-    }
-    // 今回押された場所を特定する
-    if (player3 == obj) {
-        sourceTemp = player3
-        source = (repre) => player3 = repre;
-    }
-}
-
-// 今回押された場所を代表者にする
-repre(obj); //or repre(sourceTemp);
-// 代表者だった場所に押された情報をいれる。
-source(repreTemp);
-```
-
-``` C# : 閃いたアイデアを取り入れて実現できたパターン
-    /// <summary>
-    /// 代表者入れ替え
-    /// </summary>
-    /// <param name="obj">押された場所のプレーヤー情報。ReservationPlayer[n]</param>
-    private void SwapRepre(ReservationPlayerView obj)
-    {
-        if (obj == null)
-        {
-            return;
-        }
-        // 一時的な代表者を格納
-        ReservationPlayerView tempRepre = null;
-        // 「押された場所→代表者」にするアクション
-        Action<ReservationPlayerView> beRepreAction = null;
-        // 「代表者→押された場所」にするアクション
-        Action<ReservationPlayerView> beSourceAction = null;
-        // 枠の1行単位でループ
-        foreach (ReservationFrameView frame in SelectedReservation.ReservationFrameList)
-        {
-            // 今の代表者を特定する
-            if (frame.ReservationPlayer1 != obj && (frame.ReservationPlayer1?.ReservationRepreFlag ?? false))
-            {
-                tempRepre = frame.ReservationPlayer1;
-                // 今の代表者は押された場所と入れ替えるのでbeSourceActionを登録する
-                beSourceAction = (source) => frame.ReservationPlayer1 = source;
-            }
-            else if (frame.ReservationPlayer2 != obj && (frame.ReservationPlayer2?.ReservationRepreFlag ?? false))
-            {
-                tempRepre = frame.ReservationPlayer2;
-                beSourceAction = (source) => frame.ReservationPlayer2 = source;
-            }
-            else if (frame.ReservationPlayer3 != obj && (frame.ReservationPlayer3?.ReservationRepreFlag ?? false))
-            {
-                tempRepre = frame.ReservationPlayer3;
-                beSourceAction = (source) => frame.ReservationPlayer3 = source;
-            }
-            else if (frame.ReservationPlayer4 != obj && (frame.ReservationPlayer4?.ReservationRepreFlag ?? false))
-            {
-                tempRepre = frame.ReservationPlayer4;
-                beSourceAction = (source) => frame.ReservationPlayer4 = source;
-            }
-            // 押された場所を特定する
-            switch (obj)
-            {
-                case ReservationPlayerView n when n == frame.ReservationPlayer1:
-                    // 押された場所は今の代表者と入れ替えるのでbeRepreActionを登録する
-                    beRepreAction = (repre) => frame.ReservationPlayer1 = repre;
-                    break;
-                case ReservationPlayerView n when n == frame.ReservationPlayer2:
-                    beRepreAction = (repre) => frame.ReservationPlayer2 = repre;
-                    break;
-                case ReservationPlayerView n when n == frame.ReservationPlayer3:
-                    beRepreAction = (repre) => frame.ReservationPlayer3 = repre;
-                    break;
-                case ReservationPlayerView n when n == frame.ReservationPlayer4:
-                    beRepreAction = (repre) => frame.ReservationPlayer4 = repre;
-                    break;
-                default:
-                    break;
-            }
-        }
-        // 代表者がnullということは同じ場所をクリックしたことになるので、そのときは処理しない。
-        if (tempRepre != null)
-        {
-            // 今回押された場所を代表者にする。
-            beSourceAction(obj);
-            // 代表者だった場所に押された場所の情報をいれる。
-            beRepreAction(tempRepre);
-        }
-    }
-```
-
-``` C# : 場合によっては無駄なループが発生することに気が付いたので、平行して検索すればよくね？って思って作ったTask並列実行パターン
-    /// <summary>
-    /// 代表者入れ替え
-    /// </summary>
-    /// <param name="obj">押された場所のプレーヤー情報。ReservationPlayer[n]</param>
-    private void SwapRepre(ReservationPlayerView obj)
-    {
-        if (obj == null)
-        {
-            return;
-        }
-        // 一時的な代表者を格納
-        ReservationPlayerView tempRepre = null;
-        // 「押された場所→代表者」にするアクション
-        Action<ReservationPlayerView> beRepreAction = null;
-        // 「代表者→押された場所」にするアクション
-        Action<ReservationPlayerView> beSourceAction = null;
-
-        // 今の代表者を特定するためのタスク
-        Task findRepre = Task.Run(() =>
-        {
-            foreach (ReservationFrameView frame in SelectedReservation.ReservationFrameList)
-            {
-                // 今の代表者を特定する
-                if (frame.ReservationPlayer1 != obj && (frame.ReservationPlayer1?.ReservationRepreFlag ?? false))
-                {
-                    tempRepre = frame.ReservationPlayer1;
-                    // 今の代表者は押された場所と入れ替えるのでbeSourceActionを登録する
-                    beSourceAction = (source) => frame.ReservationPlayer1 = source;
-                    break;
-                }
-                else if (frame.ReservationPlayer2 != obj && (frame.ReservationPlayer2?.ReservationRepreFlag ?? false))
-                {
-                    tempRepre = frame.ReservationPlayer2;
-                    beSourceAction = (source) => frame.ReservationPlayer2 = source;
-                    break;
-                }
-                else if (frame.ReservationPlayer3 != obj && (frame.ReservationPlayer3?.ReservationRepreFlag ?? false))
-                {
-                    tempRepre = frame.ReservationPlayer3;
-                    beSourceAction = (source) => frame.ReservationPlayer3 = source;
-                    break;
-                }
-                else if (frame.ReservationPlayer4 != obj && (frame.ReservationPlayer4?.ReservationRepreFlag ?? false))
-                {
-                    tempRepre = frame.ReservationPlayer4;
-                    beSourceAction = (source) => frame.ReservationPlayer4 = source;
-                    break;
-                }
-            }
-        });
-        // 押された場所を特定するためのタスク
-        Task findSource = Task.Run(() =>
-        {
-            foreach (ReservationFrameView frame in SelectedReservation.ReservationFrameList)
-            {
-                // 押された場所を特定する
-                switch (obj)
-                {
-                    case ReservationPlayerView n when n == frame.ReservationPlayer1:
-                        // 押された場所は今の代表者と入れ替えるのでbeRepreActionを登録する
-                        beRepreAction = (repre) => frame.ReservationPlayer1 = repre;
-                        break;
-                    case ReservationPlayerView n when n == frame.ReservationPlayer2:
-                        beRepreAction = (repre) => frame.ReservationPlayer2 = repre;
-                        break;
-                    case ReservationPlayerView n when n == frame.ReservationPlayer3:
-                        beRepreAction = (repre) => frame.ReservationPlayer3 = repre;
-                        break;
-                    case ReservationPlayerView n when n == frame.ReservationPlayer4:
-                        beRepreAction = (repre) => frame.ReservationPlayer4 = repre;
-                        break;
-                    default:
-                        break;
-                }
-            }
-        });
-
-        // 代表者と押した場所を検索する処理を並行実行
-        Task.WaitAll(findRepre, findSource);
-        // 代表者がnullということは同じ場所をクリックしたことになるので、そのときは処理しない。
-        if (tempRepre != null)
-        {
-            // 今回押された場所を代表者にする。
-            beSourceAction(obj);
-            // 代表者だった場所に押された場所の情報をいれる。
-            beRepreAction(tempRepre);
-        }
-    }
-```
-
-``` C# : Taskで変数やデリゲートまで取れれば一時変数も必要なくね？と思って作った最終パターン
-    /// <summary>
-    /// 代表者入れ替え
-    /// </summary>
-    /// <param name="obj">押された場所のプレーヤー情報。ReservationPlayer[n]</param>
-    private void SwapRepre(ReservationPlayerView obj)
-    {
-        if (obj == null)
-        {
-            return;
-        }
-
-        // 今の代表者を特定し、代表者の一時変数と押された場所にするためのActionを返却するタスク
-        Task<(ReservationPlayerView tempRepre, Action<ReservationPlayerView> beSourceAction)> findRepre =
-            Task<(ReservationPlayerView, Action<ReservationPlayerView>)>.Factory.StartNew(() =>
-            {
-                foreach (ReservationFrameView frame in SelectedReservation.ReservationFrameList)
-                {
-                    // 今の代表者を特定する
-                    if (frame.ReservationPlayer1 != obj && (frame.ReservationPlayer1?.ReservationRepreFlag ?? false))
-                    {
-                        // 一時変数と今の代表者は押された場所と入れ替えるのでbeSourceActionを登録する
-                        return (frame.ReservationPlayer1, (source) => frame.ReservationPlayer1 = source);
-                    }
-                    else if (frame.ReservationPlayer2 != obj && (frame.ReservationPlayer2?.ReservationRepreFlag ?? false))
-                    {
-                        return (frame.ReservationPlayer2, (source) => frame.ReservationPlayer2 = source);
-                    }
-                    else if (frame.ReservationPlayer3 != obj && (frame.ReservationPlayer3?.ReservationRepreFlag ?? false))
-                    {
-                        return (frame.ReservationPlayer3, (source) => frame.ReservationPlayer3 = source);
-                    }
-                    else if (frame.ReservationPlayer4 != obj && (frame.ReservationPlayer4?.ReservationRepreFlag ?? false))
-                    {
-                        return (frame.ReservationPlayer4, (source) => frame.ReservationPlayer4 = source);
-                    }
-                }
-                return (null, null);
-            });
-        // 押された場所を特定し、押されたプレーヤーの一時変数と代表者にするためのActionを返却するタスク
-        Task<(ReservationPlayerView tempSource, Action<ReservationPlayerView> beRepreAction)> findSource =
-            Task<(ReservationPlayerView, Action<ReservationPlayerView>)>.Factory.StartNew(() =>
-            {
-                foreach (ReservationFrameView frame in SelectedReservation.ReservationFrameList)
-                {
-                    // 押された場所を特定する
-                    switch (obj)
-                    {
-                        // switchのパターンマッチング
-                        case ReservationPlayerView n when n == frame.ReservationPlayer1:
-                            // 一時変数と押された場所は今の代表者と入れ替えるのでbeRepreActionを登録する
-                            return (frame.ReservationPlayer1, (repre) => frame.ReservationPlayer1 = repre);
-                        case ReservationPlayerView n when n == frame.ReservationPlayer2:
-                            return (frame.ReservationPlayer2, (repre) => frame.ReservationPlayer2 = repre);
-                        case ReservationPlayerView n when n == frame.ReservationPlayer3:
-                            return (frame.ReservationPlayer3, (repre) => frame.ReservationPlayer3 = repre);
-                        case ReservationPlayerView n when n == frame.ReservationPlayer4:
-                            return (frame.ReservationPlayer4, (repre) => frame.ReservationPlayer4 = repre);
-                        default:
-                            break;
-                    }
-                }
-                return (null, null);
-            });
-
-        // 代表者と押した場所を検索する処理を並行実行
-        Task.WaitAll(findRepre, findSource);
-        
-        // 代表者がnullということは同じ場所をクリックしたことになるので処理しない。
-        if (findRepre.Result.tempRepre != null)
-        {
-            // 今回押された場所を代表者にする。引数は押された場所の情報。
-            findRepre.Result.beSourceAction(findSource.Result.tempSource);
-            // 代表者だった場所に押された場所の情報をいれる。引数は代表者の情報。
-            findSource.Result.beRepreAction(findRepre.Result.tempRepre);
-        }
-    }
-
-    // // 代表者と押した場所を検索する処理を並行実行
-    // Task.WaitAll(findRepre, findSource);
-    // // これでも結果を取得できる。
-    // var aa = Task.WhenAll(findRepre, findSource);
-    // var a = aa.Result[0];
-    // var b = aa.Result[1];
-```
-
----
-
 ## switch文のパターンマッチング
 
 [C#のアプデでめちゃくちゃ便利になったswitch文（パターンマッチング）の紹介](https://qiita.com/toRisouP/items/18b31b024b117009137a)
@@ -1561,12 +1059,6 @@ private void SwapRepre(ReservationPlayerView obj)
     }
 }
 ```
-
----
-
-## C#からDB接続でSQLServerに接続してSELECT文を実行する方法
-
-[C#からDB接続でSQLServerに接続してSELECT文を実行する方法](https://rainbow-engine.com/csharp-dbconnection-sqlserver/)
 
 ---
 
@@ -1672,22 +1164,95 @@ Byteなので普通に0だが、面白いのは定義したEnumが1から始ま�
 
 ---
 
-## Listにnullのオブジェクトをいれる
+## 文字列先頭の`@`の意味
+
+文字列先頭の`@`ってなんだっけ？ということでまとめ。  
+
+結論から言うと先頭に`@`があると`\`をまとめてエスケープしてくれる。  
+ないと、全部エスケープしないといけない。
 
 ``` C#
-    Person person = null;
-    // a1.Count = 1
-    // 1番目の要素はnull
-    var a1 = new List<Person>() { person };
+// 全部エスケープしないとエラーになる。
+string constr = "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\CSharpSample1\\LocalDB\\SampleDatabase.mdf;";
+// @をつけるだけで全部エスケープされるのでエラーにならない。
+string constr = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\CSharpSample1\LocalDB\SampleDatabase.mdf;";
+```
 
-    person = new Person();
-    // a2.Count = 1
-    // 1番目の要素はPersonインスタンス
-    var a2 = new List<Person>() { person };
+[C#で文字列の￥をエスケープする手間を省く](https://water2litter.net/rye/post/c_str_escape/)  
 
-    // a1がnullだとエラーになるのでnew Listにnullをいれるのは罠
-    foreach(var aa in a1)
+C#の文字列は２種類ある。  
+
+### 標準リテラル文字列
+
+エスケープ文字を埋め込む必要がある場合。  
+0個以上の文字を２重引用符（ダブルクォーテーション）で囲んで指定する。  
+例: "Hello\n"  
+
+### 逐次的リテラル文字列
+
+文字列テキストに¥記号が含まれる場合。
+@文字、２重引用符（ダブルクォーテーション）、0個以上の文字、閉じる用の２重引用符で指定する。  
+文字列テキスト内に２重引用符が含まれる場合は、その２重引用符に２重引用符を付ける。  
+例: @"Hello"  
+
+### 逐次的リテラル文字列を試してみた
+
+``` C#
+    // 標準リテラル文字列
+    string Text1 = "千早振る神代もきかず竜田川\n唐紅に水くくるとは"; 
+    // 千早振る神代もきかず竜田川
+    // 唐紅に水くくるとは
+
+     // 逐次的リテラル文字列
+    string Text2 = @"千早振る神代もきかず竜田川\n唐紅に水くくるとは";
+    // 千早振る神代もきかず竜田川\n唐紅に水くくるとは
+
+    // 改行を含む逐次的リテラル文字列
+    string Text3 = @"千早振る神代もきかず竜田川
+    唐紅に水くくるとは"; 
+    // 千早振る神代もきかず竜田川
+    // 唐紅に水くくるとは
+
+    // ２重引用符を含む逐次的リテラル文字列
+    string Text4 = @"千早振る神代もきかず""竜田川"" 唐紅に水くくるとは"; 
+    // 千早振る神代もきかず"竜田川" 唐紅に水くくるとは
+```
+
+---
+
+## using
+
+usingの省略範囲はforeachやwhileのように直前の1つだけじゃなくて、そのブロックの終わりまで続くらしい。  
+割と初めて知った。  
+
+``` C# : 省略前
+    string constr = @"接続文字列";
+    using (SqlConnection con = new SqlConnection(constr))
     {
+        con.Open();
 
+        string sqlstr = "select * from products";
+        SqlCommand com = new SqlCommand(sqlstr, con);
+
+        using (SqlDataReader sdr = com.ExecuteReader())
+        {
+            while (sdr.Read())
+            {
+                _TextBox1.Text += $"{(string)sdr["name"]:s}:{(int)sdr["price"]:d} \r\n";
+            }
+        }
     }
+```
+
+``` C# : 省略後
+    string constr = @"接続文字列";
+    using SqlConnection con = new SqlConnection(constr);
+    con.Open();
+
+    string sqlstr = "select * from products";
+    SqlCommand com = new SqlCommand(sqlstr, con);
+
+    using SqlDataReader sdr = com.ExecuteReader();
+    while (sdr.Read())
+        _TextBox1.Text += $"{sdr["name"].ToString():s}:{(int)sdr["price"]:d} {Environment.NewLine}";
 ```

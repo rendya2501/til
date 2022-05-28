@@ -23,6 +23,15 @@ INSERT INTO テーブル名 SELECT 項目名 FROM テーブル名
 INSERT INTO テーブル名 ( [テーブルの列名1], [テーブルの列名2]... ) SELECT [項目名1],[項目名2]... FROM 別テーブル名
 ```
 
+``` sql : INSERT VALUESの場合の省略構文
+INSERT INTO [テーブル名]
+VALUES 
+    ( '値1' [ , '値2' ]・・・), 
+    ( '値1' [ , '値2' ]・・・), 
+    ( '値1' [ , '値2' ]・・・), 
+    ...;
+```
+
 ``` sql : SELECTした結果をINSERTできたよなぁーと思ってやったら一発で行けたので備忘録として載せておく。
 INSERT INTO Round3SysC3.dbo.TSm_ReportFileSetting
 (WindowName,TemplateName,ReportName,ValidFlag,Sort,ApiUri,Remarks)
