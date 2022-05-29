@@ -27,13 +27,13 @@ using System.Data.SqlClient;
 
     try
     {
-        // 接続文字列の構築
+        // 接続文字列
         string constr = @"LocalDBを右クリックしてプロパティから接続文字列を取得して貼り付け";
         // 接続オブジェクト生成
         using SqlConnection connection = new SqlConnection(constr);
-        // サーバー接続
+        // データベース接続
         connection.Open();
-        // SQLコマンド生成
+        // クエリ生成
         StringBuilder query = new StringBuilder()
             .AppendLine("DROP TABLE IF EXISTS [Products];")
             .AppendLine("CREATE TABLE [Products] ( ")
@@ -50,6 +50,7 @@ using System.Data.SqlClient;
             .AppendLine("    (4,N'くじらキャンディー',60), ")
             .AppendLine("    (5,N'ふくろうサブレ',120); ")
             .AppendLine("SELECT * FROM [Products];");
+        // SQLコマンド生成
         using SqlCommand command = new SqlCommand(query.ToString(), connection);
         // SQL実行
         using SqlDataReader reader = command.ExecuteReader();
@@ -66,22 +67,8 @@ using System.Data.SqlClient;
 
 メモ
 
-``` sql
-CREATE TABLE [dbo].[Products] (
-   [Id]    INT        NOT NULL,
-   [name]  NCHAR (32) NULL,
-   [price] INT        NULL,
-   PRIMARY KEY CLUSTERED ([Id] ASC)
-);
-
-INSERT INTO [Products] VALUES(1,N'ペンギンクッキー',150)
-INSERT INTO [Products] VALUES(2,N'シロクマアイス',200)
-INSERT INTO [Products] VALUES(3,N'らくだケーキ',320)
-INSERT INTO [Products] VALUES(4,N'くじらキャンディー',60)
-INSERT INTO [Products] VALUES(5,N'ふくろうサブレ',120)
-
-select * from Products
-```
+SqlConnectionをUsingした場合、Disposeと同時にCloseされるのでFinallyで明示的にCloseする必要はない。  
+[SqlConnection.Close メソッド](https://docs.microsoft.com/ja-jp/dotnet/api/system.data.sqlclient.sqlconnection.close?redirectedfrom=MSDN&view=netframework-4.7.2#System_Data_SqlClient_SqlConnection_Close)  
 
 ---
 
@@ -321,4 +308,590 @@ private void Execute()
     //Data Source=(SQL Server のホスト名またはIPアドレス);Initial Catalog=(接続先データベース名);Connect Timeout=60;Persist Security Info=True;User ID=(SQL Serverに接続するユーザーID);Password=(ユーザーのパスワード)
     string constr = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\~~~~~\LocalDB\SampleDatabase.mdf;Integrated Security=True";
     SqlConnection con = new SqlConnection(constr);
+```
+
+---
+
+## 実務
+
+``` C#
+        /// <summary>
+        /// 枠No更新
+        /// </summary>
+        private void UpdateFrameNo(string frameNo1,
+            string frameNo2,
+            DateTime businessDate1,
+            DateTime businessDate2,
+            string staffCD,
+            string staffName,
+            string program,
+            string terminal)
+        {
+            DateTime now = DateTime.Now;
+            StringBuilder query = new StringBuilder()
+                .AppendLine("UPDATE [TRe_ReservationPlayer]")
+                .AppendLine("SET")
+                .AppendLine("[ReservationFrameNo] = CASE [ReservationFrameNo] WHEN @frameNo1 THEN @frameNo2")
+                .AppendLine("                                                 WHEN @frameNo2 THEN @frameNo1")
+                .AppendLine("                                                 END,")
+                .AppendLine("[BusinessDate] = CASE [ReservationFrameNo] WHEN @frameNo1 THEN @businessDate2")
+                .AppendLine("                                           WHEN @frameNo2 THEN @businessDate1")
+                .AppendLine("                                           END,")
+                .AppendLine("[UpdateDateTime] = @now,")
+                .AppendLine("[UpdateStaffCD] = @staffCD,")
+                .AppendLine("[UpdateStaffName] = @staffName,")
+                .AppendLine("[UpdateProgram] = @program,")
+                .AppendLine("[UpdateTerminal] = @terminal")
+                .AppendLine("WHERE [ReservationFrameNo] IN (@frameNo1, @frameNo2)");
+            _DapperAction.ExecuteQuery(
+                ConnectionTypes.Data,
+                query.ToString(),
+                new
+                {
+                    frameNo1,
+                    frameNo2,
+                    businessDate1,
+                    businessDate2,
+                    now,
+                    staffCD,
+                    staffName,
+                    program,
+                    terminal
+                }
+            );
+        }
+```
+
+``` C#
+using Dapper;
+using RN3.Web.Common.Data.Enum;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace RN3.Web.Common.Connection
+{
+    /// <summary>
+    /// Dapperの機能を纏めたラッパークラスです
+    /// </summary>
+    public class DapperAction
+    {
+        private ConnectionManager _ConnectionManager;
+
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        /// <param name="connectionManager"></param>
+        public DapperAction(ConnectionManager connectionManager)
+        {
+            _ConnectionManager = connectionManager;
+        }
+
+        /// <summary>
+        /// クエリからデータを一覧で取得します
+        /// </summary>
+        /// <typeparam name="T">戻り値の型</typeparam>
+        /// <param name="connectionType">コネクション区分（接続先）</param>
+        /// <param name="query">クエリ</param>
+        /// <param name="param">パラメータ</param>
+        /// <returns>取得結果のデータ一覧</returns>
+        public IEnumerable<T> GetDataListByQuery<T>(ConnectionTypes connectionType, string query, object param = null)
+        {
+            var connection = _ConnectionManager.Connect(connectionType);
+            if (connection == null)
+            {
+                // コネクションが確立できない場合はnullを返す
+                return null;
+            }
+            if (param != null)
+            {
+                return connection.Query<T>(query, param).ToList();
+            }
+            else
+            {
+                //TODO: BIツールの分析データ取得でタイムアウトとなるため、一時的に300秒に設定
+                return connection.Query<T>(query, commandTimeout: 300).ToList();
+            }
+        }
+
+        /// <summary>
+        /// クエリからデータを1件取得します
+        /// </summary>
+        /// <typeparam name="T">戻り値の型</typeparam>
+        /// <param name="connectionType">コネクション区分（接続先）</param>
+        /// <param name="query">クエリ</param>
+        /// <param name="param">パラメータ</param>
+        /// <returns>取得結果のデータ1件</returns>
+        /// <remarks>
+        /// ※取得結果の先頭を返すので「Top 1」をクエリに含めるようにして下さい。
+        /// </remarks>
+        public T GetFirstDataByQuery<T>(ConnectionTypes connectionType, string query, object param = null)
+        {
+            var connection = _ConnectionManager.Connect(connectionType);
+            if (connection == null)
+            {
+                // コネクションが確立できない場合は規定値を返す
+                return default;
+            }
+            if (param != null)
+            {
+                return connection.QueryFirstOrDefault<T>(query, param);
+            }
+            else
+            {
+                return connection.QueryFirstOrDefault<T>(query);
+            }
+        }
+
+        /// <summary>
+        /// クエリを実行します
+        /// </summary>
+        /// <param name="connectionType">コネクション区分（接続先）</param>
+        /// <param name="query">クエリ</param>
+        /// <param name="param">パラメータ</param>
+        public void ExecuteQuery(ConnectionTypes connectionType, string query, object param = null)
+        {
+            var connection = _ConnectionManager.Connect(connectionType);
+            if (connection == null)
+            {
+                // コネクションが確立できない場合は処理を中断する
+                return;
+            }
+            if (param != null)
+            {
+                connection.Execute(query, param);
+            }
+            else
+            {
+                connection.Execute(query);
+            }
+        }
+    }
+}
+```
+
+``` C#
+using RN3.Web.Common.Data.Enum;
+using RN3.Web.Common.Store.Config;
+using System;
+using System.Collections.Generic;
+using System.Data.SqlClient;
+using System.Linq;
+
+namespace RN3.Web.Common.Connection
+{
+    /// <summary>
+    /// SqlConnectionとDapperActionを内包したクラスです
+    /// </summary>
+    /// <remarks>
+    /// インスタンスをNewするとコネクションを接続し、DisposeでコネクションのDisposeを呼び出します
+    /// DapperActionは自身のコネクションに対してDapperActionの機能を呼び出す機能を実装します
+    /// </remarks>
+    public class ConnectionManager : IDisposable
+    {
+        /// <summary>
+        /// コネクション接続イベント
+        /// </summary>
+        public event EventHandler Connecting;
+
+        /// <summary>
+        /// 共有コネクションディクショナリ
+        /// </summary>
+        /// <remarks>
+        /// 接続先ごとに保持しているため同じ接続先でコネクションを分けることはできません。
+        /// </remarks>
+        private IDictionary<ConnectionTypes, SqlConnection> _SharedConnectionDictionary;
+
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        public ConnectionManager()
+        {
+            // トランザクションスコープ外の共有コネクションを接続します。
+            _SharedConnectionDictionary = new Dictionary<ConnectionTypes, SqlConnection>();
+
+            var dataConnection = new SqlConnection(Configurations.ConnectionContainer.DataConnection.ConnectionString);
+            dataConnection.Open();
+            _SharedConnectionDictionary.Add(
+                ConnectionTypes.DataWithOutTransactionScope,
+                dataConnection);
+
+            var systemConnection = new SqlConnection(Configurations.ConnectionContainer.SystemConnection.ConnectionString);
+            systemConnection.Open();
+            _SharedConnectionDictionary.Add(
+                ConnectionTypes.SystemWithOutTransactionScope,
+                systemConnection);
+        }
+
+        /// <summary>
+        /// リソースを解放します
+        /// </summary>
+        /// <remarks>
+        /// コネクションのリソースを解放するために実装
+        /// </remarks>
+        public void Dispose()
+        {
+            foreach (var pair in _SharedConnectionDictionary)
+            {
+                pair.Value.Dispose();
+            }
+            _SharedConnectionDictionary = null;
+        }
+
+        /// <summary>
+        /// 指定した接続先に対するコネクションがないのなら接続を確立し
+        /// コネクションインスタンスをディクショナリに保持します
+        /// </summary>
+        /// <param name="connectionType">コネクション区分（接続先）</param>
+        /// <returns>指定した接続先のコネクション</returns>
+        public SqlConnection Connect(ConnectionTypes connectionType)
+        {
+            if (_SharedConnectionDictionary == null)
+            {
+                _SharedConnectionDictionary = new Dictionary<ConnectionTypes, SqlConnection>();
+            }
+            var connnectionContainer = _SharedConnectionDictionary.FirstOrDefault(f => f.Key == connectionType);
+            if (!connnectionContainer.Equals(default(KeyValuePair<ConnectionTypes, SqlConnection>)))
+            {
+                // すでに接続が確立しているのなら処理をしない
+                return connnectionContainer.Value;
+            }
+
+            SqlConnection connection = null;
+            // コネクション区分から接続先DBへのコネクションを作成
+            switch (connectionType)
+            {
+                case ConnectionTypes.Data:
+                    connection = new SqlConnection(Configurations.ConnectionContainer.DataConnection.ConnectionString);
+                    break;
+                case ConnectionTypes.System:
+                    connection = new SqlConnection(Configurations.ConnectionContainer.SystemConnection.ConnectionString);
+                    break;
+                default:
+                    break;
+            }
+            if (connection != null)
+            {
+                // コネクション接続
+                RaiseConnecting();
+                connection.Open();
+                _SharedConnectionDictionary.Add(connectionType, connection);
+                return connection;
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// コネクション接続イベントを発火します
+        /// </summary>
+        private void RaiseConnecting()
+        {
+            Connecting?.Invoke(this, new EventArgs());
+        }
+
+        /// <summary>
+        /// 保持しているコネクションを破棄します
+        /// </summary>
+        public void DisConnect()
+        {
+            if (_SharedConnectionDictionary == null)
+            {
+                return;
+            }
+            foreach (var connnectionContainer in _SharedConnectionDictionary)
+            {
+                if (connnectionContainer.Key == ConnectionTypes.Data
+                    || connnectionContainer.Key == ConnectionTypes.System)
+                {
+                    connnectionContainer.Value.Dispose();
+                }
+            }
+            if (_SharedConnectionDictionary.ContainsKey(ConnectionTypes.Data))
+            {
+                _SharedConnectionDictionary.Remove(ConnectionTypes.Data);
+            }
+            if (_SharedConnectionDictionary.ContainsKey(ConnectionTypes.System))
+            {
+                _SharedConnectionDictionary.Remove(ConnectionTypes.System);
+            }
+        }
+    }
+}
+```
+
+``` C#
+            // 予約枠とプレーヤーの更新
+            _TransactionScopeManager.OnScope(() =>
+            {
+                foreach (var frame in targetFrameList)
+                {
+                    // 枠の確定フラグを上げる
+                    frame.ConfirmFlag = true;
+                    _TRe_ReservationFrameModel.Save(frame, staffCD, staffName, program, terminal);
+
+                    // プレーヤーを自動キャンセルする
+                    foreach (var item in playerList.Where(w => w.ReservationFrameNo == frame.ReservationFrameNo).ToList())
+                    {
+                        item.ReservationCancelFlag = true;
+                        item.ReservationCancelDate = DateTime.Now;
+                        _TRe_ReservationPlayerModel.Save(item, staffCD, staffName, program, terminal);
+                    }
+                }
+            });
+```
+
+``` C#
+using System;
+using System.Transactions;
+
+namespace RN3.Web.Common.Connection
+{
+    /// <summary>
+    /// TransactionScopeを管理するクラスです
+    /// </summary>
+    public class TransactionScopeManager
+    {
+        private ConnectionManager _ConnectionManager;
+
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        /// <param name="connectionManager"></param>
+        public TransactionScopeManager(ConnectionManager connectionManager)
+        {
+            _ConnectionManager = connectionManager;
+        }
+
+        /// <summary>
+        /// TransactionScope範囲にてActionを実行します
+        /// Actionを実行後にはConnectionManagerをDisposeし
+        /// TransactionをCompleteします
+        /// </summary>
+        /// <param name="action"></param>
+        public void OnScope(Action action)
+        {
+            _ConnectionManager.DisConnect();
+            TransactionScope scope1 = null;
+            TransactionScope scope2 = null;
+            var count = 1;
+
+            try
+            {
+                _ConnectionManager.Connecting += handler;
+                action();
+                if (scope2 != null)
+                {
+                    scope2.Complete();
+                }
+                if (scope1 != null)
+                {
+                    scope1.Complete();
+                }
+            }
+            finally
+            {
+                _ConnectionManager.Connecting -= handler;
+                if (scope2 != null)
+                {
+                    scope2.Dispose();
+                }
+                if (scope1 != null)
+                {
+                    scope1.Dispose();
+                }
+            }
+
+            void handler(object sender, EventArgs e)
+            {
+                if (count == 1)
+                {
+                    scope1 = new TransactionScope(
+                        TransactionScopeOption.RequiresNew,
+                        new TransactionOptions()
+                        {
+                            IsolationLevel = IsolationLevel.ReadCommitted,
+                            Timeout = TimeSpan.FromMinutes(10)
+                        });
+                }
+                else if (count == 2)
+                {
+                    scope2 = new TransactionScope(
+                        TransactionScopeOption.RequiresNew,
+                        new TransactionOptions()
+                        {
+                            IsolationLevel = IsolationLevel.ReadCommitted,
+                            Timeout = TimeSpan.FromMinutes(10)
+                        });
+                }
+                count++;
+            };
+        }
+    }
+}
+```
+
+``` C#
+namespace RN3.Web.Common.Data.Setting
+{
+    /// <summary>
+    /// DB接続情報
+    /// </summary>
+    public class ConnectionInfo
+    {
+        /// <summary>
+        /// 接続先サーバ名
+        /// </summary>
+        public string ServerName { get; set; }
+        /// <summary>
+        /// DBインスタンス名
+        /// </summary>
+        public string DataBaseName { get; set; }
+        /// <summary>
+        /// ログインユーザID
+        /// </summary>
+        public string UserId { get; set; }
+        /// <summary>
+        /// ログインパスワード
+        /// </summary>
+        public string Password { get; set; }
+        /// <summary>
+        /// 接続情報文字列
+        /// </summary>
+        public string ConnectionString
+        {
+            //TODO: BIツールの分析データ取得でタイムアウトとなるため、一時的に無限に設定
+            get
+            {
+                return @"Data Source=" + this.ServerName
+                    + ";Initial Catalog=" + this.DataBaseName
+                    + ";User Id=" + this.UserId
+                    + ";Password=" + this.Password + ";Connection Timeout=0;";
+            }
+        }
+    }
+}
+```
+
+``` C#
+namespace RN3.Web.Common.Data.Setting
+{
+    /// <summary>
+    /// DB接続情報コンテナ
+    /// </summary>
+    public class ConnectionInfoContainer
+    {
+        /// <summary>
+        /// システムDB接続情報
+        /// </summary>
+        public ConnectionInfo SystemConnection { get; set; }
+        /// <summary>
+        /// データDB接続情報
+        /// </summary>
+        public ConnectionInfo DataConnection { get; set; }
+    }
+}
+```
+
+``` C#
+using RN3.Web.Common.Data.Setting;
+
+namespace RN3.Web.Common.Store.Config
+{
+    /// <summary>
+    /// アプリケーション設定
+    /// </summary>
+    public static class Configurations
+    {
+        /// <summary>
+        /// DB接続情報コンテナ
+        /// </summary>
+        public static ConnectionInfoContainer ConnectionContainer { get; set; }
+        /// <summary>
+        /// 認証設定
+        /// </summary>
+        public static AuthSetting AuthSetting { get; set; }
+        /// <summary>
+        /// 印刷設定
+        /// </summary>
+        public static PrintSetting PrintSetting { get; set; }
+        /// <summary>
+        /// ログ保存設定
+        /// </summary>
+        public static Logging Logging { get; set; }
+    }
+}
+```
+
+``` C# : Startup.cs
+        /// <summary>
+        /// サービスコンテナにサービスを登録します。
+        /// </summary>
+        /// <param name="services">サービスコンテナ</param>
+        /// <remarks>
+        /// アプリケーションのサービスを構成する Configure メソッドの前にホストによって呼び出されます。
+        /// </remarks>
+        public void ConfigureServices(IServiceCollection services)
+        {
+            // ControllerアセンブリをMVCサービスに登録
+            this.SetApplicationPart(ref services);
+            // DIコンテナにサービスを登録
+            this.RegistService(ref services);
+
+            etc...
+        }
+
+        /// <summary>
+        /// サービスコンテナにDIするサービスを登録
+        /// </summary>
+        /// <param name="services">サービスコンテナ</param>
+        private void RegistService(ref IServiceCollection services)
+        {
+            // DB接続の管理などのサービスは接続ごとに保持するAddScopedを使う
+            // モデルは要求ごとに作成されるAddTransientを使います
+            services
+                .AddScoped<ConnectionManager>()
+                .AddScoped<DapperAction>()
+                .AddScoped<TransactionScopeManager>()
+                .AddScoped(etc...);
+        }
+```
+
+``` VB
+    ''' <summary>
+    ''' TddPaymentStatementHistoryに対して保存を実行する処理
+    ''' </summary>
+    ''' <param name="SlipNuber"></param>
+    ''' <param name="EffectiveDate"></param>
+    ''' <param name="BillPrice"></param>
+    Public Sub SavePaymentStatementHistory(ByVal SlipNuber As String,
+                                           ByVal EffectiveDate As DateTime?,
+                                           ByVal BillPrice As String)
+        'データ生成
+        Dim obj As New PaymentStatementHistoryClass
+        With obj
+            .SlipNumber = SlipNuber
+            .EffectiveDate = CDate(EffectiveDate)
+            .BillPrice = BillPrice
+        End With
+
+        'SqlConnectionをUsingした場合、Disposeと同時にCloseされるのでFinallyで明示的にCloseする必要はない。
+        'https://docs.microsoft.com/ja-jp/dotnet/api/system.data.sqlclient.sqlconnection.close?redirectedfrom=MSDN&view=netframework-4.7.2#System_Data_SqlClient_SqlConnection_Close
+        Using con As New SqlConnection(New DataAccess(DataAccess.AppConectMode.DATA).CreConectStr)
+            con.Open()
+
+            'トランザクション
+            Using tr As SqlTransaction = con.BeginTransaction
+                Try
+                    Using cls As New PaymentStatementHistoryClass
+                        cls.Insert(obj, tr)
+                    End Using
+
+                    'コミット
+                    tr.Commit()
+                Catch ex As Exception
+                    tr.Rollback()
+                    Throw New Exception("保存処理に失敗しました。" & vbCrLf & ex.Message, ex)
+                End Try
+            End Using
+        End Using
+    End Sub
 ```
