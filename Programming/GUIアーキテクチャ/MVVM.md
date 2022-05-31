@@ -1,90 +1,9 @@
-
-# GUIアーキテクチャまとめ
-
-[最近のアプリ界隈での「設計」の違和感](https://quesera2.hatenablog.jp/entry/2018/06/14/022504)  
-[Webアプリケーション開発者から見た、MVCとMVP、そしてMVVMの違い](https://qiita.com/shinkuFencer/items/f2651073fb71416b6cd7)  
-
-## MVC(Model View Controler)
-
-MVCとは、設計手法の一つ。  
-実装を、Model-View-Controllerの三つの領域に分けて行う。  
-この設計を用いることで、画面変更が容易になったりする。  
-
-[やはりお前らのmvcは間違っている](https://www.slideshare.net/MugeSo/mvc-14469802)  
-[PHPerのMVCの一体どこが間違っていたのか](https://mugeso.hatenadiary.org/entry/20121224/1356345261)  
-[MVCとは？ MVVMとは？ 特徴やメリットはなにか](https://demi-urge.com/mvc-mvvm-features/)  
-[MVC、本当にわかってますか？](https://qiita.com/tshinsay/items/5b1724baf32b8b5113c2)  
-
-### 使用目的
-
-ビジネスロジックを、画面表示から独立させるために用いる。  
-→画面変更の影響を、ビジネスロジックが受けないようにするため。  
-
-### 前提条件
-
-画面表示は頻繁に変更されるが、ビジネスロジックはあまり変更されない。  
-したがって、画面変更によって、ビジネスロジックを変更しないですむようにしたい。  
-
-### MVCの責務
-
-#### Model
-
-Viewから独立した処理を担う。
-
-#### View
-
-UI、データの表示、装飾、などを担う。
-例１、データ入力で、数値入力させるか、セレクトボックスで選ばせるか。
-例２、同じデータでも、数値表示するか、グラフ表示するか。
-など、どのように人に見せるかを担う。
-
-#### Controller
-
-ViewとModelをつなぐ役割。
-
-### 依存関係
-
-#### Model
-
-独立
-
-#### View
-
-Modelに依存
-
-#### Controller
-
-ViewとModelに依存
-
-### MVCを利用するメリット・デメリット
-
-メリット
-Viewを変更しやすい
-
-デメリット
-MVCの構造は冗長。コード量が増え、構造が複雑化する。
-
-### なぜMVCは廃れたのか
-
-[mvcモデルがもう古いという理由を教えてください。](http://w3q.jp/t/9347)  
-
-Smalltalkから生まれたのだからそりゃ  
-80年代の概念だしな。業界からみたらだいぶ古いほうだね。  
-
-アプリケーションの肥大化に対応しづらい。  
-web系のアプリケーション開発の規模が一昔前より増大しているから。  
-Controlerが肥大化しやすい。
-
-ModelとControlerの境界が曖昧なので練度の低い人間がMVCを採用するとスパゲッティになりやすい。
-Modelに業務ロジックを記述すべきなのに、ルーティングや制御係のControllerに業務ロジックを記載し、Controllerを太らせてしまうことを言います。
-
----
-
-## MVVM(Model View ViewModel)
+# MVVM(Model View ViewModel)
 
 [世界で一番短いサンプルで覚えるMVVM入門](https://resanaplaza.com/%E4%B8%96%E7%95%8C%E3%81%A7%E4%B8%80%E7%95%AA%E7%9F%AD%E3%81%84%E3%82%B5%E3%83%B3%E3%83%97%E3%83%AB%E3%81%A7%E8%A6%9A%E3%81%88%E3%82%8Bmvvm%E5%85%A5%E9%96%80/)  
 [[C#/WPF/MVVM]今さらMVVMについて調べた](https://qiita.com/mitsu_at3/items/49d21ba5fb38f15ea922)  
 [WPF4.5入門 その60「データバインディングを前提としたプログラミングモデル」](https://blog.okazuki.jp/entry/2014/12/23/180413)  
+[プログラミングな日々](https://days-of-programming.blogspot.com/2017/11/mvvm.html)  
 
 - Model／View／ViewModelの3つの責務にGUIアプリケーションを分割するデザインパターン、またはプログラム構造  
 - 画面と処理を分離する作り方  
@@ -99,7 +18,9 @@ MVVMパターンは、View（XAML + コードビハインド）とViewModelと�
 処理とUIを切り離すのが目的。
 WindownFormはコードビハインドにビジネスロジックもコントロールのイベントも全部載せていたので、UI制御とビジネスロジックが1つのコードの中に含まれてしまっていた。  
 
-### 目的
+---
+
+## 目的
 
 - デザイナーとプログラマーの分担開発  
 → 生産性の向上  
@@ -224,16 +145,3 @@ View と ViewModel
 相互依存になりますね。
 
 相互に依存しても最初のうちは問題になりません。しかし、後から手を入れる際の労力が半端なく大きいものになる可能性があります。
-
----
-
-## Flux
-
-Reactが採用しているモデル。  
-
-Viewからデータへ向かう向きがFluxパターンは単方向、MVVMパターンは双方向という特徴があります。  
-MVVMパターンはViewからデータを扱うModelへどういう形で変更が加えられるか、予測しづらいです。  
-一方Fluxパターンはデータバインドではなく必ずActionを呼んでから変更するため、データ変更を全て把握できます。  
-MVVMパターンはFluxパターンと比較して、大規模なSPAには向いていないと言えます。  
-
-[Fluxとはなんなのか](https://qiita.com/knhr__/items/5fec7571dab80e2dcd92)  

@@ -5,6 +5,36 @@
 
 ---
 
+## pushまでの一連のコマンド
+
+``` bash
+git add -A
+git commit -a -m "コメント"
+git push
+```
+
+…or create a new repository on the command line
+
+``` bash
+echo "# SignalRSample" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git branch -M main
+git remote add origin https://github.com/rendya2501/SignalRSample.git
+git push -u origin main
+```
+
+…or push an existing repository from the command line
+
+``` bash
+git remote add origin https://github.com/rendya2501/SignalRSample.git
+git branch -M main
+git push -u origin main
+```
+
+---
+
 ## Notepad++からGitBashを起動する方法
 
 1.gitを開いたときデフォルトの作業ディレクトリを開くようにする  
@@ -133,13 +163,6 @@ pullではなくcloneなら普通にありました。
 
 ---
 
-## Git で特定のコミットからブランチを切りたい（作成したい）
-
-[Git で特定のコミットからブランチを切りたい（作成したい）](https://qiita.com/wnoguchi/items/dabe6e05388faf75f00c)  
-
-
----
-
 ## ローカルのブランチ名を変更する方法
 
 [gitのローカルのブランチ名を変更したい](https://qiita.com/suin/items/96c110b218d919168d64)  
@@ -150,6 +173,8 @@ pullではなくcloneなら普通にありました。
 >今開いているブランチをリネームする場合は、単純に新しいブランチ名を指定するだけです。  
 >
 >`git branch -m <新しいブランチ名>`  
+
+VisualStudioでの作業なら右下のブランチ一覧からブランチを右クリックで、名前を変更する項目があるので、それだけでいける。  
 
 ---
 
@@ -164,7 +189,7 @@ pullではなくcloneなら普通にありました。
 
 ``` txt : フォルダ構成
 src
-├─assets
+├─assets ← このディレクトリの中身を対象とさせない
 ├─components
 ├─constants
 ├─router
@@ -177,9 +202,10 @@ src
 └─views
 ```
 
+### 特定のディレクトリを無視する場合は先頭と末尾に/を付ける
+
 ``` txt : gitignore
-.DS_Store
-*/assets
+/assets/
 ```
 
 ---
@@ -291,68 +317,46 @@ git fetch,git mergeを実行したらいけたので備忘録として残して�
 
 [【解決方法(画像付き)】急に。git pushしたら「Please make sure you have the correct access rights and the repository exists.」](https://kenjimorita.jp/please-make-sure-you-have-the-correct-access-rights-and-the-repository-exists/)  
 
+[【Git】ローカルからリモートリポジトリに push できない問題を解決するまでの記録！](https://oki2a24.com/2016/01/28/resolve-error-to-push-from-local-to-remote-in-git/)  
+いつぞやこれが発生してこのページ見なかったっけか。  
+
 ---
 
 ## VisualStudioでの対処色々
 
-後でちゃんとまとめる。  
+[元に戻す]は指定したコミットを打ち消すコミットを作る処理。  
+[リセット]は指定したコミットより上をなかったことにする処理。  
 
-右クリック、リセット、変更を削除(--hard)に該当するコマンドは`git reset --hard`の模様。  
+[リセット_変更を保持(--mixed)]はそこまでに変更したコードを保持するので、reset後、変更履歴が表示される。  
+[リセット_変更を削除(--hard)]はそこまでに変更したコードも削除するので、reset後、変更履歴に何も表示されない。  
 
-git reset --hard HEAD  
-編集・ステージングいずれの変更内容を取り消し、最後にコミットした状態に戻す  
+[変更を削除(--mixed)]に該当するコマンドは`git reset --mixed`  
+[変更を削除(--hard)]に該当するコマンドは`git reset --hard`  
 
---hardはヘッドの位置をずらすという認識っぽい。
+間違えたところを右クリックして[リセット]は意味ない。罠。  
+[リセット]は右クリックしたところまで戻す処理なので、間違えたところではなく、間違えたところより下のコミットを右クリックして[リセット]すべし。  
 
-大き目の別のブランチをマージした場合、直近のコミットを取り消すのではなく、その根本から取り消す必要がある模様。  
-これが分からなくて、明らかに整合性が取れていない状態でしか戻せないのに納得が行かなくて午前をつぶしてしまった。
+gitは別のブランチをマージした場合、そのブランチでやったコミットが全て履歴に表示される。  
+大き目の修正を行った別のブランチをマージした場合、直近のコミットを取り消すのではなく、その根本から取り消したほうがよい。  
+元に戻す場合、大量のコミットに対して1つ1つしてしないといけないし、打消しコミットの競合の可能性も出てしまう。  
+日付とコメントを見て、どこがマージ前だったのかを確認して、そこまでresetすべし。  
 
-基本的に、ある特定のコミットだけを取り消すことはできないらしい。
-と、思ったが調べればごまんとでてくるぞ。
-
-
-revert は指定したコミットを打ち消す。
-
-reset はHEADを移動させる。
-
-
-resetはノードのnextを書き換える感じかな。
-revertは履歴は残るので、指定したコミットはそのままでそれを打ち消すコミットを作るだけ。
-
-VSから右クリックの時とgit bashを使った時で動作が違う？
-なんか明らかに履歴が一致しなかった。
-というか、VSからgit bashを起動させることはできないのだろうか。
-
-
-revertは個別に巻き戻し可能。
-履歴に残る。
-ただし、場合によっては巻き戻しの時に競合が発生する可能性あり。
-小規模な対応にはいいかも。
-別のブランチをごっそり差し戻す場合は、量が多すぎて巻き戻すときの競合リスクや大量の履歴が発生してしまうのでお勧めしない。
-
-resetは個別の巻き戻しは不可能。
-ヘッドを移動させる処理に近いので、上から何番目までヘッドを戻すという形になるので、個別は無理。
-履歴に残らない。
-小規模でも大規模でも行ける。
-ただ、ヘッドを戻すので、他人がそのブランチを開いた時に未プッシュがある状態となって、何も知らずにプッシュされると整合性が取れなくなる必要があるので、コミュニケーションが必要。
-
-revertにコミットIDを指定した場合、そのコミットに対する巻き戻しだけを行う。
-resetにコミットIDを指定した場合、それより前のコミット全てなかったことにする。
-
+VSから右クリックの時とgit bashを使った時で動作が違う？  
+なんか明らかに履歴が一致しなかった。  
+そうしないと明らかに整合性が取れていない状態でしか戻せない状態になってしまう。  
 
 git 特定のコミット 取り消し  
 <https://rurukblog.com/post/git-merge-delete/>  
-git 別のブランチ reset
-https://nanayaku.com/git-delete-reset/
-git revert
+git 別のブランチ reset  
+<https://nanayaku.com/git-delete-reset/>  
 
-https://qiita.com/rch1223/items/9377446c3d010d91399b
-https://qiita.com/aki4000/items/bec93ba631a83b687fb4
-https://naomi-homma.hatenablog.com/entry/2020/08/11/170039
-https://qiita.com/shuntaro_tamura/items/06281261d893acf049ed
-https://blog.shibayu36.org/entry/20100517/1274099459
-https://qiita.com/MitsukiYamauchi/items/8229cd55d4cf58b0db89
-https://qiita.com/S42100254h/items/db435c98c2fc9d4a68c2
+<https://qiita.com/rch1223/items/9377446c3d010d91399b>  
+<https://qiita.com/aki4000/items/bec93ba631a83b687fb4>  
+<https://naomi-homma.hatenablog.com/entry/2020/08/11/170039>  
+<https://qiita.com/shuntaro_tamura/items/06281261d893acf049ed>  
+<https://blog.shibayu36.org/entry/20100517/1274099459>  
+<https://qiita.com/MitsukiYamauchi/items/8229cd55d4cf58b0db89>  
+<https://qiita.com/S42100254h/items/db435c98c2fc9d4a68c2>  
 
 ---
 
@@ -372,12 +376,19 @@ https://qiita.com/S42100254h/items/db435c98c2fc9d4a68c2
 
 ---
 
-## 現在のブランチ以外から新しいブランチを作成する方法
+## 特定のブランチから新しいブランチを作成する方法
 
+大き目の修正をやっているときに、Releaseのバックアップブランチを作ってプッシュだけしたい、でもブランチは変えたくない。  
+そういう時の何か、いい方法がないか探したが、VisualStudioでの作業なら[ブランチの管理]から、分岐させたいコミットを右クリックして[新しいブランチ]を選べば実現できた。  
+この方法ならブランチが勝手に切り替わることもなかった。  
+
+コマンドでやる場合、checkoutコマンドでしか無理な模様。  
+それによってブランチが自動的に切り替わるのかはやっていないので不明。  
+
+[Git で特定のコミットからブランチを切りたい（作成したい）](https://qiita.com/wnoguchi/items/dabe6e05388faf75f00c)  
+[【Git】git checkout -b [ローカルブランチ名] origin/[リモートブランチ名]：リモートブランチをローカルに持ってきてチェックアウト](https://qiita.com/megu_ma/items/26799c89f593a2414333)  
 [developブランチ以外のブランチから切ってpushするまで](https://zenn.dev/suzuki_yu/articles/a1b8a13bea39c2)  
-
-大き目の修正をやっているときに、ブランチを切り替えずに新しいブランチを作成する方法。  
-バックアップブランチを作成しないといけない時とか  
+git 特定のブランチからブランチ  
 
 ---
 
@@ -408,8 +419,7 @@ Subversion（SVN）のようなシステムではリポジトリはリモート�
 [ローカルリポジトリとリモートリポジトリについて〜SourceTreeでGitを使う](https://itstudio.co/2016/07/22/6014/)  
 
 ファイルやディレクトリの履歴を管理する場所のこと。  
-
-リポジトリ : 貯蔵庫  
+※リポジトリ : 貯蔵庫  
 
 ### リモートリポジトリ
 
@@ -427,7 +437,7 @@ Subversion（SVN）のようなシステムではリポジトリはリモート�
 リモートリポジトリのアクセス先に対してGitがデフォルトでつける名前です。  
 リモートリポジトリのアクセス先（例. <https://github.com/donchan922/rails-board.git>）がoriginという名前で設定されていることがわかります。  
 
-→
+→  
 つまり、長ったらしいURLに対するデフォルトのエイリアスがoriginという名のリモート名ということ。  
 
 [master以外のブランチにgit pullしたい](https://teratail.com/questions/325508)  

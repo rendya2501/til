@@ -65,11 +65,6 @@ using System.Data.SqlClient;
     }
 ```
 
-メモ
-
-SqlConnectionをUsingした場合、Disposeと同時にCloseされるのでFinallyで明示的にCloseする必要はない。  
-[SqlConnection.Close メソッド](https://docs.microsoft.com/ja-jp/dotnet/api/system.data.sqlclient.sqlconnection.close?redirectedfrom=MSDN&view=netframework-4.7.2#System_Data_SqlClient_SqlConnection_Close)  
-
 ---
 
 ## 微妙に嵌った事

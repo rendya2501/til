@@ -13,6 +13,7 @@ add      :: ファイルをインデックスに追加する(コミットの対�
 rm       :: ファイルをインデックスから削除する
 mv       :: ファイルやディレクトリの名前を変更する
 reset    :: ファイルをインデックスから削除し、特定のコミットの状態まで戻す
+revert   :: 取り消したいコミットを打ち消すようなコミットを新しく作成する
 status   :: ワークツリーにあるファイルの状態を表示する
 show     :: ファイルの内容やコミットの差分などを表示する
 diff     :: コミット同士やコミットと作業ツリーの内容を比較する
@@ -25,36 +26,6 @@ checkout :: 作業ツリーを異なるブランチに切り替える
 merge    :: 他のブランチやコミットの内容を現在のブランチに取り込む
 rebase   :: コミットを再適用する(ブランチの分岐点を変更したり、コミットの順番を入れ替えたりできる)
 config   :: 現在の設定を取得、変更する
-```
-
----
-
-## pushまでの一連のコマンド
-
-``` bash
-git add -A
-git commit -a -m "コメント"
-git push
-```
-
-…or create a new repository on the command line
-
-``` bash
-echo "# SignalRSample" >> README.md
-git init
-git add README.md
-git commit -m "first commit"
-git branch -M main
-git remote add origin https://github.com/rendya2501/SignalRSample.git
-git push -u origin main
-```
-
-…or push an existing repository from the command line
-
-``` bash
-git remote add origin https://github.com/rendya2501/SignalRSample.git
-git branch -M main
-git push -u origin main
 ```
 
 ---
@@ -247,3 +218,44 @@ git merge マージ元ブランチ名
 
 指定したリモートリポジトリの詳しい情報を表示する  
 `git remote show 名前`
+
+---
+
+## git revert
+
+[【gitコマンド】いまさらのrevert](https://qiita.com/chihiro/items/2fa827d0eac98109e7ee)  
+
+取り消したいコミットを打ち消すようなコミットを新しく作成するコマンド  
+
+指定したコミットを打ち消すコミットを作る。  
+個別に巻き戻し可能。  
+履歴に残る。
+場合によっては巻き戻しの時に競合が発生する可能性あり。  
+小規模な対応にはいいかも。  
+大規模な差し戻し(別のブランチとのマージをなかったことにする場合など)は、量が多すぎて巻き戻すときの競合リスクや大量の履歴が発生してしまうのでお勧めしない。  
+
+revertにコミットIDを指定した場合、そのコミットに対する巻き戻しだけを行う。
+
+---
+
+## git reset
+
+[[git reset (--hard/--soft)]ワーキングツリー、インデックス、HEADを使いこなす方法](https://qiita.com/shuntaro_tamura/items/db1aef9cf9d78db50ffe)  
+
+reset はHEADを移動させる。  
+
+個別の巻き戻しは不可能。  
+ヘッドを移動させる処理なので、上から何番目までヘッドを戻すという指定しかできない。  
+なので、このコミットだけなかったことにしたいってのは無理。  
+履歴に残らない。  
+小規模でも大規模でも行ける。  
+ただ、ヘッドを戻すので、他人がそのブランチを開いた時に未プッシュがある状態となって、何も知らずにプッシュされると整合性が取れなくなる必要があるので、注意が必要。  
+連絡するとかコミュニケーションは必須。  
+
+resetにコミットIDを指定した場合、それより前のコミット全てなかったことにする。
+
+基本的に、ある特定のコミットだけを取り消すことはできないらしい。
+と、思ったが調べればごまんとでてくるぞ。
+
+git reset --hard HEAD  
+編集・ステージングいずれの変更内容を取り消し、最後にコミットした状態に戻す  

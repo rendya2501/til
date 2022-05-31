@@ -145,6 +145,13 @@ ROWLOCK、PAGLOCK、または TABLOCK と組み合わせて指定すると、排
 
 ---
 
+## SQL Server のGOコマンド
+
+[SQL ServerのGOコマンドとは？](https://sql-oracle.com/sqlserver/?p=708)  
+[SQL Server のユーティリティのステートメント - GO](https://docs.microsoft.com/ja-jp/sql/t-sql/language-elements/sql-server-utilities-statements-go?view=sql-server-ver16)  
+
+---
+
 ## null許可のフィールドを追加→変更の保存が許可されていません
 
 [変更の保存は、エラー メッセージで許可SSMS](https://docs.microsoft.com/ja-jp/troubleshoot/sql/ssms/error-when-you-save-table)  

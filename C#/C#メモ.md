@@ -222,28 +222,6 @@ Box化解除(Unboxing)はポインタの参照先から値を取り出してス�
 
 ---
 
-## セマフォ
-
-<https://e-words.jp/w/%E3%82%BB%E3%83%9E%E3%83%95%E3%82%A9.html#:~:text=%E3%82%BB%E3%83%9E%E3%83%95%E3%82%A9%E3%81%A8%E3%81%AF%E3%80%81%E3%82%B3%E3%83%B3%E3%83%94%E3%83%A5%E3%83%BC%E3%82%BF%E3%81%A7,%E3%82%92%E8%A1%A8%E3%81%99%E5%80%A4%E3%81%AE%E3%81%93%E3%81%A8%E3%80%82>
-
-``` txt
-セマフォとは、コンピュータで並列処理を行う際、同時に実行されているプログラム間で資源（リソース）の排他制御や同期を行う仕組みの一つ。
-当該資源のうち現在利用可能な数を表す値のこと。
-```
-
-セマフォを資源を使っているかどうか、その状態を表す信号機のようなものだと認識していたが、  
-本来は並列処理がメインの概念みたいだ。  
-
-萬君からセマフォって何？って聞かれたのと、「セマフォがタイムアウトしました。」ってエラーを見せられたので、調べてみた次第です。  
-ドンピシャな回答があったので乗せておく。  
-「tcp プロバイダー セマフォがタイムアウトしました。」  
-<https://detail.chiebukuro.yahoo.co.jp/qa/question_detail/q14134357014>  
-
-要約すると、A、B、Cってプロセスが並行してて、  
-ある資源が全然解放されないって時にセマフォがタイムアウトエラーを発生させるってことらしい。  
-
----
-
 ## 親クラスの全プロパティの値を子クラスにコピーする方法
 
 <https://qiita.com/microwavePC/items/54f0082f3d76922a6259>  
@@ -1255,4 +1233,91 @@ usingの省略範囲はforeachやwhileのように直前の1つだけじゃな�
     using SqlDataReader sdr = com.ExecuteReader();
     while (sdr.Read())
         _TextBox1.Text += $"{sdr["name"].ToString():s}:{(int)sdr["price"]:d} {Environment.NewLine}";
+```
+
+---
+
+## 相対パスの指定の仕方
+
+---
+
+## 匿名関数の即時実行
+
+[C#でJavascriptみたいな即時関数を実行する](https://yuzutan-hnk.hatenablog.com/entry/2017/01/15/022643)  
+
+VB.Netの時、usingした結果だけを受け取りたい場合によく利用したが、C#になってからあまり使っていなかった。  
+でもって、すぐにやり方がわからなかったのでまとめ。  
+
+``` C#
+int x = new Func<int>(() => 1)();
+
+new Action(() => 処理)();
+```
+
+``` C#
+    try
+    {
+        // デシリアライズしたデータを入れる、入れ物です
+        Account account = null;
+        // jsonファイルを読み込みます
+        using (StreamReader file = File.OpenText(@"C:\test.json"))
+        {
+           account = (Account)new JsonSerializer().Deserialize(file, typeof(Account));
+        }
+        // 略
+    }
+```
+
+``` C#
+    try
+    {
+        var account = new Func<Account>(() =>
+        {
+            using StreamReader file = File.OpenText(@"C:\test.json");
+            return (Account)new JsonSerializer().Deserialize(file, typeof(Account));
+        })();
+
+        Func<Account?> account = () =>
+        {
+            using StreamReader file = File.OpenText(@"C:\test.json");
+            return (Account)new JsonSerializer().Deserialize(file, typeof(Account));
+        };
+        _ = account();
+    }
+```
+
+タプルでの受け取りは無理だった。
+エラーにはならなかったが、全部初期値が入って使い物にならなかった。
+匿名型はそもそも型だけを定義するってのが無理なので選択肢に上がらない。  
+これは地味に知らなかったので、別でまとめる。
+
+<https://twitter.com/neuecc/status/1430737738593017859>
+このツイートで匿名関数の即時実行は無理って言ってるけど、できたんだよな。
+![aa](https://pbs.twimg.com/media/E9sAV0jVoAEHVUs?format=png&name=360x360)  
+
+``` C#
+Public class Foo
+{
+    public int X { get; set; }
+    public int Y { get; set; }
+
+    public Foo(int x , int y)
+    {
+        // 即時実行無理なので、ローカル関数で定義して、直後に実行。
+        async void Init(){
+            await Task.Delay(1000);
+            X = x;
+        }
+        Init();
+
+        // Actionをnewすれば即時実行できるよ。
+        new Action(async () =>
+        {
+            await Task.Delay(1000);
+            X = x;
+        })();
+
+        Y = y;
+    }
+}
 ```
