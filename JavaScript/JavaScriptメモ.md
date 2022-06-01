@@ -23,64 +23,12 @@ console.log(traffic_light.blue);
 // go
 ```
 
+---
+
 ## JSON(JavaScript Object Nation)
 
-`{}`で囲う。
-基本はキーとバリューの組み合わせ。  
-配列ならインデックスでアクセスし、オブジェクトならキーを指定してアクセスできる。
-オブジェクトの中に配列を入れることもできるし、配列の要素をオブジェクトにすることもできる。
-
-逆にわからないのは、配列の[]と内部の{}の場合だな。
-これさえわかれば、申し分ないだろう。
-
-``` json
-{
-  "key1": [],
-  "key2": []
-}
-
-{
-  "Array1" : [
-    {"obj1" : 1},
-    {"obj2" : 2}
-  ]
-}
-
-{
-  "name": "taro",
-  "age": 23,
-  "sex": "man",
-  "hobby": {
-    "test" : 12,
-    "outdoor": {
-      "land": ["running", "walking"],
-      "sea": ["swimming", "fising"]
-    },
-    "indoor": ["movie", "game", "card"]
-  }
-}
-```
-
-``` JS
-6. print(json_object["hobby"]["outdoor"]["land"][1])
-7. print(json_object["hobby"]["indoor"])
-8. print(json_object["hobby"]["test"])
-
-1. waking
-2. ['movie', 'game', 'card]
-3. 12
-```
-
-内部{}はオブジェクト。javascriptのあれ。
-なのでPerson['name'][0]とかでアクセスできる。
-
-``` JS
-var person = {
-  name: ['Bob', 'Smith'],
-  age: 32,
-  gender: 'male',
-};
-```
+あまりに偉大過ぎる表現形式なので、プログラミング全般側の記事に移動させた。  
+詳しくはそちらを参照されたし。  
 
 ---
 
