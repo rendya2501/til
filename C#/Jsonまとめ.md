@@ -12,8 +12,49 @@ C#のコード上に置けるjsonの表現方法はクラスそのものか、�
 基本的に、デシリアライズすることによってクラスをjsonに変換するのが主な用途で、受け皿はすべてクラス。
 なので、クラスを挟んでシリアライズ、デシリアライズすればjsonは扱えるって事になるな。
 
+``` C#
 //
 string jsonString = JsonConvert.SerializeObject(weatherForecast, Formatting.Indented);
+            var request = new HttpRequestMessage()
+            {
+                Method = HttpMethod.Post,
+                RequestUri = new UriBuilder(_Host + _Domain + path).Uri,
+                Content = new StringContent(param, Encoding.UTF8, @"application/json")
+            };
+var raeContent = new StringContent( JsonConvert.SerializeObject(raeParam), Encoding.UTF8, @"application/json");
+
+private TResponse Send<TRequest, TResponse>(string url, string xApiKey, TRequest request)
+{
+    string dataString = Newtonsoft.Json.JsonConvert.SerializeObject(request);
+    byte[] dataBytes = Encoding.UTF8.GetBytes(dataString);
+
+    WebRequest webRequest = HttpWebRequest.Create(url);
+    webRequest.ContentType = "application/json";
+    webRequest.Method = "POST";
+    webRequest.ContentLength = dataBytes.Length;
+    webRequest.Headers.Add("x-api-key", xApiKey);
+
+    using (Stream reqStream = webRequest.GetRequestStream())
+    {
+        reqStream.Write(dataBytes, 0, dataBytes.Length);
+        reqStream.Close();
+    }
+
+    WebResponse webResponse = webRequest.GetResponse();
+    string responseString = null;
+    using (Stream stream = webResponse.GetResponseStream())
+    {
+        using (StreamReader streamReader = new StreamReader(stream, Encoding.UTF8))
+        {
+            responseString = streamReader.ReadToEnd();
+            streamReader.Close();
+        }
+        stream.Close();
+    }
+    return Newtonsoft.Json.JsonConvert.DeserializeObject<TResponse>(responseString);
+}
+
+```
 
 ``` C#
     public static void Read()
