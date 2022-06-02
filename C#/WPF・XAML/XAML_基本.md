@@ -792,3 +792,135 @@ CanExecuteとかFunc<T>とか実装したいならこのサイトを参考に実
 </Window>
 
 ```
+
+---
+
+## コードビハインド
+
+VB6時代、Buttonをダブルクリックして飛ばされた先でガリガリ書いてたアレ。  
+具体的な定義を言語化できなかったのと、ビヘイビアとの違いを上手く説明できそうになかったのでまとめ。  
+
+### 一番しっくり来た説明
+
+[[UWP]XAMLとコードビハインドの関係とは？]  
+>UWPの開発はXAMLが欠かせません。そして、XAMLには連動するソースファイルが存在します。  
+>例えば、MainPage.xaml なら、MainPage.xaml.cs という感じで、XAMLファイルと同じ名前を持ったソースが存在します。  
+>そして、このソースファイルは、MainPage.xaml に配置されたコントロールに対するプログラムが書かれています。  
+>このように、一つのXAMLとソースファイルが連動している仕組みをコードビハインドと言います。  
+>XAMLで見た目を作り、C#で動きをプログラムするという流れです。  
+
+「ビハインド:後ろにある」 の意味の通り、見た目に対する制御を記述する裏方的なニュアンスだと思われる。  
+やっぱり「コードビハインド」は古い概念で、2004年のASP.NETの記事がヒットしたりする。  
+どうやら更に大昔は、見た目と制御を1つのファイルに記述していたみたいだ。考えただけで大変そう。  
+
+[日経Windowsプロ](https://xtech.nikkei.com/it/free/NT/WinReadersOnly/20040810/21/#:~:text=%E3%82%A2%E3%83%97%E3%83%AA%E3%82%B1%E3%83%BC%E3%82%B7%E3%83%A7%E3%83%B3%E3%82%92%E9%96%8B%E7%99%BA%E3%81%99%E3%82%8B%E9%9A%9B,%E3%81%AE1%E3%81%A4%E3%81%A7%E3%81%82%E3%82%8B%E3%80%82)  
+>アプリケーションを開発する際に，ユーザー・インターフェース部分とプログラム（ロジック）部分を別のファイルに分けること。  
+>ASP.NETによるWebアプリケーション開発の特徴の1つである。  
+>これによって，デザインを担うデザイナと，プログラムを担当するプログラマとの作業の切り分けがしやすくなる。  
+
+### その他説明
+
+[WPF における分離コードと XAML](https://docs.microsoft.com/ja-jp/dotnet/desktop/wpf/advanced/code-behind-and-xaml-in-wpf?view=netframeworkdesktop-4.8)  
+>コードビハインドとは、XAML ページがマークアップ コンパイルされる際に、マークアップ定義オブジェクトと結合されるコードを表すために使用される用語です。  
+
+[C# WPFアプリ XAMLの基本概念を理解する](https://setonaikai1982.com/xaml_basic/)  
+>XAMLと連携させることができるC#のファイルはコードビハインドと呼ばれ、ファイル名は****.xaml.csで保存します。  
+>xamlもコードビハインド(xaml.cs)もファイルは別々ですが、どちらも同一のViewクラスの一部です。  
+>XAMLとC#ファイルのクラス名を確認すると、どちらも同じ名前のWindowクラスになっています。  
+
+---
+
+## なぜMVVMではコードビハインドに記述することは悪なのか
+
+基本的に、MVVMではコードビハインドにコードを記述することは悪であるという認識が強いみたいだが、なぜなのだろうか。  
+それはそれで別途まとめていきたいと思う。  
+
+[MVVM:コードビハインドに記述しても良いと思う](http://gushwell.ldblog.jp/archives/52147035.html)  
+
+---
+
+## ビヘイビア
+
+コードビハインドのイベントべた書きから、イベント発火によって実行する処理部分だけを抜き出した感じのやつ。  
+
+例えば、別々のプログラムで、あるボタンを押したときに同じ処理をさせたいなら、その動作だけをビヘイビアとして切り出し、それぞれのボタンにビヘイビア(振る舞い)を適応させるという芸当が可能になる。  
+同じ動作をしているなら、共通の定義としてビヘイビアを抜き出すのもいいかもしれない。  
+
+[かずきのBlog@hatena_ビヘイビア(Behavior)の作り方](https://blog.okazuki.jp/entry/20100823/1282561787)  
+>ビヘイビアは、個人的な解釈だとコードビハインドにイベントハンドラを書くことなく何かアクションをさせるための部品と思っています。  
+
+[WPFのビヘイビア](https://qiita.com/flasksrw/items/04818070091fe82495e7)  
+>言葉の意味は「振る舞い」。  
+>WPFでMVVMに準拠する際、Viewの状態の変化をきっかけにして、Viewで実行される処理の実装方法のことを指す。  
+>MVVMに準拠するとコードビハインドが使えないので、その代替手段ということになる。  
+
+### ビヘイビアの最小サンプル
+
+nugetから[Microsoft.Xaml.Behaviors.Wpf]をインストール
+
+```C#
+using Microsoft.Xaml.Behaviors;
+using System;
+using System.Windows;
+using System.Windows.Controls;
+
+    public class AlertBehavior : Behavior<Button>
+    {
+        #region メッセージプロパティ
+        public string Message
+        {
+            get { return (string)GetValue(MessageProperty); }
+            set { SetValue(MessageProperty, value); }
+        }
+        public static readonly DependencyProperty MessageProperty =
+            DependencyProperty.Register(
+                "Message",
+                typeof(string),
+                typeof(AlertBehavior),
+                new UIPropertyMetadata(null)
+            );
+        #endregion
+        
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        public AlertBehavior() {}
+
+        // 要素にアタッチされたときの処理。大体イベントハンドラの登録処理をここでやる
+        protected override void OnAttached()
+        {
+            base.OnAttached();
+            this.AssociatedObject.Click += Alert;
+        }
+
+        // 要素にデタッチされたときの処理。大体イベントハンドラの登録解除をここでやる
+        protected override void OnDetaching()
+        {
+            base.OnDetaching();
+            this.AssociatedObject.Click -= Alert;
+        }
+
+        // メッセージが入力されていたらメッセージボックスを出す
+        private void Alert(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(this.Message))return;
+            MessageBox.Show(this.Message);
+        }
+    }
+```
+
+``` XML
+    <Grid>
+        <!-- プロパティ属性構文によるビヘイビアの指定は無理な模様。実務でも実績はなかった。 -->
+        <Button
+            Width="75"
+            Margin="8,8,0,0"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top"
+            Content="Button">
+            <i:Interaction.Behaviors>
+                <local:AlertBehavior Message="こんにちは世界" />
+            </i:Interaction.Behaviors>
+        </Button>
+    </Grid>
+```

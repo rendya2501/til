@@ -842,3 +842,14 @@ namespace RN3.Wpf.Front.StartTSheet
         }
         #endregion
 ```
+
+---
+
+## 他ミドルウェアとの連携
+
+[RedisをBackplaneとしたSignalRのスケールアウト](https://www.buildinsider.net/web/iis8/07)  
+[ASP.NET Core SignalR のスケールアウトのために Redis バックプレーンを設定する](https://docs.microsoft.com/ja-jp/aspnet/core/signalr/redis-backplane?view=aspnetcore-6.0)  
+
+現実問題、大規模になれば間にRedis等を挟むことになるはず。  
+そうなった時にSignalRは動くのか、また性能を確保できるのかという問題が発生してくる。  
+備忘録として残す。  
