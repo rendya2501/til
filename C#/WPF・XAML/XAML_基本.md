@@ -802,7 +802,7 @@ VB6時代、Buttonをダブルクリックして飛ばされた先でガリガ�
 
 ### 一番しっくり来た説明
 
-[[UWP]XAMLとコードビハインドの関係とは？]  
+[[UWP]XAMLとコードビハインドの関係とは？](https://colorfulcompany.com/uwp/hello-world)  
 >UWPの開発はXAMLが欠かせません。そして、XAMLには連動するソースファイルが存在します。  
 >例えば、MainPage.xaml なら、MainPage.xaml.cs という感じで、XAMLファイルと同じ名前を持ったソースが存在します。  
 >そして、このソースファイルは、MainPage.xaml に配置されたコントロールに対するプログラムが書かれています。  

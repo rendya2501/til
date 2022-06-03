@@ -922,36 +922,5 @@ setTimeout(() => (this.isTotalEnable = true), 100);
 
 ## デッドロック
 
-[SQLServer: with(nolock)ヒントでロックを確実に回避できるという認識は間違い](https://qiita.com/maaaaaaaa/items/209a681f0a771cf80df4)  
-[SQL Serverのwith(NOLOCK)の挙動について](https://tech.excite.co.jp/entry/2021/05/22/120000)  
-[SQLServerのテーブルロック状態を取得するSQL](https://www.excellence-blog.com/2016/11/11/sqlserver%E3%81%AE%E3%83%86%E3%83%BC%E3%83%96%E3%83%AB%E3%83%AD%E3%83%83%E3%82%AF%E7%8A%B6%E6%85%8B%E3%82%92%E5%8F%96%E5%BE%97%E3%81%99%E3%82%8Bsql/)  
-[SQL Serverのロックについて出来る限り分かりやすく解説](https://qiita.com/maaaaaaaa/items/38fd95b142b07acf7700)  
-[続・SQL Serverのロックについて出来る限り分かりやすく解説](https://qiita.com/maaaaaaaa/items/28c8a1affe36a6bd811a)  
-
-[SQL SERVERにおけるデッドロック（内部仕様）〜クラスタ化インデックスと非クラスタ化インデックス間のデッドロック〜](https://bxdxmx.hatenablog.com/entry/20090820/1250746566)  
-[デッドロック（SQL Server）](https://www.dbsheetclient.jp/blog/?p=1609)  
-[デッドロックのサンプルクエリ](https://blog.engineer-memo.com/2013/07/15/%E3%83%87%E3%83%83%E3%83%89%E3%83%AD%E3%83%83%E3%82%AF%E3%81%AE%E3%82%B5%E3%83%B3%E3%83%97%E3%83%AB%E3%82%AF%E3%82%A8%E3%83%AA/)  
-[SQL Server 2012 のデッドロック情報の取得について](https://blog.engineer-memo.com/2012/04/19/sql-server-2012-%E3%81%AE%E3%83%87%E3%83%83%E3%83%89%E3%83%AD%E3%83%83%E3%82%AF%E6%83%85%E5%A0%B1%E3%81%AE%E5%8F%96%E5%BE%97%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6/)  
-[【SQL server】デッドロックの調査方法](https://memorandom-nishi.hatenablog.jp/entry/2016/11/14/024856)  
-[EXISTSとSQLの高速化について](http://kkoudev.github.io/blog/2013/09/14/sql/)  
-
-[SQL Serverで処理時間を計測する](https://qiita.com/maitake9116/items/ed3037badc90de18b0e6)  
-
-[SQL Server の Wait Resource から実オブジェクトを判断する](https://blog.engineer-memo.com/2019/10/06/sql-server-%E3%81%AE-wait-resource-%E3%81%8B%E3%82%89%E5%AE%9F%E3%82%AA%E3%83%96%E3%82%B8%E3%82%A7%E3%82%AF%E3%83%88%E3%82%92%E5%88%A4%E6%96%AD%E3%81%99%E3%82%8B/)  
-
-[クラスター化インデックスと非クラスター化インデックスの概念](https://docs.microsoft.com/ja-jp/sql/relational-databases/indexes/clustered-and-nonclustered-indexes-described?view=sql-server-ver15)  
-[【SQL Server】クラスター化インデックスと非クラスター化インデックス](https://memorandom-nishi.hatenablog.jp/entry/2017/02/05/232703)  
-
-[sys.dm_exec_sql_text (Transact-SQL)](https://docs.microsoft.com/ja-jp/sql/relational-databases/system-dynamic-management-views/sys-dm-exec-sql-text-transact-sql?view=sql-server-ver15)
-
-``` sql
--- pass sql_handle to sys.dm_exec_sql_text
-SELECT * FROM sys.dm_exec_sql_text(0x01000600B74C2A1300D2582A2100000000000000000000000000000000000000000000000000000000000000) -- modify this value with your actual sql_handle
-```
-
-[エスカレーション 件数　sqlserver]  
-[sqlserver デッドロック キーロック]  
-[sqlserver 非クラスター化インデックス 含まれている列]  
-
-インデックスは必須であることは分かったが、根本的な原因は分からなかった。  
-色々勉強にはなったが、実力不足が否めない。  
+同時保存のデッドロックが解決できなくて苦しんだ。  
+こちらではなくSQL Server側の記事に移したのでそちらを参照されたし。  

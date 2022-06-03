@@ -1279,3 +1279,26 @@ SELECT REPLACE('SATOU','Z','Y') ;
 ## NULLを排除した設計
 
 [NULLを排除した設計①](http://onefact.jp/wp/2014/08/26/null%E3%82%92%E6%8E%92%E9%99%A4%E3%81%97%E3%81%9F%E8%A8%AD%E8%A8%88/)  
+
+---
+
+## TOP 句 PERCENT
+
+[SqlServerの SELECT TOP 100 PERCENT で作成したビューの並び順は『保証されない』](https://culage.hatenablog.com/entry/20170824/p1)  
+[TOP 句 PERCENT](https://haradago.hatenadiary.org/entry/20180214/p1)  
+
+TOPにPERCENT句を付けると上位N%のデータを取得することができる  
+
+[Road to DBD](https://plaza.rakuten.co.jp/jamshid/diary/200805080000/)  
+Viewやテーブル関数にTOP 100 PERCENTを指定すると、ORDER BYが切れるようになるというのは、SQL Server 2000時代でもある意味Tipsとして通用していたと思うが、SQL Server 2005ではこれが使えなくなったのだった。
+最初にこれに気づいたときは、なぜこうなるのかわからず、正直かなり動揺した。このことについては、ヘルプなどのあまりフォーマルな形ではアナウンスされなかったと思う。ただ、そのときいろいろ調べて「TOP 100 PERCENTであれば、全件を返すわけだから、オプティマイザは並べ替えを行わない」という変更が行われたのを知ったのだが、そのときあるサイトに書かれていたコメントを見て、めげたのを覚えている。
+
+``` sql
+select TOP 50 PERCENT * FROM TPa_Reservation
+
+--  100 : 90121
+--   50 : 45061
+--    1 :   902
+-- -100 : '-' 付近に不適切な構文があります。
+-- 5000 : パーセント値は 0 から 100 までの値を指定してください。
+```

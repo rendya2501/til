@@ -464,14 +464,16 @@ exceedはルールで定められた「限界、規制、限度、制限」あ�
 
 どうやって金を調達するか、扱うか。  
 
-・configuration  
+## configuration
+
 [可算名詞]  
 構造、機器構成、設定  
 
 configuration of the system  
 システムの構成  
 
-・payload  
+## payload
+
 [可算名詞]  
 有効荷重  
 最大積載量  
@@ -483,18 +485,21 @@ configuration of the system
 荷物そのものというよりは、積載量など運べる荷物の量的な意味合いが強いか。  
 転じて、火薬量=爆発物を指す事もあるのか。俺が知ってる意味はこっちだな。  
 
-・proprietary  
+## proprietary
+
 [形容詞]  
 独占の、専有の、専売の  
 
-・binary  
+## binary
+
 [形容詞]  
 2進数の  
 「二個一組」「二つから成る」を意味する語らしい。  
 
 2進数は「binary number」
 
-・scaffolding  
+## scaffolding
+
 [不可算名詞]  
 建築現場などの足場、足場材料  
 
@@ -504,6 +509,14 @@ configuration of the system
 
 名
 〔時間の〕継続、持続
+
+## signal
+
+【名】  
+〔メッセージを伝えるための〕合図、信号、信号機  
+〔合図で伝える〕メッセージ、意図、警告  
+〔行動を起こす〕きっかけ、引き金  
+《電気》信号  
 
 ---
 
