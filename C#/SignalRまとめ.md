@@ -125,7 +125,7 @@ app.Run();
 [5] サービスの起動と動作確認。  
 
 F5でデバッグ実行。  
- [https://localhost:~~~~/chatHub] にアクセスして、 `Connection ID required` と表示されれば動作確認はOK。  
+[https://localhost:~~~~/chatHub] にアクセスして、 `Connection ID required` と表示されれば動作確認はOK。  
 
 ---
 

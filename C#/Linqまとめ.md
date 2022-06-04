@@ -1527,3 +1527,66 @@ FirstOrDefaultしたものがプリミティブなら、Listは変更されな�
 ``` C#
 if (selectedSeatList.Select(s => s.ReservationFrameNo).Union(emptieList.Select(s => s.ReservationFrameNo)).Distinct().Count(w => !string.IsNullOrEmpty(w)) > 1)
 ```
+
+---
+
+## AddとUnion
+
+Unionを使うと全部繋げて書けるよっていう例  
+
+``` C#
+        // その枠に存在するキャンセルしていないプレーヤー一覧を取得
+        var framePlayerList = _TRe_ReservationPlayerModel
+            .GetList(
+                new ReservationFrameCondition()
+                {
+                    ReservationFrameNo = targetPlayer.ReservationFrameNo,
+                    ReservationCancelFlag = false
+                }
+            )
+            .Where(w => w.PlayerNo != targetPlayer.PlayerNo)
+            .ToList();
+        // チェックインするプレーヤーを追加する
+        framePlayerList.Add(targetPlayer);
+        // 今回のチェックインでその枠に存在するプレーヤー全員がチェックイン済みになるなら組確定とする。
+        reservationFrame.ConfirmFlag = framePlayerList.All(a => a.CheckinFlag == true);
+
+
+        // 今回のチェックインでその枠に存在するプレーヤー全員がチェックイン済みになるなら組確定とする。
+        reservationFrame.ConfirmFlag = _TRe_ReservationPlayerModel
+            .GetList(
+                new ReservationFrameCondition()
+                {
+                    ReservationFrameNo = targetPlayer.ReservationFrameNo,
+                    ReservationCancelFlag = false
+                }
+            )
+            .Where(w => w.PlayerNo != targetPlayer.PlayerNo)
+            .Union(new List<TRe_ReservationPlayer>() { targetPlayer })
+            .All(a => a.CheckinFlag == true);
+```
+
+``` C#
+        static void Benchmark()
+        {
+            var stopWatch = new System.Diagnostics.Stopwatch();
+            var aa = new List<int>();
+
+            // 処理1 約20~30万tick
+            stopWatch.Start();
+            for (int i = 0; i < 10000000; i++)
+            {
+                aa.Add(i);
+            }
+            stopWatch.Stop();
+            stopWatch.Reset();
+
+            aa.Clear();
+
+            // 処理2 約100万tick
+            stopWatch.Start();
+            aa = aa.Union(Enumerable.Range(0, 10000000)).ToList();
+            stopWatch.Stop();
+            stopWatch.Reset();
+        }
+```

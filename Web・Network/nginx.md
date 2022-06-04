@@ -1,13 +1,24 @@
 # nginxまとめ
 
-## nginx再起動コマンド
+---
+
+## nginxコマンド
+
+### 起動
+
+`sudo service nginx start`  
+
+### 再起動
+
+`sudo nginx -s reload`  
 
 [[nginx]設定の反映](https://qiita.com/WisteriaWave/items/fa2e7f4442aee497fe46)  
-
-nginx再起動コマンド: `sudo nginx -s reload`  
-→  
 通常、Webサーバーの再起動を行った場合、瞬断が発生するが、-sオプションをつけることでそれがなくなるらしい。  
 -sオプションを指定すると、nginxのworkerプロセスが少しずつ新しいプロセスに置き換わっていくだとかなんだとか。  
+
+### 停止
+
+`sudo nginx -s stop`  
 
 ---
 
