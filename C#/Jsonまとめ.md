@@ -1,62 +1,198 @@
 # C# Json関連まとめ
 
 [Newtonsoft.Jsonライブラリの使用方法](https://blog.hiros-dot.net/?p=8766#toc20)  
-
 [C#でJSONを読み書きする方法](https://usefuledge.com/csharp-json.html)  
 [Microsoft公式](https://docs.microsoft.com/ja-jp/dotnet/standard/serialization/system-text-json-how-to?pivots=dotnet-6-0)  
-
 [JSONの読み込み・デシリアライズを分かりやすく解説【C# Json.NET】](https://tech-and-investment.com/json2/)  
 [JSONファイルの作成方法を分かりやすく解説【C# Json.NET】](https://tech-and-investment.com/json3/)  
 
-C#のコード上に置けるjsonの表現方法はクラスそのものか、テキストによる直接の表現か。
-基本的に、デシリアライズすることによってクラスをjsonに変換するのが主な用途で、受け皿はすべてクラス。
-なので、クラスを挟んでシリアライズ、デシリアライズすればjsonは扱えるって事になるな。
+C#に置けるjsonの表現方法はクラスそのものか、テキストによる直接の表現か。  
+基本的に、デシリアライズすることによってクラスをjsonに変換するのが主な用途で、受け皿はすべてクラス。  
+なので、クラスを挟んでシリアライズ、デシリアライズすればjsonは扱える。  
 
-``` C#
-//
-string jsonString = JsonConvert.SerializeObject(weatherForecast, Formatting.Indented);
-            var request = new HttpRequestMessage()
-            {
-                Method = HttpMethod.Post,
-                RequestUri = new UriBuilder(_Host + _Domain + path).Uri,
-                Content = new StringContent(param, Encoding.UTF8, @"application/json")
-            };
-var raeContent = new StringContent( JsonConvert.SerializeObject(raeParam), Encoding.UTF8, @"application/json");
+---
 
-private TResponse Send<TRequest, TResponse>(string url, string xApiKey, TRequest request)
+## 各ライブラリにおけるシリアライズ・デシリアライズの書式
+
+[【C#】JSONのシリアライザは、System.Text.JSONを使おう。](https://qiita.com/SY81517/items/1cf6246dd99869f7b9c5)  
+
+[VB/C#でJSONの読み込み (System.Text.Json編)](https://www.umayadia.com/Note/Note010VBSystem.Text.Json.htm)  
+VB/C#でJSONを読み書きするには、JSON.NET(Newtonsoft JSON)またはSystem.Text.Jsonを使用するのが一般的です。  
+JSON.NETは多機能で使われる頻度が高く2020年3月現在ではデファクトスタンダードです。  
+System.Text.Jsonは新しくMicrosoftが開発したライブラリで機能は少なめですがパフォーマンスが優れており、Webアプリケーションのスループットを向上させることができるようです。  
+
+### NewtonJson
+
+NewtonJsonはMITライセンスで公開されている.NET用のオープンソースJSONライブラリで、以下の特徴を謳っています。  
+
+- High Performance  
+  - DataContractJsonSerializerより50%高速  
+- LINQ to JSON  
+  - JSONの作成、パース、検索、変更をJObject、JArray、JValueオブジェクトを使って行える  
+- Easy To Use  
+- Run Anywhere  
+  - WindowsでもMonoでもXamarinでも使える  
+- JSON Path  
+  - XPathライクな書き方でJSONのクエリが行える  
+- XML Support  
+  - XMLとJSONの相互変換をサポート
+
+``` C# : NewtonJson
+using Newtonsoft.Json;
+
+// シリアライズ
+string json = JsonConvert.SerializeObject(account, Formatting.Indented);
+
+// デシリアライズ
+Person person = JsonConvert.DeserializeObject<Person>(jsonData);
+// デシリアライズパターン2 使うことはないだろう
+var aa = (Account?)new JsonSerializer().Deserialize(file, typeof(Account));
+```
+
+### System.Text.Json
+
+.NET Core 3.0以降から標準搭載されたMicrosoft公式のJsonシリアライザー。  
+公式推奨ライブラリ。  
+
+``` C# : System.Text.Json
+using System.Text.Json;
+
+// シリアライズ
+var options = new JsonSerializerOptions { WriteIndented = true };
+string jsonString = JsonSerializer.Serialize(weatherForecast, options);
+
+// デシリアライズ
+WeatherForecast? weatherForecast = JsonSerializer.Deserialize<WeatherForecast>(jsonString);
+```
+
+### DataContractJsonSerializer
+
+[[C#] C#でJSONを扱う方法まとめ](https://dev.classmethod.jp/articles/c-sharp-json/)  
+
+.NET Frameworkで提供されている、オブジェクトをJSONにシリアライズ、JSONをオブジェクトにデシリアライズするためのクラスです。  
+名前空間はSystem.Runtime.Serialization.Json、アセンブリはSystem.Runtime.Serialization.dllです。  
+
+- Microsoft社はDataContractJsonSerializerを推奨していない。  
+- 一番古いJsonライブラリなので、今更採用する意味はない。  
+
+``` C# : System.Runtime.Serialization.Json
+using System.Runtime.Serialization.Json;
+
+public static class JsonUtility
 {
-    string dataString = Newtonsoft.Json.JsonConvert.SerializeObject(request);
-    byte[] dataBytes = Encoding.UTF8.GetBytes(dataString);
-
-    WebRequest webRequest = HttpWebRequest.Create(url);
-    webRequest.ContentType = "application/json";
-    webRequest.Method = "POST";
-    webRequest.ContentLength = dataBytes.Length;
-    webRequest.Headers.Add("x-api-key", xApiKey);
-
-    using (Stream reqStream = webRequest.GetRequestStream())
+    /// <summary>
+    /// 任意のオブジェクトをJSON文字列にシリアライズします。
+    /// </summary>
+    /// <param name="obj"></param>
+    /// <returns></returns>
+    public static string Serialize(object obj)
     {
-        reqStream.Write(dataBytes, 0, dataBytes.Length);
-        reqStream.Close();
-    }
-
-    WebResponse webResponse = webRequest.GetResponse();
-    string responseString = null;
-    using (Stream stream = webResponse.GetResponseStream())
-    {
-        using (StreamReader streamReader = new StreamReader(stream, Encoding.UTF8))
+        using (var stream = new MemoryStream())
         {
-            responseString = streamReader.ReadToEnd();
-            streamReader.Close();
+            var serializer = new DataContractJsonSerializer(obj.GetType());
+            serializer.WriteObject(stream, obj);
+            return Encoding.UTF8.GetString(stream.ToArray());
         }
-        stream.Close();
     }
-    return Newtonsoft.Json.JsonConvert.DeserializeObject<TResponse>(responseString);
+    /// <summary>
+    /// JSON文字列を任意のオブジェクトにデシリアライズします。
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="message"></param>
+    /// <returns></returns>
+    public static T Deserialize<T>(string message)
+    {
+        using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(message)))
+        {
+            var serializer = new DataContractJsonSerializer(typeof(T));
+            return (T)serializer.ReadObject(stream);
+        }
+    }
 }
+```
 
+### 結局どれを使えばいいの？
+
+``` json
+System.Text.Json 諸事情によりサードパーティライブラリを使えない時。
+NewtonJson       高機能な検索やパフォーマンスを出したい時。
+DataContractJsonSerializer 諸事情によりサードパーティライブラリを使えない時だが、わざわざ採用する理由はない。
+```
+
+### C#のJSONの取り扱いの歴史
+
+[System.Text.Json でJSONを扱ってみよう](https://iwasiman.hatenablog.com/entry/20210614-CSharp-json)  
+
+- System.Runtime.Serialization.Json.DataContractJsonSerializer  
+- 長く使われてきたサードパーティ製ライブラリのJson.NET (NuGetで取り込むときのライブラリ名はNewtonsoft.Json)  
+- C#4.0で導入されたライブラリのDynamic.Json  
+
+ググると上記が入り混じってヒットするかと思います。特にJson.NETが広く使われたのでよくヒットしますね。  
+
+2015/11リリースの .NET Framework 4.6.1 からSystem.Text.Jsonが導入されパッケージ管理のNuGetでインストールすると使えるようになり、実行環境自体が刷新された .NET Core では2017/8リリースの .NET Core 2.0 から標準搭載。  
+2021年現在はこの [System.Text.Json] が**デフォルトで推奨**となっています。  
+
+---
+
+## ファイル読み書きを含めたサンプルコード
+
+``` C# : Read
+    // exeと同じ階層にあるtest.json を UTF-8 で開く
+    using StreamReader sr = new StreamReader("test2.json", Encoding.UTF8);
+    // ファイルの内容をデシリアライズして person にセット
+    return JsonConvert.DeserializeObject<Person>(sr.ReadToEnd());
+
+
+    // jsonファイルを読み込みます
+    using StreamReader file = File.OpenText(@"C:\Users\rendy\Desktop\CSharpSample1\CSharpSample1\Json\test.json");
+    // デシリアライズ関数に読み込んだファイルと、データ用クラスの名称(型)を指定します。
+    // デシリアライズされたデータは、自動的にaccountのメンバ変数に格納されます 
+    return (Account?)new JsonSerializer().Deserialize(file, typeof(Account));
+```
+
+``` C# : Write
+    // exeと同じ階層にあるtest2.json を UTF-8 で書き込み用でオープン
+    using var sw = new StreamWriter("test2.json", false, Encoding.UTF8);
+    // JSON データをファイルに書き込み
+    sw.Write(JsonConvert.SerializeObject(jsonObject));
+
+
+    // 作成したオブジェクトのデータをJSONにシリアライズします
+    // 一つ目に引数に、シリアライズするオブジェクトを指定します
+    // 二つ目に引数に、インデントの有無を指定します。
+    string json = JsonConvert.SerializeObject(account, Formatting.Indented);
+    // シリアライズ済みデータ(文字列)をファイルに書き込みます
+    File.WriteAllText("Account.json", json);
 ```
 
 ``` C#
+using System.Text.Json;
+
+    //ParseメソッドでJSON文字列をJson.NETのオブジェクトに変換
+    var obj = JObject.Parse(@"{
+        'people' : [
+            {
+                'name' : 'Kato Jun',
+                'age' : 31
+            },
+            {
+                'name' : 'PIKOTARO',
+                'age' : 53
+            },
+            {
+                'name' : 'Kosaka Daimaou',
+                'age' : 43
+            }
+        ]
+    }");
+    //Json.Netのオブジェクトに変換することでLINQが使えるようになる
+    var oldestPersonName = obj["people"].OrderByDescending(p => p["age"]).FirstOrDefault();
+    WriteLine(oldestPersonName);
+```
+
+---
+
+``` C# : <https://blog.hiros-dot.net/?p=8766#toc19>
     public static void Read()
     {
         Person person = new Func<Person>(() =>
@@ -66,7 +202,6 @@ private TResponse Send<TRequest, TResponse>(string url, string xApiKey, TRequest
             // ファイルの内容をデシリアライズして person にセット
             return JsonConvert.DeserializeObject<Person>(sr.ReadToEnd());
         })();
-
         Console.WriteLine("Name : " + person?.Name);
         Console.WriteLine("Age: " + person?.Age);
         Console.WriteLine("Weight  : " + person?.Weight);
@@ -92,21 +227,19 @@ private TResponse Send<TRequest, TResponse>(string url, string xApiKey, TRequest
         Console.WriteLine("書き込みました。");
     }
 
-        //[JsonObject("Person")]
+    //[JsonObject("Person")]
     class Person
     {
         //[JsonProperty("Person Name")]
         public string Name { get; set; }
-
         //[JsonProperty("Person Age")]
         public int Age { get; set; }
-
         //[JsonProperty("Person Weight")]
         public double Weight { get; set; }
     }
 ```
 
-``` C#
+``` C# : <https://tech-and-investment.com/json3/>
     /// <summary>
     /// 読み込みサンプル
     /// https://tech-and-investment.com/json2/
@@ -123,7 +256,6 @@ private TResponse Send<TRequest, TResponse>(string url, string xApiKey, TRequest
                 // デシリアライズされたデータは、自動的にaccountのメンバ変数に格納されます 
                 return (Account?)new JsonSerializer().Deserialize(file, typeof(Account));
             })();
-
             // 表示
             Console.WriteLine("Email : " + account?.Email);
             Console.WriteLine("Active: " + account?.Active);
@@ -175,289 +307,6 @@ private TResponse Send<TRequest, TResponse>(string url, string xApiKey, TRequest
         public DateTime CreatedDate { get; set; }
         public IList<string> Roles { get; set; }
     }
-```
-
----
-
-``` C#
-    [DataContract]
-    public class Person
-    {
-        [DataMember(Name = "name")]
-        //[IgnoreDataMember]でシリアライズの対象外にすることができる。
-        public string Name { get; set; }
-        [DataMember(Name = "age")]
-        public int Age { get; set; }
-    }
-```
-
-``` C#
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Json;
-using System.IO;
-
-namespace Json1
-{
-    [DataContract]
-    public class Person2
-    {   
-        [DataMember]
-        public int ID { get; set; }
-        [DataMember]
-        public string Name { get; set; }
-        [DataMember]
-        public IDictionary<string,string> Attributes { get; private set; }
-
-        public Person2()
-        {
-            this.Attributes = new Dictionary<string, string>();
-        }
-    }
-
-
-    public static class JsonUtility
-    {
-        /// <summary>
-        /// 任意のオブジェクトをJSONメッセージへシリアライズします。
-        /// </summary>
-        /// <param name="graph"></param>
-        /// <returns></returns>
-        public static string Serialize(object graph)
-        {
-            using (var stream = new MemoryStream())
-            {
-                var serializer = new DataContractJsonSerializer(graph.GetType());
-                serializer.WriteObject(stream, graph);
-                return Encoding.UTF8.GetString(stream.ToArray());
-            }
-        }
-
-        public static T Deserialize<T>(string message)
-        {
-            using(var stream = new MemoryStream(Encoding.UTF8.GetBytes(message)))
-            {
-                var serializer = new DataContractJsonSerializer(typeof(T));
-                return (T)serializer.ReadObject(stream);
-            }
-        }
-    }
-}
-```
-
-``` C#
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Json1
-{
-    class Program
-    {
-        static void Main(string[] args)
-        {
-            var p = new Person
-            {
-                Name = "Kato Jun",
-                Age = 31
-            };
-
-            var list = new List<IStart>{
-                { new JsonSample1(p) },
-                { new JsonSample2(p) },
-                { new JsonSample3() }
-            };
-
-            //foreach (IStart IF in list){IF.Start();}
-
-
-            new Sample2().Start();
-        }
-    }
-
-
-}
-
-```
-
-``` C#
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-//これがあれば、毎回Console.WriteLineってやる必要がなくなる。WriteLineで十分になる。
-//クラス名を書かずに静的メソッドを呼び出す。
-using static System.Console;
-using System.Runtime.Serialization.Json;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System.IO;
-
-namespace Json1
-{
-    /// <summary>
-    /// Startメソッドを持たせてForEachで回したいためだけのインタフェース
-    /// </summary>
-    interface IStart
-    {
-        void Start();
-    }
-
-
-    class JsonSample3 : IStart
-    {
-        public void Start()
-        {
-            WriteLine(this.ToString());
-
-            //ParseメソッドでJSON文字列をJson.NETのオブジェクトに変換
-            var obj = JObject.Parse(@"{
-                'people' : [
-                    {
-                        'name' : 'Kato Jun',
-                        'age' : 31
-                    },
-                    {
-                        'name' : 'PIKOTARO',
-                        'age' : 53
-                    },
-                    {
-                        'name' : 'Kosaka Daimaou',
-                        'age' : 43
-                    }
-                ]
-            }");
-
-            //Json.Netのオブジェクトに変換することでLINQが使えるようになる
-            var oldestPersonName = obj["people"].OrderByDescending(p => p["age"]).FirstOrDefault();
-            WriteLine(oldestPersonName);
-        }
-    }
-
-    /// <summary>
-    /// Json.Netを使ったほうのシリアライズ、デシリアライズ
-    /// </summary>
-    class JsonSample2 : IStart
-    {
-        Person p;
-
-        //コンストラクタ
-        public JsonSample2(Person p) => this.p = p;        
-        public void Start()
-        {
-            WriteLine(this.ToString());        
-
-            //オブジェクトをJSONにシリアライズ
-            var json = JsonConvert.SerializeObject(p);
-            WriteLine($"{json}");
-
-            //JSONをオブジェクトにデシリアライズ
-            var deserialized = JsonConvert.DeserializeObject<Person>(json);
-            WriteLine($"Name: {deserialized.Name}"); // Kato Jun
-            WriteLine($"Age : {deserialized.Age}");  // 31
-        }
-    }
-
-
-    /// <summary>
-    /// DataContractJsonSerializer
-    /// .NET Frameworkで提供されている、オブジェクトをJSONにシリアライズ、JSONをオブジェクトにデシリアライズするためのクラスです
-    /// </summary>
-    class JsonSample1 : IStart
-    {
-        Person p;
-
-        //コンストラクタ
-        public JsonSample1(Person p) => this.p = p;
-
-        public void Start()
-        {
-            WriteLine(this.ToString());
-
-            using (var ms = new MemoryStream())
-            using (var sr = new StreamReader(ms))
-            {
-                var serializer = new DataContractJsonSerializer(typeof(Person));
-                serializer.WriteObject(ms, this.p);
-                ms.Position = 0;
-
-                var json = sr.ReadToEnd();
-
-                WriteLine($"{json}");//{"Age":31,"Name":"Kato Jun"}
-
-
-                ms.Position = 0;
-                var deserialized = (Person)serializer.ReadObject(ms);
-                WriteLine($"Name: {deserialized.Name}"); //Kato Jun
-                WriteLine($"Age : {deserialized.Age}");  //31
-            }
-        }
-    }
-}
-```
-
-``` C#
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Runtime.Serialization;
-using static System.Console;
-
-namespace Json1
-{
-    class Sample2
-    {
-        public void Start()
-        {
-            //データの作成
-            var p_1 = new Person2()
-            {
-                ID = 0,
-                Name = "Taka",
-            };
-            p_1.Attributes.Add("key1", "value1");
-            p_1.Attributes.Add("key2", "value2");
-            p_1.Attributes.Add("key3", "value3");
-
-            var p_2 = new Person2()
-            {
-                ID = 1,
-                Name = "PG",
-            };
-            p_2.Attributes.Add("keyAA", "valueAA");
-            p_2.Attributes.Add("keyBB", "valueBB");
-            p_2.Attributes.Add("keyCC", "valueCC");
-
-            //リストに設定する
-            List<Person2> pList = new List<Person2>() { p_1, p_2 };
-            //リストをシリアライズ
-            string json = JsonUtility.Serialize(pList);
-            WriteLine(json);
-            //デシリアライズ
-            var pDeserializeList = JsonUtility.Deserialize<IList<Person2>>(json);
-
-            //内容の出力
-            foreach(var p in pDeserializeList)
-            {
-                WriteLine("ID = " + p.ID);
-                WriteLine("Name = " + p.Name);
-                foreach(var att in p.Attributes)
-                {
-                    WriteLine(att.Key + " = " + att.Value);
-                }
-            }
-        }
-    }
-}
 ```
 
 ---
@@ -868,4 +717,141 @@ WeatherForecast deserializedWeatherForecast =
 var utf8Reader = new Utf8JsonReader(jsonUtf8Bytes);
 WeatherForecast deserializedWeatherForecast = 
     JsonSerializer.Deserialize<WeatherForecast>(ref utf8Reader)!;
+```
+
+---
+
+``` C# : 多分実務のコード
+var request = new HttpRequestMessage()
+{
+    Method = HttpMethod.Post,
+    RequestUri = new UriBuilder(_Host + _Domain + path).Uri,
+    Content = new StringContent(param, Encoding.UTF8, @"application/json")
+};
+
+private TResponse Send<TRequest, TResponse>(string url, string xApiKey, TRequest request)
+{
+    string dataString = Newtonsoft.Json.JsonConvert.SerializeObject(request);
+    byte[] dataBytes = Encoding.UTF8.GetBytes(dataString);
+
+    WebRequest webRequest = HttpWebRequest.Create(url);
+    webRequest.ContentType = "application/json";
+    webRequest.Method = "POST";
+    webRequest.ContentLength = dataBytes.Length;
+    webRequest.Headers.Add("x-api-key", xApiKey);
+
+    using (Stream reqStream = webRequest.GetRequestStream())
+    {
+        reqStream.Write(dataBytes, 0, dataBytes.Length);
+        reqStream.Close();
+    }
+
+    string responseString = new Func<string>(() => 
+    {
+        using (Stream stream = webRequest.GetResponse().GetResponseStream())
+        using (StreamReader streamReader = new StreamReader(stream, Encoding.UTF8))
+        return streamReader.ReadToEnd();
+    })();
+    return Newtonsoft.Json.JsonConvert.DeserializeObject<TResponse>(responseString);
+}
+```
+
+``` C#
+using System.Collections.Generic;
+using System.IO;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Json;
+using System.Text;
+using static System.Console;
+
+namespace Json1
+{
+    public static class JsonUtility
+    {
+        /// <summary>
+        /// 任意のオブジェクトをJSON文字列にシリアライズします。
+        /// </summary>
+        /// <param name="graph"></param>
+        /// <returns></returns>
+        public static string Serialize(object graph)
+        {
+            using (var stream = new MemoryStream())
+            {
+                var serializer = new DataContractJsonSerializer(graph.GetType());
+                serializer.WriteObject(stream, graph);
+                return Encoding.UTF8.GetString(stream.ToArray());
+            }
+        }
+        /// <summary>
+        /// JSON文字列を任意のオブジェクトにデシリアライズします。
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        public static T Deserialize<T>(string message)
+        {
+            using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(message)))
+            {
+                var serializer = new DataContractJsonSerializer(typeof(T));
+                return (T)serializer.ReadObject(stream);
+            }
+        }
+    }
+
+    class Sample2
+    {
+        public void Start()
+        {
+            //データの作成
+            var p_1 = new Person2()
+            {
+                ID = 0,
+                Name = "Taka",
+            };
+            p_1.Attributes.Add("key1", "value1");
+            p_1.Attributes.Add("key2", "value2");
+            p_1.Attributes.Add("key3", "value3");
+
+            var p_2 = new Person2()
+            {
+                ID = 1,
+                Name = "PG",
+            };
+            p_2.Attributes.Add("keyAA", "valueAA");
+            p_2.Attributes.Add("keyBB", "valueBB");
+            p_2.Attributes.Add("keyCC", "valueCC");
+            //リストをシリアライズ
+            string json = JsonUtility.Serialize(new List<Person2>() { p_1, p_2 });
+            WriteLine(json);
+            //デシリアライズ
+            var pDeserializeList = JsonUtility.Deserialize<IList<Person2>>(json);
+            //内容の出力
+            foreach (var p in pDeserializeList)
+            {
+                WriteLine("ID = " + p.ID);
+                WriteLine("Name = " + p.Name);
+                foreach (var att in p.Attributes)
+                {
+                    WriteLine(att.Key + " = " + att.Value);
+                }
+            }
+        }
+    }
+
+    [DataContract]
+    public class Person2
+    {
+        [DataMember]
+        public int ID { get; set; }
+        [DataMember]
+        public string Name { get; set; }
+        [DataMember]
+        public IDictionary<string, string> Attributes { get; private set; }
+
+        public Person2()
+        {
+            this.Attributes = new Dictionary<string, string>();
+        }
+    }
+}
 ```

@@ -1210,7 +1210,7 @@ foreachなどの評価で初めてクエリが外部ソースに発行され結�
 ## OrderByの要素を切り替えたい
 
 OrderByのソート内容を三項演算子で切り替えたい、という要件を実現するのが本命。  
-タプルの発見は面白かったが、調べるべきはこれだったのだ。  
+タプルの発見は面白かったが、調べるべきはこれ。  
 結果としてできた。  
 
 [型引数を使い方から推論することはできません。型引数を明示的に指定してください。]
@@ -1532,38 +1532,77 @@ if (selectedSeatList.Select(s => s.ReservationFrameNo).Union(emptieList.Select(s
 
 ## AddとUnion
 
-Unionを使うと全部繋げて書けるよっていう例  
+LinqのAddはvoidなので、チェーンして書くことができない。  
+だけど、Unionを工夫して使うと全部繋げて書けるよっていう例  
+速度は保証できないので、完全に好みであるが、備忘録として残しておく  
 
 ``` C#
-        // その枠に存在するキャンセルしていないプレーヤー一覧を取得
-        var framePlayerList = _TRe_ReservationPlayerModel
-            .GetList(
-                new ReservationFrameCondition()
-                {
-                    ReservationFrameNo = targetPlayer.ReservationFrameNo,
-                    ReservationCancelFlag = false
-                }
-            )
-            .Where(w => w.PlayerNo != targetPlayer.PlayerNo)
-            .ToList();
-        // チェックインするプレーヤーを追加する
-        framePlayerList.Add(targetPlayer);
-        // 今回のチェックインでその枠に存在するプレーヤー全員がチェックイン済みになるなら組確定とする。
-        reservationFrame.ConfirmFlag = framePlayerList.All(a => a.CheckinFlag == true);
+    // 本来のパターン
+    // 途中でAddさせたいならいったんチェーンを切らないといけないし、ToList化もしないといけない。
+    var framePlayerList = _TRe_ReservationPlayerModel
+        .GetList(
+            new ReservationFrameCondition()
+            {
+                ReservationFrameNo = targetPlayer.ReservationFrameNo,
+                ReservationCancelFlag = false
+            }
+        )
+        .Where(w => w.PlayerNo != targetPlayer.PlayerNo)
+        .ToList();
+    // チェックインするプレーヤーを追加する
+    framePlayerList.Add(targetPlayer);
+    // 今回のチェックインでその枠に存在するプレーヤー全員がチェックイン済みになるなら組確定とする。
+    reservationFrame.ConfirmFlag = framePlayerList.All(a => a.CheckinFlag == true);
 
 
-        // 今回のチェックインでその枠に存在するプレーヤー全員がチェックイン済みになるなら組確定とする。
-        reservationFrame.ConfirmFlag = _TRe_ReservationPlayerModel
-            .GetList(
-                new ReservationFrameCondition()
-                {
-                    ReservationFrameNo = targetPlayer.ReservationFrameNo,
-                    ReservationCancelFlag = false
-                }
-            )
-            .Where(w => w.PlayerNo != targetPlayer.PlayerNo)
-            .Union(new List<TRe_ReservationPlayer>() { targetPlayer })
-            .All(a => a.CheckinFlag == true);
+    // UNIONで疑似的にADDしたパターン
+    // 繋げるべきデータをUnion内で作ってしまえば、データの追加が可能というわけ
+    reservationFrame.ConfirmFlag = _TRe_ReservationPlayerModel
+        .GetList(
+            new ReservationFrameCondition()
+            {
+                ReservationFrameNo = targetPlayer.ReservationFrameNo,
+                ReservationCancelFlag = false
+            }
+        )
+        .Where(w => w.PlayerNo != targetPlayer.PlayerNo)
+        // そのプレーヤーNoを除外した後、Listを作成してUNIONすることで疑似的なADDが可能というわけ
+        .Union(new List<TRe_ReservationPlayer>() { targetPlayer })
+        .All(a => a.CheckinFlag == true);
+
+
+    // ごめん。このサンプルだったらこれで済んだわ。
+    // 比較したい要素はフラグだけだから、そのプレーヤーが既に存在するなら、
+    // そのフラグだけ最新のプレーヤー情報に書き換えればいいだけだった。
+    var framePlayerList = _TRe_ReservationPlayerModel
+        .GetList(
+            new ReservationFrameCondition()
+            {
+                ReservationFrameNo = targetPlayer.ReservationFrameNo,
+                ReservationCancelFlag = false
+            }
+        )
+        .All(a => {
+            if (a.PlayerNo == targetPlayer.PlayerNo) {
+                a.CheckinFlag = targetPlayer.targetPlayer;
+            }
+            return a.CheckinFlag == true;
+        });
+
+    var tupleList = new List<(int Index, bool flag)>
+        {
+            (1, false),
+            (2, true),
+            (3, true),
+        }
+        .All(a => {
+            if (a.Index == 1)
+            {
+                a.flag=true;
+            }
+            return a.flag == true;
+        });
+
 ```
 
 ``` C#

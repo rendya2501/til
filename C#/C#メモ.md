@@ -1172,6 +1172,8 @@ C#の文字列は２種類ある。
 usingの省略範囲はforeachやwhileのように直前の1つだけじゃなくて、そのブロックの終わりまで続くらしい。  
 割と初めて知った。  
 
+using宣言は8.0からの機能である模様。  
+
 ``` C# : 省略前
     string constr = @"接続文字列";
     using (SqlConnection con = new SqlConnection(constr))
