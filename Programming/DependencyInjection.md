@@ -19,3 +19,53 @@ DIによって部品同士の直接的な依存をなくすことで、テスト
 ## DIの考え方
 
 クラス（実体）に依存させるのはやめて、インタフェース（抽象、ルール）に依存させようということ。  
+
+---
+
+[C#でDIコンテナを使用してみる](https://remix-yh.net/1332/)  
+
+実務でもUnityのDIコンテナ使ってた。  
+
+``` C# : 実務コード
+using Unity;
+
+namespace RN3.Wpf.Common.App
+{
+    /// <summary>
+    /// アプリケーション情報を扱います。
+    /// </summary>
+    public interface IAppInfo
+    {
+        /// <summary>
+        /// クラス登録
+        /// </summary>
+        /// <param name="containerRegistry">コンテナ</param>
+        void RegisterTypes(IUnityContainer containerRegistry);
+    }
+}
+
+
+
+using RN3.Wpf.Common.App;
+using RN3.Wpf.Master.Product.ServiceAdapter;
+using Unity;
+
+namespace RN3.Wpf.Master.Product
+{
+    /// <summary>
+    /// アプリケーション情報を扱います。
+    /// </summary>
+    public class AppInfo : IAppInfo
+    {
+        /// <summary>
+        /// クラス登録
+        /// </summary>
+        /// <param name="containerRegistry">コンテナ</param>
+        public void RegisterTypes(IUnityContainer containerRegistry)
+        {
+            containerRegistry.RegisterType<EditServiceAdapter>();
+            containerRegistry.RegisterType<ListServiceAdapter>();
+        }
+    }
+}
+```

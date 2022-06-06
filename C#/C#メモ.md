@@ -843,7 +843,7 @@ Process.Start(
 [async/await を使った非同期ラムダ式を変数に代入する方法](https://qiita.com/go_astrayer/items/352c34b8db72cf2f6ca5)  
 
 ``` C#
- Func<ListReplyContext, Task> callback = async res => {}
+Func<ListReplyContext, Task> callback = async res => {}
 ```
 
 ---
@@ -875,7 +875,7 @@ Enumerable.EmptyはLinqで空のシーケンスを取得するための構文の
 Foreachでnullが来ても大丈夫な書き方でEnumerableとListの2パターンを示したが、ではどちらがいいのかという問題が発生する。  
 2つの単語を並べただけでどちらがいいのか？という記事はたくさんヒットした。  
 
-[Is it better to use Enumerable.Empty<T>() as opposed to new List<T>() to initialize an IEnumerable<T>?](https://stackoverflow.com/questions/1894038/is-it-better-to-use-enumerable-emptyt-as-opposed-to-new-listt-to-initial)  
+[Is it better to use Enumerable.Empty\<T>() as opposed to new List\<T>() to initialize an IEnumerable\<T>?](https://stackoverflow.com/questions/1894038/is-it-better-to-use-enumerable-emptyt-as-opposed-to-new-listt-to-initial)  
 
 >たとえ空の配列や空のリストを使ったとしても、それらはオブジェクトであり、メモリに保存されています。  
 >ガーベッジコレクタはそれらの面倒を見なければなりません。  

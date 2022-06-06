@@ -1584,7 +1584,7 @@ LinqのAddはvoidなので、チェーンして書くことができない。
         )
         .All(a => {
             if (a.PlayerNo == targetPlayer.PlayerNo) {
-                a.CheckinFlag = targetPlayer.targetPlayer;
+                a.CheckinFlag = targetPlayer.CheckinFlag;
             }
             return a.CheckinFlag == true;
         });

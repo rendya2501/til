@@ -6,6 +6,58 @@
 
 MVPはMVCの次。MVVMの前。
 
+[MVP (Model View Presenter)パターン](http://csharper.blog57.fc2.com/blog-entry-245.html)  
+
+[MVP パターンとは]
+MVP (Model View Presenter) パターンは、MVC (Model View Controller) パターンの亜種です。
+大きな違いとして、MVC パターンでは Controller がユーザーからの入力イベントを受け取りますが、MVP パターンでは View がユーザーからの入力イベントを受け取り、処理を Presenter に委譲します。
+
+
+[Model]
+Model は、ドメインモデルを表します。
+ドメインとは、業務固有の問題領域のことです。
+
+Model → View
+Model は、View に依存しません。
+Model → Presenter
+Model は、Presenter に依存しません。
+
+
+[View]
+View は、Presenter の要求インターフェイスを実装し、ユーザーインターフェイスを直接操作します。
+View は、極力無能にします。そのためには、UI コントロールとの直接的なやり取り以外をできるだけ行わないようにします。
+
+View → Presenter
+View は、Presenter に自分自身を関連付けます。
+View は、ユーザーからの入力イベントを受け取り、処理を Presenter に委譲します。
+View は、上記以外の目的で Presenter を操作しません。
+View → Model
+View は、Presenter から Model を受け取って出力することができます。
+View は、Model を生成しません。
+View は、出力に必要な操作以外で、Model を操作しません。
+
+
+[Presenter]
+Presenter は、View を通じて、ユーザーからの入力イベントを受け取ります。その後、Model を操作したり View を操作したりします。
+
+Presenter → View
+Presenter は、View から入力値を取得することができます。
+Presenter は、View を操作することができます。
+Presenter → Model
+Presenter は、Model を生成したり操作することができます。
+Presenter → その他
+Presenter は、Model や View に属さないもの (データストアやハードウェア等) に関する処理を行うことができます。
+
+
+[View と Presenter の関係]
+前述の通り、View は、Presenter の要求インターフェイスを実装します。この要求インターフェイスは、View が極力無能になるように考慮して定義します。
+Presenter と View は１対１の関係で、一つの Presenter を複数の View に関連付けることは通常しません。
+
+
+[Model の変更通知について]
+MVP パターンも MVC パターンと同じく、Model が View に変更を通知することができます。ただし、これは必須ではなく、この記事でもこれを含めていません。(つか、そっちはよく知りません。)
+こちらの記事によると、このように Model の変更通知を無くして Presenter が完全に View 操作を行うことを、「慎ましいビュー (Humble View)」 と呼ぶそうです。
+
 ---
 
 ## サンプル1
@@ -53,9 +105,9 @@ namespace MVPSample.Models
 {
     public interface IRectangleModel
     {
-        public double Length { get; set; }
-        public double Breadth { get; set; }
-        public double CalculateArea();
+        double Length { get; set; }
+        double Breadth { get; set; }
+        double CalculateArea();
     }
 }
 ```
@@ -245,19 +297,15 @@ namespace MVPSample
 
 動画で紹介されていた本来のコード。
 ViewがPresenterをnewしているのでがっつり依存している。  
-紹介されているMVPとは言えないような気がするが、お手軽ではある。  
+調べて出てくるMVPとは構造が違うので、MVPだと言えないような気がする。  
+しかし、お手軽ではある。  
 ちょっとしたツールを作る時くらいはこのくらいの緩さでもいいような気がしたので残しておく。  
 
 思ったが、MVVMではViewがViewModelをnewしているので、これも似たようなモノではなかろうか？  
-お手軽MVVMに片足突っ込んでる気がする。  
+いうなれば、お手軽MVVMと言ったところでは？  
+xamlのDataContextの記事を見てみたが、`DataContext = new ViewModel();` とすることでバインディングしているので、多分この例もこれに当たる気がする。  
 
-``` C#
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+``` C# : Models
 namespace MVPSample.Models
 {
     public class Rectangle
@@ -267,8 +315,9 @@ namespace MVPSample.Models
         public double CalculateArea() => Length * Breadth;
     }
 }
+```
 
-
+``` C# : Presenters
 using MVPSample.Models;
 using MVPSample.Views;
 
@@ -276,31 +325,29 @@ namespace MVPSample.Presenters
 {
     public class RectanglePresenter
     {
-        readonly IRectangle rectangleView {get; private set;};
+        private IRectangle RectangleView { get; set; }
 
         public RectanglePresenter(IRectangle rectangleView)
         {
-            rectangleView = rectangleView;
+            RectangleView = rectangleView;
+            RectangleView.Calculate += new EventHandler((o, e) => CalculateArea());
         }
 
-        public void CalculateArea()
+        private void CalculateArea()
         {
-            Rectangle rectangle = new()
+            Rectangle rectangle = new Rectangle()
             {
-                Length = double.Parse(rectangleView.LengthText),
-                Breadth = double.Parse(rectangleView.BreadthText)
+                Length = double.Parse(RectangleView.LengthText),
+                Breadth = double.Parse(RectangleView.BreadthText)
             };
-            rectangleView.AreaText = rectangle.CalculateArea().ToString();
+            RectangleView.AreaText = rectangle.CalculateArea().ToString();
         }
     }
 }
+```
 
-
+``` C# : Views
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MVPSample.Views
 {
@@ -325,17 +372,20 @@ namespace MVPSample
     /// </summary>
     public partial class MainWindow : Window, IRectangle
     {
-        readonly RectanglePresenter presenter {get; private set;};
+        private RectanglePresenter Presenter { get; set; }
         public MainWindow()
         {
             InitializeComponent();
-            presenter = new RectanglePresenter(this);
+            // Presenterに依存している。
+            Presenter = new RectanglePresenter(this);
         }
 
         public string LengthText { get => txtLength.Text; set => txtLength.Text = value; }
         public string BreadthText { get => txtBreath.Text; set => txtBreath.Text = value; }
         public string AreaText { get => txtBlockArea.Text; set => txtBlockArea.Text = value + " Sq CM"; }
-        private void Button_Click(object sender, RoutedEventArgs e) => presenter.CalculateArea();
+        
+        public event EventHandler Calculate;
+        private void Button_Click(object sender, RoutedEventArgs e) => Calculate?.Invoke(sender, e);
     }
 }
 ```
