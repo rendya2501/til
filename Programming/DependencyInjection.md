@@ -22,7 +22,58 @@ DIによって部品同士の直接的な依存をなくすことで、テスト
 
 ---
 
+## DIコンテナの実装例
+
 [C#でDIコンテナを使用してみる](https://remix-yh.net/1332/)  
+[Unity Container: Constructor Injection](https://www.tutorialsteacher.com/ioc/constructor-injection-using-unity-container)  
+
+``` C#
+using MVPSample.Models;
+using MVPSample.Presenters;
+using MVPSample.Views;
+using System;
+using System.Windows;
+using Unity;
+using Unity.Injection;
+
+namespace MVPSample
+{
+    /// <summary>
+    /// Interaction logic for App.xaml
+    /// </summary>
+    public partial class App : Application
+    {
+        [STAThread]
+        public static void Main()
+        {
+            // DIで実装した場合
+            IUnityContainer container = new UnityContainer();
+            container.RegisterType<IRectangleView, MainWindow>();
+            container.RegisterType<IRectangleModel, RectangleModel>();
+            container.Resolve<RectanglePresenter>();
+            container.Resolve<IRectangleView>().Show();
+            container.Resolve<App>().Run();
+            //①
+            //container.RegisterInstance(new RectanglePresenter(view, container.Resolve<IRectangleModel>()));
+            //②
+            //container.RegisterType<RectanglePresenter>(
+            //    new InjectionConstructor(
+            //        new ResolvedParameter<IRectangleView>(),
+            //        new ResolvedParameter<IRectangleModel>()
+            //    )
+            //);
+
+
+            // DIなしで実装した場合
+            //IRectangleModel model = new RectangleModel();
+            //IRectangleView view = new MainWindow();
+            //_ = new RectanglePresenter(view, model);
+            //view.Show();
+            //new App().Run();
+        }
+    }
+}
+```
 
 実務でもUnityのDIコンテナ使ってた。  
 
@@ -43,12 +94,6 @@ namespace RN3.Wpf.Common.App
         void RegisterTypes(IUnityContainer containerRegistry);
     }
 }
-
-
-
-using RN3.Wpf.Common.App;
-using RN3.Wpf.Master.Product.ServiceAdapter;
-using Unity;
 
 namespace RN3.Wpf.Master.Product
 {

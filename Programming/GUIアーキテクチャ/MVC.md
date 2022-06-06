@@ -10,6 +10,8 @@ MVCとは、設計手法の一つ。
 [MVC、本当にわかってますか？](https://qiita.com/tshinsay/items/5b1724baf32b8b5113c2)  
 [Model-View-Controller(MVC) 再考](https://qiita.com/gomi_ningen/items/5b23be2df8c42a199703#msdn%E3%81%AEmvc%E8%A8%98%E4%BA%8B%E3%81%BE%E3%81%A8%E3%82%81)  
 
+[MVCモデルについて](https://qiita.com/s_emoto/items/975cc38a3e0de462966a)
+
 ---
 
 ## 使用目的

@@ -58,6 +58,8 @@ Presenter と View は１対１の関係で、一つの Presenter を複数の V
 MVP パターンも MVC パターンと同じく、Model が View に変更を通知することができます。ただし、これは必須ではなく、この記事でもこれを含めていません。(つか、そっちはよく知りません。)
 こちらの記事によると、このように Model の変更通知を無くして Presenter が完全に View 操作を行うことを、「慎ましいビュー (Humble View)」 と呼ぶそうです。
 
+[StackOverFlowの「MVPとMVCの違い」についての回答を読んでみた](https://qiita.com/takahirom/items/597c48ece57b4623cdee)
+
 ---
 
 ## サンプル1
