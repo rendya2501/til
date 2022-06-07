@@ -1,6 +1,15 @@
 # XAML_Styleまとめ
 
-[[WPF] Styleでできることと書き方](https://qiita.com/tera1707/items/cb8ad4c40107ae25b565)  
+## Style
+
+[WPF4.5入門 その50 「Style」](https://blog.okazuki.jp/entry/2014/09/04/200304)  
+
+コントロールに設定するプロパティの値のセットを集めるためのもの。  
+Styleは、Setterというオブジェクトを使って、どのプロパティにどんな値を設定するか指定できます。  
+スタイルを設定するには、コントロールのStyleプロパティにStyleを設定します。  
+ResourceやResourceDictionaryに定義することでコントロールのプロパティの設定を複数のコントロールで共通化することが出来ます。  
+
+---
 
 ## BaseOn
 
@@ -10,58 +19,66 @@
 受け継いだうえで、指定したプロパティは上書きすることができる。  
 
 ``` XML
-    <Grid>
-        <Grid.Resources>
-            <!--  スタイル①：元になるスタイル  -->
-            <Style x:Key="MyButtonStyle" TargetType="Button">
-                <Setter Property="Background" Value="Green" />
-                <Setter Property="Foreground" Value="Yellow" />
-                <Setter Property="BorderBrush" Value="Purple" />
-                <Setter Property="BorderThickness" Value="3" />
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="Button">
-                            <Grid>
-                                <Ellipse
-                                    Fill="{TemplateBinding Background}"
-                                    Stroke="{TemplateBinding BorderBrush}"
-                                    StrokeThickness="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=BorderThickness.Top}" />
-                                <ContentPresenter
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"
-                                    Content="{TemplateBinding Content}" />
-                            </Grid>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-            </Style>
+<Window>
+    <Window.Resources>
+        <!--  継承元のスタイル  -->
+        <Style x:Key="DefaultTextStyle" TargetType="{x:Type TextBlock}">
+            <Setter Property="FontFamily" Value="Meiryo UI" />
+            <Setter Property="Foreground" Value="Yellow" />
+            <Setter Property="FontSize" Value="12" />
+        </Style>
 
-            <!--  スタイル②：元のスタイルをベースに変更を加えるスタイル  -->
-            <Style
-                x:Key="MyButtonStyleEx"
-                BasedOn="{StaticResource MyButtonStyle}"
-                TargetType="Button">
-                <Setter Property="BorderBrush" Value="Red" />
-                <Setter Property="BorderThickness" Value="20" />
-            </Style>
-        </Grid.Resources>
-        <!--  画面表示メイン  -->
-        <Grid Background="Beige">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*" />
-                <RowDefinition Height="360" />
-            </Grid.RowDefinitions>
+        <!--  継承先のスタイル  -->
+        <!--  メイリョウ以外全て上書きされる  -->
+        <Style
+            x:Key="TitleTextStyle"
+            BasedOn="{StaticResource DefaultTextStyle}"
+            TargetType="{x:Type TextBlock}">
+            <Setter Property="FontSize" Value="24" />
+            <Setter Property="Foreground" Value="Red" />
+        </Style>
 
-            <TextBlock
-                Grid.Row="0"
-                FontSize="60"
-                Text="画面" />
-            <Button
-                Grid.Row="1"
-                Content="ボタン"
-                Style="{DynamicResource MyButtonStyleEx}" />
-        </Grid>
-    </Grid>
+        <!--  継承先のスタイルをさらに継承したスタイル  -->
+        <!--  色の指定がない場合、直前の継承元が赤なので赤のままになる。 -->
+        <!--  指定したプロパティの通り、字体は斜体になり、文字の大きさは継承元より小さくなる  -->
+        <Style
+            x:Key="ThirdTextStyle"
+            BasedOn="{StaticResource TitleTextStyle}"
+            TargetType="{x:Type TextBlock}">
+            <Setter Property="FontStyle" Value="Oblique" />
+            <Setter Property="FontSize" Value="12" />
+        </Style>
+    </Window.Resources>
+
+    <StackPanel>
+        <!-- メイリョウ + 黄 + 大きさ12 -->
+        <TextBlock Style="{StaticResource TitleTextStyle}" Text="タイトル" />
+        <!-- メイリョウ + 赤 + 大きさ24 -->
+        <TextBlock Style="{StaticResource DefaultTextStyle}" Text="デフォルトのテキスト" />
+        <!-- メイリョウ + 赤 + 大きさ12 + 斜め -->
+        <TextBlock Style="{StaticResource ThirdTextStyle}" Text="第3のテキスト" />
+    </StackPanel>
+</Window>
+```
+
+---
+
+## Trigger
+
+Styleでは、Triggerを使うことでプロパティの値に応じてプロパティの値を変更することが出来ます。  
+例えばマウスが上にあるときにTrueになるIsMouseOverプロパティがTrueの時に、背景色を青にするには以下のようなStyleを記述します。  
+TriggerのPropertyに設定可能なプロパティは、依存関係プロパティなので、その点に注意が必要です。  
+
+``` XML
+<Style x:Key="DefaultTextStyle" TargetType="{x:Type TextBlock}">
+    <Setter Property="FontFamily" Value="Meiryo UI" />
+    <Setter Property="FontSize" Value="12" />
+    <Style.Triggers>
+        <Trigger Property="IsMouseOver" Value="True">
+            <Setter Property="Background" Value="Blue" />
+        </Trigger>
+    </Style.Triggers>
+</Style>
 ```
 
 ---
@@ -203,80 +220,4 @@
         </Setter>
     </Style>
 </ResourceDictionary>
-```
-
----
-
-## スタイルの定義
-
-``` XML
-    <StackPanel Margin="20" Orientation="Vertical">
-        <StackPanel.Resources>
-            <Style
-                x:Key="TitleLabel"
-                BasedOn="{StaticResource {x:Type ctrl:CustomLabel}}"
-                TargetType="ctrl:CustomLabel">
-                <Setter Property="Margin" Value="0,0,10,0" />
-                <Setter Property="HorizontalContentAlignment" Value="Right" />
-                <Setter Property="VerticalAlignment" Value="Center" />
-            </Style>
-            <Style
-                x:Key="TitleLabelCol3"
-                BasedOn="{StaticResource TitleLabel}"
-                TargetType="ctrl:CustomLabel">
-                <Setter Property="Width" Value="65" />
-            </Style>
-        </StackPanel.Resources>
-    </StackPanel>
-
-    <!-- 使うとき1 -->
-    <ctrl:CustomLabel Content="委託" Style="{StaticResource TitleLabelCol3}" />
-```
-
-``` XML
-    <Grid.Resources>
-        <Style x:Key="TitleLabel" TargetType="{x:Type Button}">
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="{StaticResource MahApps.Brushes.WindowButtonCommands.Background.MouseOver}" />
-                </Trigger>
-                <Trigger Property="IsPressed" Value="True">
-                    <Setter Property="Background" Value="{StaticResource MahApps.Brushes.AccentBase}" />
-                    <Setter Property="Foreground" Value="{StaticResource MahApps.Brushes.IdealForeground}" />
-                </Trigger>
-                <Trigger Property="IsEnabled" Value="False">
-                    <Setter Property="Foreground" Value="{StaticResource MahApps.Brushes.IdealForegroundDisabled}" />
-                </Trigger>
-            </Style.Triggers>
-            <Setter Property="Background" Value="{StaticResource MahApps.Brushes.Transparent}" />
-            <Setter Property="Foreground" Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type FrameworkElement}}, Path=(TextElement.Foreground)}" />
-            <Setter Property="HorizontalContentAlignment" Value="Center" />
-            <Setter Property="Padding" Value="0" />
-            <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
-            <Setter Property="Focusable" Value="False" />
-            <Setter Property="IsTabStop" Value="False" />
-        </Style>
-    </Grid.Resources>
-
-    <!-- 使うとき2 -->
-    <Button
-        Grid.Column="0"
-        Width="60"
-        Command="{Binding ShowReservationSearchWindowCommand}"
-        ToolTip="予約検索">
-        <Button.Style>
-            <Style BasedOn="{StaticResource TitleLabel}" TargetType="{x:Type Button}">
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="{x:Type Button}">
-                            <Border Background="{TemplateBinding Background}">
-                                <Image Source="{StaticResource White_Search_24}" Stretch="None" />
-                            </Border>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-            </Style>
-        </Button.Style>
-    </Button>
 ```

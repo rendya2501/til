@@ -608,48 +608,6 @@ class UsingStaticSample
 
 ---
 
-## シャローコピーとディープコピー
-
-[シャローコピーとディープコピーの違い](https://itsakura.com/it-program-shallow)  
-[C# DeepCopyする方法](https://tomisenblog.com/c-sharp-deepcopy/)  
-
-シンボリックリンクとハードリンクみたいなやつ。  
-シャローコピーは明らかにシンボリックリンクだな。  
-いや、多分正確には違うと思うけど。  
-
-### シャローコピー
-
-・オブジェクトの参照先をコピーします。  
-・コピー元のオブジェクトとコピー先のオブジェクトが同じアドレスの値(インスタンス)を参照します。  
-・片方のオブジェクトの値を変更すると、もう一方のオブジェクトの値も変更されます。  
-・英語ではshallow copyです。shallowは、浅いという意味です。  
-
-変数だけ別の用意して、参照先は同じやつ。  
-
-``` C# : シャローコピー
-    var srcMember = new Member { Name = "鈴木", Address = "東京都" };
-    var dstMember = srcMember;
-    dstMember.Address = "千葉県";
-    // src側も変わってる
-```
-
-### ディープコピー
-
-・オブジェクトの値(インスタンス)をコピーします。  
-・コピー元のオブジェクトとコピー先のオブジェクトがそれぞれ別のアドレスの値(インスタンス)を参照します。  
-・片方のオブジェクトの値を変更しても、もう一方のオブジェクトの値は変更されません。  
-・英語ではdeep copyです。deepは、深いという意味です。  
-
-変数も別で参照先も別のやつ。  
-でも、どっちも入ってる値は同じ。  
-C#ではデフォルトでやってくれるやつはないので自分で実装する必要がある。  
-といっても、Newして片方のデータをそのまま新しいほうにグルグルセットするだけだけどね。  
-シリアライズとデシリアライズでやる方法もあるか。  
-
-ソースはシャローコピーのdst側を千葉県ってやってもsrcの値はそのままになるだけだから省略するよ。  
-
----
-
 ## 名前付き引数 C#7.0
 
 [名前付き引数](https://ufcpp.net/study/csharp/sp4_optional.html)  
@@ -1502,3 +1460,113 @@ C#7.2から利用可能。
 ## 匿名型
 
 [ipentec](https://www.ipentec.com/document/csharp-using-anonymous-type)  
+
+---
+
+## インターフェイス
+
+### インターフェイスにインターフェイスを実装できるのか?
+
+実装はしないけど継承？みたいなことはできる。  
+その際、インターフェイスの中で継承元のインターフェイスの実装を強制されることはない。  
+しかし、そのインターフェイスを実装したクラスでは、積み上げたインターフェイス全てを実装しないといけないらしい。  
+
+``` C#
+    interface ITest1
+    {
+        void Test1();
+    }
+
+    interface ITest2 : ITest1
+    {
+        void Test2();
+    }
+
+    interface ITest3 : ITest2
+    {
+        void Test3();
+    }
+
+    public class Test : ITest3
+    {
+        public void Test1()
+        {
+            throw new NotImplementedException();
+        }
+        public void Test2()
+        {
+            throw new NotImplementedException();
+        }
+        public void Test3()
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class Test2 : ITest2
+    {
+        public void Test1()
+        {
+            throw new NotImplementedException();
+        }
+        void ITest2.Test2()
+        {
+            throw new NotImplementedException();
+        }
+    }
+```
+
+### ダイアモンド継承
+
+``` C#
+    interface IA
+    {
+        void M() => Console.WriteLine("A.M");
+    }
+
+    interface IB : IA
+    {
+        void IA.M() => Console.WriteLine("B.M");
+    }
+
+    interface IC : IA
+    {
+        void IA.M() => Console.WriteLine("C.M");
+    }
+
+    // IB にも IC にも M の実装があって、どちらを使いたいのか不明瞭(コンパイル エラー)。
+    // インターフェイスメンバー'IA.M()'には最も固有な実装がありません。'IB.IM.M()'と'IC.IA.M()'のどちらも最も固有なものではありません。
+    class C : IB, IC
+    {
+        // これなら IB.M でも IC.M でもなく、この M が呼ばれるので明瞭
+        //public void M() => Console.WriteLine("new implementation");
+    }
+```
+
+### トレイト
+
+[C# 8のデフォルトインターフェースメソッド](https://www.infoq.com/jp/articles/default-interface-methods-cs8/)  
+C# 8の新機能としてデフォルトインターフェースメソッドが提案されている。  
+これはトレイトというプログラミングテクニックを可能にするものである。  
+トレイトとは、関連のないクラス間でメソッドを再利用できるオブジェクト指向プログラミング技術である。  
+
+``` C#
+    interface IDefaultInterfaceMethod
+    {
+        public void DefaultMethod()
+        {
+            Console.WriteLine("I am a default method in the interface!");
+        }
+    }
+
+    class AnyClass : IDefaultInterfaceMethod { }
+
+    class Program
+    {
+        static void Main()
+        {
+            IDefaultInterfaceMethod anyClass = new AnyClass();
+            anyClass.DefaultMethod();
+        }
+    }
+```

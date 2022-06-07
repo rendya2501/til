@@ -4,6 +4,21 @@
 [DI って何でするのかわからない人向けに頑張って説明してみる「本来の意味」](https://qiita.com/okazuki/items/0c17a161a921847cd080)  
 [DI (依存性注入) って何のためにするのかわからない人向けに頑張って説明してみる](https://qiita.com/okazuki/items/a0f2fb0a63ca88340ff6)  
 
+https://qiita.com/mizunowanko/items/53eed059fc044c5aa5dc
+
+簡単にいえばクラスの内部でnewするのではなく、外部で用意してそれを注入するということです。  
+
+メリット  
+・ソフトウエアの階層をきれいに分離した設計が容易になる  
+・コードが簡素になり、開発期間が短くなる  
+・テストが容易になり、「テスト・ファースト」による開発スタイルを取りやすくなる  
+・特定のフレームワークへの依存性が極小になるため、変化に強いソフトウエアを作りやすくなる（＝フレームワークの進化や、他のフレームワークへの移行に対応しやすくなる）  
+
+デメリット  
+・クラスをたくさん作るので大抵の場合はじめに工数がかかる場合が多いと思われる  
+・プログラムの実行スピードが遅くなる可能性が高い  
+・クラスやファイルが沢山できる  
+
 ## DIの概説
 
 DI (Dependency Injection、依存の注入)とは、設計方法の一つ。  
@@ -34,7 +49,6 @@ using MVPSample.Views;
 using System;
 using System.Windows;
 using Unity;
-using Unity.Injection;
 
 namespace MVPSample
 {
