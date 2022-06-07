@@ -6,6 +6,64 @@
 
 [[WPF/xaml]BasedOnを使って元のstyleを受け継ぐ](https://qiita.com/tera1707/items/3c4f598c5d022e4987a2)  
 
+親のスタイルを受け継ぐ。  
+受け継いだうえで、指定したプロパティは上書きすることができる。  
+
+``` XML
+    <Grid>
+        <Grid.Resources>
+            <!--  スタイル①：元になるスタイル  -->
+            <Style x:Key="MyButtonStyle" TargetType="Button">
+                <Setter Property="Background" Value="Green" />
+                <Setter Property="Foreground" Value="Yellow" />
+                <Setter Property="BorderBrush" Value="Purple" />
+                <Setter Property="BorderThickness" Value="3" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Grid>
+                                <Ellipse
+                                    Fill="{TemplateBinding Background}"
+                                    Stroke="{TemplateBinding BorderBrush}"
+                                    StrokeThickness="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=BorderThickness.Top}" />
+                                <ContentPresenter
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Content="{TemplateBinding Content}" />
+                            </Grid>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!--  スタイル②：元のスタイルをベースに変更を加えるスタイル  -->
+            <Style
+                x:Key="MyButtonStyleEx"
+                BasedOn="{StaticResource MyButtonStyle}"
+                TargetType="Button">
+                <Setter Property="BorderBrush" Value="Red" />
+                <Setter Property="BorderThickness" Value="20" />
+            </Style>
+        </Grid.Resources>
+        <!--  画面表示メイン  -->
+        <Grid Background="Beige">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="360" />
+            </Grid.RowDefinitions>
+
+            <TextBlock
+                Grid.Row="0"
+                FontSize="60"
+                Text="画面" />
+            <Button
+                Grid.Row="1"
+                Content="ボタン"
+                Style="{DynamicResource MyButtonStyleEx}" />
+        </Grid>
+    </Grid>
+```
+
 ---
 
 ## Resourceで定義したStyleを当てる方法
@@ -172,7 +230,7 @@
     </StackPanel>
 
     <!-- 使うとき1 -->
-      <ctrl:CustomLabel Content="委託" Style="{StaticResource TitleLabelCol3}" />
+    <ctrl:CustomLabel Content="委託" Style="{StaticResource TitleLabelCol3}" />
 ```
 
 ``` XML

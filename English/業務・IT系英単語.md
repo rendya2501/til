@@ -518,6 +518,26 @@ configuration of the system
 〔行動を起こす〕きっかけ、引き金  
 《電気》信号  
 
+## commit
+
+約束する
+
+## コンセンサス
+
+合意を取る
+
+## アジェンダ
+
+議題
+
+## フィックス
+
+決定する、確定する
+
+## エビデンス
+
+証拠
+
 ---
 
 ## Delete,Erase,Remove,Eliminate
