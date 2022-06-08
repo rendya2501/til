@@ -191,20 +191,7 @@ XML 要素の子要素としてプロパティの値を設定する構文。
 
 ### Styleの書き方
 
-`<SETTER>`タグはStyle内でのみ有効な模様。  
-
-``` XML
-<Style TargetType="TextBlock">
-    <Setter Property="Text" Value="{Binding}" />
-    <Setter Property="LayoutTransform">
-        <Setter.Value>
-            <DataTemplate>
-                <ScaleTransform ScaleX="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type metro:MetroWindow}}, Path=DataContext.Magnification, Mode=TwoWay}" ScaleY="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type metro:MetroWindow}}, Path=DataContext.Magnification, Mode=TwoWay}" />
-            </DataTemplate>
-        </Setter.Value>
-    </Setter>
-</Style>
-```
+Styleまとめを参照されたし。  
 
 ---
 

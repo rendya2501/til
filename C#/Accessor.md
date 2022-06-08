@@ -493,7 +493,6 @@ namespace RN3.Wpf.Common.Util.Config
         private static string GetOrCreateAppPath()
         {
             //ユーザのAppData\Localフォルダのパスを取得。
-            //string localAppDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData, Environment.SpecialFolderOption.Create);
             string localAppDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.Create);
             //プロセス名を取得
             string processName = Process.GetCurrentProcess().ProcessName;
