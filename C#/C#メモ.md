@@ -916,17 +916,17 @@ var test = dt?.Date;
 [LINQ：文字列コレクションで「LIKE検索」（部分一致検索）をするには？［C#、VB］](https://atmarkit.itmedia.co.jp/ait/articles/1412/02/news129.html)  
 
 ``` C#
-    // LIKE '%ぶた%'：String.Containsを使う
+    // 曖昧検索 LIKE '%ぶた%'
     var 前後パーセント = sampleData.Where(item => item.Contains("ぶた"));
     WriteItems("LIKE '%ぶた%'", 前後パーセント);
     // → LIKE '%ぶた%': ぶた, こぶた, ぶたまん, ねぶたまつり
     
-    // LIKE 'ぶた%'：String.StartsWithを使う
+    // 前方一致 LIKE 'ぶた%'
     var 後パーセント = sampleData.Where(item => item.StartsWith("ぶた"));
     WriteItems("LIKE 'ぶた%'", 後パーセント);
     // → LIKE 'ぶた%': ぶた, ぶたまん
 
-    // LIKE '%ぶた'：String.EndsWithを使う
+    // 後方一致 LIKE '%ぶた'
     var 前パーセント = sampleData.Where(item => item.EndsWith("ぶた"));
     WriteItems("LIKE '%ぶた'", 前パーセント);
     // → LIKE '%ぶた': ぶた, こぶた

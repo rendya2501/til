@@ -272,3 +272,91 @@ SELECT * FROM sys.dm_exec_sql_text(0x01000600B74C2A1300D2582A2100000000000000000
 9. 次へを押していけば完了  
 
 ---
+
+## SQLServer 列追加 位置
+
+[浦下.com](https://urashita.com/archives/13652)  
+
+SQLServerManagementStudio でならデザイナで任意の場所に列を追加することが可能。  
+
+T-SQL(Transact-SQL)でやる場合、そのようなコマンドは存在しないので以下のような手順を踏んでフィールドを追加する必要あり。  
+そもそも、MySQL以外のデータベースではカラム追加時の位置指定が軒並み不可能な模様。  
+
+1. テーブルをバックアップ  
+2. テーブルを削除  
+3. テーブルを再作成  
+4. 再作成したテーブルにバックアップからリストア  
+
+``` SQL
+BEGIN TRAN
+BEGIN TRY
+    -- ①対象テーブルのデータをテンポラリテーブルにバックアップ
+    SELECT * INTO #Temp FROM TBL_USER
+
+    -- ②対象テーブルを削除
+    DROP TABLE TBL_USER
+
+    -- ③カラムを追加して対象テーブルを再作成
+    CREATE TABLE TBL_USER
+    (
+        UserNo int NOT NULL DEFAULT (0),
+        Name nvarchar(255) NOT NULL DEFAULT (),
+        Age int NOT NULL DEFAULT (0),
+        Addr nvarchar(255) NOT NULL DEFAULT (),
+        Tel nvarchar(255) NOT NULL DEFAULT (),
+        CONSTRAINT TBL_USER_PK PRIMARY KEY CLUSTERED (UserNo)
+    )
+
+    -- ④テンポラリテーブルからバックアップデータを復元
+    INSERT INTO TBL_USER
+    SELECT
+        Tmp.UserNo,
+        Tmp.Name,
+        0,
+        Tmp.Addr,
+        Tmp.Tel
+    FROM #Temp Tmp
+
+    -- ⑤テンポラリテーブルを削除
+    DROP TABLE #Temp
+
+    COMMIT TRAN
+END TRY
+BEGIN CATCH
+    ROLLBACK TRAN
+    SELECT
+        ERROR_NUMBER() AS ErrorNumber,
+        ERROR_SEVERITY() AS ErrorSeverity,
+        ERROR_STATE() AS ErrorState,
+        ERROR_PROCEDURE() AS ErrorProcedure,
+        ERROR_LINE() AS ErrorLine,
+        ERROR_MESSAGE() AS ErrorMessage
+END CATCH
+```
+
+一番最後に列を追加するのは当たり前なので割愛するが、コマンドはこんな感じ。
+
+``` sql : TBK_USERに年齢カラムを追加するクエリ
+ALTER TABLE TBL_USER ADD Age int DEFAULT 0
+```
+
+---
+
+## テーブル構造を出力する
+
+``` sql
+EXEC sp_help [TRe_ReservationPlayer2];
+```
+
+[【SQL Server】SSMSを使用して、各種定義やレコードをエクスポートする](https://sqlserver.work/2020/06/28/ssms%E3%82%92%E4%BD%BF%E7%94%A8%E3%81%97%E3%81%A6%E3%80%81%E5%90%84%E7%A8%AE%E5%AE%9A%E7%BE%A9%E3%82%84%E3%83%AC%E3%82%B3%E3%83%BC%E3%83%89%E3%82%92%E3%82%A8%E3%82%AF%E3%82%B9%E3%83%9D%E3%83%BC/)  
+
+CREATE TABLEする時のSQL文を出力するためにはスクリプトを実行する必要あり。  
+
+1. データベースを右クリック  
+2. タスク→スクリプトの生成  
+3. 次へボタンを押す  
+4. 特定のデータベースオブジェクトの選択  
+   - 対象テーブルを選択して次へ  
+5. クリップボードに保存  
+6. 詳細設定→[スクリプトを作成するデータの種類]が[スキーマのみ]になっていることを確認  
+7. 次へを押していけば完了  
