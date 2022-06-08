@@ -4,7 +4,7 @@
 [DI って何でするのかわからない人向けに頑張って説明してみる「本来の意味」](https://qiita.com/okazuki/items/0c17a161a921847cd080)  
 [DI (依存性注入) って何のためにするのかわからない人向けに頑張って説明してみる](https://qiita.com/okazuki/items/a0f2fb0a63ca88340ff6)  
 
-https://qiita.com/mizunowanko/items/53eed059fc044c5aa5dc
+[「なぜDI(依存性注入)が必要なのか？」についてGoogleが解説しているページを翻訳した](https://qiita.com/mizunowanko/items/53eed059fc044c5aa5dc)  
 
 簡単にいえばクラスの内部でnewするのではなく、外部で用意してそれを注入するということです。  
 
