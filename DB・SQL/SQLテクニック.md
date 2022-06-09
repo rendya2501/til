@@ -78,7 +78,7 @@ WHERE [CustomerCD] = 'ALP000000025'
 -- 上記クエリを実行した結果は下記のようになる。
 -- これを顧客でGROUP BYしてMAXを取れば、1行に集約できるというわけ
 
--- CustomerCD      数値0    数値1    数値2    数値3    数値4    数値5    数値6    数値7    数値8    数値9
+-- CustomerCD      数値0   数値1   数値2   数値3   数値4   数値5   数値6   数値7   数値8   数値9
 -- ALP000000025    0.00    NULL    NULL    NULL    NULL    NULL    NULL    NULL    NULL    NULL
 -- ALP000000025    NULL    0.00    NULL    NULL    NULL    NULL    NULL    NULL    NULL    NULL
 -- ALP000000025    NULL    NULL    0.00    NULL    NULL    NULL    NULL    NULL    NULL    NULL
@@ -118,35 +118,42 @@ select ROW_NUMBER() OVER (), * from TMa_Product
 
 ## 連番生成
 
+[SQL で動的に連番テーブルを生成する](https://sql55.com/query/generate-sequence-number.php)  
+
+`sys.all_objects` はシステムオブジェクトやユーザーが定義したオブジェクト等を保持している、オブジェクトカタログビューで、SQL Server のコアなビューなので、バージョンがあがっても簡単になくなったりする心配はないと思います。  
+ですが、`sys.all_objects` のデフォルトのレコード数は、SQL Server のバージョンによっても違いますが、だいたい 2000 前後なので、あまり大きいを生成するのには使えませんので気をつけてください。  
+
 ### 範囲で連番生成
 
 ``` sql
+--  6  12
+-- 12  18
+-- 18  24
+-- 24  30
 SELECT * FROM (
     SELECT TOP (1000)
-        ROW_NUMBER() OVER (ORDER BY object_id) AS SeqNo,
+        ROW_NUMBER() OVER (ORDER BY object_id) AS SeqNoFrom,
         ROW_NUMBER() OVER (ORDER BY object_id)+6 AS SeqNoTo
     FROM sys.all_objects
-    ORDER BY SeqNo
+    ORDER BY SeqNoFrom
 ) AS rn_q
-WHERE rn_q.SeqNo%6 = 0
+WHERE rn_q.SeqNoFrom%6 = 0
 ```
 
 ``` sql
--- 0    4
--- 5    9
+--  0     4
+--  5     9
 -- 10    14
 -- 15    19
--- 20    24
--- 25    29
--- 30    34
+-- ~~~~~~~~
 SELECT * FROM (
-    SELECT   TOP (1000)
-             ROW_NUMBER() OVER (ORDER BY object_id)-1 AS SeqNo,
-             ROW_NUMBER() OVER (ORDER BY object_id)+3 AS SeqNoTo
-    FROM     sys.all_objects
-    ORDER BY SeqNo
+    SELECT TOP (1000)
+        ROW_NUMBER() OVER (ORDER BY object_id)-1 AS SeqNoFrom,
+        ROW_NUMBER() OVER (ORDER BY object_id)+3 AS SeqNoTo
+    FROM sys.all_objects
+    ORDER BY SeqNoFrom
 ) AS rn_q
-WHERE rn_q.SeqNo%5 = 0
+WHERE rn_q.SeqNoFrom%5 = 0
 ```
 
 ---
