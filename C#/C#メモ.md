@@ -1338,3 +1338,75 @@ Public class Foo
     }
 }
 ```
+
+---
+
+## 匿名関数の即時実行でyield returnは使えない
+
+[コンパイラ エラー CS1621](https://docs.microsoft.com/ja-jp/dotnet/csharp/misc/cs1621)  
+>yield ステートメントは、匿名メソッドまたはラムダ式の内部では使用できません。  
+
+[In C#, why can't an anonymous method contain a yield statement?](https://stackoverflow.com/questions/1217729/in-c-why-cant-an-anonymous-method-contain-a-yield-statement)  
+
+実務で、「これくらいなら即時関数でまとめたほうがきれいだな」って思ったやつがあって、「Enumerableで返すならyieldだっけ？」ってことで実装したらエラーになった。  
+
+後日調査した結果、ローカル関数だといける。  
+謎である。  
+
+``` C#
+// ローカル関数 ○
+IEnumerable<int> Generate()
+{
+    for (int i = 0; i < 10; i++)
+    {
+        yield return i;
+    }
+}
+
+// 匿名関数 ×
+var aa = new Func<IEnumerable<int>>(() =>
+{
+    for (int i = 0; i < 10; i++)
+    {
+        // コンパイラ エラー CS1621
+        // yield ステートメントは、匿名メソッドまたはラムダ式の内部では使用できません
+        yield return i;
+    }
+})();
+```
+
+どうしても匿名関数でやりたいならこうしないといけないみたい。  
+やる意味はない。  
+どうしてもやるにしても、LinqのSelect内部で頑張るべき。  
+
+[イテレータはラムダ式、匿名メソッド内では使えない](http://blogs.wankuma.com/gshell/archive/0001/01/01/IteratorInFunc.aspx)  
+
+``` C#
+    public class Test
+    {
+        // 逐次処理をする関数オブジェクト
+        private static Func<IEnumerable<int>> iterateFunc;
+        // 1 メソッドによる実装
+        private static IEnumerable<int> Iterate()
+        {
+            for (int i = 0; i < 10; ++i)
+            {
+                Thread.Sleep(1000);
+                yield return i;
+            }
+        }
+        // スタティックコンストラクタ
+        static Test()
+        {
+            // 2 【コンパイルエラー】ラムダ式バージョン
+            //iterateFunc = () =>
+            //    {
+            //        for (int i = 0; i < 10; ++i)
+            //        {
+            //            Thread.Sleep(1000);
+            //            yield return i;
+            //        }
+            //    };
+            iterateFunc = new Func<IEnumerable<int>>(Iterate); 
+        }
+```
