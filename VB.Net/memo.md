@@ -478,3 +478,48 @@ Asyncの中でAwait Task.WhenAllとすることで、別スレッドの処理の
 
 Asyncを使わない、通常のタスクとして実行するならTask.WaitAllだ。  
 これならAsyncでない場合、すべての処理が終わるまで待ってくれる。  
+
+---
+
+### SqlConnectionをUsingした場合、Disposeと同時にCloseされるのでFinallyで明示的にCloseする必要はない
+
+``` VB
+    ''' <summary>
+    ''' TddPaymentStatementHistoryに対して保存を実行する処理
+    ''' </summary>
+    ''' <param name="SlipNuber"></param>
+    ''' <param name="EffectiveDate"></param>
+    ''' <param name="BillPrice"></param>
+    Public Sub SavePaymentStatementHistory(ByVal SlipNuber As String,
+                                           ByVal EffectiveDate As DateTime?,
+                                           ByVal BillPrice As String)
+        'データ生成
+        Dim obj As New PaymentStatementHistoryClass
+        With obj
+            .SlipNumber = SlipNuber
+            .EffectiveDate = CDate(EffectiveDate)
+            .BillPrice = BillPrice
+        End With
+
+        'SqlConnectionをUsingした場合、Disposeと同時にCloseされるのでFinallyで明示的にCloseする必要はない。
+        'https://docs.microsoft.com/ja-jp/dotnet/api/system.data.sqlclient.sqlconnection.close?redirectedfrom=MSDN&view=netframework-4.7.2#System_Data_SqlClient_SqlConnection_Close
+        Using con As New SqlConnection(New DataAccess(DataAccess.AppConectMode.DATA).CreConectStr)
+            con.Open()
+
+            'トランザクション
+            Using tr As SqlTransaction = con.BeginTransaction
+                Try
+                    Using cls As New PaymentStatementHistoryClass
+                        cls.Insert(obj, tr)
+                    End Using
+
+                    'コミット
+                    tr.Commit()
+                Catch ex As Exception
+                    tr.Rollback()
+                    Throw New Exception("保存処理に失敗しました。" & vbCrLf & ex.Message, ex)
+                End Try
+            End Using
+        End Using
+    End Sub
+```

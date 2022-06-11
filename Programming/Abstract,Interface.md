@@ -4,13 +4,18 @@
 
 抽象クラス  
 
-- 複数の概念に存在する共通のバックグラウンド・概念を定義したもの。共通の機能を取り出したモノではない。  
+- 複数の概念に存在する共通のバックグラウンド・概念を定義したもの。共通の機能を取り出したモノではない。(結果的に共通になるってだけ)  
+- IS-Aの関係  
+  犬 IS A 動物＝犬は動物  
+  動物クラス（抽象クラス）に犬や人間が持っている共通概念や属性(処理)を書きましょう
 
 インターフェース  
 
-- オブジェクトに機能を与えるもの  
 - オブジェクト間の疎結合を実現するためのもの  
+- オブジェクトに機能を与えるもの  
 - 「ふるまい」の共通化。コードの再利用ではない。  
+- CAN-DOの関係  
+  レジ CAN bill クレジットカード＝レジはクレジットカード会計が出来る  
 
 ---
 
@@ -23,11 +28,106 @@
 - 抽象クラス: 複数の概念から抽象化されたオブジェクト  
 - インターフェース: オブジェクトに機能を与えるもの  
 
-抽象クラスはオブジェクトとしてモデル化されたもので、インターフェースはオブジェクトに機能を与えるです。
+抽象クラスはオブジェクトとしてモデル化されたもので、インターフェースはオブジェクトに機能を与えるです。  
+決して共通の機能を取り出すわけではありません。  
+
+- 異なる実装の処理を同じインスタンスとして使用したいからインターフェースを使う  
+- 処理を共通化したいから抽象クラス使う  
+- 複数使いたいからインターフェースを使う  
+この考えはオブジェクト指向ではありません。  
+
+### 抽象クラスの具体例
+
+![1](https://cdn-ak.f.st-hatena.com/images/fotolife/h/hazakurakeita/20160809/20160809012622.png)  
+
+``` C#
+abstract class Prius{}
+
+class KH_NHW10 : Prius {}
+class ZA_NHW20 : Prius {}
+class DAA_ZVW50 : Prius {}
+```
+
+トヨタ自動車プリウスで見たとき、抽象クラスPriusを継承しているのは各世代のプリウスの型式です。  
+今までプリウスには大きく4つの世代と、各マイナーチェンジの兄弟がいます。それらの型式の一部です。  
+
+ここで、抽象クラスと具象クラスには「ほとんど同じ」という関係になっています。  
+しかし、プリウスという自動車は厳密には存在しません。  
+世代によってデザインは全く異なります。  
+その違いを具象クラスが定義します。  
+全世代のプリウスの共通機能を集約したものがプリウスというわけではありません。  
+
+### よくある抽象クラスの間違った例
+
+![a](https://cdn-ak.f.st-hatena.com/images/fotolife/h/hazakurakeita/20160809/20160809013114.png)
+
+``` C#
+abstract class Car{}
+
+class Tesra_ModelS : Car {}
+class MAZDA_Attenza : Car {}
+class TOYOTA_Prius : Car {}
+```
+
+抽象クラスと具象クラスがほとんど同じということは、Carという抽象クラスからPriusの具象クラスの間には相当の数の抽象クラスが存在することになりますが、多くの教科書にはCarクラスをPriusクラスが継承している絵が描かれています。  
+これは間違いです。あまりにも差が大きすぎます。  
+Carクラスを継承している他のクラスにテスラの電気自動車や、マツダのクリーンディーゼル車も並んでいます。  
+こんな抽象クラスはあり得ません。これでは万能クラスです。  
+いずれメンテナンスできなくなり破綻してしまいます。  
+
+### インターフェースの具体例
+
+インターフェースはオブジェクトに機能を与えるものです。  
+オブジェクトとして異なるもの同士でも同じ機能を有している場合は同じインターフェースのインスタンスとして扱うことができるというものです。  
+抽象クラスとは全然違います。  
+
+![a](https://cdn-ak.f.st-hatena.com/images/fotolife/h/hazakurakeita/20160809/20160809013429.png)  
+
+``` C#
+interface IMoterDriven {}
+
+class Prius : IMoterDriven {}
+class ModelS : IMoterDriven {}
+class Leaf : IMoterDriven {}
+```
+
+IMoterDrivenはモーター駆動機能のインターフェースです。  
+このインターフェースを実装しているのはトヨタ自動車のPriusクラスやテスラモータースのモデルS、日産自動車リーフがあります。  
+先ほどの抽象クラスではこれらのクラスを1つのスーパークラスで汎化することはできませんでしたが、インターフェースなら可能です。  
+なぜなら、これらの自動車は全てモーター駆動の機能を有しているためです。  
+これらの自動車は、1つのモーター駆動インスタンスとしてモーター駆動に関する動作を表現することができます。  
+このように、インターフェースの場合はオブジェクト的に似ている必要はありません。  
+
+### 抽象クラスとインターフェースを使い分けた具体例
+
+抽象クラスはオブジェクトとしてモデル化されたもので、インターフェースはオブジェクトに機能を与えるです。  
+あくまで抽象クラスやインターフェースを先に設計し、書くべきで、先に書いた具象クラスから抽象クラスやインターフェースを考えたり生み出したりしてはいけません。  
+先に出した抽象クラスやインターフェースを１つの自動車モデルにまとめると下のようになります。  
 
 ![a](https://cdn-ak.f.st-hatena.com/images/fotolife/h/hazakurakeita/20160809/20160809014434.png)  
 
+``` C#
+abstract class Car{}
+
+interface IEngineDriven {}
+interface IMoterDriven {}
+
+abstract class GasPowered : Car,IEngineDriven {}
+abstract class Hyblid : Car,IEngineDriven,IMoterDriven {}
+abstract class Electrical : Car,IMoterDriven {}
+
+abstract class Attenza : GasPowered {}
+abstract class Prius : Hyblid {}
+abstract class ModelS : Electrical {}
+
+class KH_NHW10 : Prius {}
+class ZA_NHW20 : Prius {}
+class DAA_ZVW50 : Prius {}
+```
+
 ---
+
+## インターフェースって何のメリットがあるのか
 
 [インターフェースって何のメリットがあるんですか？](https://teratail.com/questions/70213)  
 
@@ -92,27 +192,14 @@ public class Student
 {
     public string StudentId { get; set; }
     public string StudentName { get; set; }
-    public Course StudentCourse { get; set; }
 }
 
 public class StudentManager : ICRUD<Student>
 {
-    public string Create(Student obj)
-    {
-        throw new NotImplementedException();
-    }
-    public void Update(Student obj)
-    {
-        throw new NotImplementedException();
-    }
-    public Student Read(string StudentId)
-    {
-        throw new NotImplementedException();
-    }
-    public void Delete(string StudentId)
-    {
-        throw new NotImplementedException();
-    }
+    public string Create(Student obj) => throw new NotImplementedException();
+    public void Update(Student obj) => throw new NotImplementedException();
+    public Student Read(string StudentId) => throw new NotImplementedException();
+    public void Delete(string StudentId) => throw new NotImplementedException();
 }
 
     public void Button_SaveStudent(Event args, object sender)
@@ -134,6 +221,8 @@ public class StudentManager : ICRUD<Student>
 
 ---
 
+## インターフェースの種類
+
 [【C#】インターフェイスの利点が理解できない人は「インターフェイスには３つのタイプがある」ことを理解しよう](https://qiita.com/yutorisan/items/d28386f168f2f3ab166d)  
 
 1. 疎結合を目的としたインターフェイス  
@@ -142,11 +231,11 @@ public class StudentManager : ICRUD<Student>
 
 ### じゃあインターフェイスの本質ってなに
 
-インターフェイスとは「インターフェイス」です。
-「ユーザーインターフェイス」とかの「インターフェイス」と同じ意味です。
+インターフェイスとは「インターフェイス」です。  
+「ユーザーインターフェイス」とかの「インターフェイス」と同じ意味です。  
 
-では何のインターフェイスかというと、クラスのインターフェイスです。
-もっと言うと、「クラスにアクセスするための境界面」といえます。
+では何のインターフェイスかというと、クラスのインターフェイスです。  
+もっと言うと、「クラスにアクセスするための境界面」といえます。  
 
 ### 1. 疎結合を目的としたインターフェイス
 
@@ -200,11 +289,6 @@ User側はただITextReaderだけを知っていて、その参照先が具体�
 このようなことにならないよう、インターフェイスを用意しておくことで、TextReaderクラスは必ずITextReaderインターフェイスに準拠した実装にならなければなりません。  
 つまり、ITextReaderクラスを実装してさえいれば、ITextReaderインターフェイス経由でアクセスしている他のクラスへの影響はまったくなくなるのです。  
 
-#### 理想は1クラスにつき少なくとも1インターフェイス
-
-どのようなクラスにも必ずアクセス用のインターフェイスを用意しておくことが理想と思います。  
-面倒と思わずに、インターフェイスを用意しておくだけで、万が一の変更があったときに大いに役立ってくれるでしょう。  
-
 ### 2. クラスの機能を保証することを目的としたインターフェイス
 
 このタイプのインターフェイスは、記事の序盤で「よくあるインターフェイスの説明」として挙げた「インターフェイスは、実装するクラスにメソッドの実装を強制するもの」という説明を受けたとしても最も納得しやすいタイプです。  
@@ -238,8 +322,8 @@ IEquatable\<T>インターフェイスを実装したクラスは、bool Equals(
 ### 3. クラスへの安全なアクセスを提供することを目的としたインターフェイス
 
 ``` txt : このタイプのインターフェイスとして有名なもの
-- IReadOnlyList :: Listを読み取り専用で提供する  
-- IReadOnlyCollection :: IReadOnlyListから更にインデクサによるアクセスを削除  
+- IReadOnlyList             :: Listを読み取り専用で提供する  
+- IReadOnlyCollection       :: IReadOnlyListから更にインデクサによるアクセスを削除  
 - IReadOnlyReactiveProperty :: 購読と値の読み取りだけができるReactiveProperty  
 ```
 
@@ -249,7 +333,7 @@ Listをそのまま渡すのではなく、IReadOnlyListとして渡すだけで
 
 ---
 
-## オブジェクト指向でなぜ作るのか？の重要な部分を抽出したページ
+## オブジェクト指向でなぜ作るのか？の要点
 
 [【Java】abstract と interface の使い分け 〜「オブジェクト指向でなぜ作るのか」から学ぶ〜](https://www.msawady.com/entry/2017/08/28/105800)  
 
@@ -431,37 +515,20 @@ public interface List<E> {
 - removeAll(): このリストから、指定されたコレクションに含まれる要素をすべて削除します。  
 - add(): 指定された要素をこのリストの最後に追加します。  
 
-そして、ArrayList、LinkedListという実装クラスはListという interface の仕様に対して、実装を提供します。
-
 ``` java
+// ArrayList、LinkedListという実装クラスはListという interface の仕様に対して、実装を提供します。
 public class ArrayList<E> implements List<E> {
-    public int size(){
-        // 具体的な実装
-    }
-    public boolean removeAll(){
-        // 具体的な実装
-    }
-    public boolean add(E element){
-        // 具体的な実装
-    }
+    public int size(){}
+    public boolean removeAll(){}
+    public boolean add(E element){}
 }
-
 public class LinkedList<E> implements List<E> {
-    public int size(){
-        // 具体的な実装
-    }
-    public boolean removeAll(){
-        // 具体的な実装
-    }
-    public boolean add(E element){
-        // 具体的な実装
-    }
+    public int size(){}
+    public boolean removeAll(){}
+    public boolean add(E element){}
 }
-```
 
-そして、replaceWithNewElement の引数をListという interface の仕様に従ったクラスと定義します。
-
-``` java
+// そして、replaceWithNewElement の引数をListという interface の仕様に従ったクラスと定義します。
 public class HogeService {
     public void replaceWithNewElement(List<Element> list) {
         int size = list.size();
@@ -498,9 +565,50 @@ interface       メインルーティンの再利用性の向上
 
 ---
 
-## abstractとinterfaceの棲み分け
+## IS A,CAN DO
 
-[インターフェースと抽象クラスの使い分け、活用方法](https://qiita.com/igayamaguchi/items/e1d35db0a14a84bda452)
+[【詳解】抽象クラスとインタフェースを使いこなそう！！](https://qiita.com/yoshinori_hisakawa/items/cc094bef1caa011cb739)  
+
+### 抽象クラスとは？
+
+結論から言うと抽象クラスは継承関係にあり、処理の再利用をしたい時に使うものです。  
+
+抽象クラスと具象クラスの「継承」関係は**IS Aの関係**と言われています。  
+**犬 IS A 動物 = 犬は動物** のような親子関係です。  
+だから「動物クラス（抽象クラス）に犬や人間が持っている共通動作（処理）を書きましょう！」と言われている。  
+
+子供のみんなが出来ることを抽象的に抽象クラスに書いて、その子にしか出来ない具体的なことは具象クラスに書く  
+
+### インタフェースとは？
+
+結論から言うとインタフェースとはクラス仕様としての型定義をするものです。  
+
+まずインタフェースの言葉の意味は「コンピューターと周辺機器を接続するための規格や仕様、またはユーザーがコンピューターなどを利用するための操作方法や概念のこと。  
+ハードウェアでは、機器同士を接続するコネクターの規格を指す。」などが挙げられます。  
+もっと簡単に言うと、外から見える何かと何かをくっつける窓口のことです。  
+
+そしてインターフェイスと実装クラスの「実装」の関係は**CAN DOの関係**と言われています。  
+**レジ CAN bill クレジットカード = レジはクレジットカード会計が出来る** のような関係です。  
+他にもレジは現金会計もできます。  
+なのでインタフェースで定義するものはレジが出来ること、会計のみを定義します。  
+他の視点から言うと、中は意識せず、外から見てレジが出来ることを定義する感じです。  
+そうするとレジを使う店員はいちいちどんな会計か考えずにただ会計をする事が出来る*はずです。  
+
+### なぜ指定できるアクセス修飾子が違うのか？
+
+インタフェースはpublicのみ。  
+抽象クラスはpublicとprotectedのみを定義できる。  
+publicで定義したメソッドはどこからでも呼び出せるよ！といった意味でprotectedで定義したメソッドはそのパッケージ内だけから呼び出せるよ！といった意味だ。  
+
+と言うことはpublicメソッドは外から呼び出すためのもの  
+→外で使う側の人ため  
+→インタフェースでは使う人のためにメソッドを定義していると言うことだ。  
+
+ではprotectedメソッドはパッケージ内でしか使えない  
+→中で使う人のため  
+→抽象クラスは中で使う人のためのものと言うことだ。  
+
+[インターフェースと抽象クラスの使い分け、活用方法](https://qiita.com/igayamaguchi/items/e1d35db0a14a84bda452)  
 
 interfaceは外部向け。abstractは内部向け。  
 
@@ -508,6 +616,11 @@ interfaceはpublicしか記述できない。
 abstractはprotectedが使える。  
 なので、外部に公開する場合はinterface。  
 内部において、実装を強制する場合はabstractを用いるいいかも。  
+
+### まとめ
+
+抽象クラスは、共通の処理をまとめたりする中で使う人のためのモノ  
+インタフェースは、詳細は見せず出来ることを定義し、外から使う人のためのモノ  
 
 ---
 
@@ -558,3 +671,481 @@ abstractはprotectedが使える。
     class Mario : GameCharacter, IKillable, IMovable{}
     class Princess : GameCharacter, IAudible{}
 ```
+
+---
+
+## 教科書みたいな抽象クラスとインターフェースの説明
+
+[抽象クラスとインターフェース](https://java2005.cis.k.hosei.ac.jp/materials/lecture19/abstractclass.html)  
+
+### 抽象クラス
+
+前回の演習で、多角形、長方形、三角形を扱った。これらのクラスとしての階層は次のようになっている。
+
+このうち、長方形と三角形はどのようなものか想像が付くが、多角形はどのようなものであるか想像がつきにくい。多角形は、長方形 (四角形) や三角形が属する抽象的な部類であり、具体例を挙げることができない (具体例を挙げたとしても、三角形や四角形などのほかの部類に属してしまう)。
+部類とはクラスであり、具体例とはインスタンスであった。具体例を挙げることができない多角形に対して、次のプログラムでは Polygon のインスタンスを作成してしまっている。
+
+``` java
+// 多角形の一例
+Polygon p = new Polygon();
+```
+
+上記のように、実際には存在しない物体を、new 演算子を使って作成できてしまった。Java ではこのような抽象的な部類を表すためのクラスを表すために、抽象クラスというものが存在する。
+
+``` java
+// 多角形を表すクラス
+public abstract class Polygon {
+    // 空のコンストラクタ
+    public Polygon() {
+        super();
+    }
+    // 面積を取得する
+    public double area() {
+        return 0.0;
+    }    
+    // 全ての辺の長さの合計
+    public double perimeter() {
+        return 0.0;
+    }
+}
+```
+
+上記のように、class Polygon の前に abstract の指定をすることによって、このクラスを抽象クラスとして宣言できる。
+抽象クラスは、他のクラスの継承関係を階層化するために存在し、インスタンス化することができない。abstract class Polygon を new 演算子によってインスタンス化しようとすると、エラーになる。
+
+### 抽象メソッド
+
+Polygon が抽象クラスとなると、このクラスが持つメソッド area() と perimeter() が意味を成さなくなる。
+しかし、これらのメソッドを消してしまうと問題が起こる。
+
+``` java
+// 多角形を表すクラス
+public abstract class Polygon {
+    public Polygon() {
+        super();
+    }    
+    // メソッドを消す
+}
+Polygon p = new Triangle(3.0, 4.0, 5.0);
+// Polygon は area() メソッドを持たないのでエラー
+System.out.println(p.area());
+```
+
+今度は、Polygon が area() メソッドを持たないため、「多角形 (実際には3.0,4.0,5.0の3辺を持つ三角形) の面積を求める」という操作が行えなくなってしまう。  
+(実行時の) ポリモーフィズムを実現するには、親クラスで同じ名前のメソッドを定義していなくてはならない。  
+やはり area() と perimeter() は削除することはできないが、「多角形」という抽象的な図形で面積を求めたりするような具体的な方法は存在しない。  
+このように振る舞いを具体的に定義できないメソッドを abstract として宣言することにより、このクラスでメソッドの中身を記述しないで済ますことができる。  
+このようなメソッドを抽象メソッドと呼ぶ。  
+
+``` java
+// 多角形を表すクラス
+public abstract class Polygon {
+    // 空のコンストラクタ
+    public Polygon() {
+        super();
+    }
+    // 面積を取得する
+    public abstract double area();    
+    // 全ての辺の長さの合計
+    public abstract double perimeter();
+}
+```
+
+抽象メソッドは次のような制約を持つ。  
+
+- 抽象クラス内でしか抽象メソッドは宣言できない  
+- 子クラスでオーバーライドして、具体的な振る舞いを定義する必要がある  
+- 抽象メソッドにはメソッドの本体を持たせることができない  
+
+抽象メソッドを使うと、抽象クラス内でメソッドの振る舞いを定義せずに、そのクラスを継承した子クラスに具体的なメソッドの振る舞いを定義させることができる。  
+つまり、子クラスが持つべき機能を親クラスが指定することができる。  
+今回の例では、「多角形に属するクラス (三角形や長方形など) は、その面積と外周の長さを計算する機能を持たなくてはならない」という指定を行った。  
+
+![a](https://java2005.cis.k.hosei.ac.jp/materials/lecture19/abstractclass/abstractmethod.png)  
+
+### その他の抽象クラスの例
+
+その他、抽象クラスの例では「乗り物」が挙げられる。  
+
+``` java
+public class Vehicle {
+    public void go(String destination) {
+        // 目的地へ向かう処理
+    }
+}
+
+public class Taxi extends Vehicle {
+    public void go(String destination) {
+        this.accelerate();
+        // destination へ向かう処理
+        this.brake();
+    }
+}
+public class Helicopter extends Vehicle {
+    public void go(String destination) {
+        this.takeOff();
+        // destination へ向かう処理
+        this.land();
+    }
+}
+```
+
+「ここからタクシーを使って東京駅へ」「ここからヘリコプターを使って東京駅へ」と言われれば、どのように実現するかは予想が付く。  
+しかし、「ここから乗り物を使って東京駅へ」と言われても乗り物では抽象的なので実現方法が予想しにくい。  
+乗り物は「タクシー」や「ヘリコプター」、「新幹線」などといった物の上の階層に存在する抽象的な概念で、「乗り物」という物体は存在しない (繰り返すが、乗り物の具体例を挙げても自動車やヘリコプターといったその下の階層にある物体になってしまう)。  
+このような乗り物を表す Vehicle といったクラスは抽象クラスで宣言されるべきであるし、また「目的地へ行く」というメソッド go(String destination) といったメソッドは具体的な振る舞いを規定できないため抽象メソッドとして宣言されるべきである。  
+
+``` java
+public abstract class Vehicle {
+    // 目的地へ向かう
+    public abstract void go(String destination);
+}
+```
+
+### インターフェース
+
+現実世界に「複合コピー機」という商品が存在する。  
+これは、コピー機としての機能を持ちながら、その他にもスキャナ、ファクシミリ、プリンタなどの機能を持つ機械である。  
+これを素直に Java で表現しようとすると、次のようになる。  
+
+``` java
+public class MultiPurposeCopier extends Copier, Scanner, Fax, Printer {
+    // コピー機の機能
+    public Paper copy(Paper origin) .. 
+    // スキャナの機能
+    public Document scan(Paper document) ..
+    // ファクシミリの機能
+    public Paper receive() ..
+    public void send(Paper document, String to) ..
+    // プリンタの機能
+    public Paper print(Document document) ..
+}
+```
+
+しかし、Java では「extends Copier, Scanner, Fax, Printer」のような書き方をすることはできない。  
+
+多重継承  
+「単一継承」と「多重継承」という用語がある。これはクラスの継承をする際にとれる親クラスの数を表しており、単一継承ならば親クラスの数は1つ、多重継承ならば親クラスの数はいくつでも取れることになっている。  
+Java や最近の言語では、多重継承を行えないようなものが多い。  
+ここでは詳しく触れないが、多重継承を許すといくつかの問題が起こる可能性があるためである。  
+このような場合、Java ではインターフェースと呼ばれるものを使って複数の親を持っているように見せかける。  
+インターフェースは抽象メソッドしか持てないクラスのようなもので、仕様 (機能を呼び出す際の決まり事, メソッド名や引数) を表現することができる。  
+そして、一つのクラスがいくつもこのインターフェースというものを実装 (クラスの継承に近い) することができる。  
+インターフェースの宣言は次のように class の代わりに interface を指定する。  
+
+``` java
+public interface Scanner {
+    // スキャナの機能
+    public abstract Document scan(Paper document);
+}
+public interface Fax {
+    // ファクシミリの機能
+    public abstract Paper receive();
+    public abstract void send(Paper document, String to);
+}
+public interface Printer {
+    // プリンタの機能
+    public abstract Paper print(Document document);
+}
+
+public class MultiPurposeCopier extends Copier implements Scanner, Fax, Printer {
+    // コピー機の機能
+    public Paper copy(Paper origin) .. 
+
+    // スキャナの機能
+    public Document scan(Paper document) ..
+
+    // ファクシミリの機能
+    public Paper receive() ..
+    public void send(Paper document, String to) ..
+
+    // プリンタの機能
+    public Paper print(Document document) ..
+}
+```
+
+このように、「複合コピー機はコピー機を拡張して、スキャナ, ファクシミリ, プリンタを実装する」と読むことができる。  
+
+インターフェースは、上記の複合コピー機ならば「スキャンのボタン」「ファックス送受信のボタン」「プリンタのボタン」というイメージが近い。  
+あくまで提供するのは仕様だけであって、中身までは提供してくれない。  
+そこで、インターフェースを実装した場合、それぞれの仕様 (抽象メソッド) に対して実際の振る舞い (メソッド本体) を定義してやる必要がある。  
+つまり、インターフェースは特定の機能を実装する (与えられた仕様を満たす) という契約であり、implements を指定した場合にはこの契約に従い、必要なメソッドを実装する必要がある。  
+
+インターフェースは次のような制約を持つ。
+直接インスタンスを生成することはできない (抽象クラスのときと同様)
+public abstract であるようなメソッド以外は定義できない
+private, protected, パッケージアクセスのメソッドは定義できない
+クラスメソッドは定義できない
+本体を持つメソッドは定義できない
+抽象メソッド以外は定義できない
+public static final であるようなフィールド以外は定義できない
+private, protected, パッケージアクセスのフィールドは定義できない
+インスタンスフィールドは定義できない
+クラスフィールドは、finalを指定しないと定義できない
+また、上記の制約から、メソッドに public abstract をわざわざ指定しなくても、自動的に public abstract なメソッドとして定義される。
+
+``` java
+public interface Fax {
+    // 暗黙に public abstract
+    Paper receive();
+    void send(Paper document, String to);
+}
+```
+
+### 骨格と機能の集まり
+
+抽象クラスとインターフェースは似たような概念であるが、利用される目的が大きく違う。  
+
+抽象クラス  
+一つしか継承できない  
+本体を持つメソッドを定義できる  
+
+インターフェース  
+いくつでも実装できる  
+本体を持つメソッドを定義できない  
+
+#### 骨格実装  
+
+抽象クラスのアドバンテージは、本体を持つメソッド (abstract でないメソッド) を宣言できるという点である。  
+これを利用すると、プログラムの骨格だけを抽象クラスで定義して、その骨格を再利用しながら子クラス内で具体的なプログラムを書くことができるようになる。  
+子クラスで記述すべきプログラムは、骨格の部分を除いた子クラス特有の処理だけであるので、似たようなプログラムをいくつか用意する場合には、この骨格実装が有効である。  
+例として、2つの double[] 型の値の各要素に対して、一斉に「何らかの操作」を行うようなプログラムを考える。  
+
+``` java
+public double[] operation(double[] a1, double[] a2) {
+    double[] result = new double[a1.length];
+    for (int i = 0; i < a1.length; i++) {
+        result[i] = a1[i] (何らかの操作) a2[i];
+    }
+    return result;
+}
+```
+
+この、「何らかの操作」という部分だけ変更したい場合、通常は operation(double[], double[]) というメソッド全体を変更する必要がある。  
+しかし、変更したい部分は「何らかの操作」というだけなのに、全体を全て書き直すのは手間がかかるし、DRY (Don't Repeat Yourself) の原則にも反している。  
+そこで、次のような骨格を形成するクラスを用意する。  
+
+``` java
+package j2.lesson06;
+
+// 2つの配列の各要素に対して一斉に「何らかの処理」を行うための骨格
+public abstract class DoubleArrayOperator {
+    // 2つの配列の各要素に対して一斉に「何らかの処理」を行い、その結果を返す
+    public double[] operate(double[] a1, double[] a2) {
+        double[] result = new double[a1.length];
+        for (int i = 0; i < a1.length; i++) {
+            // 何らかの処理をして、結果を result[i] に代入
+            result[i] = operate(a1[i], a2[i]);
+        }
+        return result;
+    }
+    // 現時点では、「何らかの処理」という抽象的なものにする
+    protected abstract double operate(double d1, double d2);
+}
+```
+
+この骨格によって、「2つの配列の各要素に対して一斉に何らかの処理を行い、その結果を返す」というプログラムのうち、「2つの配列の各要素に対して一斉に…、その結果を返す」という部分だけを記述することができた。  
+「何らかの処理」というのは具体的に決まっていないため、抽象メソッドとして宣言する。DoubleArrayOperator は抽象メソッドを持つので抽象クラスとして宣言している。  
+この骨格を元に、「2つの配列の各要素に対して一斉に足し算を行い、その結果を返す」というプログラムと、「2つの配列の各要素に対して一斉に掛け算を行い、その結果を返す」という2つのプログラムを作成してみる。  
+
+``` java
+package j2.lesson06;
+
+// 2つの配列の各要素に対して一斉に足し算を行う
+public class DoubleArrayAdder extends DoubleArrayOperator {
+
+    // 足し算を行う
+    protected double operate(double d1, double d2) {
+        return d1 + d2;
+    }
+}
+package j2.lesson06;
+
+//2つの配列の各要素に対して一斉に掛け算を行う
+public class DoubleArrayMultiplier extends DoubleArrayOperator {
+
+    // 掛け算を行う
+    protected double operate(double d1, double d2) {
+        return d1 * d2;
+    }
+}
+```
+
+「何らかの処理を行う」という部分が、それぞれ「足し算」と「掛け算」に置き換わっただけなので、親クラスのメソッドのうち「何らかの処理を行う」という抽象メソッドを上書きしているだけである。これだけで、次のように2つの配列に対して一斉に足し算や掛け算を行うことができる。
+
+``` java
+DoubleArrayOperator op = new DoubleArrayMultiplier();
+double[] multiplicand = {1.0, 2.0, 3.0, 4.0, 5.0};
+double[] multiplier = {2.0, 1.0, 2.0, 1.0, 2.0};
+
+// 一斉に掛け算を行う
+double[] result = op.operate(multiplicand, multiplier);
+
+for (int i = 0; i < result.length; i++) {
+    System.out.println(result[i]);
+}
+// 2.0
+// 2.0
+// 6.0
+// 4.0
+// 10.0
+```
+
+Java に標準で組み込まれているクラスには、このように骨格だけ用意されているものが多数ある。  
+次回以降に詳しく触れるが、上記の考え方は非常に重要なので覚えておくこと。  
+
+### 継承と集約
+
+インターフェースと抽象クラスにはそれぞれ利点と欠点がある。  
+例えば、最近の携帯電話などの多数の機能を持ったクラスを表現する際に大変である。  
+
+``` java
+// (最近の)携帯電話は、電話を拡張し、カメラ、電子マネー.. を実装している
+public class CellPhone extends Phone implements Camera, DigitalCash {
+    ...
+}
+```
+
+上記のようなクラスを作ると、直接継承している Phone は問題ないとしても、カメラ、電子マネーの機能を全てクラス内に書かなければならない。  Java では多重継承を許していないため、これらの機能を継承によって受け継ぐことはできない。  
+このような問題を解決するには、継承関係を表す is-a の他にクラスを階層化する方法が必要である。  
+そこで、上記クラスの見方を変えてみると、次のように言い表すこともできる。  
+
+- 携帯電話は電話である -> CellPhone is-a Phone  
+- 携帯電話はカメラを(部品として)持つ -> CellPhone has-a Camera  
+- 携帯電話は電子マネーを(部品として)持つ -> CellPhone has-a DigitalCash  
+
+これによって、インターフェースを実装する部分を has-a の関係に変換することができた。  
+しかし、Camera や DigitalCash はインターフェースであるため、それらを実装するクラスを別に作る。  
+
+``` java
+public class CameraModule implements Camera {
+    // カメラの機能
+    public void takePicture() {}
+}
+public class DigitalCashModule implements DisitalCash {
+    // 電子マネーの機能
+    public void charge(int money) {}
+    public void pay(int money) {}
+}
+
+// これらの機能を部品として CellPhone に集約させることによって、機能を追加する。
+public class CellPhone extends Phone implements Camera, DigitalCash {
+    // 部品として持たせる
+    private Camera camera;
+    private DigitalCash digitalCash;
+
+    public CellPhone() {
+        this.camera = new CameraModule();
+        this.digitalCash = new DigitalCashModule();
+    }
+    // 携帯電話の各機能が呼ばれたら、部品の各機能を代わりに呼び出す
+    public void takePicture() {
+        this.camera.takePicture();
+    }
+    public void charge(int money) {
+        this.digitalCash.charge(money);
+    }
+    public void pay(int money) {
+        this.digitalCash.pay(money);
+    }
+}
+```
+
+implements Camera, DigitalCash (カメラと電子マネーを実装する) という部分は、CellPhone そのものではなく、CellPhone に集約された部品が実装してくれている。  
+CellPhone はその部品の機能を呼び出しているので、結果として CellPhone もそれらの機能を実装していることになる。  
+上記のように書くと、プログラムの再利用が簡単になる。  
+
+``` java
+// 電子マネーカードは、カードを拡張し、電子マネーを実装する
+public class DigitalCashCard extends Card implements DigitalCash {
+    // 部品として電子マネーを持つ
+    private DigitalCash digitalCash;
+    public DigitalCashCard() {
+        this.digitalCash = new DigitalCashModule();
+    }
+    public void charge(int money) {
+        this.digitalCash.charge(money);
+    }
+    public void pay(int money) {
+        this.digitalCash.pay(money);
+    }
+}
+```
+
+このようなプログラムの書き方をまとめると、次のようになる。
+
+1. 部品のインターフェースを宣言する  
+2. 部品の機能を実現するクラスを作成する  
+3. それぞれの部品のインターフェースを持つクラスを作成する  
+   - 部品をインスタンスフィールドとして宣言する  
+   - 部品を実現したインスタンスをフィールドに代入する  
+   - 各部品に対するメソッドが呼び出されたら、部品内のメソッドを代わりに呼び出す  
+
+実際に、携帯電話を製作している会社も、全て同じ部署でカメラや電子マネーを製作したりすることはほとんどない。  
+それらは仕様 (インターフェース) だけ統一しておいて、部品として別の部署や別の会社に製作してもらい、最終的に携帯電話に集約させることになる。  
+
+### オリジナル_DIの話
+
+CellPhoneの内部でカメラモジュールと電子決済モジュールをNewしてしまうと、CellPhoneを使う時、絶対にカメラと電子決済機能がついてきてしまう。  
+中には電子決済に対応していないCellPhoneだってあるはず。  
+新しい携帯電話を開発したいが、今回はシンプルに設計するためこの機能は搭載しないみたいな。  
+
+そういう場合、外部からカメラモジュール機能だけを注入し、電子決済機能は注入しないという芸当ができる。  
+そうすると、CellPhoneはそれらモジュールに依存していない、と言うことができる。  
+これが依存性の注入という概念ではなかろうか。  
+
+``` java
+public class CameraModule implements Camera {
+    // カメラの機能
+    public void takePicture() {}
+}
+public class DigitalCashModule implements DisitalCash {
+    // 電子マネーの機能
+    public void charge(int money) {}
+    public void pay(int money) {}
+}
+
+// これらの機能を部品として CellPhone に集約させることによって、機能を追加する。
+public class CellPhone extends Phone implements Camera, DigitalCash {
+    // 部品として持たせる
+    private Camera camera;
+    private DigitalCash digitalCash;
+
+    public CellPhone(Camera camera,DigitalCash digitalCash) {
+        this.camera = camera;
+        this.digitalCash = digitalCash;
+    }
+    // 携帯電話の各機能が呼ばれたら、部品の各機能を代わりに呼び出す
+    public void takePicture() {
+        this.camera.takePicture();
+    }
+    public void charge(int money) {
+        this.digitalCash.charge(money);
+    }
+    public void pay(int money) {
+        this.digitalCash.pay(money);
+    }
+}
+```
+
+### まとめ
+
+抽象クラスやインターフェースは、抽象的な概念を表すために用意されている。  
+抽象クラスは主に継承の階層を表すために導入された抽象的な部類を宣言する場合や、骨格実装を行う場合に用いられる。  
+インターフェースは、いくつかの機能の規格 (名前や呼び出し方) を宣言する場合や、多重継承の代わりに用いられる。  
+
+どちらも利点と欠点を持つ。
+
+抽象クラス
+一つしか継承できない
+本体を持つメソッドを定義できる
+
+インターフェース
+いくつでも実装できる
+本体を持つメソッドを定義できない
+
+---
+
+## crud abstract class sample
+
+[How to create an abstract class that will handle basic CRUD with GreenDAO for any Entity model](https://stackoverflow.com/questions/37429441/how-to-create-an-abstract-class-that-will-handle-basic-crud-with-greendao-for-an)  

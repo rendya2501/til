@@ -1410,3 +1410,99 @@ var aa = new Func<IEnumerable<int>>(() =>
             iterateFunc = new Func<IEnumerable<int>>(Iterate); 
         }
 ```
+
+---
+
+## インターフェースに拡張メソッドを追加
+
+``` C#
+    public class InterfaceExtensionMethod
+    {
+        public static void Execute()
+        {
+            ITest aa = new Test() { TestStr = "1234" };
+            Console.WriteLine(aa.Print());
+        }
+    }
+
+    public class Test : ITest
+    {
+        public string TestStr { get; set; }
+    }
+
+    public interface ITest
+    {
+        string TestStr { get; set; }
+    }
+
+    public static class ITestExtension
+    {
+        public static string Print(this ITest test)
+        {
+            return test.TestStr + "_test";
+        }
+    }
+```
+
+## 拡張メソッドの意義
+
+[mikakuninn](https://ufcpp.net/study/csharp/sp3_extension.html#interface)  
+
+前節の通り、実を言うと、拡張メソッドは両手ばなしによろこべる機能ではなかったりします。 インスタンス メソッドでの実装が可能ならば素直にクラスのインスタンス メソッドとして定義すべきです。
+
+拡張メソッドは、「クラスを作った人とは全くの別人がメソッドを足せる」という点が最大のメリットです。  
+このメリットは、特にインターフェイスに対して需要があります。  
+多くの場合、インターフェイスを作る人と、そのインターフェイスを使った処理を書く人は別です。  
+通常、この「インターフェイスを使った処理」は静的メソッドになりがちです。  
+そして、拡張メソッドの真骨頂は「（本来は前置き記法である）静的メソッドを後置き記法で書ける」という部分にあると思っています。  
+
+例えば、下図のような、データ列に対するパイプライン処理を考えてみます。
+`入力 → 条件で絞る x > 10 → 値を加工する x*x → 出力`  
+
+まず、条件付けや値の加工のために以下のような静的メソッドを用意します。
+
+``` C#
+static class Extensions
+{
+    public static IEnumerable<int> Where(this IEnumerable<int> array, Func<int, bool> pred)
+    {
+        foreach (var x in array)
+            if (pred(x))
+                yield return x;
+    }
+    public static IEnumerable<int> Select(this IEnumerable<int> array, Func<int, int> filter)
+    {
+        foreach (var x in array)
+            yield return filter(x);
+    }
+}
+```
+
+これを、静的メソッド呼び出しの構文で書くと以下のようになります。
+
+``` C#
+var input = new[] { 8, 9, 10, 11, 12, 13 };
+
+var output =
+    Extensions.Select(
+        Extensions.Where(
+            input,
+            x => x > 10),
+        x => x * x);
+```
+
+やりたいパイプライン処理の順序と、語順が逆になります。  
+また、「Where とそれに対する条件式 x > 10」や 「Select とそれに対する加工式 x * x」の位置が離れてしまいます。  
+
+これに対して、拡張メソッド構文を使うと、以下のようになります。  
+
+``` C#
+var input = new[] { 8, 9, 10, 11, 12, 13 };
+var output = input
+    .Where(x => x > 10)
+    .Select(x => x * x);
+```
+
+ただ語順が違うだけなんですが、 こちらの方がやりたいことの意図が即座に伝わります。  
+すなわち、パイプライン処理（フィルタリング処理）は、 後置きの語順が好ましい処理です。  
+というように、 語順的に後置きの方がしっくりくる場合に （というか、むしろその場合のみに）、 静的メソッドを拡張メソッド化することをお勧めします。  
