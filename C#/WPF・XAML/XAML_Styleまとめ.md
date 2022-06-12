@@ -158,6 +158,38 @@ CSSのXAMLバージョン。
 
 ---
 
+## 虫眼鏡アイコンをセットしたボタンの実装方法
+
+何のことはない。ただのボタンでスタイルは共通で定義されているものを使っているだけ。  
+
+``` XML : Front.DutchTreat.Views.EditWindow.xaml
+<Button : 
+    Command="{Binding ShowAttendeeListCommand}"
+    IsTabStop="False"
+    Style="{StaticResource SearchButton}" />
+```
+
+``` XML : Common\Resource\DesignResourceDictionary.xaml
+<Style
+    x:Key="SearchButton"
+    BasedOn="{StaticResource {x:Type Button}}"
+    TargetType="{x:Type Button}">
+    <Setter Property="ContentTemplate">
+        <Setter.Value>
+            <DataTemplate>
+                <Image Source="{StaticResource Black_Search_24}" Stretch="None" />
+            </DataTemplate>
+        </Setter.Value>
+    </Setter>
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="Height" Value="30" />
+    <Setter Property="Width" Value="30" />
+</Style>
+```
+
+---
+
 ``` XML : 実務コード
 <ResourceDictionary xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:AR="clr-namespace:GrapeCity.ActiveReports.Viewer.Wpf;assembly=GrapeCity.ActiveReports.Viewer.Wpf.v12"

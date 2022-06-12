@@ -747,38 +747,6 @@ C1MultiSelectコントロールの選択項目のバインド方法がわから�
 
 ---
 
-## 虫眼鏡アイコンをセットしたボタンの実装方法
-
-何のことはない。ただのボタンでスタイルは共通で定義されているものを使っているだけ。  
-
-``` XML : Front.DutchTreat.Views.EditWindow.xaml
-<Button : 
-    Command="{Binding ShowAttendeeListCommand}"
-    IsTabStop="False"
-    Style="{StaticResource SearchButton}" />
-```
-
-``` XML : Common\Resource\DesignResourceDictionary.xaml
-<Style
-    x:Key="SearchButton"
-    BasedOn="{StaticResource {x:Type Button}}"
-    TargetType="{x:Type Button}">
-    <Setter Property="ContentTemplate">
-        <Setter.Value>
-            <DataTemplate>
-                <Image Source="{StaticResource Black_Search_24}" Stretch="None" />
-            </DataTemplate>
-        </Setter.Value>
-    </Setter>
-    <Setter Property="HorizontalContentAlignment" Value="Center" />
-    <Setter Property="VerticalContentAlignment" Value="Center" />
-    <Setter Property="Height" Value="30" />
-    <Setter Property="Width" Value="30" />
-</Style>
-```
-
----
-
 ## 自分自身のItemsSourceのCountをXAML上で使用する方法
 
 自分自身の要素が1件も無かったらDataTriggerでEnableをFalseにしたくて調べた。  
@@ -1380,6 +1348,17 @@ namespace RN3.Wpf.Common.Control.Helper
 </Grid>
 ```
 
+``` xml : なんか萬君が最初に提示してくれた案
+ItemsPanel
+    <Setter Property="ItemsPanel">
+        <Setter.Value>
+            <ItemsPanelTemplate>
+                <Grid></Grid>
+            </ItemsPanelTemplate>
+        </Setter.Value>
+    </Setter>
+```
+
 ---
 
 ## 添付プロパティをBindingのPathに指定する場合はカッコを付ける
@@ -1634,3 +1613,150 @@ Windowに乗っているならAncestorTypeはWindowだし、UsercontrolならAnc
 ```
 
 ---
+
+## 
+
+[【C#/WPF】EventTriggerを使って、Buttonでなくてもクリック時のCommandをかけるようにする](https://qiita.com/tera1707/items/7ecde6e97a19437cbf72)
+
+EventTriggerを使う
+
+- System.Windows.Interactivity.dllを参照に追加  
+- Microsoft.Expression.Interactionsを参照に追加  
+- xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" xamlの上に追加  
+
+xaml コントロールにフォーカス
+[[C#][WPF]ViewModel側からコントロールのフォーカスを指定する方法](https://alfort.online/827)  
+
+これができないとかぬかしやがる。
+マジでふざけてる。
+死ねXAML
+
+・エンターキーを検知する方法
+・XAML上で別のコントロールにフォーカスさせる方法
+
+xaml focus method
+CallMethodAction FocusManager.FocusedElement
+WPFEventTrigger set focus
+EventTrigger 
+https://stackoverflow.com/questions/3870214/eventtrigger-with-setter-in-wpf
+interractiontritter datatrriger
+https://www.infragistics.com/community/forums/f/ultimate-ui-for-wpf/25409/binding-content-of-another-field-using-datatrigger
+
+[How to Set Focus on a TextBox Using Triggers in XAML](https://spin.atomicobject.com/2013/03/06/xaml-wpf-textbox-focus/)  
+[C#/WPF]ビューモデルからビューのメソッドを呼ぶ代わりに、EventTriggerでMouseDown等のイベントを拾ってビューのメソッドを呼ぶ](https://qiita.com/tera1707/items/d184c85d0c181e6563ea)  
+
+[Invoke Command When "ENTER" Key Is Pressed In XAML](https://stackoverflow.com/questions/4834227/invoke-command-when-enter-key-is-pressed-in-xaml)  
+eventtrigger enter key
+[WPF+LivetのMVVMで、TextBoxでEnterキーが押された時のイベントを指定したい](https://teratail.com/questions/296691)  
+[C# WPF-Tips-TextBox-EnterでCommand実行](https://dasuma20.hatenablog.com/entry/cs/wpf/tips/textbox-enter-command)  
+[【C#/WPF】EventTriggerを使って、Buttonでなくてもクリック時のCommandをかけるようにする](https://qiita.com/tera1707/items/7ecde6e97a19437cbf72)  
+
+``` xml
+            <i:Interaction.Triggers>
+                <i1:KeyTrigger Key="Enter" FocusManager.FocusedElement="{Binding ElementName=TextBox2}">
+                    <i1:CallMethodAction MethodName="Focus" TargetObject="{Binding ElementName=TextBox2}" />
+                    <!--<i1:CallMethodAction FocusManager.FocusedElement="{Binding ElementName=TextBox2}" />-->
+
+                </i1:KeyTrigger>
+                <!--<Setter Property="FocusManager.FocusedElement" Value="{Binding ElementName=TextBox1}" />-->
+                <!--<i1:CallMethodAction MethodName="Focus" TargetObject="{Binding ElementName=TextBox2}" />-->
+
+            </i:Interaction.Triggers>
+```
+
+``` xml
+<Window
+    x:Class="WpfApp4.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+    xmlns:i1="http://schemas.microsoft.com/expression/2010/interactions"
+    xmlns:local="clr-namespace:WpfApp4"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Title="MainWindow"
+    Width="483"
+    Height="268"
+    FocusManager.FocusedElement="{Binding ElementName=TextBox2}"
+    mc:Ignorable="d">
+    <Grid>
+        <TextBox
+            Width="172"
+            Height="23"
+            Margin="83,75,0,0"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top"
+            Text="TextBox"
+            TextWrapping="Wrap">
+            <i:Interaction.Triggers>
+                <i1:KeyTrigger Key="Enter" FocusManager.FocusedElement="{Binding ElementName=TextBox2}">
+                    <i1:CallMethodAction MethodName="Focus" TargetObject="{Binding ElementName=TextBox2}" />
+                    <!--<i1:CallMethodAction FocusManager.FocusedElement="{Binding ElementName=TextBox2}" />-->
+
+                </i1:KeyTrigger>
+                <!--<Setter Property="FocusManager.FocusedElement" Value="{Binding ElementName=TextBox1}" />-->
+                <!--<i1:CallMethodAction MethodName="Focus" TargetObject="{Binding ElementName=TextBox2}" />-->
+
+            </i:Interaction.Triggers>
+            <!--<TextBox.Style>
+                <Style>
+                    <Style.Triggers>
+                        <EventTrigger RoutedEvent="MouseEnter">
+                            <Setter Property="FocusManager.FocusedElement" Value="{Binding ElementName=CodeDigit2}" />
+            -->
+            <!--<EventTrigger.Actions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation
+                                            Storyboard.TargetProperty="FontSize"
+                                            To="28"
+                                            Duration="0:0:0.300" />
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger.Actions>-->
+            <!--
+                        </EventTrigger>
+            -->
+            <!--<Trigger Property="" Value="True">
+                            <Setter Property="Background" Value="Blue" />
+                        </Trigger>
+                        <DataTrigger Binding="{Binding ElementName=CodeDigit1, Path=Text.Length}" Value="1">
+                            <Setter Property="FocusManager.FocusedElement" Value="{Binding ElementName=CodeDigit2}" />
+                        </DataTrigger>-->
+            <!--
+                    </Style.Triggers>
+                </Style>
+            </TextBox.Style>-->
+            <TextBox.Style>
+                <Style TargetType="TextBox">
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="FocusManager.FocusedElement" Value="{Binding ElementName=TextBox2}" />
+                        </Trigger>
+                        <!--<EventTrigger RoutedEvent="PreviewMouseLeftButtonUp">
+                            <EventTrigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <Setter Property="FocusManager.FocusedElement" Value="{Binding ElementName=TextBox2}" />
+                                    </Storyboard>
+                                </BeginStoryboard>
+
+                            </EventTrigger.EnterActions>
+                        </EventTrigger>-->
+                    </Style.Triggers>
+                </Style>
+            </TextBox.Style>
+        </TextBox>
+        <TextBox
+            Name="TextBox2"
+            Width="172"
+            Height="23"
+            Margin="83,103,0,0"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top"
+            Text="TextBox"
+            TextWrapping="Wrap" />
+    </Grid>
+</Window>
+
+```
