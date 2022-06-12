@@ -313,6 +313,8 @@ using System.Text.Json;
 
 ## マイクロソフト公式
 
+[.NET 内で JSON のシリアル化と逆シリアル化 (マーシャリングとマーシャリングの解除) を行う方法](https://docs.microsoft.com/ja-jp/dotnet/standard/serialization/system-text-json-how-to?pivots=dotnet-6-0)
+
 ``` C# : .NET オブジェクトを JSON として書き込む方法 (シリアル化)
 using System.Text.Json;
 
@@ -720,6 +722,8 @@ WeatherForecast deserializedWeatherForecast =
 ```
 
 ---
+
+## 実務
 
 ``` C# : 多分実務のコード
 var request = new HttpRequestMessage()
