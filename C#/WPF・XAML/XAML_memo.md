@@ -1618,7 +1618,7 @@ Windowに乗っているならAncestorTypeはWindowだし、UsercontrolならAnc
 
 [【C#/WPF】EventTriggerを使って、Buttonでなくてもクリック時のCommandをかけるようにする](https://qiita.com/tera1707/items/7ecde6e97a19437cbf72)
 
-EventTriggerを使う
+Interaction.Triggersを使うまでに必要なこと
 
 - System.Windows.Interactivity.dllを参照に追加  
 - Microsoft.Expression.Interactionsを参照に追加  

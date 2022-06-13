@@ -551,6 +551,10 @@ configuration of the system
 2. 代用貨幣。代用硬貨  
 3. コンピューターネットワーク上でデジタル認証を行うための小型装置。カード型やUSB型などがある。認証トークン。セキュリティートークン。  
 
+## instracution
+
+命令
+
 ---
 
 ## Delete,Erase,Remove,Eliminate
