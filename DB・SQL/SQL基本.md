@@ -81,6 +81,25 @@ ALP    100    NULL    NULL    NULL    NULL    NULL    NULL    NULL    NULL    NU
 `メッセージ 110、レベル 15、状態 1、行 5`  
 `VALUES 句で指定された値よりも INSERT ステートメントの列数が少なすぎます。VALUES 句の値の数は、INSERT ステートメントで指定される列数と一致させてください。`  
 
+### フィールドのデフォルト値
+
+デフォルト値が入るようになっているテーブルへのINSERTでそのフィールドはずしたらどうなる？  
+デフォルト値が入るでしょう。  
+→事実入りました。  
+
+FrontCancelFlagがデフォルト値 1 に設定している。  
+
+``` sql
+INSERT INTO TRe_ReservationPlayer2(PlayerNo,BusinessDate,SeatNo)
+VALUES('KHG202299999999','2022-05-20',1)
+```
+
+``` txt
+PlayerNo          BusinessDate  SeatNo  FrontCancelFlag    CooperationClsCD
+
+KHG202299999999   2022-05-20    1       0                  NULL
+```
+
 ---
 
 ## UPDATE
