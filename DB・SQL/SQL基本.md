@@ -87,17 +87,15 @@ ALP    100    NULL    NULL    NULL    NULL    NULL    NULL    NULL    NULL    NU
 デフォルト値が入るでしょう。  
 →事実入りました。  
 
-FrontCancelFlagがデフォルト値 1 に設定している。  
+FrontCancelFlagがデフォルト値 0 に設定している。
+FrontCancelFlagをフィールドから外したINSERT VALUES で見事に初期値が入っている。  
+ちなみにnull許可の場合の初期値はnull。当たり前か。  
 
 ``` sql
-INSERT INTO TRe_ReservationPlayer2(PlayerNo,BusinessDate,SeatNo)
-VALUES('KHG202299999999','2022-05-20',1)
-```
+INSERT INTO TRe_ReservationPlayer2(PlayerNo,BusinessDate,SeatNo) VALUES('KHG202299999999','2022-05-20',1)
 
-``` txt
-PlayerNo          BusinessDate  SeatNo  FrontCancelFlag    CooperationClsCD
-
-KHG202299999999   2022-05-20    1       0                  NULL
+-- PlayerNo         BusinessDate  SeatNo  FrontCancelFlag  CooperationClsCD
+-- KHG202299999999  2022-05-20    1       0                NULL
 ```
 
 ---

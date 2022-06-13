@@ -2,64 +2,35 @@
 
 ## 概要
 
+MVPはMVCの次。MVVMの前っぽい？
+
 [【Unity】Model-View-(Reactive)Presenterパターンとは何なのか](https://qiita.com/toRisouP/items/5365936fc14c7e7eabf9)  
 
-MVPはMVCの次。MVVMの前。
+>Model-View-Presenter（MVP）パターンとは、GUIの設計パターンのうち「Presenter」という概念を用いたものです。  
+>
+>Model - データの実体。GUIとは直接関係ないアプリケーション本体の要素部分。  
+>View - GUIを制御する部分。データを画面に表示したり、逆にユーザからの操作を受け付ける部分。  
+>Presenter - ModelとViewをつなげる存在。仲介役。  
+>
+>MVPパターンで重要な点は1つです。  
+>「Presenterが存在しなければ、ViewとModelは完全に独立した状態になる」という点です。  
+>ViewとModelをつなげる存在はPresenterのみであるため、Presenterを排除するとこの2つは完全に独立することになります。  
+>つまり「ViewはModelを完全に知らない」「ModelはViewを完全に知らない」ということになります。  
+
+→リアルタイム性を求めるなら `Model-View-(Reactive)Presenterパターン` らしい。  
 
 [MVP (Model View Presenter)パターン](http://csharper.blog57.fc2.com/blog-entry-245.html)  
-
-[MVP パターンとは]
-MVP (Model View Presenter) パターンは、MVC (Model View Controller) パターンの亜種です。
-大きな違いとして、MVC パターンでは Controller がユーザーからの入力イベントを受け取りますが、MVP パターンでは View がユーザーからの入力イベントを受け取り、処理を Presenter に委譲します。
-
-
-[Model]
-Model は、ドメインモデルを表します。
-ドメインとは、業務固有の問題領域のことです。
-
-Model → View
-Model は、View に依存しません。
-Model → Presenter
-Model は、Presenter に依存しません。
-
-
-[View]
-View は、Presenter の要求インターフェイスを実装し、ユーザーインターフェイスを直接操作します。
-View は、極力無能にします。そのためには、UI コントロールとの直接的なやり取り以外をできるだけ行わないようにします。
-
-View → Presenter
-View は、Presenter に自分自身を関連付けます。
-View は、ユーザーからの入力イベントを受け取り、処理を Presenter に委譲します。
-View は、上記以外の目的で Presenter を操作しません。
-View → Model
-View は、Presenter から Model を受け取って出力することができます。
-View は、Model を生成しません。
-View は、出力に必要な操作以外で、Model を操作しません。
-
-
-[Presenter]
-Presenter は、View を通じて、ユーザーからの入力イベントを受け取ります。その後、Model を操作したり View を操作したりします。
-
-Presenter → View
-Presenter は、View から入力値を取得することができます。
-Presenter は、View を操作することができます。
-Presenter → Model
-Presenter は、Model を生成したり操作することができます。
-Presenter → その他
-Presenter は、Model や View に属さないもの (データストアやハードウェア等) に関する処理を行うことができます。
-
-
-[View と Presenter の関係]
-前述の通り、View は、Presenter の要求インターフェイスを実装します。この要求インターフェイスは、View が極力無能になるように考慮して定義します。
-Presenter と View は１対１の関係で、一つの Presenter を複数の View に関連付けることは通常しません。
-
-
-[Model の変更通知について]
-MVP パターンも MVC パターンと同じく、Model が View に変更を通知することができます。ただし、これは必須ではなく、この記事でもこれを含めていません。(つか、そっちはよく知りません。)
-こちらの記事によると、このように Model の変更通知を無くして Presenter が完全に View 操作を行うことを、「慎ましいビュー (Humble View)」 と呼ぶそうです。
+>[MVP パターンとは]
+>MVP (Model View Presenter) パターンは、MVC (Model View Controller) パターンの亜種です。
+>大きな違いとして、MVC パターンでは Controller がユーザーからの入力イベントを受け取りますが、MVP パターンでは View がユーザーからの入力イベントを受け取り、処理を Presenter に委譲します。
 
 [StackOverFlowの「MVPとMVCの違い」についての回答を読んでみた](https://qiita.com/takahirom/items/597c48ece57b4623cdee)  
-![!](https://camo.qiitausercontent.com/120d9a4173c6a9037e0aa63b66ae0c9ce6c933ad/68747470733a2f2f71696974612d696d6167652d73746f72652e73332e616d617a6f6e6177732e636f6d2f302f32373338382f65366465633434362d383563352d656161662d653237662d3138383066363765313163662e706e67)
+![!](https://camo.qiitausercontent.com/120d9a4173c6a9037e0aa63b66ae0c9ce6c933ad/68747470733a2f2f71696974612d696d6167652d73746f72652e73332e616d617a6f6e6177732e636f6d2f302f32373338382f65366465633434362d383563352d656161662d653237662d3138383066363765313163662e706e67)  
+
+→グラフの説明はここが一番わかりやすかった。  
+MVPにも Passive View と Supervising Controller なるバージョンの違いがあるらしい。  
+今回実装したのはPassiveView。  
+これ以上のバージョンがあったとしても素直にMVVM使えってなるので、これ以上は詮索しない。  
 
 ---
 
