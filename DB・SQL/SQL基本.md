@@ -927,11 +927,11 @@ INSERT INTO ConversionTable VALUES (995,999,'三石','ﾐﾂｲ')
 
 ### テーブルのカラム名を変更するSQL
 
-```SQL
--- MariaDB
+```SQL : MariaDB
 ALTER TABLE [TMa_Product] RENAME COLUMN [RevenuTypeCD] TO [RevenueTypeCD]
+```
 
--- SQL Server
+``` sql : SQL Server
 -- https://docs.microsoft.com/ja-jp/sql/relational-databases/system-stored-procedures/sp-rename-transact-sql?view=sql-server-ver15
 -- 珍しく公式サイトが参考になった。
 EXEC sp_rename 'スキーマ名.テーブル名.現在のカラム名', '新しいカラム名', 'COLUMN';
@@ -945,14 +945,15 @@ GO
 
 ### テーブルのデータ型を変更するSQL
 
-```SQL
--- SQL Server
+```SQL : SQL Server
 ALTER TABLE (操作対象テーブル) ALTER column (データ型を変更する列名) (変更するデータ型)
 
 -- 例 : TMa_ProductテーブルのRevenueTypeCDカラムの型をintに変更するクエリ
 ALTER TABLE [TMa_Product] ALTER column [RevenueTypeCD] int
+```
 
---- MariaDB,カラム追加
+``` sql : MariaDB
+--- カラム追加
 -- TmOpenPlanPGMWEBテーブルのHolidayExtraPriceOneBagフィールドの後にTaxSelectionStatusTypeを追加。型はboolで初期値は0。コメント付き。
 ALTER TABLE `TmOpenPlanPGMWEB` ADD COLUMN `TaxSelectionStatusType` TINYINT(1) NOT NULL DEFAULT 0 comment '税選択状態区分 税抜(外税):0 税込(内税):1' AFTER `HolidayExtraPriceOneBag`;
 
