@@ -936,10 +936,10 @@ ALTER TABLE [TMa_Product] RENAME COLUMN [RevenuTypeCD] TO [RevenueTypeCD]
 -- 珍しく公式サイトが参考になった。
 EXEC sp_rename 'スキーマ名.テーブル名.現在のカラム名', '新しいカラム名', 'COLUMN';
 
--- テーブルを指定したい場合はUSEでテーブルを切り替えて実行するしかないみたい。
+-- データベースの指定はUSEするしかないみたい。
 USE Round3Dat_Test;
 GO
-EXEC sp_rename 'TMa_Supplier.ValidFalg','ValidFlag','COLUMN';
+EXEC sp_rename 'dbo.TMa_Supplier.ValidFalg','ValidFlag','COLUMN';
 GO
 ```
 
