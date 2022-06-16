@@ -272,3 +272,136 @@ resetにコミットIDを指定した場合、それより前のコミット全�
 
 git reset --hard HEAD  
 編集・ステージングいずれの変更内容を取り消し、最後にコミットした状態に戻す  
+
+---
+
+## git rebase
+
+RebaseはBranchの根元を変える処理。  
+Rebaseは、結果として逆Mergeと同じ状態となります。  
+
+`git rebase <base>`  
+`git rebase <base> <checkout>`  
+
+次の履歴が存在し、現在のブランチが「topic」であると想定します。  
+
+``` txt
+      A---B---C topic
+    /
+D---E---F---G master
+```
+
+この時点で、次のコマンドのいずれかの結果となります。
+
+``` bash
+git rebase master
+git rebase master topic
+```
+
+このようになります。
+
+``` txt
+                A'--B'--C' topic
+              /
+D---E---F---G master
+```
+
+注記：後者の形式はgit checkout topic の省略形であり、その後にgit rebase masterが続きます。  
+リベースが終了すると、topicはチェックアウトされたブランチのままになります。  
+
+[tracpath](https://tracpath.com/docs/git-rebase/)  
+
+### Visual Studioで rebase する方法
+
+Visual Studioで rebase するときはmergeと同じやり方でやる。  
+
+- Release  
+- Fix/1234  
+
+`Release`の変更を`Fix/1234`に取り込み、`Fix/1234`を最新の状態にしたい時にRebaseを使う場合を想定する。  
+
+1. `Fix/1234`をチェックアウトする。  
+2. `Release`を右クリックし、「`Fix/1234`を`Release`にリベースにする」を選択する。  
+   ※ 英語版の場合、表記は「Rebase 'Fix/1234' onto 'Release'」  
+
+マージの場合の表記は「`Release`を`Fix/1234`にマージする」となっている。  
+Fix/1234にReleaseを取り込むので(取り込んで最新化する)、言葉通りに感じる。  
+しかし、リベースの場合は表現が逆。  
+この表現だとReleaseブランチをリベースするように見えるが、これであっているっぽい。
+(Fix/1234ブランチをReleaseに持ってきて、Releaseを書き換えてしまうイメージ)  
+リベースをよく知らない時に、この表現にだまされて、Releaseブランチをチェックアウトして、Fix/1234ブランチを右クリックしてリベースしてしまった。  
+
+`git checkout Fix/1234`  
+`git rebase Release`  
+or  
+`git rebase Release Fix/1234`  
+
+``` txt : 元
+      A---B---C Fix/1234
+    /
+D---E---F---G Release
+```
+
+``` txt : リベースした場合
+                A'--B'--C' Fix/1234
+              /
+D---E---F---G Release
+```
+
+``` txt : マージした場合
+      A---B---C---H  Fix/1234
+    /           /
+D---E---F------G  Release
+
+※Hはマージコミット
+```
+
+誰にも影響を与えない「まだpushしていない、ローカルの開発内容」だったら、rebaseを使用しても大丈夫です。  
+
+[classmethod_GitのRebaseによるBranchの運用](https://dev.classmethod.jp/articles/development-flow-with-branch-and-rebase-by-git/)  
+→  
+Rebaseでの運用  
+逆Mergeの運用はどんなバージョン管理システムを使った場合でも適用できます。  
+が、Gitにおいては逆Mergeの代わりにRebaseを使うと、よりクールに運用できるのでお勧めです。  
+Rebaseは、結果として逆Mergeと同じ状態となります。異なるのは変更の適用方法です。  
+
+[リベースによるより良いGitワークフロー](https://www.youtube.com/watch?v=f1wnYdLEpgI)  
+→  
+流れがあってわかりやすい。  
+
+### fast-forwardマージ
+
+[fast-forwardマージから理解するgit rebase](https://qiita.com/vsanna/items/451b42f886c599a16a55)  
+
+ブランチXと、そこから切ったブランチYがあるとする。  
+YがXでの変更をすべて含むときに行われるマージをfast-forward（早送り）マージという。  
+つまり、分岐後に、元ブランチXにおいて変更がないときに行われるマージのこと  
+
+ReleaseからFixを切り、Fixをリベースして追加の修正を行い、そのままReleaseにマージしてもマージコミットが発生しないのはこの仕組みがあるからっぽい。  
+全てをマージしたときはがっつりマージコミットと分岐の履歴が残るけど、リベースの場合は残らない。  
+ここから先は実環境で確かめてみるしかないかも。  
+
+``` txt : 元の状態
+      A---B---C Fix/1234
+    /
+D---E---F---G Release
+```
+
+``` txt : リベース
+                A'--B'--C' Fix/1234
+              /
+D---E---F---G Release
+```
+
+``` txt: リベースしてからD',E'をコミット
+                A'--B'--C'--D'--E' Fix/1234
+              /
+D---E---F---G Release
+```
+
+``` txt : Fix/1234をReleaseにマージした場合のコミット状況
+D---E---F---G---A'--B'--C'--D'--E' Fix/1234,Release
+```
+
+あくまでReleaseFixまでの話で、Releaseにマージする時はプルリクするからマージコミットが出来上がるはず。
+まぁ、それほど影響はないのかな？

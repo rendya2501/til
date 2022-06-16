@@ -163,6 +163,14 @@ pullではなくcloneなら普通にありました。
 
 ---
 
+## リモートブランチを削除する
+
+[Gitのリモートブランチを削除するまとめ](https://qiita.com/yuu_ta/items/519ea47ac2c1ded032d9)  
+
+git push --delete origin Fix/2345
+
+---
+
 ## ローカルのブランチ名を変更する方法
 
 [gitのローカルのブランチ名を変更したい](https://qiita.com/suin/items/96c110b218d919168d64)  
