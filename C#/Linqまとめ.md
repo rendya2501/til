@@ -709,7 +709,7 @@ Janコードの検索対応で調べたのでまとめ。
 
 ## LinqのCast
 
-[【LINQ】Cast<T>は使わない方が良い？OfType<T>を使おう](https://threeshark3.com/castistrap/)  
+[【LINQ】Cast\<T>は使わない方が良い？OfType\<T>を使おう](https://threeshark3.com/castistrap/)  
 
 Castって失敗した時の挙動ってどうなのか知らなかったので調べた。  
 →  
@@ -717,16 +717,16 @@ Castって失敗した時の挙動ってどうなのか知らなかったので�
 
 それはそうと、CastはFirstと同じくらい罠らしく、CastではなくOfTypeを使うべきって記事を見つけたのでまとめる。  
 
-OfType<T>
+OfType\<T>
 キャストできなかった時 : 要素はフィルタリングされる
 要素がnullだった時 : 要素はフィルタリングされる
 
-Cast<T>
+Cast\<T>
 キャストできなかった時 : 例外になる
 要素がnullだった時 : 例外になる or 要素はフィルタリングされない
 
-OfType<T>は挙動の一貫性があり、予想外の値が来た時も安定してフィルタリングしてくれますね。  
-以上の点から、Cast<T>を使う必要はほぼなく、OfType<T>を使うことを強くお勧めします。  
+OfType\<T>は挙動の一貫性があり、予想外の値が来た時も安定してフィルタリングしてくれますね。  
+以上の点から、Cast\<T>を使う必要はほぼなく、OfType\<T>を使うことを強くお勧めします。  
 
 ``` C#
     object[] hogeArray = new object[] { 3, "apple", 42 };
@@ -1046,8 +1046,8 @@ IQueryableは外部実行が何たらかんたらって言ってたから、つ�
 ```
 
 [2種類のLINQ](https://csharptan.wordpress.com/2011/12/09/2%E7%A8%AE%E9%A1%9E%E3%81%AElinq/)  
-[結局IEnumerable<T>とIQueryable<T>はどう違うの？](https://qiita.com/momotaro98/items/7be27447f5f4a5c8bac9)  
-[What is the difference between IQueryable<T> and IEnumerable<T>?](https://stackoverflow.com/questions/252785/what-is-the-difference-between-iqueryablet-and-ienumerablet)  
+[結局IEnumerable\<T>とIQueryable\<T>はどう違うの？](https://qiita.com/momotaro98/items/7be27447f5f4a5c8bac9)  
+[What is the difference between IQueryable\<T> and IEnumerable\<T>?](https://stackoverflow.com/questions/252785/what-is-the-difference-between-iqueryablet-and-ienumerablet)  
 [IEnumerable vs IQueryable](https://samueleresca.net/the-difference-between-iqueryable-and-ienumerable/)  
 
 ``` txt

@@ -1,4 +1,6 @@
-# nginxまとめ
+# Nginxまとめ
+
+[Nginx 入門](http://www2.matsue-ct.ac.jp/home/kanayama/text/nginx/all.html)  
 
 ---
 
