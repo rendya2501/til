@@ -400,21 +400,15 @@ selectだと配列の中の配列があったときに、`IEnumerable<IEnumerabl
     // SelectだとIEnumerable<IEnumerable<TFr_Slip>>になるけど、
     // SelectManyすることでIEnumerable<TFr_Slip>にすることができる。平坦化ってやつ。
     var SlipList = GetSettlementSettingPlayerViewList(data.SettlementSetting)
-        .SelectMany(
-            settingPlayer =>
-                _TFr_SlipModel
-                    .GetList(
-                        new PlayerCondition()
-                        {
-                            PlayerNo = settingPlayer.SettelementPlayerNo
-                        }
-                    )
-                    .Select(slip =>
-                    {
-                        slip.SettlementPlayerNo = slip.PlayerNo;
-                        slip.UpdateDateTime = updateDateTime;
-                        return slip;
-                    })
+        .SelectMany(settingPlayer => 
+            _TFr_SlipModel
+                .GetList(new PlayerCondition(){PlayerNo = settingPlayer.SettelementPlayerNo})
+                .Select(slip =>
+                {
+                    slip.SettlementPlayerNo = slip.PlayerNo;
+                    slip.UpdateDateTime = updateDateTime;
+                    return slip;
+                })
         );
 ```
 

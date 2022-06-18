@@ -1313,7 +1313,7 @@ new Action(() => 処理)();
 ![aa](https://pbs.twimg.com/media/E9sAV0jVoAEHVUs?format=png&name=360x360)  
 
 ``` C#
-Public class Foo
+public class Foo
 {
     public int X { get; set; }
     public int Y { get; set; }
@@ -1506,3 +1506,83 @@ var output = input
 ただ語順が違うだけなんですが、 こちらの方がやりたいことの意図が即座に伝わります。  
 すなわち、パイプライン処理（フィルタリング処理）は、 後置きの語順が好ましい処理です。  
 というように、 語順的に後置きの方がしっくりくる場合に （というか、むしろその場合のみに）、 静的メソッドを拡張メソッド化することをお勧めします。  
+
+---
+
+## 文字列のインクリメント
+
+[【C#】文字列内の末尾の数値をインクリメントするサンプル](https://baba-s.hatenablog.com/entry/2020/05/06/001800)  
+[c# - 文字と数字の両方で文字列をインクリメントします](https://tagsqa.com/detail/45665)  
+
+正規表現で数字を取得。  
+intに変換してインクリメントして文字列に直す。
+もしくは結合しなおすことでインクリメントを実現する。  
+
+usingはこれ。  
+`uging System.Text.RegularExpressions;`  
+
+``` C# : どういう原理かわからんが、一番スマートかも
+// "MD123" → "MD124"
+// "123MD" → "124MD"
+//  "7000" → "7001"
+var newString = Regex.Replace(
+    input,
+    "\\d+",
+    m => (int.Parse(m.Value) + 1).ToString(new string('0', m.Value.Length))
+);
+```
+
+``` C# : 拡張メソッドにした
+// こんな芸当が可能
+string str = "MD123".Increment();
+
+//拡張メソッド定義
+public static class StringExtension
+{
+    public static string Increment(this string input)
+    {
+        return Regex.Replace(
+            input,
+            "\\d+",
+            m => (int.Parse(m.Value) + 1).ToString(new string('0', m.Value.Length))
+        );
+    }
+}
+```
+
+上のさえできれば後のやつを使う意味はないけど、備忘録として残す
+
+``` C# : 案1
+// "MD123" → "MD124"
+// "123MD" →    Err
+//  "7000" →  "7001"
+string input = "MD123";
+
+var valueString = new Regex("([0-9]*$)").Match(input).Value;
+var value = int.Parse(valueString) + 1;
+var digits = Math.Min(value == 0 ? 1 : (int)Math.Log10(value) + 1, valueString.Length);
+var result = input.Remove(input.Length - digits, digits) + value;
+
+// 関数としてまとめた例
+var accountNo = new Func<string, string>((input) =>
+{
+    var valueString = new Regex("([0-9]*$)").Match(input).Value;
+    var value = int.Parse(valueString) + 1;
+    var digits = Math.Min(value == 0 ? 1 : (int)Math.Log10(value) + 1, valueString.Length);
+    return input.Remove(input.Length - digits, digits) + value;
+})(maxAccountNo);
+```
+
+``` C# : 案2
+// "MD123" → "MD124"
+// "123MD" →    Err
+//  "7000" →    Err
+
+var match = Regex.Match("MD123", @"^([^0-9]+)([0-9]+)$");
+// [0] : MD123
+// [1] : MD
+// [2] : 123
+var num = int.Parse(match.Groups[2].Value);
+// MD + 124
+var after = match.Groups[1].Value + (num + 1);
+```
