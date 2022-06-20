@@ -4,17 +4,21 @@
 VueにはClassStyleとObjectStyleの2つの記法がある模様。  
 実務で使っていたのはClassStyle。  
 これはプロジェクトを作る時のオプションで指定する必要がある。  
-→  
-vue typescript class style
 
 ---
 
 ## Vueの最低限の実装とそこまでのまとめ
 
+前提条件
+
 1. Node.jsをインストール  
 2. vue/cliをインストール  
    - `npm install -g @vue/cli`  
-3. vueプロジェクトの生成  
+
+プロジェクト作成  
+class styleでのプロジェクト作成の仕方  
+
+- vueプロジェクトの生成  
 
 TypeScriptの環境構築
 [簡単な例で始めるVue3でTypeScript入門](https://reffect.co.jp/vue/vue3-typescript)  

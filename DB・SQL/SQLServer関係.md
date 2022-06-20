@@ -347,3 +347,18 @@ select *
 from sys.dm_db_index_physical_stats(@DB_ID, @Object_ID, null, null, 'DETAILED') as A
 join sys.objects as B on A.object_id = B.object_id
 ```
+
+---
+
+## SQLServer 改行
+
+[T-SQL: 文字列に改行を挿入する](https://sql55.com/query/how-to-insert-carriage-return.php)  
+
+``` sql
+SELECT 'test1' + CHAR(13) + CHAR(10) + 'test2' AS 'CR+LF';
+
+-- 以下は改行されない
+SELECT 'test1' + CHAR(9) + 'test2' AS 'TAB';
+SELECT 'test1' + CHAR(10) + 'test2' AS 'LF';
+SELECT 'test1' + CHAR(13) + 'test2' AS 'CR';
+```
