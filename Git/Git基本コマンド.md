@@ -370,6 +370,8 @@ Rebaseは、結果として逆Mergeと同じ状態となります。異なるの
 →  
 流れがあってわかりやすい。  
 
+[あなたはmerge派？rebase派？綺麗なGitログで実感したメリット](https://style.biglobe.co.jp/entry/2022/03/22/090000#develop%E3%83%96%E3%83%A9%E3%83%B3%E3%83%81%E3%82%92%E7%B6%BA%E9%BA%97%E3%81%AB%E4%BF%9D%E3%81%A4Git%E6%93%8D%E4%BD%9C%E3%83%9E%E3%83%BC%E3%82%B8%E7%B7%A8)  
+
 ### fast-forwardマージ
 
 [fast-forwardマージから理解するgit rebase](https://qiita.com/vsanna/items/451b42f886c599a16a55)  
