@@ -362,3 +362,12 @@ SELECT 'test1' + CHAR(9) + 'test2' AS 'TAB';
 SELECT 'test1' + CHAR(10) + 'test2' AS 'LF';
 SELECT 'test1' + CHAR(13) + 'test2' AS 'CR';
 ```
+
+---
+
+## SQLServer 正規表現
+
+[【SQL Server】WHERE句で正規表現的な検索をする](https://memorandom-nishi.hatenablog.jp/entry/2017/03/09/013222)  
+>検索をする際に、SQLServerでは正規表現を使うことはできません。  
+
+LIKEで色々やるしかないみたい。  
