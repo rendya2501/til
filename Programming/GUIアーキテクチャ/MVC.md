@@ -4,6 +4,10 @@ MVCとは、設計手法の一つ。
 実装を、Model-View-Controllerの三つの領域に分けて行う。  
 この設計を用いることで、画面変更が容易になったりする。  
 
+[CRUD with MVP pattern, C#, WinForms and SQL Server](https://www.youtube.com/watch?v=WSBy_Ypgk38)  
+この動画を見る限り、MVPはWeb,Mobile向けのアーキテクチャーな模様。  
+でも、MVPとMVVMが全てで使えるなら、そっち使ったほうがいいよね。  
+
 [やはりお前らのmvcは間違っている](https://www.slideshare.net/MugeSo/mvc-14469802)  
 [PHPerのMVCの一体どこが間違っていたのか](https://mugeso.hatenadiary.org/entry/20121224/1356345261)  
 [MVC、本当にわかってますか？](https://qiita.com/tshinsay/items/5b1724baf32b8b5113c2)  
