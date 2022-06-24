@@ -140,8 +140,7 @@ MultiDataTriggerはSytleの中に書くのだが、そうすると見た目が�
 <https://stackoverflow.com/questions/20993293/multidatatrigger-vs-datatrigger-with-multibinding>  
 <https://base64.work/so/wpf/171252>  
 
-``` XML
-<!-- Style + DataTrigger or MultiDataTrigger -->
+``` XML :  Style + DataTrigger or MultiDataTrigger
 <!-- DataTriggerによる制御。BaseOnするものがあれば見た目を崩さずに済むと思う。 -->
 <Binding
     Converter="{StaticResource NotNullOrEmptyToBoolConverter}"
@@ -176,14 +175,15 @@ MultiDataTriggerはSytleの中に書くのだが、そうすると見た目が�
                         <Setter Property="IsTabStop" Value="True" />
                     </MultiDataTrigger.Setters>
                 </MultiDataTrigger>
-                <!-- And条件に合わない場合の状態も記述する -->
-                <Setter Property="IsEnabled" Value="False" />
-                <Setter Property="IsTabStop" Value="False" />
             </Style.Triggers>
+            <!-- And条件に合わない場合の状態も記述する -->
+            <Setter Property="IsEnabled" Value="False" />
+            <Setter Property="IsTabStop" Value="False" />
         </Style>
     </c1:C1FlexGrid.Style>
+```
 
-<!-- MultiBinding + MultiConverter -->
+``` XML : MultiBinding + MultiConverter
 <!-- Styleに書かないので、見た目を崩さない。AND,ORの指定はMultiConverterを定義することで実現する -->
 <ctrl:CustomFlexGrid x:Name="UnitPriceFlexGrid">
     <!-- 1つ1つのプロパティに対してMultiBindingで条件を指定する必要がある -->
