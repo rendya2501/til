@@ -30,7 +30,7 @@
 
 ## x:Typeのありなしの違い
 
-東さん的には文字列として認識させるか、型情報として認識させるかの違いって言っていた気がする。  
+azmさん的には文字列として認識させるか、型情報として認識させるかの違いって言っていた気がする。  
 
 [when to use {x:Type …}?](https://stackoverflow.com/questions/11167536/when-to-use-xtype)  
 
