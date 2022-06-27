@@ -95,7 +95,7 @@ private void PaymentMethodFlexGrid_SelectedItemChanged(object sender, System.Eve
 ## FlexGridのRowHeaderに番号を付ける方法とCellFactoryサンプル
 
 FlexGridのRowHeaderに番号を付ける方法を聞かれたがわからなかった。  
-萬君がCellFactoryを使ったやり方で実現していたので拝借した。  
+Yr君がCellFactoryを使ったやり方で実現していたので拝借した。  
 そのほかにも、チェックアウトで疑似的に実現していたのでそれも拝借する。  
 
 ``` XML : Front.CheckOut.Views.SelfCheckOutWindow.xaml

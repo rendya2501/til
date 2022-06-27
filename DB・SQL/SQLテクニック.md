@@ -623,7 +623,7 @@ WHERE [TRe_ReservationFrame].[OfficeCD] = @officeCD
 
 ## Substring
 
-最後の文字を削除する時に`substring([ReservationNo], 1, len(ReservationNo)-1)`ってやったらエラーになったけど何かわかる？って萬君に質問されたのでまとめ。  
+最後の文字を削除する時に`substring([ReservationNo], 1, len(ReservationNo)-1)`ってやったらエラーになったけど何かわかる？ってYr君に質問されたのでまとめ。  
 答えられなかったのだが、Len(空白) = 0になって 0-1 = -1 で、マイナスを第3引数に指定するとエラーになるってのが原因だった。  
 気になって調べたらいろいろわかったので沼にはまってしまった。  
 
@@ -714,7 +714,7 @@ END AS [BankCD],
 
 ## FLOOR関数とCEILING関数
 
-萬君から、「これ何したいかわかります？」って質問されたが、そもそも関数が何やるかわからなかったのでまとめる。  
+Y君から、「これ何したいかわかります？」って質問されたが、そもそも関数が何やるかわからなかったのでまとめる。  
 
 ``` SQL
     CEILING(FLOOR(金額 * 10) / 10)

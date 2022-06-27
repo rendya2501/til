@@ -44,7 +44,7 @@
 
 ## ローカルログイン
 
-酒井君のPCセットアップの時に岡部部長が発した単語。  
+Sa君のPCセットアップの時に岡部部長が発した単語。  
 普通のログインって何に当たるのか。ログインにはどのような種類があるのか気になったのでまとめた。  
 
 <https://milestone-of-se.nesuke.com/sv-advanced/activedirectory/domain-and-local-users/>  

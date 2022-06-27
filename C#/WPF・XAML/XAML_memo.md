@@ -1348,7 +1348,7 @@ namespace RN3.Wpf.Common.Control.Helper
 </Grid>
 ```
 
-``` xml : なんか萬君が最初に提示してくれた案
+``` xml : なんかYr君が最初に提示してくれた案
 ItemsPanel
     <Setter Property="ItemsPanel">
         <Setter.Value>
