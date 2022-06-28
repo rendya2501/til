@@ -362,6 +362,14 @@ SELECT 'test1' + CHAR(10) + 'test2' AS 'LF';
 SELECT 'test1' + CHAR(13) + 'test2' AS 'CR';
 ```
 
+これで検索できる
+
+``` sql
+WHERE [Field] LIKE '%'+CHAR(9)+'%'
+OR [Field] LIKE '%'+CHAR(10) +'%'
+OR [Field] LIKE '%'+CHAR(13) +'%'
+```
+
 ---
 
 ## SQLServer 正規表現

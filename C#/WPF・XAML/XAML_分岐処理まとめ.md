@@ -82,8 +82,7 @@ MultiDataTriggerなるものを使えば、複数条件は指定できるが、O
 2回も同じこと書くのが気にくわないけど、確かにORになっている。  
 セッターの部分をまとめることができないか調べてみたが、Setterだけをまとめることはできなさそうだ。  
 
-``` XML
-<!-- 商品台帳のチェックボックスで頑張ったやつ -->
+``` XML : チェックボックスで頑張ったやつ
 <CheckBox
     x:Name="SetProductCheckBox"
     VerticalAlignment="Center"
@@ -91,8 +90,8 @@ MultiDataTriggerなるものを使えば、複数条件は指定できるが、O
     IsChecked="{Binding Data.Product.SetProductFlag, Mode=TwoWay}">
     <CheckBox.Style>
         <Style TargetType="CheckBox">
+            <!--  or条件  -->
             <Style.Triggers>
-                <!--  or条件  -->
                 <DataTrigger Binding="{Binding Value, ElementName=DepartmentCDBox}" Value="0">
                     <Setter Property="IsEnabled" Value="False" />
                     <Setter Property="IsChecked" Value="False" />
