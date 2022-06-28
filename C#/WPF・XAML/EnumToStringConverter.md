@@ -35,7 +35,6 @@ Enumのメンバーを任意の文字列に変換するため業務中に作っ�
         /// </summary>
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
     }
-}
 ```
 
 ``` C#

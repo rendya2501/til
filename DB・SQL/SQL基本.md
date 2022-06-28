@@ -1190,3 +1190,24 @@ select TOP 50 PERCENT * FROM TPa_Reservation
 >SP2には入っていないし、わざわざ当てる人も少ないと思うので、次のSP3が出たとして、それ当てた時からTOP 100 PERCENTが効くようになるでしょう。  
 >ちなみにSQL Server 2008でも初期バージョンではTOP 100 PERCENTが効かず、累積パッチが提供されています。  
 >ということで、そのようなビューの使い方は正しいアプローチではありませんが、SQL Serverの裏ワザの一つですと認識ください。  
+
+---
+
+## 主キーはなくても動く
+
+主キーを設定することがあまりにも当たり前すぎて、主キーなしという状態が許可されるのか分からなかったので確かめた。  
+普通にいけた。  
+もちろん重複したデータをいれることができる。  
+
+``` sql
+CREATE TABLE [IDENTITY_INSERT_TEST_TBL]  
+(
+    [Id] INT NOT NULL,  
+    [Code] INT NOT NULL,
+    [Name] nvarchar(255)
+);
+
+-- 重複レコードが余裕で入る
+INSERT INTO [IDENTITY_INSERT_TEST_TBL] ([id],[Code],[Name]) 
+VALUES(1,1,'A'),(1,2,'B'),(1,3,'C'),(1,1,'A'),(1,2,'B'),(1,3,'C');
+```

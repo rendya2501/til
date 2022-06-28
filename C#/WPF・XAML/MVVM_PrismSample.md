@@ -1,16 +1,12 @@
-# Prismを用いたMVVMサンプル1
+# Prismを用いたMVVMサンプル
 
 <https://blog.okazuki.jp/entry/2014/12/23/180413>
 
-RNに入る前のサンプルとしては最適だったかもしれないが、先にRNで組んでしまってからだと、当たり前のことしか言っていない。
-なんてことはない。改めてサンプルとしてまとめる必要性も皆無だ。
-でも、自分で説明するとなったらあれなんだよなぁ。
-
 ## MVVMパターンとは
 
-プログラムの構成をView(見た目),ViewModel(見た目とデータの制御),Model(データの制御)に分けた物。
-基本的に、View,ViewModel間のやり取りはプロパティのBindingを行う。
-プロパティ変更通知はINotifyPropertyChangedインターフェースを使用するが、Prismは便利なサポート
+プログラムの構成をView(見た目),ViewModel(見た目とデータの制御),Model(データの制御)に分けた物。  
+基本的に、View,ViewModel間のやり取りはプロパティのBindingを行う。  
+プロパティ変更通知はINotifyPropertyChangedインターフェースを使用するが、Prismは便利なサポート  
 
 ``` C# : ViewModel
 using Microsoft.Practices.Prism.Commands;
