@@ -2,37 +2,49 @@
 
 ## XAMLにおけるif文
 
-<https://threeshark3.com/wpf-binding-datatrigger/>  
+[さんさめ_【WPF】Binding入門5。DataTriggerの活用]<https://threeshark3.com/wpf-binding-datatrigger/>  
 
 DataTrigger（データトリガー）とは、Bindingした値に応じてプロパティを変化させる仕組みです。  
 Styleでは、通常、「Setter」というオブジェクトを配置してプロパティの値を定義します。  
 「Setter」に対し「Triggers」では、条件を記述し、その条件にマッチしたときのみ設定される値を定義できます。  
 
-``` XML
-<CheckBox
-    x:Name="SetProductCheckBox"
-    VerticalAlignment="Center"
-    VerticalContentAlignment="Center"
-    IsChecked="{Binding Data.Product.SetProductFlag, Mode=TwoWay}">
-    <!-- 今回の本題ではないが、チェックボックスの大きさを変えたかったらLayoutTransformするしかないみたい -->
-    <CheckBox.LayoutTransform>
-        <ScaleTransform ScaleX="1.2" ScaleY="1.2"/>
-    </CheckBox.LayoutTransform>
+``` XML : 基本形
+<Button>
+    <!-- TargetTypeを指定しないと設定できるプロパティに何があるかわからないので指定する -->
+    <Style TargetType="{x:Type Button}">
+        <!-- 通常は背景色、赤 -->
+        <Setter Property="Background" Value="Red"/> 
+        <Style.Triggers>
+            <!-- Nameプロパティが空文字かnullなら背景色を青に -->
+            <DataTrigger Binding="{Binding Name}" Value="">
+                <Setter Property="Background" Value="Blue"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Name}" Value="{x:Null}">
+                <Setter Property="Background" Value="Blue"/>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+</Button>
+```
+
+``` XML : 別のコントロールの値を利用する場合
+<CheckBox>
     <CheckBox.Style>
-    <!-- TargetTypeを指定しないとなんのプロパティがあるかわからないので指定する -->
-        <Style TargetType="CheckBox">
+        <Style TargetType="{x:Type CheckBox}">
             <Style.Triggers>
-            <!-- DataTriggerは他の値をBindして条件として使えるのが強み -->
-                <DataTrigger Binding="{Binding Value, ElementName=DepartmentCDBox}" Value="0">
+                <DataTrigger Binding="{Binding Value, ElementName=TestTextBox}" Value="0">
                     <Setter Property="IsEnabled" Value="False" />
                     <Setter Property="IsChecked" Value="False" />
                 </DataTrigger>
             </Style.Triggers>
         </Style>
     </CheckBox.Style>
-    <!-- TrueとFalse、両方定義する場合 -->
+</CheckBox>
+```
+
+``` XML : TrueとFalse、両方定義する場合
     <DockPanel.Style>
-        <Style TargetType="DockPanel">
+        <Style TargetType="{x:Type DockPanel}">
             <Style.Triggers>
                 <DataTrigger Binding="{Binding ReservationPlayerRemarks, Mode=OneWay, Converter={StaticResource NullOrEmptyToBoolConverter}}" Value="true">
                     <Setter Property="Background" Value="Transparent" />
@@ -43,7 +55,6 @@ Styleでは、通常、「Setter」というオブジェクトを配置してプ
             </Style.Triggers>
         </Style>
     </DockPanel.Style>
-</CheckBox>
 ```
 
 ``` xml : 文言を変えるサンプル
