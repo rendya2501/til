@@ -76,7 +76,7 @@ namespace MVVMSample1
 }
 ```
 
-ビルドしてView（XAML）を作成します。ViewModelをXAMLで参照できるように名前空間の定義を行います。
+ビルドしてView（XAML）を作成します。
 
 ``` XML
 xmlns:l="clr-namespace:MVVMSample01"
@@ -90,9 +90,11 @@ xmlns:l="clr-namespace:MVVMSample01"
 </Window.DataContext>
 ```
 
-画面を作成していきます。入力用のTextBoxと出力用のTextBlockとコマンドを実行するためのButtonを置いて、ViewModelの対応するプロパティとバインディングしています。
+画面を作成していきます。
+入力用のTextBoxと出力用のTextBlockとコマンドを実行するためのButtonを置いて、ViewModelの対応するプロパティとバインディングしています。
 
 ``` XML
+<!-- ViewModelをXAMLで参照できるように名前空間の定義を行います。 -->
 <Window
     x:Class="MVVMSample01.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"

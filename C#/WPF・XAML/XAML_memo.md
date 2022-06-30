@@ -801,29 +801,6 @@ XAMLはジェネリックのバインドをサポートしてないっぽい。
 
 ---
 
-## アノテーションによるValidationの抑制
-
-[How to suppress validation when nothing is entered](https://stackoverflow.com/questions/1502263/how-to-suppress-validation-when-nothing-is-entered)  
-
-いつぞや、商品台帳でIsEnableにDataのDepartmentをバインドしてF8を実行した時に、Requireのエラーが出て困ったことがあった。  
-その時はどうやって調べたいいかわからなかったので、仕方なくDataではなくコントロールのValueをバインドして解決したが、
-今回はバリデートを抑制したいということで、`wpf validation suppress`で調べたらいい感じのが出てきた。  
-BindingクラスにValidation関係のプロパティがたくさんあったので、それっぽいやつを指定したら、実現できたのでまとめる。  
-
-今回は`ValidatesOnNotifyDataErrors`をFalseにしたらうまく行った。  
-読んで字のごとく、Dataにおけるエラー通知をどうするかって意味だと思われる。  
-調べてもこのプロパティはこういうものです！って解説をしているところがまったくない。  
-まぁ、解決したからいいか。  
-
-``` XML
-<im:GcTextBox
-    IsReadOnly="{Binding Data.BankCD, Mode=OneWay, Converter={StaticResource NullOrEmptyToBoolConverter}, ValidatesOnNotifyDataErrors=False}"
-    IsTabStop="{Binding Data.BankCD, Mode=OneWay, Converter={StaticResource NotNullOrEmptyToBoolConverter}, ValidatesOnNotifyDataErrors=False}"
-/>
-```
-
----
-
 ## 同じ値が入力されても実行されるようにする
 
 ①変更をすべて取得。  
@@ -1032,6 +1009,9 @@ DataGridでは再現できたので、それをFlexGridにも当てたら最終�
 プレースホルダー
 ポップアップ
 ToolTip
+
+[ボタンのツールチップ](https://araramistudio.jimdo.com/2019/11/01/c-%E3%81%AEwpf%E3%81%A7%E3%83%84%E3%83%BC%E3%83%AB%E3%83%81%E3%83%83%E3%83%97%E3%82%92%E8%A1%A8%E7%A4%BA%E3%81%99%E3%82%8B/)  
+>ボタンなどのコントロールにマウスを載せた時、説明やヒントをポップアップ表示してくれる機能です。  
 
 [C#のWPFでツールチップを表示する](https://araramistudio.jimdo.com/2019/11/01/c-%E3%81%AEwpf%E3%81%A7%E3%83%84%E3%83%BC%E3%83%AB%E3%83%81%E3%83%83%E3%83%97%E3%82%92%E8%A1%A8%E7%A4%BA%E3%81%99%E3%82%8B/)  
 [wpf : ToolTipの幅](http://pieceofnostalgy.blogspot.com/2013/05/wpf-tooltip.html)

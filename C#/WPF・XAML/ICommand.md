@@ -1,34 +1,43 @@
-
 # ICommand
 
 INotifyPropertyChangedをやったなら、ボタンを押したときの実装もするだろう。  
-というわけで、原初のICommandを実装してみたが、クソ面倒くさいなこれ。  
+というわけで、原初のICommandを実装してみたが、クソ面倒くさかった。  
 これをプレーンのままで実装するなんて考えられない。  
+というわけで、Prismを使った実例までをまとめた。  
+
+---
+
+## Commandクラスに実装すべき内容
+
+ICommandを実装することで強制される実装が3つもある。  
+ボタンを押した時の処理を記述したいだけなのに、クラスを定義しないといけない。  
+つまり、1つのコマンドを実装するためには、1つのクラスとICommandの実装が必要になるというわけ。  
 
 ``` C# : Commandクラスに実装すべき内容
 public class CountDownCommand : ICommand
 {
     public event EventHandler CanExecuteChanged
     {
-         ・・・・・
     }
  
     public bool CanExecute(object parameter)
     {
-         ・・・・・
     }
  
     public void Execute(object parameter)
     {
-         ・・・・・
     }
  }
 ```
 
+---
+
+## IComandの最小実装
+
 [MVVM:とにかく適当なICommandを実装したい時のサンプル](https://running-cs.hatenablog.com/entry/2016/09/03/211015)  
 
 ``` C# : IComandの最小実装
-    internal class ViewModel : INotifyPropertyChanged
+    public class ViewModel : INotifyPropertyChanged
     {
         // ICommand で宣言すること
         public ICommand PlaneCountDownCommand => new RelayCommand(() => Count++);
@@ -96,9 +105,12 @@ public class CountDownCommand : ICommand
 
 ## Prism
 
-そこでPrismになるわけだが、Prismはマイクロソフトが開発しているサポートライブラリなので気にせずどんどん入れよう。  
-でもって、VSが新しいためかは知らないが、DelegateCommandって入力して[Ctrl + .]でおすすめを表示させると、Prismをインストールしてusingまで通してくれる選択肢が出てくる。  
-簡単にインストールできてしかも軽いので、コマンドの実装するなら使わない手はない。  
+Prismはマイクロソフトが開発しているサポートライブラリ。  
+nugetからインストールすることができる。  
+マイクロソフト公式なのでサードパーティー製とかあまり気にせずに入れることができる。  
+
+VisualStudioが新しいためかは知らないが、DelegateCommandって入力して[Ctrl + .]でおすすめを表示させると、Prismをインストールしてusingまで通してくれる選択肢が出てくる。  
+簡単にインストールできてしかも軽いので、コマンドの実装をするなら使わない手はない。  
 nugetから入れようとすると、まず開くので重くて、調べるので重くて、インストールがだるいという3重苦だが、ここまで軽くて簡単に入れられるならマストで入れるべきだ。  
 
 Prismでの実装ならたった1行で済む。控えめに言って神。  
