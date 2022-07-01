@@ -5,16 +5,17 @@
 <https://stackoverflow.com/questions/5146732/viewmodel-validation-for-a-list>  
 画面にエラー状態は表示したくないけど、警告は出したい場合があったのでその備忘録。  
 
-``` C#
+``` C# : 0件は許可しない判定
 // 最小値、最大値、エラーメッセージ
 [Range(1, int.MaxValue, ErrorMessage = "At least one item needs to be selected")]
 // GetOnlyの省略形の書き方
 public int ItemCount => Items != null ? Items.Length : 0;
+```
 
-// boolの判定もいける
-// こっちは型の指定、最小値、最大値、エラーメッセージ
+``` C# : boolの判定
+// 型の指定、最小値、最大値、エラーメッセージ
 [Range(typeof(bool), "true", "true", ErrorMessage = "残高は0で保存してください。")]
-public bool IsZeroBalanceAmount => BalanceAmount == 0;
+public bool IsZeroBalanceAmount => Amount == 0;
 ```
 
 ---

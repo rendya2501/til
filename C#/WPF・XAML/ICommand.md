@@ -101,6 +101,9 @@ public class CountDownCommand : ICommand
     }
 ```
 
+まったくおすすめしないが、ライブラリ使わないとここまで大変というサンプル  
+[WPFのMVVMでコマンドをバインディングする利点](https://takamints.hatenablog.jp/entry/why-using-commands-in-wpf-mvvm)  
+
 ---
 
 ## Prism

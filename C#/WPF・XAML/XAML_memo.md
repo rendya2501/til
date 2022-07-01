@@ -1372,16 +1372,6 @@ BindingのPathに添付プロパティを指定する場合、カッコをつけ
 
 ---
 
-## 画像の追加でミスった話
-
-代表者・幹事対応の時に遭遇した問題。  
-
-・binとobjを削除する必要があった模様。  
-・フォルダに追加するだけだと認識されない。  
-・その場合はすべて表示にして、右クリックして追加する。  
-
----
-
 ## DataTemplateをResourceで定義する方法
 
 [How to create a static resource of DataTemplate?](https://social.msdn.microsoft.com/Forums/vstudio/en-US/0de6f454-bcde-4aa9-843d-ead2ad9d6d61/how-to-create-a-static-resource-of-datatemplate?forum=wpf)  
