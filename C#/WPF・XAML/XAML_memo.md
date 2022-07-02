@@ -2,7 +2,8 @@
 
 ## イベントをViewModel側で観測する方法
 
-割り勘のマルチセレクトコントロールで選択した値を観測するのに難儀したのでまとめ  
+マルチセレクトコントロールで選択した値を観測するのに難儀したのでまとめ  
+
 ・SelectedItemsはDependencyProperyに登録されていないのでXAMLのマークアップ上ではバインド不可  
 ・他のSelected系のプロパティでどうにかならないかやってみたが無理。  
 ・公式を見て方法を探すが、まともな文献が1件しかなくて、しかも面倒くさいやつしかない。  
@@ -128,7 +129,7 @@ CallMethodActionはWPF側が用意しているものらしい。
 
 <http://once-and-only.com/programing/c/datagrid-%E3%82%A2%E3%82%AF%E3%83%86%E3%82%A3%E3%83%96%E3%82%BB%E3%83%AB%E3%81%AE%E6%9E%A0%E7%B7%9A%E3%82%92%E6%B6%88%E3%81%99%EF%BC%88c-wpf/>  
 
-支払方法変更処理の単体テスト戻りでScrollViewerにフォーカスが当たって点線の枠が表示されてしまう問題が発生した。  
+ScrollViewerにフォーカスが当たって点線の枠が表示されてしまう問題が発生した。  
 この点線をどう表現して調べたらいいかわからなかったところ、ドンピシャな記事があったので、備忘録として残す。  
 因みに「wpf scrollviewer　点線」で調べた模様。  
 
@@ -152,7 +153,6 @@ Labelとかは`<Style TargetType="Label">`でいいんだけど、C1系の指定
 <https://docs.grapecity.com/help/c1/xaml/xaml_gettingstarted/html/ImplicitandExplicitStyles.htm>  
 
 公式にちゃんと書いてあった。  
-予約枠台帳作成処理において遭遇したパターンでまとめる。  
 
 ``` XML
      <c1:C1Calendar.Style>
@@ -253,8 +253,7 @@ BindingのStringFormatを使うことで実現可能であった。
 <https://www.it-swarm-ja.com/ja/c%23/wpf%E3%81%AE%E3%82%B3%E3%83%BC%E3%83%89%E3%83%93%E3%83%8F%E3%82%A4%E3%83%B3%E3%83%89%E3%82%92%E4%BB%8B%E3%81%97%E3%81%9F%E3%83%AA%E3%82%BD%E3%83%BC%E3%82%B9%E3%81%B8%E3%81%AE%E3%82%A2%E3%82%AF%E3%82%BB%E3%82%B9/968279150/>
 
 xaml resourcedictionary コード 参照  
-割り勘の戻り修正をしている時に、FlexGridのセルテンプレート使ってチェックボックスを配置して実装していたが、  
-勝手に見た目が変わってどうしようもなかったのでTriggerAction使ってコードビハインドで直接カラムを操作することにした。  
+FlexGridのセルテンプレート使ってチェックボックスを配置して実装していたが、勝手に見た目が変わってどうしようもなかったのでTriggerAction使ってコードビハインドで直接カラムを操作することにした。  
 その時、背景色をResourceDictionaryから取得したほうがいいよな～と思って調べた内容。  
 
 ``` C#:使用例
