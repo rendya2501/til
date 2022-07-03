@@ -14,29 +14,30 @@ WHERE (条件);
 
 ## 副問い合わせを使ったUPDATE
 
-``` sql : 副問い合わせ
--- ●UPDATE文のset句で副問合せを使用する
+``` sql : UPDATE文のset句で副問合せを使用する
 UPDATE syain
 SET name = (
     select name
     from test
     where id = 2)
 WHERE id = 2;
+```
 
--- テーブルの値を別テーブルの値でUPDATEする(其の弐)
+``` sql : 別のデータベースの値と副問い合わせを行いUPDATEする(其の弐)
 UPDATE
-    [Round3Dat_Test].[dbo].[TMa_ProductCls]
+    [Test1].[dbo].[Product]
 SET
-    [Round3Dat_Test].[dbo].[TMa_ProductCls].[DepartmentCD] = (
+    [Test1].[dbo].[Product].[TestID] = (
         SELECT
-            [DepartmentCD]
+            [TestID]
         FROM
-            [Round3Dat_20210205].[dbo].[TMa_ProductCls]
+            [Test2].[dbo].[Product]
         WHERE
-            [Round3Dat_Test].[dbo].[TMa_ProductCls].[ProductClsCD] = [Round3Dat_20210205].[dbo].[TMa_ProductCls].[ProductClsCD]
+            [Test1].[dbo].[Product].[TestClsID] = [Test2].[dbo].[Product].[TestClsID]
     )
+```
 
--- ●UPDATE文のwhere句で副問合せを使用する(where in)
+``` sql : UPDATE文のwhere句で副問合せを使用する(where in)
 -- テーブルの更新条件を副問い合わせで取ってくる
 -- https://sqlazure.jp/r/sql-server/403/
 UPDATE syain

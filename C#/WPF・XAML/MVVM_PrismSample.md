@@ -111,3 +111,13 @@ xmlns:l="clr-namespace:MVVMSample01"
     </StackPanel>
 </Window>
 ```
+
+---
+
+[.NET standard2.x時代のMVVMライブラリ](https://qiita.com/hqf00342/items/40a753edd8e37286f996)  
+Microsoft.Toolkit.Mvvm  
+CommunityToolkit relaycommand  
+
+[What is the MVVM pattern, What benefits does MVVM have?](https://www.youtube.com/watch?v=AXpTeiWtbC8)  
+
+アノテーションだけでバインディングできるようになってた。  

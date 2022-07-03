@@ -8,14 +8,14 @@ APIからのメッセージは_bodyプロパティの中にあるみたいが、
 取り出すときはres.json()でなぜか取り出せる。  
 そういうものなのだろうか。これも後でまとめる。  
 
-``` ts
-    // Service
+``` ts : Service
     public maintenance(param: any): Promise<Response> {
         return this.apiService.put('system/web-cooperation/plan-cooperation/maintenance/', JSON.stringify(param));
     }
-    
-    // ViewModel
-    this.goraMaintenanceService
+```
+
+``` ts : ViewModel
+    this.MaintenanceService
         .maintenance(param)
         .then(
             res => {
@@ -31,11 +31,8 @@ APIからのメッセージは_bodyプロパティの中にあるみたいが、
         .then(() => this.isLoading = false);
 ```
 
-どうでもいいけどこの人すごい。
-1990年生まれ。京大卒。
-
-RESTとGraphQLについて
-<https://www.utakata.work/entry/2019/12/02/000000>
+どうでもいいけどこの人すごい。  
+1990年生まれ。京大卒。  
 
 ---
 
@@ -78,8 +75,6 @@ RESTとGraphQLについて
 
 ## Promiseで意図的にrejectをreturnする方法
 
-セルフオーダー開発中に遭遇した内容。  
-
 例えば、メニュー画像を取得したい場合、メニュー画像を取得するためのフラグ制御、リクエスト生成、通信を1つのメソッドとしてまとめ、それ以降の処理は呼び出し元に戻ってPromise的な制御ができれば、意味合い的にも処理のまとまり的にも違和感がないように思えたので、どうやったらそれを実現できるか調べたが、意外とそういう例を見つけることができなかった。  
 特に通信や意図した結果でない場合に意図的にrejectを発生させる方法がわからず、そちらも例題が全然なかった。  
 
@@ -94,15 +89,15 @@ RESTとGraphQLについて
     // メニュー取得リクエスト生成
     const request = new MenuRequest(this.patternCD);
     // メニュー情報取得
-    await this.selfOrderService
-      .getHoge(request, this.encryptWebMemberCD)
+    await this.Service
+      .getHoge(request, this.encryptToken)
       .then(
         resolve => this.setMenu(resolve),
         reject => Promise.reject(reject.data)
       );
 
-    await this.selfOrderService
-      .getHoge(request, this.encryptWebMemberCD)
+    await this.Service
+      .getHoge(request, this.encryptToken)
       .then(
         resolve => {
           this.setMenu(resolve);

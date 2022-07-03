@@ -1,96 +1,5 @@
 # SQLテクニック
 
-## 横縦変換 : CROSS APPLY
-
-[複数列のデータを縦に並べる方法【SQLServer】](https://qiita.com/sugarboooy/items/0750d0ccb83a2af4dc0e)
-`たて→よこ`ではない。`よこ→たて`である。  
-似たような物にUNPIVOTがあるが、あちらは複数行に対応できないので、こちらを推奨された。  
-たぶんSQL Server独自の関数だと思われるが、とても便利な物があるものだ。  
-使い方はサンプルを見れば大体わかる。  
-
-2022/03/10 追記  
-横持ちから縦持ちへの変換は、union all を使うことでも実現できるらしい。  
-
-``` SQL : 実際に業務で使用したSQL
-SELECT
-    CONCAT('ALP', CONVERT(nvarchar,[TU_売掛残高].[営業日], 112), [v].[SlipNumber]) AS [SettlementID],
-    [v].[Seq],
-    (SELECT TOP 1 OfficeCD FROM [Round3Dat].[dbo].[TMa_CompanyBasicInfo]) AS [OfficeCD],
-    [v].[PaymentDay],
-    [v].[DepositAmount],
-    [v].[AdjustmentAmount],
-    [v].[PaymentCD],
-    [v].[AccountCD]
-FROM
-    [RoundDatMigrationSource].[dbo].[TU_売掛残高]
-CROSS APPLY(
-    VALUES
-        (伝票番号, 1, 入金日1, 入金額1, 調整額1, 入金CD1, 口座CD1),
-        (伝票番号, 2, 入金日2, 入金額2, 調整額2, 入金CD2, 口座CD2),
-        (伝票番号, 3, 入金日3, 入金額3, 調整額3, 入金CD3, 口座CD3),
-        (伝票番号, 4, 入金日4, 入金額4, 調整額4, 入金CD4, 口座CD4),
-        (伝票番号, 5, 入金日5, 入金額5, 調整額5, 入金CD5, 口座CD5)
-) AS [v] ([SlipNumber], [Seq], [PaymentDay], [DepositAmount], [AdjustmentAmount], [PaymentCD], [AccountCD])
-WHERE
-    [v].[DepositAmount] <> 0
-```
-
----
-
-## 縦横変換
-
-PIVOT関数ってSQL SERVERだけなのね。  
-メジャーなのはMAX CASE WHEN使うパターンみたい。  
-
-GROUP BYとMAXをつけないで実行すると斜めにずらーっと並ぶ形になる。  
-それをGROUP BYで絞って、MAXで1つだけ取ることで縦横変換を実現するというロジック。  
-
-[基本的な構文](https://crmprogrammer38.hatenablog.com/entry/2017/08/01/154831)  
-
-``` sql
-Select
-   グループ
-  ,max( CASE WHEN 連番=1 THEN 担当 END )
-  ,max( CASE WHEN 連番=2 THEN 担当 END )
-  ,max( CASE WHEN 連番=3 THEN 担当 END )
-  ,max( CASE WHEN 連番=4 THEN 担当 END )
-  ,max( CASE WHEN 連番=5 THEN 担当 END )
-From 1のデータ
-Group By グループ
-```
-
-``` sql : 縦横変換途中サンプル
-SELECT
-    [CustomerCD],
-    (CASE WHEN [AA].[ItemCD] = '111' THEN [AA].[Number] ELSE NULL END) AS [数値0],
-    (CASE WHEN [AA].[ItemCD] = '112' THEN [AA].[Number] ELSE NULL END) AS [数値1],
-    (CASE WHEN [AA].[ItemCD] = '113' THEN [AA].[Number] ELSE NULL END) AS [数値2],
-    (CASE WHEN [AA].[ItemCD] = '114' THEN [AA].[Number] ELSE NULL END) AS [数値3],
-    (CASE WHEN [AA].[ItemCD] = '115' THEN [AA].[Number] ELSE NULL END) AS [数値4],
-    (CASE WHEN [AA].[ItemCD] = '116' THEN [AA].[Number] ELSE NULL END) AS [数値5],
-    (CASE WHEN [AA].[ItemCD] = '117' THEN [AA].[Number] ELSE NULL END) AS [数値6],
-    (CASE WHEN [AA].[ItemCD] = '118' THEN [AA].[Number] ELSE NULL END) AS [数値7],
-    (CASE WHEN [AA].[ItemCD] = '119' THEN [AA].[Number] ELSE NULL END) AS [数値8],
-    (CASE WHEN [AA].[ItemCD] = '120' THEN [AA].[Number] ELSE NULL END) AS [数値9]
-FROM [TMc_CustomerGenericInfoContent] AS [AA]
-WHERE [CustomerCD] = 'ALP000000025'
-
--- 上記クエリを実行した結果は下記のようになる。
--- これを顧客でGROUP BYしてMAXを取れば、1行に集約できるというわけ
-
--- CustomerCD      数値0   数値1   数値2   数値3   数値4   数値5   数値6   数値7   数値8   数値9
--- ALP000000025    0.00    NULL    NULL    NULL    NULL    NULL    NULL    NULL    NULL    NULL
--- ALP000000025    NULL    0.00    NULL    NULL    NULL    NULL    NULL    NULL    NULL    NULL
--- ALP000000025    NULL    NULL    0.00    NULL    NULL    NULL    NULL    NULL    NULL    NULL
--- ALP000000025    NULL    NULL    NULL    0.00    NULL    NULL    NULL    NULL    NULL    NULL
--- ALP000000025    NULL    NULL    NULL    NULL    0.00    NULL    NULL    NULL    NULL    NULL
--- ALP000000025    NULL    NULL    NULL    NULL    NULL    0.00    NULL    NULL    NULL    NULL
--- ALP000000025    NULL    NULL    NULL    NULL    NULL    NULL    0.00    NULL    NULL    NULL
--- ALP000000025    NULL    NULL    NULL    NULL    NULL    NULL    NULL    0.00    NULL    NULL
--- ALP000000025    NULL    NULL    NULL    NULL    NULL    NULL    NULL    NULL    0.00    NULL
--- ALP000000025    NULL    NULL    NULL    NULL    NULL    NULL    NULL    NULL    NULL    0.00
-```
-
 ---
 
 ## ROW_NUMBER()
@@ -341,24 +250,6 @@ value()メソッドの第一引数はXQuery式で、第二引数はSQL型とな�
 
 [value() メソッド (xml データ型)](https://docs.microsoft.com/ja-jp/sql/t-sql/xml/value-method-xml-data-type?redirectedfrom=MSDN&view=sql-server-ver15)  
 意外と奥が深かった。  
-
----
-
-## 本日の日付
-
-``` SQL : SQL SERVER
--- 2022-05-29 16:20:15.047
-SELECT GETDATE()
--- 2022-05-29 16:20:15.0482426
-SELECT SYSDATETIME()
--- 2022-05-29 16:20:15.047
-SELECT CURRENT_TIMESTAMP
-```
-
-``` sql : MARIA DB
-SELECT CURDATE();
-SELECT DATE(NOW());
-```
 
 ---
 
@@ -1236,37 +1127,6 @@ GO
 
 ---
 
-## TRY CATCH
-
-``` sql
-BEGIN TRAN
-BEGIN TRY
-    -- 実行文
-    COMMIT TRAN
-END TRY
-BEGIN CATCH
-    ROLLBACK TRAN
-    SELECT
-        ERROR_NUMBER() AS ErrorNumber,
-        ERROR_SEVERITY() AS ErrorSeverity,
-        ERROR_STATE() AS ErrorState,
-        ERROR_PROCEDURE() AS ErrorProcedure,
-        ERROR_LINE() AS ErrorLine,
-        ERROR_MESSAGE() AS ErrorMessage
-END CATCH
-```
-
-``` txt
-ERROR_NUMBER()    :: エラーの数を返します。
-ERROR_SEVERITY()  :: 重大度を返します。
-ERROR_STATE()     :: エラー状態番号を返します。
-ERROR_PROCEDURE() :: エラーが発生したストアドプロシージャまたはトリガーの名前を返します。
-ERROR_LINE()      :: エラーを発生させたルーチン内の行番号を返します。
-ERROR_MESSAGE()   :: エラーメッセージの全文を返します。
-```
-
----
-
 ## テーブルを複製する方法
 
 [[SQLServer]テーブルをまるっとコピーする方法](https://ameblo.jp/nature3298type-s/entry-10313449987.html)
@@ -1418,216 +1278,137 @@ WHERE rn_q.SeqNo%5 = 0
 
 ---
 
-## いつぞや
+## 相関副問合せ(相関サブクエリ)
+
+<https://atmarkit.itmedia.co.jp/ait/articles/1703/01/news187.html>  
+副問合せの文中で、副問合せの外側の属性（検索結果）を利用して検索している問合せを、相関副問合せと呼びます。  
+一般的には、パフォーマンスは悪くなる見たい。  
+
+``` SQL
+SELECT 社員番号,社員名 FROM 社員 AS S1
+WHERE 生年月日 > (SELECT MIN(生年月日) FROM 社員 AS S2 WHERE S1.性別 = S2.性別)
+-- サブクエリ中でメインクエリのS1テーブルを参照している。
+
+-- EXISTSを使えば自動的に相関副問い合わせになる。
+SELECT * FROM USER_MASTER A
+WHERE EXISTS (SELECT * FROM AUTHORIZATION B WHERE A.USER_ID = B.USER_ID )
+```
+
+処理の流れ  
+（1）外側のSELECT文を1行分だけ実行  
+（2）取り出した表を副問合せに代入して実行  
+（3）外側のSELECT文における、1行目のWHERE句の判定を行う  
+
+---
+
+## SQLの結合条件のON句の順番について
+
+<https://detail.chiebukuro.yahoo.co.jp/qa/question_detail/q11166323581>  
+
+SQLのLEFT JOIN とかのONの順番は関係無いらしい。  
+地味に知らなかったので、メモ。  
+
+---
+
+## CROSS JOIN+WHERE と INNER JOIN
+
+<https://qiita.com/zaburo/items/548b3c40fee68cd1e3b7>  
+<https://stackoverflow.com/questions/17759687/cross-join-vs-inner-join-in-sql>  
+
+CROSS JOIN して WHERE で絞る方法(等価結合)とINNER JOINの結果は同じらしい。(厳密には内部処理的には違うらしいが)  
+まぁ、CROSS JOINしてWHEREで絞るくらいなら素直にINNER JOIN使えって話。  
+RN2.23では結構そういうことしてて、どういう挙動をするのかわからなかったのでやってみた。  
+
+``` SQL
+-- どちらも結果は同じになる
+
+-- CROSS JOIN + WHERE
+SELECT depts.dept_name,employees.name
+FROM depts,employees
+WHERE depts.dept_id = employees.dept_id;
+
+-- INNER JOIN
+SELECT depts.dept_name,employees.name
+FROM depts INNER JOIN employees
+WHERE depts.dept_id = employees.dept_id;
+```
+
+---
+
+## N'文字列'の意味
+
+1. Unicodeを使うという宣言・マーキング  
+2. 日本語を使う場合に必須  
+
+[SQLのNプレフィックスっていったい何？](http://once-and-only.com/programing/sql/sql%E3%81%AEn%E3%83%97%E3%83%AC%E3%83%95%E3%82%A3%E3%83%83%E3%82%AF%E3%82%B9%E3%81%A3%E3%81%A6%E3%81%84%E3%81%A3%E3%81%9F%E3%81%84%E4%BD%95%EF%BC%9F/)
+
+>SQL Server で Unicode 文字列定数を扱う場合には、Unicode 文字列の前に大文字の N が必ず必要です。  
+>これは、SQL Server Books Online の「Unicode データの使用」で説明されています。  
+>”N” プレフィックスは、SQL-92 標準の National Language を意味し、必ず大文字にする必要があります。  
+>Unicode 文字列定数の前に N を付加しない場合、その文字列は、SQL Server によって、使用される前に現在のデータベースの Unicode 以外のコードページに変換されます。  
+
+※Unicodeは何故UじゃなくてNなのか？  
+→  
+National Languageという意味でUnicodeが採用されているため。  
+National Languageは国語という意味ではなく「様々な国の文字」というニュアンス。  
+
+[MS SQLServer のSQLで文字列の前にN:](https://oshiete.goo.ne.jp/qa/280266.html)
+
+>N'***' とT-SQL内で書くと、''内の文字をUnicodeで表現されたものとして処理する、という意味になります。  
+>Nは、nationalの略です。  
+>ですから、日本語を使おうとするとNは必須になる、という事ですね。  
+>こんな感じでつかいます。＃N'Unicode 文字列'  
+
+---
+
+## DISTINCTとワイルドカードの併用
+
+DISTINCTとワイルドカード `*` を併用したら.NETFrameworkでは実行速度が遅くなるらしい  
+
+---
+
+## TOP 句 PERCENT
+
+[SqlServerの SELECT TOP 100 PERCENT で作成したビューの並び順は『保証されない』](https://culage.hatenablog.com/entry/20170824/p1)  
+[TOP 句 PERCENT](https://haradago.hatenadiary.org/entry/20180214/p1)  
+
+TOPにPERCENT句を付けると上位N%のデータを取得することができる  
 
 ``` sql
-CREATE TABLE ConversionTable  
-(
-    [Id] INT NOT NULL IDENTITY(1,1) PRIMARY KEY,  
-    [From] int,  
-    [To] int,  
-    [Name] nvarchar(255),
-    [Kana] nvarchar(255)  
-);
+select TOP 50 PERCENT * FROM TPa_Reservation
 
-INSERT INTO ConversionTable VALUES (0,4,'愛別','ｱｲﾍﾞﾂ')
-INSERT INTO ConversionTable VALUES (5,9,'赤井川','ｱｶｲｶﾞﾜ')
-INSERT INTO ConversionTable VALUES (10,14,'赤平','ｱｶﾋﾞﾗ')
-INSERT INTO ConversionTable VALUES (15,19,'阿寒','ｱｶﾝ')
-INSERT INTO ConversionTable VALUES (20,24,'旭川','ｱｻﾋｶﾜ')
-INSERT INTO ConversionTable VALUES (25,29,'朝日','ｱｻﾋ')
-INSERT INTO ConversionTable VALUES (30,34,'芦別','ｱｼﾍﾞﾂ')
-INSERT INTO ConversionTable VALUES (35,39,'足寄','ｱｼｮﾛ')
-INSERT INTO ConversionTable VALUES (40,44,'厚岸','ｱｯｹ')
-INSERT INTO ConversionTable VALUES (45,49,'厚沢部','ｱｯｻﾌﾞ')
-INSERT INTO ConversionTable VALUES (50,54,'厚田','ｱﾂﾀ')
-INSERT INTO ConversionTable VALUES (55,59,'厚真','ｱﾂﾏ')
-INSERT INTO ConversionTable VALUES (60,64,'網走','ｱﾊﾞｼﾘ')
-INSERT INTO ConversionTable VALUES (65,69,'安平','ｱﾋﾞﾗ')
-INSERT INTO ConversionTable VALUES (70,74,'虻田','ｱﾌﾞﾀ')
-INSERT INTO ConversionTable VALUES (75,79,'生田原','ｲｸﾀﾊﾗ')
-INSERT INTO ConversionTable VALUES (80,84,'池田','ｲｹﾀﾞ')
-INSERT INTO ConversionTable VALUES (85,89,'石狩','ｲｼｶﾘ')
-INSERT INTO ConversionTable VALUES (90,94,'今金','ｲﾏｶﾈ')
-INSERT INTO ConversionTable VALUES (95,99,'岩内','ｲﾜﾅｲ')
-INSERT INTO ConversionTable VALUES (100,104,'岩見沢','ｲﾜﾐｻﾞﾜ')
-INSERT INTO ConversionTable VALUES (105,109,'歌志内','ｳﾀｼﾅｲ')
-INSERT INTO ConversionTable VALUES (110,114,'歌登','ｳﾀﾉﾎﾞﾘ')
-INSERT INTO ConversionTable VALUES (115,119,'浦臼','ｳﾗｳｽ')
-INSERT INTO ConversionTable VALUES (120,124,'浦河','ｳﾗｶﾜ')
-INSERT INTO ConversionTable VALUES (125,129,'浦幌','ｳﾗﾎﾛ')
-INSERT INTO ConversionTable VALUES (130,134,'雨竜','ｳﾘｭｳ')
-INSERT INTO ConversionTable VALUES (135,139,'江差','ｴｻ')
-INSERT INTO ConversionTable VALUES (140,144,'枝幸','ｴｻ')
-INSERT INTO ConversionTable VALUES (145,149,'恵山','ｴｻﾝ')
-INSERT INTO ConversionTable VALUES (150,154,'恵庭','ｴﾆﾜ')
-INSERT INTO ConversionTable VALUES (155,159,'江部乙','ｴﾍﾞｵﾂ')
-INSERT INTO ConversionTable VALUES (160,164,'江別','ｴﾍﾞﾂ')
-INSERT INTO ConversionTable VALUES (165,169,'えりも','ｴﾘﾓ')
-INSERT INTO ConversionTable VALUES (170,174,'遠軽','ｴﾝｶﾞﾙ')
-INSERT INTO ConversionTable VALUES (175,179,'遠別','ｴﾝﾍﾞﾂ')
-INSERT INTO ConversionTable VALUES (180,184,'追分','ｵｲﾜｹ')
-INSERT INTO ConversionTable VALUES (185,189,'雄武','ｵｳﾑ')
-INSERT INTO ConversionTable VALUES (190,194,'大空','ｵｵｿﾞﾗ')
-INSERT INTO ConversionTable VALUES (195,199,'大滝','ｵｵﾀｷ')
-INSERT INTO ConversionTable VALUES (200,204,'大野','ｵｵﾉ')
-INSERT INTO ConversionTable VALUES (205,209,'奥尻','ｵｸｼﾘ')
-INSERT INTO ConversionTable VALUES (210,214,'置戸','ｵｹﾄ')
-INSERT INTO ConversionTable VALUES (215,219,'興部','ｵｺｯﾍﾟ')
-INSERT INTO ConversionTable VALUES (220,224,'長万部','ｵｼｬﾏﾝﾍﾞ')
-INSERT INTO ConversionTable VALUES (225,229,'小樽','ｵﾀﾙ')
-INSERT INTO ConversionTable VALUES (230,234,'音威子府','ｵﾄｲﾈｯﾌﾟ')
-INSERT INTO ConversionTable VALUES (235,239,'音更','ｵﾄﾌｹ')
-INSERT INTO ConversionTable VALUES (240,244,'乙部','ｵﾄﾍﾞ')
-INSERT INTO ConversionTable VALUES (245,249,'帯広','ｵﾋﾞﾋﾛ')
-INSERT INTO ConversionTable VALUES (250,254,'小平','ｵﾋﾞﾗ')
-INSERT INTO ConversionTable VALUES (255,259,'音別','ｵﾝﾍﾞﾂ')
-INSERT INTO ConversionTable VALUES (260,264,'上磯','ｶﾐｲｿ')
-INSERT INTO ConversionTable VALUES (265,269,'上川','ｶﾐｶﾜ')
-INSERT INTO ConversionTable VALUES (270,274,'上士幌','ｶﾐｼﾎﾛ')
-INSERT INTO ConversionTable VALUES (275,279,'上砂川','ｶﾐｽﾅｶﾞﾜ')
-INSERT INTO ConversionTable VALUES (280,284,'上ノ国','ｶﾐﾉｸﾆ')
-INSERT INTO ConversionTable VALUES (285,289,'上富良野','ｶﾐﾌﾗﾉ')
-INSERT INTO ConversionTable VALUES (290,294,'上湧別','ｶﾐﾕｳﾍﾞﾂ')
-INSERT INTO ConversionTable VALUES (295,299,'亀田','ｶﾒﾀﾞ')
-INSERT INTO ConversionTable VALUES (300,304,'神恵内','ｶﾓｴﾅｲ')
-INSERT INTO ConversionTable VALUES (305,309,'木古内','ｷｺﾅｲ')
-INSERT INTO ConversionTable VALUES (310,314,'北檜山','ｷﾀﾋﾔﾏ')
-INSERT INTO ConversionTable VALUES (315,319,'北広島','ｷﾀﾋﾛｼﾏ')
-INSERT INTO ConversionTable VALUES (320,324,'北見','ｷﾀﾐ')
-INSERT INTO ConversionTable VALUES (325,329,'北','ｷﾀ')
-INSERT INTO ConversionTable VALUES (330,334,'喜茂別','ｷﾓﾍﾞﾂ')
-INSERT INTO ConversionTable VALUES (335,339,'京極','ｷｮｳｺﾞｸ')
-INSERT INTO ConversionTable VALUES (340,344,'共和','ｷｮｳﾜ')
-INSERT INTO ConversionTable VALUES (345,349,'清里','ｷﾖｻﾄ')
-INSERT INTO ConversionTable VALUES (350,354,'釧路','ｸｼﾛ')
-INSERT INTO ConversionTable VALUES (355,359,'倶知安','ｸｯﾁｬﾝ')
-INSERT INTO ConversionTable VALUES (360,364,'熊石','ｸﾏｲ')
-INSERT INTO ConversionTable VALUES (365,369,'栗沢','ｸﾘｻﾜ')
-INSERT INTO ConversionTable VALUES (370,374,'栗山','ｸﾘﾔﾏ')
-INSERT INTO ConversionTable VALUES (375,379,'黒松内','ｸﾛﾏﾂﾅｲ')
-INSERT INTO ConversionTable VALUES (380,384,'訓子府','ｸﾝﾈｯﾌﾟ')
-INSERT INTO ConversionTable VALUES (385,389,'剣淵','ｹﾝﾌﾞﾁ')
-INSERT INTO ConversionTable VALUES (390,394,'小清水','ｺｼﾐｽﾞ')
-INSERT INTO ConversionTable VALUES (395,399,'札幌','ｻｯﾎﾟﾛ')
-INSERT INTO ConversionTable VALUES (400,404,'様似','ｻﾏﾆ')
-INSERT INTO ConversionTable VALUES (405,409,'更別','ｻﾗﾍﾞﾂ')
-INSERT INTO ConversionTable VALUES (410,414,'猿払','ｻﾙﾌﾂ')
-INSERT INTO ConversionTable VALUES (415,419,'佐呂間','ｻﾛﾏ')
-INSERT INTO ConversionTable VALUES (420,424,'砂原','ｻﾜﾗ')
-INSERT INTO ConversionTable VALUES (425,429,'鹿追','ｼｶｵｲ')
-INSERT INTO ConversionTable VALUES (430,434,'鹿部','ｼｶﾍﾞ')
-INSERT INTO ConversionTable VALUES (435,439,'色丹','ｼｺﾀﾝ')
-INSERT INTO ConversionTable VALUES (440,444,'静内','ｼｽﾞﾅｲ')
-INSERT INTO ConversionTable VALUES (445,449,'標茶','ｼﾍﾞﾁｬ')
-INSERT INTO ConversionTable VALUES (450,454,'士別','ｼﾍﾞﾂ')
-INSERT INTO ConversionTable VALUES (455,459,'標津','ｼﾍﾞﾂ')
-INSERT INTO ConversionTable VALUES (460,464,'蘂取','ｼﾍﾞﾄﾛ')
-INSERT INTO ConversionTable VALUES (465,469,'士幌','ｼﾎﾛ')
-INSERT INTO ConversionTable VALUES (470,474,'島牧','ｼﾏﾏｷ')
-INSERT INTO ConversionTable VALUES (475,479,'清水','ｼﾐｽﾞ')
-INSERT INTO ConversionTable VALUES (480,484,'占冠','ｼﾑｶｯﾌﾟ')
-INSERT INTO ConversionTable VALUES (485,489,'下川','ｼﾓｶﾜ')
-INSERT INTO ConversionTable VALUES (490,494,'積丹','ｼｬｺﾀﾝ')
-INSERT INTO ConversionTable VALUES (495,499,'紗那','ｼｬﾅ')
-INSERT INTO ConversionTable VALUES (500,504,'斜里','ｼｬﾘ')
-INSERT INTO ConversionTable VALUES (505,509,'初山別','ｼｮｻﾝﾍﾞﾂ')
-INSERT INTO ConversionTable VALUES (510,514,'白老','ｼﾗｵｲ')
-INSERT INTO ConversionTable VALUES (515,519,'白滝','ｼﾗﾀｷ')
-INSERT INTO ConversionTable VALUES (520,524,'白糠','ｼﾗﾇｶ')
-INSERT INTO ConversionTable VALUES (525,529,'知内','ｼﾘｳﾁ')
-INSERT INTO ConversionTable VALUES (530,534,'尻岸内','ｼﾘｷｼﾅｲ')
-INSERT INTO ConversionTable VALUES (535,539,'新篠津','ｼﾝｼﾉﾂ')
-INSERT INTO ConversionTable VALUES (540,544,'新得','ｼﾝﾄｸ')
-INSERT INTO ConversionTable VALUES (545,549,'新十津川','ｼﾝﾄﾂｶﾜ')
-INSERT INTO ConversionTable VALUES (550,554,'新ひだか','ｼﾝﾋﾀﾞｶ')
-INSERT INTO ConversionTable VALUES (555,559,'寿都','ｽｯﾂ')
-INSERT INTO ConversionTable VALUES (560,564,'砂川','ｽﾅｶﾞﾜ')
-INSERT INTO ConversionTable VALUES (565,569,'せたな','ｾﾀﾅ')
-INSERT INTO ConversionTable VALUES (570,574,'壮瞥','ｿｳﾍﾞﾂ')
-INSERT INTO ConversionTable VALUES (575,579,'大樹','ﾀｲｷ')
-INSERT INTO ConversionTable VALUES (580,584,'大成','ﾀｲｾｲ')
-INSERT INTO ConversionTable VALUES (585,589,'鷹栖','ﾀｶｽ')
-INSERT INTO ConversionTable VALUES (590,594,'滝川','ﾀｷｶﾜ')
-INSERT INTO ConversionTable VALUES (595,599,'滝上','ﾀｷﾉｳｴ')
-INSERT INTO ConversionTable VALUES (600,604,'端野','ﾀﾝﾉ')
-INSERT INTO ConversionTable VALUES (605,609,'伊達','ﾀﾞﾃ')
-INSERT INTO ConversionTable VALUES (610,614,'秩父別','ﾁｯﾌﾟﾍﾞﾂ')
-INSERT INTO ConversionTable VALUES (615,619,'千歳','ﾁﾄｾ')
-INSERT INTO ConversionTable VALUES (620,624,'忠類','ﾁｭｳﾙｲ')
-INSERT INTO ConversionTable VALUES (625,629,'月形','ﾂｷｶﾞﾀ')
-INSERT INTO ConversionTable VALUES (630,634,'津別','ﾂﾍﾞﾂ')
-INSERT INTO ConversionTable VALUES (635,639,'鶴居','ﾂﾙｲ')
-INSERT INTO ConversionTable VALUES (640,644,'天塩','ﾃｼｵ')
-INSERT INTO ConversionTable VALUES (645,649,'弟子屈','ﾃｼｶｶﾞ')
-INSERT INTO ConversionTable VALUES (650,654,'戸井','ﾄｲ')
-INSERT INTO ConversionTable VALUES (655,659,'当別','ﾄｳﾍﾞﾂ')
-INSERT INTO ConversionTable VALUES (660,664,'当麻','ﾄｳﾏ')
-INSERT INTO ConversionTable VALUES (665,669,'洞爺湖','ﾄｳﾔｺ')
-INSERT INTO ConversionTable VALUES (670,674,'洞爺','ﾄｳﾔ')
-INSERT INTO ConversionTable VALUES (675,679,'常呂','ﾄｺﾛ')
-INSERT INTO ConversionTable VALUES (680,684,'椴法華','ﾄﾄﾞﾎｯｹ')
-INSERT INTO ConversionTable VALUES (685,689,'苫小牧','ﾄﾏｺﾏｲ')
-INSERT INTO ConversionTable VALUES (690,694,'苫前','ﾄﾏﾏｴ')
-INSERT INTO ConversionTable VALUES (695,699,'泊','ﾄﾏﾘ')
-INSERT INTO ConversionTable VALUES (700,704,'豊浦','ﾄﾖｳﾗ')
-INSERT INTO ConversionTable VALUES (705,709,'豊頃','ﾄﾖｺﾛ')
-INSERT INTO ConversionTable VALUES (710,714,'豊富','ﾄﾖﾄﾐ')
-INSERT INTO ConversionTable VALUES (715,719,'奈井江','ﾅｲｴ')
-INSERT INTO ConversionTable VALUES (720,724,'中川','ﾅｶｶﾞﾜ')
-INSERT INTO ConversionTable VALUES (725,729,'中札内','ﾅｶｻﾂﾅｲ')
-INSERT INTO ConversionTable VALUES (730,734,'中標津','ﾅｶｼﾍﾞﾂ')
-INSERT INTO ConversionTable VALUES (735,739,'中頓別','ﾅｶﾄﾝﾍﾞﾂ')
-INSERT INTO ConversionTable VALUES (740,744,'中富良野','ﾅｶﾌﾗﾉ')
-INSERT INTO ConversionTable VALUES (745,749,'長沼','ﾅｶﾞﾇﾏ')
-INSERT INTO ConversionTable VALUES (750,754,'七飯','ﾅﾅｴ')
-INSERT INTO ConversionTable VALUES (755,759,'名寄','ﾅﾖﾛ')
-INSERT INTO ConversionTable VALUES (760,764,'南幌','ﾅﾝﾎﾟﾛ')
-INSERT INTO ConversionTable VALUES (765,769,'新冠','ﾆｲｶｯﾌﾟ')
-INSERT INTO ConversionTable VALUES (770,774,'仁木','ﾆｷ')
-INSERT INTO ConversionTable VALUES (775,779,'西興部','ﾆｼｵｺｯﾍﾟ')
-INSERT INTO ConversionTable VALUES (780,784,'ニセコ','ﾆｾｺ')
-INSERT INTO ConversionTable VALUES (785,789,'沼田','ﾇﾏﾀ')
-INSERT INTO ConversionTable VALUES (790,794,'根室','ﾈﾑﾛ')
-INSERT INTO ConversionTable VALUES (795,799,'登別','ﾉﾎﾞﾘﾍﾞﾂ')
-INSERT INTO ConversionTable VALUES (800,804,'函館','ﾊｺﾀﾞﾃ')
-INSERT INTO ConversionTable VALUES (805,809,'羽幌','ﾊﾎﾞﾛ')
-INSERT INTO ConversionTable VALUES (810,814,'浜頓別','ﾊﾏﾄﾝﾍﾞﾂ')
-INSERT INTO ConversionTable VALUES (815,819,'浜中','ﾊﾏﾅｶ')
-INSERT INTO ConversionTable VALUES (820,824,'浜益','ﾊﾏﾏｽ')
-INSERT INTO ConversionTable VALUES (825,829,'早来','ﾊﾔｷﾀ')
-INSERT INTO ConversionTable VALUES (830,834,'東神楽','ﾋｶﾞｼｶｸﾞﾗ')
-INSERT INTO ConversionTable VALUES (835,839,'東川','ﾋｶﾞｼｶﾜ')
-INSERT INTO ConversionTable VALUES (840,844,'東鷹栖','ﾋｶﾞｼﾀｶｽ')
-INSERT INTO ConversionTable VALUES (845,849,'東藻琴','ﾋｶﾞｼﾓｺﾄ')
-INSERT INTO ConversionTable VALUES (850,854,'東利尻','ﾋｶﾞｼﾘｼﾘ')
-INSERT INTO ConversionTable VALUES (855,859,'日高','ﾋﾀﾞｶ')
-INSERT INTO ConversionTable VALUES (860,864,'広尾','ﾋﾛｵ')
-INSERT INTO ConversionTable VALUES (865,869,'広島','ﾋﾛｼﾏ')
-INSERT INTO ConversionTable VALUES (870,874,'美瑛','ﾋﾞｴｲ')
-INSERT INTO ConversionTable VALUES (875,879,'美唄','ﾋﾞﾊﾞｲ')
-INSERT INTO ConversionTable VALUES (880,884,'美深','ﾋﾞﾌｶ')
-INSERT INTO ConversionTable VALUES (885,889,'美幌','ﾋﾞﾎﾛ')
-INSERT INTO ConversionTable VALUES (890,894,'平取','ﾋﾞﾗﾄﾘ')
-INSERT INTO ConversionTable VALUES (895,899,'比布','ﾋﾟｯﾌﾟ')
-INSERT INTO ConversionTable VALUES (900,904,'風連','ﾌｳﾚﾝ')
-INSERT INTO ConversionTable VALUES (905,909,'深川','ﾌｶｶﾞﾜ')
-INSERT INTO ConversionTable VALUES (910,914,'福島','ﾌｸｼﾏ')
-INSERT INTO ConversionTable VALUES (915,919,'富良野','ﾌﾗﾉ')
-INSERT INTO ConversionTable VALUES (920,924,'古平','ﾌﾙﾋﾞﾗ')
-INSERT INTO ConversionTable VALUES (925,929,'別海','ﾍﾞｯｶｲ')
-INSERT INTO ConversionTable VALUES (930,934,'北斗','ﾎｸﾄ')
-INSERT INTO ConversionTable VALUES (935,939,'北竜','ﾎｸﾘｭｳ')
-INSERT INTO ConversionTable VALUES (940,944,'穂別','ﾎﾍﾞﾂ')
-INSERT INTO ConversionTable VALUES (945,949,'幌泉','ﾎﾛｲｽﾞﾐ')
-INSERT INTO ConversionTable VALUES (950,954,'幌加内','ﾎﾛｶﾅｲ')
-INSERT INTO ConversionTable VALUES (955,959,'幌延','ﾎﾛﾉﾍﾞ')
-INSERT INTO ConversionTable VALUES (960,964,'本別','ﾎﾝﾍﾞﾂ')
-INSERT INTO ConversionTable VALUES (965,969,'幕別','ﾏｸﾍﾞﾂ')
-INSERT INTO ConversionTable VALUES (970,974,'増毛','ﾏｼｹ')
-INSERT INTO ConversionTable VALUES (975,979,'真狩','ﾏｯｶﾘ')
-INSERT INTO ConversionTable VALUES (980,984,'松前','ﾏﾂﾏｴ')
-INSERT INTO ConversionTable VALUES (985,989,'丸瀬布','ﾏﾙｾｯﾌﾟ')
-INSERT INTO ConversionTable VALUES (990,994,'三笠','ﾐｶｻ')
-INSERT INTO ConversionTable VALUES (995,999,'三石','ﾐﾂｲ')
+--  100 : 90121件
+--   50 : 45061件
+--    1 :   902件
+-- -100 : '-' 付近に不適切な構文があります。
+-- 5000 : パーセント値は 0 から 100 までの値を指定してください。
 ```
+
+### TOP 100 PERCENTをやる意味とは？
+
+ビューを呼び出したときに最初からソートされているとありがたい。  
+ビューを取得してから改めてOrderByする手間は省きたい。  
+そういう訳で、それを実現するためのテクニックとして、この方法が用いられてきたみたいだが、Microsoft的には、この動作は意図した動作ではなかったので非推奨になったらしい。  
+というわけで、今はほとんど意味がないんだとか。  
+
+実務で使っていたのは、全てのデータを取得するメソッドで並び替えまで済ませ、そのあとで必要なフィールドだけを抽出する動作を実現したかったからだと思われる。  
+完全なビューとして運用するわけではないので、この方法が有効だったのかもしれない。  
+疑似的なビューとしてこの方法を用いた可能性がある。  
+
+[Road to DBD](https://plaza.rakuten.co.jp/jamshid/diary/200805080000/)  
+>Viewやテーブル関数にTOP 100 PERCENTを指定すると、ORDER BYが切れるようになるというのは、SQL Server 2000時代でもある意味Tipsとして通用していたと思うが、SQL Server 2005ではこれが使えなくなったのだった。  
+>「TOP 100 PERCENTであれば、全件を返すわけだから、オプティマイザは並べ替えを行わない」という変更が行われた。  
+
+[ビューのソートについて](https://oshiete.goo.ne.jp/qa/4420769.html)  
+>ビューを単純に照会したときにORDER句を切らなくても希望する並び順でSELECTできれば、運用上は便利なことが多いです。  
+>そのため、SQL Serverでは昔からTipsでTOP 100 PERCENTで並び替える方法が認識されていました。  
+>（Tipsとある通り、普通はViewの外でOrder切ります）  
+>ただし、SQL Server 2005になって、TOP 100 PERCENTは「並び替えの必要なし」とオプティマイザが判断するように仕様が変更されてしまいました。  
+>そのため、SQL Server 2005ではTOP 100 PERCENT句をViewに切っても並び替えは起こりません。  
+>それだけなら分かりやすいのですが、やはりこの技を使っていた人が多かったためでしょうか。  
+>SP2の後の累積パッチ「SP2の累積プログラムその２」でこれを修正するモジュールが提供されています。  
+>SP2には入っていないし、わざわざ当てる人も少ないと思うので、次のSP3が出たとして、それ当てた時からTOP 100 PERCENTが効くようになるでしょう。  
+>ちなみにSQL Server 2008でも初期バージョンではTOP 100 PERCENTが効かず、累積パッチが提供されています。  
+>ということで、そのようなビューの使い方は正しいアプローチではありませんが、SQL Serverの裏ワザの一つですと認識ください。  
+
+---

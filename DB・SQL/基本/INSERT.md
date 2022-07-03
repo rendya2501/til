@@ -100,3 +100,48 @@ INSERT INTO TRe_ReservationPlayer2(PlayerNo,BusinessDate,SeatNo) VALUES('KHG2022
 -- PlayerNo         BusinessDate  SeatNo  FrontCancelFlag  CooperationClsCD
 -- KHG202299999999  2022-05-20    1       0                NULL
 ```
+
+---
+
+## insert intoのinto句のありなしの違い
+
+[insert intoのinto句のありなしって違いは何ですか？](https://detail.chiebukuro.yahoo.co.jp/qa/question_detail/q1049319100)  
+>MySQL、SQL Server、ACCESS では、 into は省略可能です。  
+Oracle では、省略不可です。  
+
+---
+
+## 自動発番を主キーにした場合のINSERT
+
+IDENTITYフィールドを除けば、どのパターンでもINSERT可能な模様。  
+
+``` sql
+-- 列名指定あり → いける
+INSERT INTO [IDENTITY_INSERT_TEST_TBL] (Code,[Name]) 
+VALUES(1,'A'),(2,'B'),(3,'C');
+
+-- 列名指定なし → いける
+INSERT INTO [IDENTITY_INSERT_TEST_TBL] 
+VALUES(1,'A'),(2,'B'),(3,'C');
+
+-- 列名指定なし + SELECT → いける
+INSERT INTO [IDENTITY_INSERT_TEST_TBL] (Code,[Name]) 
+SELECT 1,'A'
+INSERT INTO [IDENTITY_INSERT_TEST_TBL] (Code,[Name]) 
+SELECT 2,'B'
+
+-- 列名指定なし + SELECT → いける
+INSERT INTO [IDENTITY_INSERT_TEST_TBL] 
+SELECT 1,'A'
+INSERT INTO [IDENTITY_INSERT_TEST_TBL] 
+SELECT 2,'B'
+```
+
+もちろん、IDENTITYフィールドを含めるとエラーになる。  
+
+``` sql
+INSERT INTO [IDENTITY_INSERT_TEST_TBL]
+SELECT 1, 2,'B'
+
+-- An explicit value for the identity column in table 'IDENTITY_INSERT_TEST_TBL' can only be specified when a column list is used and IDENTITY_INSERT is ON.
+```

@@ -26,8 +26,8 @@ Laravel 標準の ORM である Eloquent で複数レコードを取得する際
 ちなみにgettypeで型を調べてみると`object`といわれる。  
 
 ``` log : \Log::debug(gettype($open_plan_target_site_list)),\Log::debug($open_plan_target_site_list);の結果
-[2021-09-24 08:48:49 GolfCode: 553 OperationLogID: 5166737] local.DEBUG: object  
-[2021-09-24 08:48:49 GolfCode: 553 OperationLogID: 5166737] local.DEBUG: []  
+[2021-09-24 08:48:49 Code: 553 OperationLogID: 5166737] local.DEBUG: object  
+[2021-09-24 08:48:49 Code: 553 OperationLogID: 5166737] local.DEBUG: []  
 ```
 
 ・first → null  

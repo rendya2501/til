@@ -32,6 +32,31 @@ lru cache implementation c#
 
 ---
 
+## 要件定義
+
+[leetcode_146. LRU Cache](https://leetcode.com/problems/lru-cache/)  
+
+LRU（Least Recently Used）キャッシュの制約に従ったデータ構造を設計せよ。  
+
+- LRUCache(int capacity) 正のサイズの容量で LRU キャッシュを初期化する。  
+- int get(int key) キーが存在すればその値を返し、そうでなければ-1を返す。  
+- void put(int key, int value) キーが存在する場合はキーの値を更新する。そうでない場合は、キーと値のペアをキャッシュに追加する。  
+  キーの数がこの操作による容量を超える場合、最も最近使用されたキーを退避させる。  
+
+関数 get と put は、それぞれ平均時間 O(1) で実行されなければならない。
+
+``` C#
+public class LRUCache {
+    public LRUCache(int capacity) {}
+    
+    public int Get(int key) {}
+    
+    public void Put(int key, int value) {}
+}
+```
+
+---
+
 ## 実装
 
 [Fast, Short And Clean O1 LRU Cache Algorithm Implementation In C#](https://www.c-sharpcorner.com/article/fast-and-clean-o1-lru-cache-implementation/)  
@@ -91,4 +116,17 @@ namespace LRUCache
         }
     }
 }
+```
+
+``` C#
+LRUCache lRUCache = new LRUCache(2);
+lRUCache.put(1, 1); // cache is {1=1}
+lRUCache.put(2, 2); // cache is {1=1, 2=2}
+lRUCache.get(1);    // return 1
+lRUCache.put(3, 3); // LRU key was 2, evicts key 2, cache is {1=1, 3=3}
+lRUCache.get(2);    // returns -1 (not found)
+lRUCache.put(4, 4); // LRU key was 1, evicts key 1, cache is {4=4, 3=3}
+lRUCache.get(1);    // return -1 (not found)
+lRUCache.get(3);    // return 3
+lRUCache.get(4);    // return 4
 ```
