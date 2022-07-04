@@ -142,7 +142,7 @@ ValueTupleはFirstOrDefaultしてもnullにならない。
     }
 
     // default構文は省略可能(.NetFramework4.8でも可能であることを確認)
-    if (Keys.Equals(default())
+    if (Keys.Equals(default()))
     {
         Console.WriteLine("Missing!"); 
     }

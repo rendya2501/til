@@ -57,6 +57,20 @@ public class LRUCache {
 
 ---
 
+## 考えてた事
+
+最初はキーとバリューと時間を持たせて、毎回検索してどれを消すのか調べる方向で考えたけど、愚直すぎた。  
+ノードで付け替えたりするほうがスマートで一般的だよな。  
+てか、その場合ノード単品を実装するのが先な気がする。  
+
+C#ではLinkedListという、ノードっぽいリストが提供されているので、これを使えばノードの実装は考えなくていいけど、できればノードを実装して動きを理解したい。  
+
+LRUキャッシュはノードで管理する。  
+・アクセスされて、存在したら今のノードから消して先頭につけなおす。  
+・アクセスされて、存在しなかったらnullを返す。この時、ノードの先頭には入れない。  
+
+---
+
 ## 実装
 
 [Fast, Short And Clean O1 LRU Cache Algorithm Implementation In C#](https://www.c-sharpcorner.com/article/fast-and-clean-o1-lru-cache-implementation/)  
