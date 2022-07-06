@@ -81,23 +81,17 @@ APIからのメッセージは_bodyプロパティの中にあるみたいが、
 結果的にどちらも達成することができたので、その例をここに載せる。  
 参考文献等は、ts promiseで調べれば腐るほど出てくるので割愛する。  
 
-``` ts
+``` ts : 例2
+export default class Hoge extends HogeBase {
   /**
    * メニュー情報をロードします。
    */
   private async hoge(): Promise<void> {
     // メニュー取得リクエスト生成
-    const request = new MenuRequest(this.patternCD);
+    const request = new MenuRequest(this.code);
     // メニュー情報取得
     await this.Service
-      .getHoge(request, this.encryptToken)
-      .then(
-        resolve => this.setMenu(resolve),
-        reject => Promise.reject(reject.data)
-      );
-
-    await this.Service
-      .getHoge(request, this.encryptToken)
+      .getHoge(request, this.token)
       .then(
         resolve => {
           this.setMenu(resolve);
@@ -109,9 +103,10 @@ APIからのメッセージは_bodyプロパティの中にあるみたいが、
         }
       );
   }
+}
 ```
 
-``` ts : 例1
+``` ts : 例2
 export default class MenuList extends ViewBase {
   /**
    * ライフサイクルフックmounted
@@ -119,30 +114,7 @@ export default class MenuList extends ViewBase {
   async mounted(): Promise<void> {
     // メニュー情報をロードします。
     await this.loadMenu()
-      // ロードに成功した場合
-      .then(() => {
-        // メニュー分類をセット(上のバー)
-        this.setMenuClass();
-        const setMenuListTimeout = setTimeout(
-          () => {
-            this.setSelectedMenuList(null);
-            clearInterval(setMenuListInterval);
-          },
-          3000
-        );
-        const setMenuListInterval = setInterval(() => {
-          if (
-            this.menu != null &&
-            this.menu.MenuClassList != null &&
-            this.menu.MenuClassList.length > 0
-          ) {
-            this.setSelectedMenuList(this.menu.MenuClassList[0].MenuClassCD);
-            clearTimeout(setMenuListTimeout);
-            clearInterval(setMenuListInterval);
-          }
-        }, 100);
-      })
-      // 操作可能にする
+      // ロードに成功した場合、操作可能にする
       .then(() => (this.isTotalEnable = true))
       // ロードでrejectした場合、もしくは成功後のthenの処理でエラーが発生した場合
       .catch(error => {
@@ -168,7 +140,7 @@ export default class MenuList extends ViewBase {
     const request = new MenuRequest(this.patternCD);
     // メニュー情報取得
     await this.selfOrderService
-      .getMenu(request, this.encryptWebMemberCD)
+      .getMenu(request, this.token)
       .then(
         resolve => this.setMenu(resolve),
         reject => Promise.reject(reject.data)
@@ -177,61 +149,129 @@ export default class MenuList extends ViewBase {
 }
 ```
 
-``` ts : 例2
-export default class MenuDetail extends ViewBase {
-  /**
-   * ライフサイクルフックmounted
-   */
-  async mounted(): Promise<void> {
-    try {
-      await super.mounted();
-      // 必要な情報が存在しない場合、処理しない。
-      if (!this.encryptRepreAccountNo) {
-        this.toast.error('セッションが切れました。');
-        return;
-      }
-      if (!this.selectedMenu) {
-        this.toast.error('商品が選択されていません。');
-        return;
-      }
-    } catch (error) {
-      console.error(error);
-      this.toast.error('エラーが発生しました。スタッフをお呼びください。');
-      return;
-    }
-    // 商品画像をロード
-    // 画像でエラーになっても動作に影響はないので続ける。
-    await this.loadImage().catch(error => this.toast.error(error));
-    // 選択した商品情報を画面項目にセットする
-    this.setParam();
+---
 
-    // 操作可能にする
-    this.isTotalEnable = true;
-  }
+## TypeScriptのオブジェクトの初期化
 
-  /**
-   * 商品の画像をロードします。
-   */
-  private async loadImage(): Promise<void> {
-    this.isLoadingImage = true;
-    await this.selfOrderService
-      .getMenuImage(
-        {
-          PatternCD: this.selectedMenu?.PatternCD,
-          MenuLargeClassCD: this.selectedMenu?.MenuLargeClassCD,
-          MenuClassCD: this.selectedMenu?.MenuClassCD,
-          MenuCD: this.selectedMenu?.MenuCD
-        },
-        this.encryptWebMemberCD
-      )
-      .then(
-        resolve => (this.menuImage = resolve.toString()),
-        reject => {
-          console.error(reject);
-          return Promise.reject(reject.data);
-        }
-      )
-      .finally(() => (this.isLoadingImage = false));
+C#みたいに `new Object(){a = huga,b = hoge}` ってできないか調べた。  
+[TypeScriptのclassをオブジェクトで初期化する](https://qiita.com/Tsuyoshi84/items/e74109e2ccc0f4e625aa)  
+
+---
+
+## TypeScriptのオーバーロード
+
+[TypeScript: オーバーロードメソッドを定義する方法](https://qiita.com/suin/items/7d6837a0342b36891099)  
+
+---
+
+## typescript json to class
+
+[TypeScriptのリフレクションでJSONの型変換を自動化する](https://qiita.com/bitrinjani/items/d60bdac10e5ced126d1a)  
+
+---
+
+## 宣言の仕方
+
+``` ts
+  private selectedItem?: {
+    category: string;
+    idx: string;
+    name: string;
+    price: number;
+  } | null = { category: '', idx: '', name: '', price: 0 };
+```
+
+---
+
+## TypeScript Enum
+
+[「なぜ enum の利用が推奨されないのか？」をまとめてみた](https://qiita.com/saba_can00/items/696baa5337eb10c37342)  
+
+---
+
+## TypeScriptで "Object is possibly null" と怒られたときにすること
+
+<https://qiita.com/fufufukakaka/items/5d4a2f2272b8f1a4a16f>  
+
+---
+
+## TypeScript 初期化方法
+
+[TypeScriptのclassをオブジェクトで初期化する](https://qiita.com/Tsuyoshi84/items/e74109e2ccc0f4e625aa)  
+
+``` ts
+class Person {
+  name?: string;
+  age?: number;
+
+  constructor(init?: Partial<Person>) {
+    Object.assign(this, init);
   }
 }
 ```
+
+---
+
+## Linq
+
+[TypeScript vs. C#: LINQ](https://decembersoft.com/posts/typescript-vs-csharp-linq/#firstordefault)  
+[はじめてのvue-property-decorator (nuxtにも対応）](https://qiita.com/otagaisama-1/items/a9eec24acabb35cc4b1c)  
+
+Sum  
+[[TypeScript]配列の要素の合計値を計算する](https://codelab.website/typescript-reduce/)  
+
+``` ts
+const data = [
+  {num: 1}, {num: 2}, {num: 3}, {num: 4}, {num: 5},
+  {num: 6}, {num: 7}, {num: 8}, {num: 9}, {num: 10},
+];
+
+const result = data.reduce(function(a, x){return a + x.num;}, 0);
+
+console.log(result);
+
+```
+
+<https://decembersoft.com/posts/typescript-vs-csharp-linq/>  
+
+---
+
+## TypeScript Const Class
+
+[Typescriptで定数クラスを作成する](https://dev.appswingby.com/typescript/typescript%E3%81%A7%E5%AE%9A%E6%95%B0%E3%82%AF%E3%83%A9%E3%82%B9%E3%82%92%E4%BD%9C%E6%88%90%E3%81%99%E3%82%8B/)  
+[TypeScript(Angular)で定数クラス](https://www.l08084.com/entry/2018/02/16/180015)  
+
+[[Vue.js] template内で定数を簡単に使用したい](https://ohmyenter.com/use-constants-in-vue-template/)  
+[Vue.jsでグローバルな定数をコンポーネントで使いまわせるようにしたい](https://qiita.com/amagurix/items/0f19d04b7771a71b5eaf)  
+
+``` ts
+export class SystemConst {
+  /** アプリケーション名 */
+  static readonly APPLICATION_NAME = 'ほげアプリ';
+
+  /** サーバー */
+  static readonly Server = class {
+      /** IPアドレス */
+      static readonly IP = '192.168.1.1';
+      /** サブネットマスク */
+      static readonly Mask = '255.255.255.0';
+  }
+}
+
+/** システム定数クラス */
+export namespace SystemConst {
+  /** アプリケーション名 */
+  export const APPLICATION_NAME = 'ほげアプリ';
+
+  /** サーバー */
+  export namespace Server {
+      /** IPアドレス */
+      export const IP = '192.168.1.1';
+      /** サブネットマスク */
+      export const Mask = '255.255.255.0';
+  }
+}
+```
+
+[TypescriptでInner Classを定義する方法](https://anton0825.hatenablog.com/entry/2015/11/14/000000)  
+[TypeScriptでネストされたクラスを作成できますか？](https://www.webdevqa.jp.net/ja/javascript/typescript%E3%81%A7%E3%83%8D%E3%82%B9%E3%83%88%E3%81%95%E3%82%8C%E3%81%9F%E3%82%AF%E3%83%A9%E3%82%B9%E3%82%92%E4%BD%9C%E6%88%90%E3%81%A7%E3%81%8D%E3%81%BE%E3%81%99%E3%81%8B%EF%BC%9F/1055625294/)  

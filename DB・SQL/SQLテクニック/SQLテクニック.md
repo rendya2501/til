@@ -564,9 +564,7 @@ from TRe_Reservation
 
 ## mariaDBで0埋めして文字列結合するサンプル
 
-意外と調べるのに苦労したのでまとめる。  
-GORAPriceに20とか30レコードもあるようなプランがあるか調べたかったので、  
-IDを作る要領で3つのキーを0埋めして文字列結合して、GroupByしてCOUNT取ってHAVINGで20以上のIDを表示ってやつ。  
+20桁のIDを作る要領で3つのキーを0埋めして文字列結合して、GroupByしてCOUNT取ってHAVINGで20以上のIDを表示ってやつ。  
 
 左0埋め→LPAD  
 文字列結合→CONCAT  
@@ -575,14 +573,14 @@ IDを作る要領で3つのキーを0埋めして文字列結合して、GroupBy
 
 ``` SQL
 SELECT
-    CONCAT(LPAD(GolfCode, 4, '0'),LPAD(PlanCode, 6, '0'),LPAD(OpenPlanCode, 6, '0')),
-    COUNT(CONCAT(LPAD(GolfCode, 4, '0'),LPAD(PlanCode, 6, '0'),LPAD(OpenPlanCode, 6, '0')))
+    CONCAT(LPAD(Code1, 4, '0'),LPAD(Code2, 6, '0'),LPAD(Code3, 6, '0')),
+    COUNT(CONCAT(LPAD(Code1, 4, '0'),LPAD(Code2, 6, '0'),LPAD(Code3, 6, '0')))
 FROM
-    TmOpenPlanGORAPrice
+    [Table]
 GROUP BY
-    CONCAT(LPAD(GolfCode, 4, '0'),LPAD(PlanCode , 6, '0'),LPAD(OpenPlanCode, 6, '0'))
+    CONCAT(LPAD(Code1, 4, '0'),LPAD(Code2 , 6, '0'),LPAD(Code3, 6, '0'))
 HAVING
-    COUNT(CONCAT(LPAD(GolfCode, 4, '0'),LPAD(PlanCode, 6, '0'),LPAD(OpenPlanCode, 6, '0'))) > 30
+    COUNT(CONCAT(LPAD(Code1, 4, '0'),LPAD(Code2, 6, '0'),LPAD(Code3, 6, '0'))) > 30
 ```
 
 ---

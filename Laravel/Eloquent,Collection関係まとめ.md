@@ -20,17 +20,19 @@ Laravel 標準の ORM である Eloquent で複数レコードを取得する際
 
 ## ->get() ->first() でそれぞれ何もなかった場合のreturn値
 
-・get → 空Collection  
-一見すると空配列のように見えるが、Eloquentの戻り値なのでCollection型。  
+- get → 空Collection  
+- first → null  
+
+getの戻り値は一見すると空配列のように見えるが、EloquentなのでCollection型。  
 `$test = collect()`をやった時と同じ状態だと思われる。  
 ちなみにgettypeで型を調べてみると`object`といわれる。  
 
-``` log : \Log::debug(gettype($open_plan_target_site_list)),\Log::debug($open_plan_target_site_list);の結果
-[2021-09-24 08:48:49 Code: 553 OperationLogID: 5166737] local.DEBUG: object  
-[2021-09-24 08:48:49 Code: 553 OperationLogID: 5166737] local.DEBUG: []  
+``` log
+\Log::debug(gettype($get_list))
+local.DEBUG: object  
+\Log::debug($get_list);の結果
+local.DEBUG: []  
 ```
-
-・first → null  
 
 ---
 
@@ -59,7 +61,7 @@ foreachと考え方は同じかと思う。
 
 ```php
 // first使って結果がnullの場合、eachでエラーになる。
-$test = $this->getOpenPlanGDO(553, 111, 111);
+$test = $this->getPlan(553, 111, 111);
 $test->each(
     function ($item) {
         \Log::debug($item);
@@ -122,29 +124,27 @@ valueメソッドがおすすめ
 [いつものところ](https://blog.capilano-fw.com/?p=665#select)  
 
 ```php
-->select('AdditionPrice')
+->select('FieldName')
 ->first() ?? 0
 
 // データがなければおそらくnull扱いだと思われる。
 // 現に [?? 0]はちゃんと機能する。
-->value('AdditionPrice') ?? 0
+->value('FieldName') ?? 0
 ```
 
 ---
 
 ## コピーと削除
 
-getした後、ifやforeachを挟んでいるところがたくさんあったけど、eachを使えばそんなことする必要がないよという戒め。
-getは何もなければ空配列が帰ってくる。eachは空配列なら実行されない。
-なので、ifで空配列かどうか判定する必要がないし、foreachと同じ動作なんだからeach使おうよというお話。
+getした後、ifやforeachを挟んでいるところがたくさんあったけど、eachを使えばそんなことする必要がないよという戒め。  
+getは何もなければ空配列が帰ってくる。eachは空配列なら実行されない。  
+なので、ifで空配列かどうか判定する必要がないし、foreachと同じ動作なんだからeach使おうよというお話。  
 
-```php
-// 削除
-// 公開プランGORA金額マスタ
-Models\TmOpenPlanGORAPrice::
-    where('GolfCode', $golfCode)
-    ->where('PlanCode', $planCode)
-    ->where('OpenPlanCode', $openPlanCode)
+```php : 削除
+Models\PlanPriceTable::
+    where('Code1', $code1)
+    ->where('Code2', $code2)
+    ->where('Code3', $code3)
     ->get()
     ->each(
         function ($item) {
@@ -152,30 +152,24 @@ Models\TmOpenPlanGORAPrice::
             Logger::dataChangeLog(Logger::LOG_TYPE_DELETE, $item);
         }
     );
-// if ($gora_price->isNotEmpty()) {
-//     Models\TmOpenPlanGORAPrice::
-//         where('GolfCode', $golfCode)
-//         ->where('PlanCode', $planCode)
-//         ->where('OpenPlanCode', $openPlanCode)
-//         ->delete();
-//     Logger::dataChangeLogMultiple(Logger::LOG_TYPE_DELETE, $gora_price);
-// }
+```
 
-// コピー
-// 公開プランGORA金額マスタ
-Models\TmOpenPlanGORAPrice::
+``` php : コピー
+Models\PlanPriceTable::
     where($base_key)
     ->get()
     ->each(
         function ($master) use ($target_key) {
             $new_master = $master->replicate();
-            $new_master->GolfCode = $target_key['GolfCode'];
-            $new_master->OpenPlanCode = $target_key['Code'];
-            $new_master->PlanCode = $target_key['PlanCode'];
+            $new_master->Code1 = $target_key['Code1'];
+            $new_master->Code2 = $target_key['Code2'];
+            $new_master->Code3 = $target_key['Code3'];
             $new_master->saveWithInsertField();
             Logger::dataChangeLog(Logger::LOG_TYPE_CREATE, $new_master);
         }
     );
+
+// いちいちforeachする必要がない
 // foreach ($master_list as $master) {
 //     $new_master = $master->replicate();
 //     $new_master->GolfCode = $target_key['GolfCode'];
@@ -195,16 +189,15 @@ DB上ではフィールドの型がdecimalで定義されているのに、strin
 [stack神](https://stackoverflow.com/questions/48288519/eloquent-casts-decimal-as-string)  
 
 ```php
-class TmOpenPlanGORAPrice extends Model
+class OpenPlanPriceTable extends Model
 {
     /**
      * フィールド型
      */
     protected $casts = [
-        'PlayFee' => 'float',
+        'MainFee' => 'float',
         'AdditionPrice' => 'float',
-        '3BPrice' => 'float',
-        '2BPrice' => 'float'
+        'OtherPrice' => 'float',
     ];
 }
 ```
@@ -229,6 +222,8 @@ $some_list = Models\TableModel::
 
 ## コレクションがネストしている項目を取得したい場合
 
+pluckメソッドを使うとよい。  
+
 laravel collection where nested  
 
 <https://tektektech.com/laravel-pluck/>  
@@ -238,29 +233,19 @@ laravel collection where nested
     $collection = collect(
         array (
             array (
-                'linkage_plan_id' => '05539999950000020001',
+                'linkage_plan_id' => 'aaaaaabbbbbccccccddd',
                 'basis_content' => 
                 array (
-                    'name' => '4_伊藤テスト_連携改善_固定_1',
+                    'name' => 'Test1',
                     'base_price' => 18400,
-                    'sales_tax' => 1840.0,
-                    'golf_usage_tax' => 1200,
-                    'other_tax' => 60,
-                    '2b_additional_fee' => 2000,
-                    '3b_additional_fee' => 1000,
                 )
             ),
             array (
-                'linkage_plan_id' => '05539999950000020002',
+                'linkage_plan_id' => 'aaaaaabbbbbccccccddd',
                 'basis_content' => 
                 array (
-                    'name' => '4_伊藤テスト_連携改善_固定_1',
+                    'name' => 'Test1',
                     'base_price' => 18400,
-                    'sales_tax' => 1840.0,
-                    'golf_usage_tax' => 1200,
-                    'other_tax' => 60,
-                    '2b_additional_fee' => 2500,
-                    '3b_additional_fee' => 1500,
                 )
             )
         )
@@ -279,14 +264,13 @@ laravel collection where nested
 ``` PHP
 User::select('*')->get();
 
-$getBusinessDate = Models\TdCompetitionPlayer::
-    where('GolfCode', $golf_code)
-    ->where('CompetitionSummaryNo', $competition_summary_no)
+$getBusinessDate = Models\Table::
+    where('Code', $golf_code)
     ->select('BusinessDate')
     ->first();
 
 ->select(
-    'TmGolf.Code as Code',
-    'TmGolf.Name as Name'
+    'Teble.Code as Code',
+    'Teble.Name as Name'
 )
 ```

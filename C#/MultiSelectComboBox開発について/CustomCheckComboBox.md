@@ -5,7 +5,7 @@ using System.Collections;
 using System.Windows;
 using Xceed.Wpf.Toolkit;
 
-namespace RN3.Wpf.Common.Control
+namespace namespace
 {
     /// <summary>
     /// 拡張チェックコンボボックス

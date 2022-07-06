@@ -238,7 +238,7 @@ ROWLOCK、PAGLOCK、または TABLOCK と組み合わせて指定すると、排
 ## テーブル構造を出力する
 
 ``` sql
-EXEC sp_help [TRe_ReservationPlayer2];
+EXEC sp_help [Table];
 ```
 
 [【SQL Server】SSMSを使用して、各種定義やレコードをエクスポートする](https://sqlserver.work/2020/06/28/ssms%E3%82%92%E4%BD%BF%E7%94%A8%E3%81%97%E3%81%A6%E3%80%81%E5%90%84%E7%A8%AE%E5%AE%9A%E7%BE%A9%E3%82%84%E3%83%AC%E3%82%B3%E3%83%BC%E3%83%89%E3%82%92%E3%82%A8%E3%82%AF%E3%82%B9%E3%83%9D%E3%83%BC/)  

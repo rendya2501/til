@@ -190,7 +190,7 @@ XAML上の列名とTriggerActionで指定する列名をConstで定義して参�
 
 ``` XML
 <metro:MetroWindow
-    xmlns:localresource="clr-namespace:RN3.Wpf.Front.DutchTreat.Resouce">
+    xmlns:localresource="clr-namespace:namespace.ColumnName">
 
     <c1:Column
         ColumnName="{x:Static localresource:ColumnName.DutchTreatAmount}"/>
@@ -1163,8 +1163,6 @@ StaticResourceを使いたかったらApp.xamlの`<Application.Resources>`要素
 ``` C#
 using System.Windows;
 
-namespace RN3.Wpf.Common.Control.Helper
-{
     /// <summary>
     /// タブコントロールヘルパー
     /// </summary>
@@ -1232,7 +1230,6 @@ namespace RN3.Wpf.Common.Control.Helper
         }
         #endregion
     }
-}
 ```
 
 ``` XML

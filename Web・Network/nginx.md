@@ -28,13 +28,14 @@
 
 [nginx 起動ポートの変更](https://qiita.com/Watercat3/items/38b2bac5fa70b232bee3)  
 
-伊藤の開発ポートの設定ファイル  
+ポートにおける設定ファイル  
+
 /etc/nginx/conf.d/2061.conf : bugfix  
 /etc/nginx/conf.d/2062.conf : hotfix  
 
 ---
 
-## Teelaの開発用hotfixポートでエラーが正常に表示されない問題
+## 開発用hotfixポートでエラーが正常に表示されない問題
 
 [cakephp3 + CentOS8 + nginx + php-fpmでエラー表示がされないとき](https://blog.supersonico.info/archives/4277/)  
 

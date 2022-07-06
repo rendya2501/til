@@ -1,4 +1,3 @@
-
 # All
 
 [LINQのAllとAnyが空のシーケンスに対して返す値](https://pdwslmr.netlify.app/posts/language/linq-all-any-empty/)  
