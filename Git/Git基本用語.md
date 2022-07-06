@@ -65,6 +65,12 @@
 
 ### リモートリポジトリってたいていoriginだけど、origin以外にもリポジトリって作れるの？  
 
+余裕で作れる。  
+originってのは、リモートリポジトリの別名でしかないので、つけようと思えば好きなように作れる。  
+
+ローカルリポジトリでoriginが使われている場合、新規でリポジトリを追加する場合はorigin以外を指定しないといけない。  
+1つのローカル環境で複数のリポジトリを管理しないといけない場合、必然的にorigin以外の名前をつけることになるだろう。  
+
 ローカルでGitプロジェクトを作成するときに、git initしますよね。  
 そのあとに以下のようなコマンドでリモートリポジトリの設定を行っているはずです。  
 
@@ -75,23 +81,6 @@
 `$ git remote add hogehoge https://github.com/donchan922/rails-board.git`  
 
 git push hogehoge HEAD とやるだけで同じリモート先のサーバーに対してプッシュされるというわけ。  
-
-teelaはhotfixとdevelopってどうやっていたか。  
-同じリポジトリの中でブランチを分けていたか、そもそもリポジトリが別だったか。  
-次回出社時に確認してみる。  
-
-``` txt
-origin  http://192.168.150.42/osp-dev/hotfix-alp.git (fetch)
-origin  http://192.168.150.42/osp-dev/hotfix-alp.git (push)
-pgm     http://192.168.150.21/pgm-osp/pgmweb.git (fetch)
-pgm     http://192.168.150.21/pgm-osp/pgmweb.git (push)
-pgmweb  http://192.168.150.21/PGM-OSP/pgmweb.git (fetch)
-pgmweb  http://192.168.150.21/PGM-OSP/pgmweb.git (push)
-```
-
-ALP側開発用リポジトリとTeela側リポジトリで分かれていた。  
-ローカルリポジトリでoriginが使われている場合、新規でリポジトリを追加する場合はorigin以外を指定しないといけない。  
-1つのローカル環境で複数のリポジトリを管理しないといけない場合、必然的にorigin以外の名前をつけることになるだろう。  
 
 ---
 

@@ -2,7 +2,7 @@
 
 サブクエリへクエリをJOINするために、joinSub、leftJoinSub、rightJoinSubメソッドを利用できます。  
 各メソッドは３つの引数を取ります。サブクエリ、テーブルのエイリアス、関連するカラムを定義するクロージャです。  
-JoinSubメソッドはVer5.8から有効な模様。teelaの5.3では存在しないメソッドだった。  
+JoinSubメソッドはVer5.8から有効な模様。実務の5.3では存在しないメソッドだった。  
 
 ```PHP
 $latestPosts = DB::table('posts')

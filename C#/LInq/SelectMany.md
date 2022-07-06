@@ -1,4 +1,3 @@
-
 # SelectMany
 
 <https://www.urablog.xyz/entry/2018/05/28/070000>  

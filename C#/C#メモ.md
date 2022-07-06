@@ -1,57 +1,7 @@
 # C#メモ
 
----
-
-## is演算子によるnullチェック
-
-クラスAのインスタンスを作ります。  
-インスタンス変数にnullを代入します。  
-それをオブジェクト型変数bに代入します。  
-bをAにキャストした場合どうなるか。  
-→  
-nullの場合は失敗するが、nullを代入しないと成功する。  
-でもなんで？  
-
-``` C#
-public class Hello{
-    class A {
-    }
-
-    public static void Main(){
-        A a = new A();
-        a = null; // ※
-        object b = a;
-        
-        if (b is A aa) {
-            // nullを代入しないとこちら
-            System.Console.WriteLine("Success");
-        } else {
-            // a = nullの場合はこちら
-            System.Console.WriteLine("Fail");
-        }
-    }
-}
-```
-
-<https://ufcpp.net/study/csharp/datatype/typeswitch/>  
->元々のis演算子の仕様でもあるんですが、nullには型がなくて常にisに失敗します(falseを返す)。  
-
-なるほどね。  
-is演算子は実行時の変数の中身を見るが、nullは型がないので、エラーになるわけか。  
-
-しかし、言語仕様で困ったらマイクロソフトではなく未確認飛行Cを見るのが一番だな。  
-こっちのほうがわかりやすい。  
-
-``` C#
-string x = null;
-
-if (x is string)
-{
-    // x の変数の型は string なのに、is string は false
-    // is 演算子は変数の実行時の中身を見る ＆ null には型がない
-    Console.WriteLine("ここは絶対通らない");
-}
-```
+[今日からできるC#のパフォーマンス改善小ネタ10選](https://qiita.com/shun-shun123/items/cb6689a9f210e90b9833)
+[匿名型_ipentec](https://www.ipentec.com/document/csharp-using-anonymous-type)  
 
 ---
 
@@ -73,535 +23,6 @@ if (x is string)
 デシリアライズすると、バイト列のデータが元に戻るので、全く同じデータを持つインスタンスを作ることができる。  
 もちろんこの時、メモリーのアドレスやポインタ等は新しくなっている。  
 しかし、これを延々と繰り返すと、同じデータが無限に増やせるので、メモリリークの原因になるらしい。  
-
----
-
-## const,readonly,static readonlyの違い
-
-<https://qiita.com/4_mio_11/items/203c88eb5299e4a45f31>
-
-### const
-
-コンパイル時に定義する。  
-なので、メソッドの結果など、実行しなければ確定しないものは定数として定義できない。  
-これによって、バージョニング問題が発生するとか。  
-
-``` C#
-    class Hoge
-    {
-        public const double PI = 3.14;     // OK
-        public const double piyo = PI \* PI;     // OK
-        public const double payo = Math.Sqrt(10);   // NG
-
-        void Piyo(){
-        //コンパイルで生成される中間言語では下の条件式はmyData == 3.14となる
-        if(Moge == PI)
-            //処理
-    }
-```
-
-### readonly
-
-コンストラクタでのみ書き込み可能。  
-それ以降は変更不可。  
-
-### static readonly
-
-コンパイル時ではなく、実行時に値が定まり、以後不変となる。  
-コンパイルした後の話なので、メソッドを実行した結果をプログラム実行中の定数として扱うことができる。  
-バージョニング問題的な観点から、constよりstatic readonlyが推奨される。  
-ちなみにconstは暗黙的にstaticに変換されるので、staticを嫌悪する必要はない。  
-
----
-
-## json deserialize object to int
-
-[C# で数字を object 型にキャストした値型の扱いについて](https://cms.shise.net/2014/10/csharp-object-cast/)  
-[【C#】Boxing / Unboxing ってどこで使われてるのか調べてみた](https://mslgt.hatenablog.com/entry/2017/11/18/132025)  
-
-サーチボックスで主キーが2つある場合に、主キーを送る仕組みがなかったので、objectに格納して送信するようにした時に、  
-キャストエラーになったので色々調べた。  
-そもそもobject型に変換されたものはConvert.ToInt32系のメソッドを使って変換しないとエラーになってしまう模様。  
-後は、jsonは数値型しかなく、値の劣化の心配がないlong型(int64)に自動的に変換される模様。  
-Boxing,Unboxingという仕組みもあり、なかなか奥が深かった。  
-実際に、jsonにシリアライズしてデシリアライズしたときにエラーになるので、そういう物と認識したほうがいいかもしれない。  
-
-``` C#
-    int i = 3;
-    object obj = i;
-    // シリアライズして送信してデシリアライズして受け取った体
-    var de_json = JsonConvert.DeserializeObject<object>(JsonConvert.SerializeObject(obj));
-    // System.InvalidCastException: 'Unable to cast object of type 'System.Int64' to type 'System.Int32'.'
-    var de_i = (int)de_json;
-```
-
-こっちだとInvalidCastExceptionになるのでJsonに変換する場合とはまた違うのかもしれない。  
-
-``` C#
-    double d = 1.23456;
-    object o = d;
-    int i = (int)o;
-    Console.WriteLine(i);
-```
-
----
-
-## Boxing Unboxing
-
-[【C#】Boxing / Unboxing ってどこで使われてるのか調べてみた](https://mslgt.hatenablog.com/entry/2017/11/18/132025)  
-[Boxing and Unboxing (C# Programming Guide)](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/types/boxing-and-unboxing)
-
-json deserialize object to intの時にはまったので、こちらの概念もまとめておく。  
-あちらは、intをObjectに入れるまではよかったが、intとして取り出せなかった問題。  
-Jsonの数値型がlong型(int64)だから内部で勝手に変換されていたのが原因らしい。  
-intをObjectに入れたときの動作がBoxingで、調べていたらバンバンヒットしたからまとめたいって思ったわけ。  
-
-Boxing は雑にまとめると int などの値型を Boxing という仕組みを使って object 型にすることで、
-参照型として扱えるようにする、ということです( Unboxing は object型から intを取り出す)。  
-
-今回のように、Objectとして、何でもAPI側に渡せるようにする場合、この概念を知っておかないといけない。  
-
-``` C#
-    int i = 123;
-    // Boxing copies the value of i into object o.
-    object o = i;
-    // Change the value of i.
-    i = 456;
-    /* Output:
-        The value-type value = 456
-        The object-type value = 123
-    */
-    // 参照は別になる模様
-```
-
-[オブジェクトをintにキャストするより良い方法](https://www.it-swarm-ja.com/ja/c%23/%E3%82%AA%E3%83%96%E3%82%B8%E3%82%A7%E3%82%AF%E3%83%88%E3%82%92int%E3%81%AB%E3%82%AD%E3%83%A3%E3%82%B9%E3%83%88%E3%81%99%E3%82%8B%E3%82%88%E3%82%8A%E8%89%AF%E3%81%84%E6%96%B9%E6%B3%95/957907480/)  
-[【C#】いろんな型変換（キャスト）Convert vs Parse vs ToString](https://kuroeveryday.blogspot.com/2014/04/convert-vs-parse-vs-tostring.html)  
-ついでにこちらもどうぞ。  
-Object型の適切なキャスト方法がまとめられています。  
-
-2021/08/13 Fri 追記  
-<https://ufcpp.net/study/csharp/RmBoxing.html>  
-やはり未確認飛行C。わかりやすい。  
-
-intはstructなので値型。
-objectはclassなので参照型。
-intをobject型に代入する場合、値型から参照型への変換が必要。
-その時の変換処理がBox化(Boxing)。
-値型はスタック領域に配置される。
-参照型はヒープ領域に配置される。
-intをobject型に代入すると、ヒープ領域に新しい領域が確保され、その領域にスタックの値をコピーする。元の値が何型だったのかの情報も含まれる。
-スタック領域には新しく確保したヒープ領域へのポインタ情報を持ったスタックが確保される。
-Box化解除(Unboxing)はポインタの参照先から値を取り出してスタックを新しく確保する。
-
-・int型等、値型をobjectに代入するとbox化  
-・代入したobjectから(int)objectってやって値を取り出すのがunbox化  
-・スタックとヒープがある。スタックが値型、ヒープが参照型。  
-・基本的にスタックのほうが軽い。  
-・box化をするとヒープに領域が生成され、スタックにポインタを持つことで結びつく。  
-・ヒープに領域が確保される処理は思い。  
-・そこから(int)Objectで取り出した時、新しくスタックが詰まれるので、更にメモリを消費する。  
-・コピーされて生成されるので、中身的には別物扱い。  
-簡単にいうとそういうことらしい。  
-
----
-
-## 親クラスの全プロパティの値を子クラスにコピーする方法
-
-<https://qiita.com/microwavePC/items/54f0082f3d76922a6259>  
-
-``` C#
-    /// <summary>
-    /// コンストラクタ
-    /// </summary>
-    /// <param name="parent"></param>
-    public ExtendSearchCondition(SearchCondition parent)
-    {
-        // 親クラスのプロパティ情報を一気に取得して使用する。
-        List<PropertyInfo> props = parent
-            .GetType()
-            .GetProperties(BindingFlags.Instance | BindingFlags.Public)
-            ?.ToList();
-        foreach (var prop in props)
-        {
-            var propValue = prop.GetValue(parent);
-            typeof(SearchCondition).GetProperty(prop.Name).SetValue(this, propValue);
-        }
-    }
-```
-
-``` C# : 少し応用してキーバリューで出力するサンプル
-    var props = condition
-        .GetType()
-        .GetProperties(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public)
-        .Select(s => (s.Name ,s.GetValue(condition)))
-        .ToList();
-```
-
----
-
-## プロパティーを参照渡ししてメソッド先で値を変更したい場合
-
-<https://takap-tech.com/entry/2014/08/13/143232>  
-
-施設売上報告書を作っている時に体験した事。  
-SearchSimple○○系の処理はどれも似ている。  
-FromToで使いまわしたいが、プロパティは固定で指定しないといけないので、本来ならFrom用、To用と作らないといけない。  
-そんなことしたくないので、プロパティを渡そうとしたらエラーになった。  
-`プロパティ、インデクサー、または動的メンバー アクセスを out または ref のパラメーターとして渡すことはできません。`  
-参考URLでは「この挙動は自動実装プロパティが実際はsetter/getterメソッドを隠ぺいした存在という事に起因する。」ということらしい。  
-
-仕方がないので、Actionを渡すことで対応出来た。  
-参考にしたURLでは拡張メソッドで対応しているっぽいが、影響範囲がでかすぎるのでActionで済ませた。  
-いいかは知らない。多分よくないはず。  
-リフレクション使ってプロパティ名を渡して動的に対応してもらうってのもいいかも。  
-
-<https://atmarkit.itmedia.co.jp/fdotnet/csharp30/csharp30_04/csharp30_04_01.html>  
-まとめ終わった後に見つけた。  
-似たようなことしてる。やっぱり苦肉の策っぽいですね。  
-
-``` C#
-// 自動実装プロパティ
-public int No { get; set; }
-
-// 呼び出し元
-private Hoge() {
-    Fuga(No);
-}
-
-// 参照渡し
-// プロパティ、インデクサー、または動的メンバー アクセスを out または ref のパラメーターとして渡すことはできません。
-private Fuga(ref int no){
-    no = 1;
-}
-```
-
-``` C#
-// 自動実装プロパティ
-public int No { get; set; }
-
-// 呼び出し元
-private Hoge() {
-    Fuga((no) => No = no);
-}
-
-// Actionで実現
-// プロパティ、インデクサー、または動的メンバー アクセスを out または ref のパラメーターとして渡すことはできません。
-private Fuga(Action<int> action){
-    action(1);
-}
-```
-
----
-
-## インターフェースのインスタンス
-
-azmさんの小話で出てきた話題。  
-Javaだと匿名クラスでのみInterfaceのインスタンスを作成できるって話だったが、聞いているだけではちょっとイメージできなかったのでまとめてみた。  
-
-[[Java] インターフェースをnewする違和感が解決した](https://qiita.com/imanishisatoshi/items/f73abc8206f405970d4f)  
-
-ネタばれすると「インターフェースを継承した名前の無いクラスをnewしていただけ」という落ちだったが、面白い発見だった。  
-後日、基本情報の勉強をしているとこれが出てきた。  
-普通に基礎レベルの内容だったらしい。  
-
----
-
-## 三項演算子で同じインタフェースを実装したクラスがなぜ暗黙的変換といわれるのか
-
-java5以降改善されたらしい。その前までは同様の現象が起こっていた模様。  
-C#も今後改善されるのかな。  
-
----
-
-## ASP.NetのWeb APIのパラメーターでタプルを渡す
-
-予約枠台帳の修正やってる時に、事業者コードと日付だけのパラメーターのためにクラスを用意するのが面倒で、タプルとか匿名型を渡せないか調べた。  
-匿名型は型が分からないのであれだが、せめてタプルと思ったら行けたのでまとめる。いいかどうかはしらん。  
-
-``` C#
-    /// <summary>
-    /// フロント側
-    /// </summary>
-    public async Task<TRe_ReservationBasicInfo> GetBasicInfo(string officeCD, DateTime businessDate)
-    {
-        // 多分普通に(officeCD,businessDate)でいいと思う。
-        return await _Accessor.GetResultAsync<TRe_ReservationBasicInfo>(PATH + "/get/basic_info", new ValueTuple<string, DateTime>(officeCD, businessDate));
-        // こっちでも普通にいけた
-        // return await _Accessor.GetResultAsync<TRe_ReservationBasicInfo>(PATH + "/get/basic_info", (officeCD, businessDate));
-    }
-
-    /// <summary>
-    /// API側
-    /// </summary>
-    [HttpPost("get/basic_info")]
-    public TRe_ReservationBasicInfo GetBasicInfo([FromBody] (string OfficeCD, DateTime BusinessDate) key)
-    {
-        return _ReservationFrameModel.GetBasicInfo(key.OfficeCD, key.BusinessDate);
-    }
-```
-
----
-
-## Tuple,ValueTuple
-
-ValueTupleがある今、Tupleを使う意味はないけれど、知れば知るほどValueTupleとの違いがわからなくなったので、今のうちにまとめておく。  
-正直ValueTupleだけ知っていれば十分だ。  
-Tupleはまとめるのだるいのでリンクだけ貼っておく。  
-いちいち「Tuple.」って付けないといけないからわかりやすいだろう。  
-
-[C# - ValueTuple](https://www.tutorialsteacher.com/csharp/valuetuple)  
-[C# - Tuple](https://www.tutorialsteacher.com/csharp/csharp-tuple)  
-
-``` C# : ValueTuple初期化
-// 要素が全てitemになるタイプの初期化
-var person = (1, "Bill", "Gates");
-
-ValueTuple<int, string, string> person = (1, "Bill", "Gates");
-
-(int, string, string) person = (1, "Bill", "Gates");
-
-
-// 要素名を付けるタイプの初期化
-(int Id, string FirstName, string LastName) person = (1, "Bill", "Gates");
-
-var person = (Id:1, FirstName:"Bill", LastName: "Gates");
-
-(int Id, string FirstName, string LastName) person = (PersonId:1, FName:"Bill", LName: "Gates");
-
-(string, string, int) person = (PersonId:1, FName:"Bill", LName: "Gates");
-
-string firstName = "Bill", lastName = "Gates";
-var per = (FirstName: firstName, LastName: lastName);
-```
-
-### Tuple?ValueTuple?引数に渡す方法
-
-WebAPIに渡すパラメーターでタプルを使ったのはいいけれど、本当にタプルなのか？バリュータプルと何が違うのか？  
-そもそも渡し方と受け取り型ってこれでいいの？ってのがわからなかったのでまとめた。  
-だけど、もっとまとめる必要がありそう。まだ全然まとめきれていない。  
-とりあえず、下の渡し方は全てOKだった。  
-他にもやらないといけないから、今はこれで勘弁して。  
-
-``` C#
-    ValueTupleArgumentTest(("a", 1));
-    ValueTupleArgumentTest((str: "b", i: 2));
-    ValueTupleArgumentTest(new ValueTuple<string, int>("c", 3));
-    ValueTupleArgumentTest(ValueTuple.Create("d", 4));
-    // これはダメ
-    // ValueTupleArgumentTest(Tuple.Create("d", 4));
-
-    // 引数はValueTuple<string,int>型
-    private static void ValueTupleArgumentTest((string str, int i) key)
-    {
-        Console.WriteLine(key.str);
-        Console.WriteLine(key.i);
-    }
-```
-
----
-
-## Switch式でメソッドを実行できないか色々やった結果
-
-<https://stackoverflow.com/questions/59729459/using-blocks-in-c-sharp-switch-expression>
-
-if elseif でがりがり書くなら、switchの出番なんじゃないかと思ってやってみた。  
-結果的に出来なかった。  
-文法上は怒られないのだが、実際に動かしてみると"Operation is not valid due to the current state of the object."と言われて動かない。  
-
-switch式は絶対にreturnがないといけない形式なので、Actionとして受け取る必要がある。  
-若干わかりにくいけど、スマートだから妥協できないかと思ったけど、そもそも動かないのであれば、switchの1行表示で妥協するしかなさそうだ。  
-
-``` C#
-/// <summary>
-/// データプロパティ変更時イベント
-/// </summary>
-/// <param name="sender"></param>
-/// <param name="e"></param>
-private void DataPropertyChanged(object sender, PropertyChangedEventArgs e)
-{
-    // 元のコード。{}がない分まだすっきりしているが、e.PropertyNameを毎回書かないといけないなら,それはswitchを使うべき。
-    // 部門コード
-    if (e.PropertyName == nameof(Data.DepartmentCD))
-        SetDepartmentCD();
-    // 商品コード
-    else if (e.PropertyName == nameof(Data.ProductCD))
-        SetProductCD();
-    // 商品分類コード
-    else if (e.PropertyName == nameof(Data.ProductClsCD))
-        SearchProductCls();
-
-    // 1行にまとめたswitch。普通のよりは断然いいが、breakを毎回書かないといけない。
-    // 言語仕様的に仕方がないが・・・。
-    switch (e.PropertyName)
-    {
-        // 部門コード
-        case nameof(Data.DepartmentCD): SetDepartmentCD(); break;
-        // 商品コード
-        case nameof(Data.ProductCD): break;
-        // 商品分類コード
-        case nameof(Data.ProductClsCD): break;
-        default: break;
-    }
-
-    // 本命。文法上は怒られないけど実行するとエラーになる。
-    // 実行するのではなく,Actionデリゲートとして受け取り、最後に実行する。
-    Action result = e.PropertyName switch
-    {
-        // 部門コード
-        nameof(Data.DepartmentCD) => SetDepartmentCD,
-        // 商品コード
-        nameof(Data.ProductCD) => SetProductCD,
-        // 商品分類コード
-        nameof(Data.ProductClsCD) => SearchProductCls,
-        _ => throw new InvalidOperationException()
-    };
-    result();
-}
-```
-
-後日。改めてやったら出来たのでまとめる。
-
-``` C#
-    /// <summary>
-    /// スイッチ式サンプル1
-    /// スイッチ式使ってActionを受け取って実行って事ができると、処理をifで切り替えずに済むのでは？と思ってやってみた。
-    /// 昔やったときは出来かったはずだが、できるようになってるっぽい。
-    /// </summary>
-    /// <param name="args"></param>
-    static void Main(string[] args)
-    {
-        // 適当な分岐のつもり
-        int flag = 1;
-
-        // 1.Actionデリゲートとして受け取るタイプ
-        Action result = flag switch
-        {
-            1 => Test1,
-            2 => Test2,
-            _ => throw new InvalidOperationException()
-        };
-        result.Invoke();
-
-        // 2.そもそも関数として切り離したタイプ
-        Action(flag).Invoke();
-
-        // 3.どれか1つでもキャストするとvarでもいけることがわかった。
-        // でもって、こっちだと.Invoke()で起動できる。
-        // 勘違いだ。a()とするかa.Invoke()とするかの違いでしかなかった。
-        var a = flag switch
-        {
-            1 => (Action)Test1,
-            2 => Test2,
-            _ => throw new InvalidOperationException()
-        };
-        a.Invoke();
-
-        // 4.そもそもActionとして受け取らないで即時実行するタイプ
-        (flag switch
-        {
-            1 => (Action)Test1,
-            2 => Test2,
-            _ => throw new InvalidOperationException()
-        }).Invoke();
-        // 何とか1行に出来なくはないが・・・。ないだろうなぁ。
-        (flag switch { 1 => (Action)Test1, 2 => Test2, _ => throw new Exception() }).Invoke();
-    }
-
-    /// <summary>
-    /// 2.そもそも関数として切り離したタイプ
-    /// </summary>
-    /// <param name="flag"></param>
-    /// <returns></returns>
-    static Action Action(int flag) => flag switch
-    {
-        1 => Test1,
-        2 => Test2,
-        _ => throw new InvalidOperationException()
-    };
-
-    /// <summary>
-    /// テストメソッド1
-    /// </summary>
-    static void Test1() => Console.WriteLine("test1");
-    /// <summary>
-    /// テストメソッド2
-    /// </summary>
-    static void Test2() => Console.WriteLine("test2");
-```
-
----
-
-## アトリビュートに設定されている文字列の長さを取得する方法
-
-``` C#
-/// <summary>
-/// ProductCDの桁数を取得
-/// </summary>
-private static readonly int ProductCDLength = (Attribute.GetCustomAttribute(typeof(TMa_Product).GetProperty(nameof(TMa_Product.ProductCD)), typeof(StringLengthAttribute)) as StringLengthAttribute)?.MaximumLength ?? 20;
-```
-
----
-
-## インスタンスの状態
-
-[[C# 入門] クラスのインスタンスについて](https://yaspage.com/prog/csharp/cs-instance/)  
-
-DependencyPropertyのBindingの件でazmさんがインスタンスの状態なんて事を言っていたので調べたわけだが、  
-それとは別にインスタンスについての基礎を紹介しているページがわかりやすかったのでまとめる。  
-
-後日、azmさんがまた使っていたので、意味合いから想像すると、例えばLinqで.Where()を実行したときと、.ToList()を実行したときでは、戻ってくる値が違うわけで、  
-azmさんはどうやら帰ってくる型の事をインスタンスの状態と言っている見たいだ。  
-
----
-
-## ジェネリックにnullを指定する方法
-
-azmさんに質問された内容。ジェネリックは弱いのでまとめる。  
-
-Javaの時にやったジェネリックに基づけば、ArrayList等においてジェネリックは入れる型を限定し、取り出すときはキャストいなくていい仕組みであったはず。  
-あらかじめ実行する処理は定義しておいて、型はその時々で柔軟に切り替える仕組みがジェネリック。  
-なので、絶対に型は必要。  
-しかし、nullは型がない。  
-いつだかis演算子でnullを判定した場合、nullには型がないので常にfalseになる、ってまとめた気がする。  
-型が必要なのに型がないのでそもそも無理な話なのだ。  
-結局、Objectを指定することで解決したらしい。  
-
-C#8.0からではあるが、null許容型が追加されたらしい。  
-Framerwork4.8の7.3どまりのフロントではもちろんエラーになる。  
-
-``` C#
-    static void Class<T>() where T : class { }
-    static void NullableClass<T>() where T : class? { }
-    
-    static void Main()
-    {
-        Class<string>();
-        // C#8.0では警告みたいなのが出るが普通に行けることを確認した。
-        NullableClass<string?>();
-        // 結局渡したい物が何もないからnullにしたいだけであって、それならということでobjectを渡して何とかしたみたい。
-        Class<object>();
-    }
-```
-
----
-
-## decimalに1をかけて意味があるのか？
-
-2021/11/13 Sat  
-fkdさんがおもむろに1を掛けているコードを発見した。  
-意味があるようには見えなかったので、聞いてみたが、どうやら数量を掛けているつもりだったらしい。  
-しかし、小数点があったら四捨五入されるなんて言っていたが、本当だろうかと確かめてみた。  
-されなかった。  
-やっぱり意味がなかった。  
-
-``` C#
-    decimal? test = (decimal?)Math.PI;
-    test = test * 1;
-    test = (decimal?)2.5252525252;
-    test = test * 1;
-```
-
----
 
 ## シリアライズしたデータを見てみたい
 
@@ -673,6 +94,73 @@ XMLの他にJsonもある。多分バイト列にするやつもある。
 
 ---
 
+## json deserialize object to int
+
+[C# で数字を object 型にキャストした値型の扱いについて](https://cms.shise.net/2014/10/csharp-object-cast/)  
+[【C#】Boxing / Unboxing ってどこで使われてるのか調べてみた](https://mslgt.hatenablog.com/entry/2017/11/18/132025)  
+
+サーチボックスで主キーが2つある場合に、主キーを送る仕組みがなかったので、objectに格納して送信するようにした時に、  
+キャストエラーになったので色々調べた。  
+そもそもobject型に変換されたものはConvert.ToInt32系のメソッドを使って変換しないとエラーになってしまう模様。  
+後は、jsonは数値型しかなく、値の劣化の心配がないlong型(int64)に自動的に変換される模様。  
+Boxing,Unboxingという仕組みもあり、なかなか奥が深かった。  
+実際に、jsonにシリアライズしてデシリアライズしたときにエラーになるので、そういう物と認識したほうがいいかもしれない。  
+
+``` C#
+    int i = 3;
+    object obj = i;
+    // シリアライズして送信してデシリアライズして受け取った体
+    var de_json = JsonConvert.DeserializeObject<object>(JsonConvert.SerializeObject(obj));
+    // System.InvalidCastException: 'Unable to cast object of type 'System.Int64' to type 'System.Int32'.'
+    var de_i = (int)de_json;
+```
+
+こっちだとInvalidCastExceptionになるのでJsonに変換する場合とはまた違うのかもしれない。  
+
+``` C#
+    double d = 1.23456;
+    object o = d;
+    int i = (int)o;
+    Console.WriteLine(i);
+```
+
+---
+
+## 三項演算子で同じインタフェースを実装したクラスがなぜ暗黙的変換といわれるのか
+
+java5以降改善されたらしい。その前までは同様の現象が起こっていた模様。  
+C#も今後改善されるのかな。  
+
+## 条件演算子のターゲット型推論の強化
+
+azmさんに三項演算子でnull許可のboolを受け取るとき、「片方を変換しないといけないのキモイね」って言われたので、「受け取り側をvarじゃなくてbool?にすれば行けますよ」って言ったけどエラーになった。  
+どうやらこれが有効なのはC#9からみたいで、Framework4.8のC#7.3では無理だった。  
+家でやるサンプルは基本的に最新版なので、バージョンを意識することがない。  
+それを意識するいい体験だったのでまとめた。  
+
+``` C#
+// この記述が許されるのはC#9から。
+// これはC#9の条件演算子のターゲット型推論の強化に当たるらしい。
+bool? aa = true ? false : null;
+
+// C#9以前はこのように書くしかない。
+var aa = true ? (bool?)false : null;
+```
+
+---
+
+## インスタンスの状態
+
+[[C# 入門] クラスのインスタンスについて](https://yaspage.com/prog/csharp/cs-instance/)  
+
+DependencyPropertyのBindingの件でazmさんがインスタンスの状態なんて事を言っていたので調べたわけだが、  
+それとは別にインスタンスについての基礎を紹介しているページがわかりやすかったのでまとめる。  
+
+後日、azmさんがまた使っていたので、意味合いから想像すると、例えばLinqで.Where()を実行したときと、.ToList()を実行したときでは、戻ってくる値が違うわけで、  
+azmさんはどうやら帰ってくる型の事をインスタンスの状態と言っている見たいだ。  
+
+---
+
 ## try catchのスコープの話
 
 tryで宣言した変数を外部で使うためには、tryの外で予め宣言しておいてからでないと使えないわけで、  
@@ -705,34 +193,6 @@ tryで宣言した変数を外部で使うためには、tryの外で予め宣�
 >
 >これは明らかに問題です。例外ハンドラに到達すると、sは宣言されません。キャッチは例外的な状況とfinallys must executeを処理することを意図しているので、安全であり、コンパイル時に問題を宣言することは実行時よりもはるかに優れています。
 >
----
-
-## C#でURLを既定のブラウザで開く
-
-[C#でURLを既定のブラウザで開く](https://qiita.com/tsukasa_labz/items/80a94d202f5e88f1ddc0)  
-
-なんかうまいこといかない場合もある模様。  
-次必要になったらまとめる。  
-
-``` C#
-Process.Start(
-    new ProcessStartInfo()
-    {
-        FileName = "https://www.google.co.jp",
-        UseShellExecute = true,
-    }
-);
-```
-
----
-
-## asyncのデリゲート定義
-
-[async/await を使った非同期ラムダ式を変数に代入する方法](https://qiita.com/go_astrayer/items/352c34b8db72cf2f6ca5)  
-
-``` C#
-Func<ListReplyContext, Task> callback = async res => {}
-```
 
 ---
 
@@ -779,181 +239,6 @@ Foreachでnullが来ても大丈夫な書き方でEnumerableとListの2パター
 
 ---
 
-## DateTimeで年月日だけ取得する
-
-[日時（DateTimeオブジェクト）の情報を取得する](https://dobon.net/vb/dotnet/system/datetime.html)  
-
-GrapeCityのGcDateのFormatが効かず、時間も入ってきてうまく検索できない問題が発生して、年月日だけ取得する書き方が分からなかったので調べた。  
-こういうのって地味にわからない。  
-
-``` C#
-//2000年9月30日13時15分30秒を表すDateTimeオブジェクトを作成する
-DateTime dt = new DateTime(2000, 9, 30, 13, 15, 30);
-//「2000/09/30 0:00:00」のDateTimeオブジェクトを作成する
-DateTime dtd = dt.Date;
-
-//nullの場合も対応できる
-DateTime? dt = null;
-var test = dt?.Date;
-```
-
----
-
-## switch文のパターンマッチング
-
-[C#のアプデでめちゃくちゃ便利になったswitch文（パターンマッチング）の紹介](https://qiita.com/toRisouP/items/18b31b024b117009137a)
-
-swapの時にサラっと使ったけど改めてまとめ。  
-if文で愚直にobjがPlaer1か2か判定してたけど、型で判定できないか探してみた。  
-結果的にif文より短くかけたけど、思ってたのと若干違った。  
-
-``` C#
-public string NankaMethod3(object obj)
-{
-    // Object型をそれぞれの型で判定し、その中身も同時に判定する
-    switch (obj)
-    {
-        // objがint型 かつ 0より大きい
-        case int x when x > 0:
-            return x.ToString();
-        // objがint型 かつ 0以下
-        case int x when x <= 0:
-            return (-x).ToString();
-        // objがfloat型
-        case float f:
-            return ((int) f).ToString();
-        // objが1文字以上のstring型
-        case string s when s.Length > 0:
-            return s;
-        // どれにもマッチしなかった
-        default:
-            throw new ArgumentOutOfRangeException(nameof(obj));
-    }
-}
-```
-
-``` C#
-private void SwapRepre(ReservationPlayerView obj)
-{
-    // これがswitchだと下のようになる
-    // if (pushFrom.ReservationPlayer1 == obj)
-    // {
-    //     (repre.ReservationPlayer4, pushFrom.ReservationPlayer1) = (pushFrom.ReservationPlayer1, repre.ReservationPlayer4);
-    // }
-    // else if (pushFrom.ReservationPlayer2 == obj)
-    // {
-    //     (repre.ReservationPlayer4, pushFrom.ReservationPlayer2) = (pushFrom.ReservationPlayer2, repre.ReservationPlayer4);
-    // }
-    // else if (pushFrom.ReservationPlayer3 == obj)
-    // {
-    //     (repre.ReservationPlayer4, pushFrom.ReservationPlayer3) = (pushFrom.ReservationPlayer3, repre.ReservationPlayer4);
-    // }
-    // else if (pushFrom.ReservationPlayer4 == obj)
-    // {
-    //     (repre.ReservationPlayer4, pushFrom.ReservationPlayer4) = (pushFrom.ReservationPlayer4, repre.ReservationPlayer4);
-    // }
-
-    // 押された場所を特定する
-    switch (obj)
-    {
-        // switchのパターンマッチング
-        case ReservationPlayerView n when n == frame.ReservationPlayer1:
-            // 一時変数と押された場所は今の代表者と入れ替えるのでbeRepreActionを登録する
-            return (frame.ReservationPlayer1, (repre) => frame.ReservationPlayer1 = repre);
-        case ReservationPlayerView n when n == frame.ReservationPlayer2:
-            return (frame.ReservationPlayer2, (repre) => frame.ReservationPlayer2 = repre);
-        case ReservationPlayerView n when n == frame.ReservationPlayer3:
-            return (frame.ReservationPlayer3, (repre) => frame.ReservationPlayer3 = repre);
-        case ReservationPlayerView n when n == frame.ReservationPlayer4:
-            return (frame.ReservationPlayer4, (repre) => frame.ReservationPlayer4 = repre);
-        default:
-            break;
-    }
-}
-```
-
----
-
-## 演算の優先順位の確認
-
-decimal?型にnullが入って来た場合、null合体演算子と反転処理は同居させてもエラーにならないか気になったので調査。  
-`-1 × null` でエラーになりそうに見える。  
-なのでかっこでくくって演算の優先順位を決めてあげたほうがよさそうに見えた。  
-→`-1 × (aa ?? decimal.zero)`  
-
-結果はかっこで括らなくても「0」と表示されたので、内部的にちゃんと評価されている模様。  
-
-後日判明したが、そもそもnullとの演算は全てnullになるので、`-1 * null`がエラーになるという視点はちょっと残念だった。  
-
-``` C#
-    decimal? aa = null;
-    // -(aa ?? decimal.zero)と括って上げたほうがよさそうに見える。
-    var aac = -aa ?? decimal.Zero;
-    // 「0」と表示されたので内部的に評価されている模様。
-    System.Console.WriteLine(aac);
-
-    // 後日これを実行してみたらaacはnullになったので、
-    // -aa ?? decimal.Zero は -1 * (aa ?? decimal.zero) ではなく (null ?? decimal.zero)の状態になっていたことが分かった。
-    var aac = -aa;
-
-    // これがnullになるので、そもそもnullとの演算は全てnullになる模様。
-    var aac = -1 * aa;
-```
-
-タプルで先頭の要素に入れた値を後の要素で使えないか気になったので調査。  
-ダメだった。  
-同時に値を入れるので、先頭とか関係ない模様。  
-
-``` C#
-    // Main.cs(10,20): error CS0103: The name `Disp' does not exist in the current context
-    var www = (
-        Disp: aa,
-        Calc: -Disp
-    );    
-    System.Console.WriteLine(www.Calc);
-```
-
----
-
-## C#リフレクションTIPS 55連発
-
-[C#リフレクションTIPS 55連発](https://qiita.com/gushwell/items/91436bd1871586f6e663)  
-
-### 47.プロパティの値を取得する
-
-``` C#
-// 1行で完結させたやつ
-object value = obj.GetType().GetProperty("MyProperty").GetValue(obj);
-
-// ばらしたやつ
-Type type = obj.GetType();
-PropertyInfo prop = type.GetProperty("MyProperty");
-object value = prop.GetValue(obj);
-Console.WriteLine(value);   
-```
-
----
-
-## EnumのGetValueOrDefault
-
-EnumのGetValueOrDefaultは何が帰ってくるのか気になった。  
-Byteなので普通に0だが、面白いのは定義したEnumが1から始まるものでもデフォルトは0とされること。  
-
-``` C#
-    CaddyType? caddyType = null;
-    // Enumが1から始まっていても0となる。
-    var aa  = (int)caddyType.GetValueOrDefault();
-
-    enum CaddyType : byte
-    {
-        None = 1,
-        Use =2,
-        UseTwo = 3,
-    }
-```
-
----
-
 ## using
 
 usingの省略範囲はforeachやwhileのように直前の1つだけじゃなくて、そのブロックの終わりまで続くらしい。  
@@ -995,446 +280,599 @@ using宣言は8.0からの機能である模様。
 
 ---
 
-## 匿名関数の即時実行
+## varの意味
 
-[C#でJavascriptみたいな即時関数を実行する](https://yuzutan-hnk.hatenablog.com/entry/2017/01/15/022643)  
+型を同じにしてくれる。  
+暗黙の型指定  
+コンパイラは右側の値からデータ型を推測して決定します。  
+この仕組みを「型推論」と呼びます。  
 
-VB.Netの時、usingした結果だけを受け取りたい場合によく利用したが、C#になってからあまり使っていなかった。  
-でもって、すぐにやり方がわからなかったのでまとめ。  
+---
+
+## 仮想メソッド
+
+virtual修飾子をつけたメソッドのこと。  
+主に親クラスで定義するメソッド。  
+これがあると、子クラスでoverride修飾子を使うことで処理を上書きできる。  
+実装は強制ではないので、virtualがついていても別に何もしなければ親クラスの処理が実行されるだけ。  
+インスタンスによって異なる動きを実現する多態性(ポリモーフィズム)を体現する機能。  
+
+2021/10/09 Sat  
+MultiSelectComboBoxを実装するにあたって、C1MultiSelectとかXceedのCheckComboBoxとか継承してカスタムする機会がたくさんあったのでまとめ。  
+親クラスを継承なんて、こういう機会じゃないと滅多にないから、今まで触れる機会がなかった。  
+わかってしまえば大したことないのだがな。  
+
+---
+
+## オーバーロード
+
+引数の型の違いでは、オーバーロード出来ないと思ってたけど、普通に出来たわ。  
+わざわざまとめる必要はないだろうけど、一応ね。  
 
 ``` C#
-int x = new Func<int>(() => 1)();
+public class Hello{
+    public static void Main(){
+       Print pri = new Print( ); //オブジェクト作成
+       pri.maisu( 5 ); //メソッド(1)呼び出し
+       pri.maisu( 'a' ); //メソッド(2)呼び出し
+    }
+}
+public class Print
+{
+    // メソッド(1)の処理
+    public void maisu( int a ) => System.Console.WriteLine(a);
+    // メソッド(2)の処理
+    public void maisu( char a ) => System.Console.WriteLine(a);
+}
+```
 
-new Action(() => 処理)();
+---
+
+## const,readonly,static readonlyの違い
+
+<https://qiita.com/4_mio_11/items/203c88eb5299e4a45f31>
+
+### const
+
+コンパイル時に定義する。  
+なので、メソッドの結果など、実行しなければ確定しないものは定数として定義できない。  
+これによって、バージョニング問題が発生するとか。  
+
+``` C#
+    class Hoge
+    {
+        public const double PI = 3.14;     // OK
+        public const double piyo = PI \* PI;     // OK
+        public const double payo = Math.Sqrt(10);   // NG
+
+        void Piyo(){
+        //コンパイルで生成される中間言語では下の条件式はmyData == 3.14となる
+        if(Moge == PI)
+            //処理
+    }
+```
+
+### readonly
+
+コンストラクタでのみ書き込み可能。  
+それ以降は変更不可。  
+
+### static readonly
+
+コンパイル時ではなく、実行時に値が定まり、以後不変となる。  
+コンパイルした後の話なので、メソッドを実行した結果をプログラム実行中の定数として扱うことができる。  
+バージョニング問題的な観点から、constよりstatic readonlyが推奨される。  
+ちなみにconstは暗黙的にstaticに変換されるので、staticを嫌悪する必要はない。  
+
+---
+
+## アノテーション
+
+Annotation:注釈  
+<https://elf-mission.net/programming/wpf/episode09/>  
+
+恐らくではあるが、属性やバリデーションの為にクラスやフィールドの宣言の上に[]で囲うやつの事全般をこう読んでいるのではないか?  
+調べてもそういうのしか出てこなかった。  
+
+---
+
+## 破棄
+
+<https://ufcpp.net/study/csharp/cheatsheet/ap_ver7/#discard>  
+
+型スイッチや分解では、変数を宣言しつつ何らかの値を受け取るわけですが、 特に受け取る必要のない余剰の値が生まれたりします。  
+例えば、分解では、複数の値のうち、1つだけを受け取りたい場合があったとします。 こういう場合に、_を使うことで、値を受け取らずに無視することができます。  
+
+``` C#
+static (int quotient, int remainder) DivRem(int dividend, int divisor)
+    => (Math.DivRem(dividend, divisor, out var remainder), remainder);
+static void Deconstruct()
+{
+    // 商と余りを計算するメソッドがあるけども、ここでは商しか要らない
+    // _ を書いたところでは、値を受け取らずに無視する
+    var (q, _) = DivRem(123, 11);
+
+    // 逆に、余りしか要らない
+    // また、本来「var x」とか変数宣言を書くべき場所にも _ だけを書ける
+    (_, var r) = DivRem(123, 11);
+}
+```
+
+同様の機能は、型スイッチや出力変数宣言でも使えます。  
+
+---
+
+## using static
+
+<https://ufcpp.net/study/csharp/oo_static.html>  
+
+using static ディレクティブを書くことで、クラス名を省略して、直接静的メソッドを呼べるようになります。  
+例えば、Math クラス(System 名前空間)中のメソッド呼び出しであれば、以下のように書けます。  
+
+``` C#
+using System;
+using static System.Math;
+
+class Program
+{
+    static void Main()
+    {
+        // using static を使わないならMath.Asin(1)
+        var pi = 2 * Asin(1);
+        Console.WriteLine(PI == pi);
+    }
+}
+```
+
+ちなみに、using static は任意のクラスに対して使えます(静的クラスでないとダメとかの制限はありません)。  
+たとえば以下の例では、TimeSpan構造体やTaskクラスを using static していますが、これらは static 修飾子がついていない普通のクラスです。  
+
+``` C#
+using System.Threading.Tasks;
+using static System.Threading.Tasks.Task;
+using static System.TimeSpan;
+
+class UsingStaticNormalClass
+{
+    public async Task XAsync()
+    {
+        // TimeSpan.FromSeconds
+        var sec = FromSeconds(1);
+
+        // Task.Delay
+        await Delay(sec);
+    }
+}
+```
+
+### using staticと列挙型
+
+列挙型のメンバーも静的なので、using staticを使って、型名を省略して参照できます。  
+
+``` C#
+using static Color;
+
+class UsingStaticEnum
+{
+    public void X()
+    {
+        // enum のメンバーも using static で参照できる
+        var cyan = Blue | Green;
+        var purple = Red | Blue;
+        var yellow = Red | Green;
+    }
+}
+
+enum Color
+{
+    Red = 1,
+    Green = 2,
+    Blue = 4,
+}
+```
+
+### using staticと拡張メソッド
+
+using static を使う場合でも、そのクラス中の拡張メソッドはあくまで拡張メソッドとしてだけ使えます。  
+using static だけでは、拡張メソッドを普通の静的メソッドと同じ呼び方で呼べません。  
+
+``` C#
+using static System.Linq.Enumerable;
+
+class UsingStaticSample
+{
+    public void X()
+    {
+        // 普通の静的メソッド
+        // Enumerable.Range が呼ばれる
+        var input = Range(0, 10);
+
+        // 拡張メソッド
+        // Enumerable.Select が呼ばれる
+        var output1 = input.Select(x => x * x);
+
+        // 拡張メソッドを普通の静的メソッドとして呼ぼうとすると
+        // コンパイル エラー
+        var output2 = Select(input, x => x * x);
+    }
+}
+```
+
+---
+
+## 名前付き引数 C#7.0
+
+[名前付き引数](https://ufcpp.net/study/csharp/sp4_optional.html)  
+
+なんてことはない。引数の名前をわかりやすくするだけのやつ。  
+オプショナルがあっても、全部指定する必要がないっぽい。  
+左からnull,false,nullなんてする必要がないので、オプショナルが複数ある場合は便利かも。  
+後、src,dstが分かりにくい時とか、呼び出すときにわかりやすくなるのでそういう時も便利。  
+
+``` C#
+_ = Sum(x: 1, y: 2, z: 3); // Sum(1, 2, 3); と同じ意味。
+_ = Sum(y: 1, z: 2, x: 3); // Sum(3, 1, 2); と同じ意味。
+_ = Sum(y: 1);             // Sum(0, 1, 0); と同じ意味。
+_ = Sum(1, z: 2, y: 3);    // OK: 前の方は位置指定、後ろの方は名前指定
+_ = Sum(1, x: 2, y: 3);    // コンパイル エラー: 前の方の引数を名前指定するのはダメ
+_ = Sum(x: 1, 2, 3);       // C# 7.2, 末尾以外でも名前を書けるように
+_ = Sum(2, 3, x: 1);       // C# 7.2 でもダメなやつ。末尾以外の引数を名前付きにしたい場合、順序は厳守する必要あり
+int Sum(int x = 0 , int y = 0, int z = 0) => x + y + z;
+```
+
+要するに、引数の省略や順序変更を目的としているのではなく、 単に「どの実引数が何の意味か」が名前からわかるようにしたいときに使うものです。
+例えば、よくある話だと、「Copy(a, b, length)では、aとbのどちらがコピー元でどちらがコピー先かがわからなくて困る」といった問題があったりします。 この際に、以下のように書ければ便利だろうということで名前付き引数の制限が緩和されました。
+
+なんでいまさら？
+→多少のリスクがあるから  
+一番の問題は、後から名前や値を変えにくい(変えると利用側コードを壊す)という点です。  
+
+また、コンパイルの時にも色々あるみたい。  
+詳しくはリンク先参照。今は困ってないのでそこまでまとめる気力がない。  
+
+・引数名や規定値は後から変えると影響でかい。  
+・仮想メソッドに対して規定値を与えると混乱の元。  
+
+---
+
+## typeof
+
+[[C# クラス] キャストで型変換（基底クラス⇔派生クラス）](https://yaspage.com/prog/csharp/cs-class-cast/)  
+アップキャストダウンキャストの例としてはわかりにくいけど、typeofの使い方は参考になったので、それはそれでまとめる。  
+
+`型を厳密にチェックしたい場合は、typeof を使います。`  
+ほーんって感じ。  
+Typeofってnameofと合わせて使ってた気がする。  
+そんなことなかったわ。  
+
+``` C#
+    /// <summary>
+    /// 指定されたインスタンスを複写します。
+    /// </summary>
+    /// <typeparam name="T">型</typeparam>
+    /// <param name="item">複写元</param>
+    /// <returns></returns>
+    private T GetCopy<T>(T item) where T : class
+    {
+        return JsonConvert.DeserializeObject(JsonConvert.SerializeObject(item), typeof(T)) as T;
+    }
 ```
 
 ``` C#
-    try
+using System;
+
+// 基底クラス
+class BaseClass { }
+// 派生クラス
+class ChildClass : BaseClass { }
+// 派生クラスの派生クラス
+class GrandChildClass : ChildClass { }
+
+// メインプログラム
+class Program
+{
+    public static void Main()
     {
-        // デシリアライズしたデータを入れる、入れ物です
-        Account account = null;
-        // jsonファイルを読み込みます
-        using (StreamReader file = File.OpenText(@"C:\test.json"))
+        BaseClass b = new BaseClass();
+        Console.WriteLine("BaseClass b = new BaseClass();");
+        Console.WriteLine($"bはBaseClass型？       = {b.GetType() == typeof(BaseClass)}");
+        Console.WriteLine($"bはChildClass型？      = {b.GetType() == typeof(ChildClass)}");
+        Console.WriteLine($"bはGrandChildClass型？ = {b.GetType() == typeof(GrandChildClass)}");
+
+        b = new ChildClass();
+        Console.WriteLine("\nBaseClass b = new ChildClass();");
+        Console.WriteLine($"bはBaseClass型？       = {b.GetType() == typeof(BaseClass)}");
+        Console.WriteLine($"bはChildClass型？      = {b.GetType() == typeof(ChildClass)}");
+        Console.WriteLine($"bはGrandChildClass型？ = {b.GetType() == typeof(GrandChildClass)}");
+
+        b = new GrandChildClass();
+        Console.WriteLine("\nBaseClass b = new GrandChildClass();");
+        Console.WriteLine($"bはBaseClass型？       = {b.GetType() == typeof(BaseClass)}");
+        Console.WriteLine($"bはChildClass型？      = {b.GetType() == typeof(ChildClass)}");
+        Console.WriteLine($"bはGrandChildClass型？ = {b.GetType() == typeof(GrandChildClass)}");
+    }
+}
+// BaseClass b = new BaseClass();
+// bはBaseClass型？       = True
+// bはChildClass型？      = False
+// bはGrandChildClass型？ = False
+
+// BaseClass b = new ChildClass();
+// bはBaseClass型？       = False
+// bはChildClass型？      = True
+// bはGrandChildClass型？ = False
+
+// BaseClass b = new GrandChildClass();
+// bはBaseClass型？       = False
+// bはChildClass型？      = False
+// bはGrandChildClass型？ = True
+```
+
+---
+
+## 範囲アクセス
+
+`a[i..j]` という書き方で「i番目からj番目の要素を取り出す」というような操作ができるようになりました。  
+C# 8.0からの機能なので、.NetFramework(C# 7.3)では使えません。  
+
+``` C#
+class Program
+{
+    static void Main()
+    {
+        var a = new[] { 1, 2, 3, 4, 5 };
+         // 前後1要素ずつ削ったもの
+        var middle = a[1..^1];
+         // 2, 3, 4 が表示される
+        foreach (var x in middle)
+            Console.WriteLine(x);
+    }
+}
+```
+
+---
+
+## Equalsメソッドと ==演算子 の違い
+
+[==演算子とEqualsメソッドの違いとは？［C#］](https://atmarkit.itmedia.co.jp/ait/articles/1802/28/news028.html)  
+[2つの値が等しいか調べる、等値演算子(==)とEqualsメソッドの違い](https://dobon.net/vb/dotnet/beginner/equality.html)  
+[【C#】文字列を比較する（== 演算子、Equalメソッド、Compareメソッド）](https://nyanblog2222.com/programming/c-sharp/193/)  
+
+Javaの時にもまとめたかもしれないが、改めて==とEqualsの違いをまとめる。  
+
+事の発端はY君がEqualsで文字列の比較をしていて、左辺の文字列がnullで.Equalsメソッドで比較しようとしてエラーになるのを発見したためだ。  
+文字列の比較にEqualsを使う必要性は何だったのかわからなかったので、そもそもどういう違いがあるのか、==ではダメだったのかを調べた。  
+
+[バグのもと!?”==”と”Equals”の使い分け](https://fledglingengineer.xyz/equals/)  
+>C#ではNULLがあり得る単純な文字列比較の場合、“==”を使用した方が良いです。  
+
+早速結論が出た。  
+
+### == 値の等価
+
+値の等価とは、比較する2つのオブジェクトの中身が同じであるということです。  
+
+``` C#
+string a = new string("Good morning!");
+string b = new string("Good morning!");
+
+if(a == b) // True
+{
+    Console.WriteLine("True!");
+}
+```
+
+こちらは”a”と”b”の中身の文字列を比較しており、中身の文字列が一致しているためTrueとなります。  
+![a](https://fledglingengineer.xyz/wp-content/uploads/2020/09/image-24.png)  
+
+### Equals 参照の等価
+
+一方で、参照の等価とは、比較する両者が同じインスタンスを参照しているということです。  
+
+``` C#
+string a = new string("Good morning!");
+string b = new string("Good morning!");
+
+if (a.Equals(b)) // True
+{
+    Console.WriteLine("True!");
+}
+```
+
+![q](https://fledglingengineer.xyz/wp-content/uploads/2020/09/image-22.png)
+
+### オブジェクトの比較
+
+先程の値の参照に”(object)”を付けた場合どうなるか?  
+その場合、オブジェクトの比較となり、“a”と”b”はそれぞれ異なるオブジェクトのため、Falseとなる。  
+
+``` C#
+string a = new string("Good morning!");
+string b = new string("Good morning!");
+
+if ((object)a == (object)b) // False
+{
+    Console.WriteLine("True!");
+}
+```
+
+![s](https://fledglingengineer.xyz/wp-content/uploads/2020/09/image-25.png)
+
+### NULLの判定は”==”を使うべき
+
+``` C#
+string name1 = "Mike";
+string name2 = "Mike";
+
+if(name1 == name2) // True
+{
+    Console.WriteLine("True!");
+}
+```
+
+上記の場合は、特にインスタンスを生成しているわけではないので、“==”を使用しても、”Equals”を使用しても値の等価となり、一見問題ないように考えられます。  
+
+しかし、以下の場合はどうなるでしょうか?
+
+``` C#
+// “name1″にnullが入るかもしれないため、nullチェックを設けたとする。  
+string name1 = null;
+
+// “==”を使用したif文は正常に動作し、Trueを返す。  
+ if(name1 == null) // True
+{
+    Console.WriteLine("True!");
+}
+
+// 一方で、”Equals”を使用したif文では例外が発生する。  
+// こちらはコンパイル時に、エラーとはならないため、思わぬバグを生んでしまう可能性があるため単純な文字列の比較は==が無難。  
+if (name1.Equals(null)) // System.NullReferenceException: 'Object reference not set to an instance of an object.'
+{
+    Console.WriteLine("True!");
+}
+```
+
+### 等値演算子とEqualsメソッドの違い
+
+C#では、値型の比較に==演算子を使うと「値の等価」を調べることになります。  
+参照型の比較に==演算子を使うと、通常は「参照の等価」を調べます。  
+しかし、String型のように、クラスで等値演算子がオーバーロードされているならば、参照型でも==演算子で「値の等価」を調べます。  
+
+Equalsメソッドは、値型の比較に使うと、「値の等価」を調べます。  
+参照型の比較に使うと、通常は「参照の等価」を調べます。  
+しかし、String型のように、クラスのEqualsメソッドがオーバーライドされていれば、参照型でも「値の等価」を調べます。  
+
+「参照の等価」を調べるためには、Object.ReferenceEqualsメソッドを使用することもできます。  
+さらにC#では、Object型にキャストしてから==演算子で比較することでも、確実に参照の等価を調べることができます。  
+
+### Stringクラス
+
+等値演算子とEqualsメソッドで値の等価を調べることができるクラス（等値演算子がオーバーロードされ、かつ、Equalsメソッドがオーバーライドされているクラス）は多くありません。  
+
+その代表は、Stringクラスです。  
+その他にもVersionクラスなどもそのようですが、とりあえずStringクラスはこのように特別なクラスであることを覚えておいてください。  
+このようなクラスでは、参照型にもかかわらず、等値演算子やEqualsメソッドで「値の等価」を調べることができます。  
+
+### 結局、どちらを使うべきか
+
+値型の等価は==演算子で調べるのが良いでしょう。  
+参照型で値の等価を調べるには、Equalsメソッドを使うのが確実でしょう。  
+参照型で明確に参照の等価を調べたいならば、Object.ReferenceEqualsメソッド（またはObject型にキャストしてから==演算子）を使います。
+
+``` C#
+//値型の等価を調べる
+int i1 = 1;
+int i2 = i1 * i1;
+Console.WriteLine(i1 == i2); //true
+Console.WriteLine(i1.Equals(i2)); //true
+Console.WriteLine(object.Equals(i1, i2)); //true
+
+//参照型の等価を調べる
+//o1とo2は別のインスタンス
+object o1 = new object();
+object o2 = new object();
+Console.WriteLine(o1 == o2); //false
+Console.WriteLine(o1.Equals(o2)); //false
+Console.WriteLine(object.Equals(o1, o2)); //false
+
+//o1とo2は同じインスタンス
+o2 = o1;
+Console.WriteLine(o1 == o2); //true
+Console.WriteLine(o1.Equals(o2)); //true
+Console.WriteLine(object.Equals(o1, o2)); //true
+
+//String型の等価を調べる
+//s1とs2は同じ値だが、別のインスタンス
+string s1 = new string('a', 10);
+string s2 = new string('a', 10);
+Console.WriteLine(s1 == s2); //true
+Console.WriteLine(s1.Equals(s2)); //true
+Console.WriteLine(object.ReferenceEquals(s1, s2)); //false
+Console.WriteLine(object.Equals(s1, s2)); //true
+```
+
+``` C# : なんか個人でいろいろ頑張った後
+    string A = "AA";
+    string B = "BB";
+
+    Console.WriteLine(A.Equals(B));
+    Console.WriteLine( A == B);
+    Console.WriteLine(Equals(A, B));
+
+    B = "AA";
+
+    Console.WriteLine(A.Equals(B));
+    Console.WriteLine(A == B);
+    Console.WriteLine(Equals(A, B));
+
+    A = null;
+    B = null;
+
+    Console.WriteLine(A == B);
+    Console.WriteLine(A?.Equals(B) ?? false);
+    Console.WriteLine(Equals(A, B));
+```
+
+---
+
+## 静的コンストラクタ
+
+[staticクラス（静的クラス）と静的コンストラクタ](http://ichitcltk.hustle.ne.jp/gudon2/index.php?pageType=file&id=cs003_static_class)  
+
+- 静的コンストラクタは、staticクラスに限らずクラスの静的メンバーを初期化する時に使われる。  
+- 静的コンストラクタは明示的に呼び出す事ができないので、引数を渡す事はできない。  
+- 静的コンストラクタはシステムによって勝手に呼び出されるため、呼び出されるタイミングを知ることはできないが、どうも、プログラムからクラスが最初にアクセスされるタイミングで呼び出されるようだ。  
+
+クラスの定数にアクセスしても、静的コンストラクタは呼び出されないが、readonlyメンバーにアクセスする前には呼び出されている。  
+クラスの定数のアクセスにコードの実行は必要ないが、クラスのstaticなメンバーの初期化にコードの実行が必要な可能性のあるstaticメンバーにアクセスする前には、静的コンストラクタを実行してstaticメンバーを初期化しておく必要があるという事のようだ。  
+
+[静的コンストラクター (C# プログラミング ガイド)](https://docs.microsoft.com/ja-jp/dotnet/csharp/programming-guide/classes-and-structs/static-constructors)  
+>静的コンストラクターは、任意の静的データを初期化するため、または 1 回だけ実行する必要がある特定のアクションを実行するために使用されます。  
+>最初のインスタンスが作成される前、または静的メンバーが参照される前に、自動的に呼び出されます。  
+
+- ユーザーは、プログラムで静的コンストラクターが実行されるタイミングを制御できません。  
+- 静的コンストラクターは自動的に呼び出されます。  
+  これにより、最初のインスタンスが作成される前、またはそのクラス (基底クラスではない) で宣言された静的メンバーが参照される前に、クラスが初期化されます。  
+
+``` C#
+    class StaticConstructorSample
+    {
+        public const int CONST_NUMBER = 10;
+        public static readonly int READONLY_NUMBER = -99;
+        // 通常のコンストラクタ（インスタンスのコンストラクタ）
+        public StaticConstructorSample()
         {
-           account = (Account)new JsonSerializer().Deserialize(file, typeof(Account));
+            Console.WriteLine("コンストラクタが呼び出されました。");
         }
-        // 略
-    }
-```
-
-``` C#
-    try
-    {
-        var account = new Func<Account>(() =>
+        // staticコンストラクタ（クラスのコンストラクタ）
+        static StaticConstructorSample()
         {
-            using StreamReader file = File.OpenText(@"C:\test.json");
-            return (Account)new JsonSerializer().Deserialize(file, typeof(Account));
-        })();
-
-        Func<Account?> account = () =>
-        {
-            using StreamReader file = File.OpenText(@"C:\test.json");
-            return (Account)new JsonSerializer().Deserialize(file, typeof(Account));
-        };
-        _ = account();
-    }
-```
-
-タプルでの受け取りは無理だった。
-エラーにはならなかったが、全部初期値が入って使い物にならなかった。
-匿名型はそもそも型だけを定義するってのが無理なので選択肢に上がらない。  
-これは地味に知らなかったので、別でまとめる。
-
-<https://twitter.com/neuecc/status/1430737738593017859>
-このツイートで匿名関数の即時実行は無理って言ってるけど、できたんだよな。
-![aa](https://pbs.twimg.com/media/E9sAV0jVoAEHVUs?format=png&name=360x360)  
-
-``` C#
-public class Foo
-{
-    public int X { get; set; }
-    public int Y { get; set; }
-
-    public Foo(int x , int y)
-    {
-        // 即時実行無理なので、ローカル関数で定義して、直後に実行。
-        async void Init(){
-            await Task.Delay(1000);
-            X = x;
-        }
-        Init();
-
-        // Actionをnewすれば即時実行できるよ。
-        new Action(async () =>
-        {
-            await Task.Delay(1000);
-            X = x;
-        })();
-
-        Y = y;
-    }
-}
-```
-
----
-
-## 匿名関数の即時実行でyield returnは使えない
-
-[コンパイラ エラー CS1621](https://docs.microsoft.com/ja-jp/dotnet/csharp/misc/cs1621)  
->yield ステートメントは、匿名メソッドまたはラムダ式の内部では使用できません。  
-
-[In C#, why can't an anonymous method contain a yield statement?](https://stackoverflow.com/questions/1217729/in-c-why-cant-an-anonymous-method-contain-a-yield-statement)  
-
-実務で、「これくらいなら即時関数でまとめたほうがきれいだな」って思ったやつがあって、「Enumerableで返すならyieldだっけ？」ってことで実装したらエラーになった。  
-
-後日調査した結果、ローカル関数だといける。  
-謎である。  
-
-``` C#
-// ローカル関数 ○
-IEnumerable<int> Generate()
-{
-    for (int i = 0; i < 10; i++)
-    {
-        yield return i;
-    }
-}
-
-// 匿名関数 ×
-var aa = new Func<IEnumerable<int>>(() =>
-{
-    for (int i = 0; i < 10; i++)
-    {
-        // コンパイラ エラー CS1621
-        // yield ステートメントは、匿名メソッドまたはラムダ式の内部では使用できません
-        yield return i;
-    }
-})();
-```
-
-どうしても匿名関数でやりたいならこうしないといけないみたい。  
-やる意味はない。  
-どうしてもやるにしても、LinqのSelect内部で頑張るべき。  
-
-[イテレータはラムダ式、匿名メソッド内では使えない](http://blogs.wankuma.com/gshell/archive/0001/01/01/IteratorInFunc.aspx)  
-
-``` C#
-    public class Test
-    {
-        // 逐次処理をする関数オブジェクト
-        private static Func<IEnumerable<int>> iterateFunc;
-        // 1 メソッドによる実装
-        private static IEnumerable<int> Iterate()
-        {
-            for (int i = 0; i < 10; ++i)
-            {
-                Thread.Sleep(1000);
-                yield return i;
-            }
-        }
-        // スタティックコンストラクタ
-        static Test()
-        {
-            // 2 【コンパイルエラー】ラムダ式バージョン
-            //iterateFunc = () =>
-            //    {
-            //        for (int i = 0; i < 10; ++i)
-            //        {
-            //            Thread.Sleep(1000);
-            //            yield return i;
-            //        }
-            //    };
-            iterateFunc = new Func<IEnumerable<int>>(Iterate); 
-        }
-    }
-```
-
----
-
-## インターフェースに拡張メソッドを追加
-
-``` C#
-    public class InterfaceExtensionMethod
-    {
-        public static void Execute()
-        {
-            ITest aa = new Test() { TestStr = "1234" };
-            Console.WriteLine(aa.Print());
+            // static readonlyはほぼ定数に近いが、staticコンストラクタでなら初期化可能
+            READONLY_NUMBER = 40;
+            Console.WriteLine("静的コンストラクタが呼び出されました。");
         }
     }
 
-    public class Test : ITest
+    public class Program
     {
-        public string TestStr { get; set; }
-    }
-
-    public interface ITest
-    {
-        string TestStr { get; set; }
-    }
-
-    public static class ITestExtension
-    {
-        public static string Print(this ITest test)
+        public static void Main(string[] args)
         {
-            return test.TestStr + "_test";
+            Console.WriteLine("Mainメソッドを開始。");
+            // 定数にアクセス
+            Console.WriteLine($"CONST_NUMBER={StaticConstructorSample.CONST_NUMBER}");
+            // 静的定数にアクセス
+            // アクセス前に静的コンストラクタが呼び出されて唯一の初期化が実行される
+            Console.WriteLine($"READONLY_NUMBER={ StaticConstructorSample.READONLY_NUMBER}");
+            // 通常のコンストラクタが実行される
+            var StaticClassSample1 = new StaticConstructorSample();
+
+            Console.WriteLine("Mainメソッドを終了。");
         }
     }
+    // Mainメソッドを開始。
+    // CONST_NUMBER=10
+    // 静的コンストラクタが呼び出されました。
+    // READONLY_NUMBER=-99
+    // コンストラクタが呼び出されました。
+    // Mainメソッドを終了。
 ```
-
-## 拡張メソッドの意義
-
-[mikakuninn](https://ufcpp.net/study/csharp/sp3_extension.html#interface)  
-
-前節の通り、実を言うと、拡張メソッドは両手ばなしによろこべる機能ではなかったりします。 インスタンス メソッドでの実装が可能ならば素直にクラスのインスタンス メソッドとして定義すべきです。
-
-拡張メソッドは、「クラスを作った人とは全くの別人がメソッドを足せる」という点が最大のメリットです。  
-このメリットは、特にインターフェイスに対して需要があります。  
-多くの場合、インターフェイスを作る人と、そのインターフェイスを使った処理を書く人は別です。  
-通常、この「インターフェイスを使った処理」は静的メソッドになりがちです。  
-そして、拡張メソッドの真骨頂は「（本来は前置き記法である）静的メソッドを後置き記法で書ける」という部分にあると思っています。  
-
-例えば、下図のような、データ列に対するパイプライン処理を考えてみます。
-`入力 → 条件で絞る x > 10 → 値を加工する x*x → 出力`  
-
-まず、条件付けや値の加工のために以下のような静的メソッドを用意します。
-
-``` C#
-static class Extensions
-{
-    public static IEnumerable<int> Where(this IEnumerable<int> array, Func<int, bool> pred)
-    {
-        foreach (var x in array)
-            if (pred(x))
-                yield return x;
-    }
-    public static IEnumerable<int> Select(this IEnumerable<int> array, Func<int, int> filter)
-    {
-        foreach (var x in array)
-            yield return filter(x);
-    }
-}
-```
-
-これを、静的メソッド呼び出しの構文で書くと以下のようになります。
-
-``` C#
-var input = new[] { 8, 9, 10, 11, 12, 13 };
-
-var output =
-    Extensions.Select(
-        Extensions.Where(
-            input,
-            x => x > 10),
-        x => x * x);
-```
-
-やりたいパイプライン処理の順序と、語順が逆になります。  
-また、「Where とそれに対する条件式 x > 10」や 「Select とそれに対する加工式 x * x」の位置が離れてしまいます。  
-
-これに対して、拡張メソッド構文を使うと、以下のようになります。  
-
-``` C#
-var input = new[] { 8, 9, 10, 11, 12, 13 };
-var output = input
-    .Where(x => x > 10)
-    .Select(x => x * x);
-```
-
-ただ語順が違うだけなんですが、 こちらの方がやりたいことの意図が即座に伝わります。  
-すなわち、パイプライン処理（フィルタリング処理）は、 後置きの語順が好ましい処理です。  
-というように、 語順的に後置きの方がしっくりくる場合に （というか、むしろその場合のみに）、 静的メソッドを拡張メソッド化することをお勧めします。  
-
----
-
-## 文字列のインクリメント
-
-[【C#】文字列内の末尾の数値をインクリメントするサンプル](https://baba-s.hatenablog.com/entry/2020/05/06/001800)  
-[c# - 文字と数字の両方で文字列をインクリメントします](https://tagsqa.com/detail/45665)  
-
-正規表現で数字を取得。  
-intに変換してインクリメントして文字列に直す。
-もしくは結合しなおすことでインクリメントを実現する。  
-
-usingはこれ。  
-`uging System.Text.RegularExpressions;`  
-
-``` C# : どういう原理かわからんが、一番スマートかも
-// "MD123" → "MD124"
-// "123MD" → "124MD"
-//  "7000" → "7001"
-var newString = Regex.Replace(
-    input,
-    "\\d+",
-    m => (int.Parse(m.Value) + 1).ToString(new string('0', m.Value.Length))
-);
-```
-
-``` C# : 拡張メソッドにした
-// こんな芸当が可能
-string str = "MD123".Increment();
-
-//拡張メソッド定義
-public static class StringExtension
-{
-    public static string Increment(this string input)
-    {
-        return Regex.Replace(
-            input,
-            "\\d+",
-            m => (int.Parse(m.Value) + 1).ToString(new string('0', m.Value.Length))
-        );
-    }
-}
-```
-
-上のさえできれば後のやつを使う意味はないけど、備忘録として残す
-
-``` C# : 案1
-// "MD123" → "MD124"
-// "123MD" →    Err
-//  "7000" →  "7001"
-string input = "MD123";
-
-var valueString = new Regex("([0-9]*$)").Match(input).Value;
-var value = int.Parse(valueString) + 1;
-var digits = Math.Min(value == 0 ? 1 : (int)Math.Log10(value) + 1, valueString.Length);
-var result = input.Remove(input.Length - digits, digits) + value;
-
-// 関数としてまとめた例
-var accountNo = new Func<string, string>((input) =>
-{
-    var valueString = new Regex("([0-9]*$)").Match(input).Value;
-    var value = int.Parse(valueString) + 1;
-    var digits = Math.Min(value == 0 ? 1 : (int)Math.Log10(value) + 1, valueString.Length);
-    return input.Remove(input.Length - digits, digits) + value;
-})(maxAccountNo);
-```
-
-``` C# : 案2
-// "MD123" → "MD124"
-// "123MD" →    Err
-//  "7000" →    Err
-
-var match = Regex.Match("MD123", @"^([^0-9]+)([0-9]+)$");
-// [0] : MD123
-// [1] : MD
-// [2] : 123
-var num = int.Parse(match.Groups[2].Value);
-// MD + 124
-var after = match.Groups[1].Value + (num + 1);
-```
-
----
-
-## 乱数
-
-### 短時間でRandomクラスを複数インスタンス化すると乱数が同値になる
-
-[C#で乱数を作成する & 毎回異なるシードを指定する方法](https://takap-tech.com/entry/2019/05/09/222104)  
-
-短時間で複数のRandomクラスのインスタンスを作成して乱数を生成すると同じ値になってしまいます。
-そのような場合、複数のインスタンスを作成するのではなく同じインスタンスを使用してNextメソッドを呼び出せば回避できますが、事情でそうできない場合もあります。  
-
-``` C# : 回避案(1) Randomクラスのインスタンスを全体で使いまわす
-public static class MyRandom
-{
-    private static Random random;
-    public static int Next()
-    {
-        if (random == null) random = new Random();
-        return random.Next();
-    }
-    public static int Next(int maxValue)
-    {
-        if (random == null) random = new Random();
-        return random.Next(maxValue);
-    }
-    public static int Next(int minValue, int maxValue)
-    {
-        if (random == null) random = new Random();
-        return random.Next(minValue, maxValue);
-    }
-}
-```
-
-``` C# : 回避案(2) ミリ秒以下の呼び出しでも異なるシード値を指定する
-// ユニークなSEED値を持つRandomオブジェクトを生成するためのクラス
-public static class MyRandom
-{
-    // 乱数のSeed値に乱数を使用する
-    private static Random random = new Random();
-    public static Random Create() => new Random(random.Next());
-}
-
-// 使い方
-var list = new List<Random>();
-for(int i = 0; i < 100; i++)
-{
-    // list.Add(new Random()); // こうすると毎回同じになってしまうので
-    list.Add(MyRandom.Create()); // こう変更すると毎回、違くなる
-}
-foreach (var r in list)
-{
-    Console.WriteLine(r.Next()); // 必ず違う値になる
-    // > 314216147
-    // > 1401494015
-    // > 370983633
-    // ....
-}
-```
-
----
-
-## Enumに付与した属性と属性の値を取得する
-
-[C#でEnumに付与した属性と属性の値を取得する](https://takap-tech.com/entry/2018/12/20/231234)  
-
-Enumのアノテーションから値を取得するのは遅いので、速度が必要なければそれでもいいけど、別にDictionaryでEnumと文字列を定義して、それで取得でもいいのではという話。  
-
----
-
-## 文字列を enum 型 に変換する方法
-
-[文字列から enum 型への安全な変換](https://qiita.com/masaru/items/a44dc30bfc18aac95015)  
-
-普通に変換させる分にはEnum.TryParseでよろしい。  
-数字の文字列をEnumに変換するときは一工夫必要。  
-
-- Parse() : 成功すれば変換された値が返ってくるが、失敗したときに例外を吐くので少々扱いにくい。  
-- TryParse() : 変換の成否は戻り値。変換された値は第2引数でoutされる。  
-
-数字からの変換が曲者で、enum 型で定義していない値でも変換に成功したことにして outの変数に入れてしまいます。  
-`Enum.TryParse("100", out wd); // true, wd = 100`  
-
-ある値が enum 型で定義されているか検証するには、Enum.IsDefined() を使います。  
-これを TryParse() と組み合わせれば、安全な変換が実現できます。  
-
-``` C#
-static class EnumExt
-{
-    static bool TryParse<TEnum>(string s, out TEnum wd) where TEnum : struct
-    {
-        return Enum.TryParse(s, out wd) && Enum.IsDefined(typeof(TEnum), wd);
-    }
-}
-
-Weekday wd;
-EnumExt.TryParse("Thursday", out wd); // true, wd = Weekday.Thursday
-SolarSystem ss; // Sun=0, Mercury, Venus, ...
-EnumExt.TryParse("5", out ss); // true, ss = SolarSystem.Jupiter
-```
-
----
-
-## Actionとローカル関数のどちらを使うべきか調査
-
-[C#のActionとローカル関数のどちらを使うべきか調査](https://shibuya24.info/entry/action_or_local_method)  
-
-ローカル関数のほうが早いので、特段の理由が無ければローカル関数を使うべし。  
-
----
-
-## C#のパフォーマンス改善
-
-[今日からできるC#のパフォーマンス改善小ネタ10選](https://qiita.com/shun-shun123/items/cb6689a9f210e90b9833)

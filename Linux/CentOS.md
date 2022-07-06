@@ -1,6 +1,6 @@
 # CentOSに関する色々
 
-## teela開発環境について(192.168.150.41)
+## Web開発環境について
 
 OS : CentOS 7  
 ※CentOSはRedHat系  

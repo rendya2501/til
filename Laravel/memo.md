@@ -193,7 +193,6 @@ Allowed : 許可された
 
 [Laravelで405や419エラーに遭遇した場合の対処法](https://qiita.com/aminevsky/items/04cdf17686e28c9847c4)  
 結構記事はあるけども、どれもルーティングに関する簡単なミスばかり。  
-TeelaのProxy周りが特殊なのかもねぇ。  
 
 ---
 

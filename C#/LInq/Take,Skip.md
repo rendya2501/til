@@ -1,4 +1,3 @@
-
 # Take,Skip
 
 [Take, Skip](https://symfoware.blog.fc2.com/blog-entry-1927.html)  
