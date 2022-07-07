@@ -1,24 +1,125 @@
 # OrderBy,ThenBy
 
+OrderByの後にOrderByすると、さっきまでソートした結果を無視して新しくソートしなおしてしまう。  
+だからThenByでどんどんソートした結果を保持したままソートする。  
+
+まとめ  
+
+- OrderByした結果に対してThenByを行う。  
+- ThenByした結果にOrderByをすると、今までの結果は考慮されず一からソートし直す。  
+
+- 匿名型は指定不可。  
+- タプル、バリュータプルは指定可能。  
+- タプルを指定した場合、Orderby,ThenByの順にソートしたのと同じ動作になる模様。  
+
+- タプルでも、内部の型が複数になるとエラーになる。  
+- OrderBy中でタプルは.NetFramework4.8(C# 7.3)でも行けた  
+
+---
+
+## OrderByの要素を切り替えたい
+
 `list.ThenBy(o => true ? o.ID : o.name);`この構文がエラーになるのだが、分からないかと聞かれたのでまとめ。  
 よく考えたら、OrderByって複数のキーを指定できたっけ？みたいなこともあいまいだったので復習も兼ねる。  
 
-「OrderBy 複数」で調べても何も出てこなかった記憶がある。  
-改めて調べても出てこないし、よく考えればOrderByって1つのキーで絞らないとソートも何もあったものじゃないよな。  
-でもって、またOrderByすると、さっきまでソートした結果を無視して新しくソートしなおしてしまう。  
-だからThenByでどんどんソートした結果を保持したままソートする。  
+[型引数を使い方から推論することはできません。型引数を明示的に指定してください。]
+ということらしいので、コーディング段階で型推論できないという事であれば、dynamicにして実行時に対応するようにすればいけるのではということでやったらできた。  
+dynamicにキャストするだけで済む話だったが、なんでこんなことがどこにも書いてないのだろうか。  
 
-まとめ
-・OrderBy,ThenByはキーは1つしか指定できない。(例外はある模様。詳しくは下で)  
-・OrderByした結果に対してThenByを行う。  
-・ThenByした結果にOrderByをすると、今までの結果は考慮されず一からソートし直す。  
+### 完成形
 
-・匿名型は指定不可。  
-・タプル、バリュータプルは指定可能。  
-・タプルではOrderby,ThenByの順にソートしたのと同じ動作になる模様。  
+``` C# : 完成形
+    var list= new List<(int id, string name)>
+    {
+        (1, "E"),
+        (2, "D"),
+        (3, "C"),
+        (4, "B"),
+        (5, "A"),
+    };
+    // 完成形
+    var type1 = list.OrderBy(o => false ? (dynamic)o.id : o.name).ToList();
+    // タプルでも可能
+    var type2 = list.OrderBy(o => false ? (dynamic)(o.id, o.name) : (o.name, o.id)).ToList();
+```
 
-・タプルでも、内部の型が複数になるとエラーになる。  
-・OrderBy中でタプルは.NetFramework4.8(C# 7.3)でも行けた  
+### 完成形に至るまでの過程
+
+``` C# : 完成形に至るまでの過程
+    // 過程1
+    Func<(int id, string name), dynamic> sortIdFunc = (p) => { return p.id; };
+    Func<(int id, string name), dynamic> sortNameFunc = (p) => { return p.name; };
+    var process1 = list.OrderBy(false ? sortIdFunc : sortNameFunc).ToList();
+    // https://10.hateblo.jp/entry/2014/05/30/154157
+    // このサイトで下の案はいけるってことなので、ならなんでもOKなdynamicにしてそもそもソートされるのか試したらできた。
+    // Func<Person,int> f=(p)=>{return p.id;}
+    // Func<Person,string> f2=(p)=>{return p.Name;}
+    // query = query.OrderBy(model.Order==0?f:f2);
+
+    // 過程2
+    // dynamicでいけるなら、後は単純に三項演算子の形に落とし込んでいくだけ。これも問題なかった。
+    // 最終的に完成形となる。
+    Func<(int id, string name), dynamic> sortFunc = p => (false ? (dynamic)p.id : p.name);
+    var process2 = list.OrderBy(sortFunc).ToList();
+
+```
+
+[OrderByのセレクタを外出ししたい](https://10.hateblo.jp/entry/2014/05/30/154157)  
+[Create an OrderBy Expression for LINQ/Lambda](https://stackoverflow.com/questions/5766247/create-an-orderby-expression-for-linq-lambda)  
+
+同じ要望を実現したいと考えている人で、一番参考になった。  
+紹介されている`Expression<Func<Person,dynamic>>`を素直に実装してみたが、これではダメだった。  
+しかし、ここまで近しい資料は他になかったので、この考え方をベースにいろいろやったらいけたという感じである。  
+
+``` C#
+    // これがダサい。
+    if (model.OrderDirection==0){
+        query = model.Order==0? query.OrderBy(p=>p.Name) : query.OrderBy(p=>p.id);
+    }else{
+        query = model.Order==0? query.OrderByDescending(p=>p.Name) : query.OrderByDescending(p=>p.id);
+    }
+
+    // これが通れば、もっといろいろできるはずだったが、受け取る型がどうのこうのというエラーになってしまった。
+    Expression<Func<Person,dynamic>> f;
+    if (model.Order==0){
+        f = p=> new{p.id};
+    }else{ 
+        f = p=> new{p.Name};
+    }
+    query = query.OrderBy(f);
+```
+
+[Lambda Expressions Are Wonderful](https://www.c-sharpcorner.com/UploadFile/afenster/lambda-expressions-are-wonderful/)  
+
+クラスのメソッドとして定義する案っぽいけど、正直微妙だ。  
+やることはないだろう。  
+
+``` C#
+    List<Employee> employees = new List<Employee>();
+    new Employee().Sort(ref employees, e => e.LastName, SortOrder.Ascending);
+
+    public class Employee
+    {
+        public string FirstName { set; get; }
+        public string LastName { set; get; }
+        public decimal Salary { set; get; }
+        public bool IsManager { set; get; }
+
+        public void Sort<TKey>(
+             ref List<Employee> list,
+             Func<Employee, TKey> sortKey,
+             SortOrder sortOrder = SortOrder.Ascending)
+        {
+            if (sortOrder == SortOrder.Ascending)
+                list = list.OrderBy(sortKey).ToList();
+            else
+                list = list.OrderByDescending(sortKey).ToList();
+        }
+    }
+    public enum SortOrder { Ascending, Decending }
+```
+
+---
 
 ## OrderByでタプルや匿名型の動作検証
 
@@ -134,101 +235,4 @@
     // [15]: (2, 3, 12)
     // [16]: (3, 3, 17)
     // [17]: (3, 3, 18)
-```
-
-## OrderByの要素を切り替えたい
-
-OrderByのソート内容を三項演算子で切り替えたい、という要件を実現するのが本命。  
-タプルの発見は面白かったが、調べるべきはこれ。  
-結果としてできた。  
-
-[型引数を使い方から推論することはできません。型引数を明示的に指定してください。]
-ということらしいので、コーディング段階で型推論できないという事であれば、dynamicにして実行時に対応するようにすればいけるのではということでやったらできた。  
-dynamicにキャストするだけで済む話だったが、なんでこんなことがどこにも書いてないのだろうか。  
-
-``` C#
-    var list= new List<(int id, string name)>
-    {
-        (1, "E"),
-        (2, "D"),
-        (3, "C"),
-        (4, "B"),
-        (5, "A"),
-    };
-    // 完成形
-    var type1 = list.OrderBy(o => false ? (dynamic)o.id : o.name).ToList();
-    // タプルでも可能
-    var type2 = list.OrderBy(o => false ? (dynamic)(o.id, o.name) : (o.name, o.id)).ToList();
-
-    // 過程1
-    Func<(int id, string name), dynamic> sortIdFunc = (p) => { return p.id; };
-    Func<(int id, string name), dynamic> sortNameFunc = (p) => { return p.name; };
-    var process1 = list.OrderBy(false ? sortIdFunc : sortNameFunc).ToList();
-    // https://10.hateblo.jp/entry/2014/05/30/154157
-    // このサイトで下の案はいけるってことなので、ならなんでもOKなdynamicにしてそもそもソートされるのか試したらできた。
-    // Func<Person,int> f=(p)=>{return p.id;}
-    // Func<Person,string> f2=(p)=>{return p.Name;}
-    // query = query.OrderBy(model.Order==0?f:f2);
-
-    // 過程2
-    // dynamicでいけるなら、後は単純に三項演算子の形に落とし込んでいくだけ。これも問題なかった。
-    // 最終的に完成形となる。
-    Func<(int id, string name), dynamic> sortFunc = p => (false ? (dynamic)p.id : p.name);
-    var process2 = list.OrderBy(sortFunc).ToList();
-
-```
-
-[OrderByのセレクタを外出ししたい](https://10.hateblo.jp/entry/2014/05/30/154157)  
-[Create an OrderBy Expression for LINQ/Lambda](https://stackoverflow.com/questions/5766247/create-an-orderby-expression-for-linq-lambda)  
-
-同じ要望を実現したいと考えている人で、一番参考になった。  
-紹介されている`Expression<Func<Person,dynamic>>`を素直に実装してみたが、これではダメだった。  
-しかし、ここまで近しい資料は他になかったので、この考え方をベースにいろいろやったらいけたという感じである。  
-
-``` C#
-    // これがダサい。
-    if (model.OrderDirection==0){
-        query = model.Order==0? query.OrderBy(p=>p.Name) : query.OrderBy(p=>p.id);
-    }else{
-        query = model.Order==0? query.OrderByDescending(p=>p.Name) : query.OrderByDescending(p=>p.id);
-    }
-
-    // これが通れば、もっといろいろできるはずだったが、受け取る型がどうのこうのというエラーになってしまった。
-    Expression<Func<Person,dynamic>> f;
-    if (model.Order==0){
-        f = p=> new{p.id};
-    }else{ 
-        f = p=> new{p.Name};
-    }
-    query = query.OrderBy(f);
-```
-
-[Lambda Expressions Are Wonderful](https://www.c-sharpcorner.com/UploadFile/afenster/lambda-expressions-are-wonderful/)  
-
-クラスのメソッドとして定義する案っぽいけど、正直微妙だ。  
-やることはないだろう。  
-
-``` C#
-    List<Employee> employees = new List<Employee>();
-    new Employee().Sort(ref employees, e => e.LastName, SortOrder.Ascending);
-
-    public class Employee
-    {
-        public string FirstName { set; get; }
-        public string LastName { set; get; }
-        public decimal Salary { set; get; }
-        public bool IsManager { set; get; }
-
-        public void Sort<TKey>(
-             ref List<Employee> list,
-             Func<Employee, TKey> sortKey,
-             SortOrder sortOrder = SortOrder.Ascending)
-        {
-            if (sortOrder == SortOrder.Ascending)
-                list = list.OrderBy(sortKey).ToList();
-            else
-                list = list.OrderByDescending(sortKey).ToList();
-        }
-    }
-    public enum SortOrder { Ascending, Decending }
 ```

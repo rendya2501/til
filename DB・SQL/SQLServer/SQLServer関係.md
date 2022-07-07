@@ -107,12 +107,6 @@ ROLLBACK TRANSACTION
 
 ## SQL Server のロック命令
 
-``` C#
-   .AppendLine("SELECT")
-   .Append(GetFields())
-   .AppendLine("FROM [TRe_ReservationExclusive] WITH (TABLOCKX)");
-```
-
 [ＳＱＬサーバー　ロック](https://development.station-t.com/SqlServer_Lock.htm)  
 
 ``` sql : テーブルロック
@@ -256,6 +250,44 @@ CREATE TABLEする時のSQL文を出力するためにはスクリプトを実�
 
 ---
 
+## テーブル構造を吐き出すクエリ
+
+``` sql <https://kojimanotech.com/2020/09/13/252/>
+EXEC sp_columns @table_name = 'TableName';
+```
+
+``` sql <https://lightgauge.net/database/sqlserver/3697/>
+SELECT
+     tbls.name AS table_name
+    ,key_const.name AS constraint_name
+    ,idx_cols.key_ordinal AS key_ordinal
+    ,cols.name AS col_name
+FROM
+    sys.tables AS tbls
+    INNER JOIN sys.key_constraints AS key_const ON
+    tbls.object_id = key_const.parent_object_id AND key_const.type = 'PK'
+    AND tbls.name = 'TableName'
+    INNER JOIN sys.index_columns AS idx_cols ON
+    key_const.parent_object_id = idx_cols.object_id
+    AND key_const.unique_index_id  = idx_cols.index_id
+    INNER JOIN sys.columns AS cols ON
+    idx_cols.object_id = cols.object_id
+    AND idx_cols.column_id = cols.column_id
+```
+
+---
+
+## 対象カラムが存在するかどうかをチェックするクエリ
+
+``` SQL
+    SELECT *
+    FROM   [Database].sys.columns
+    WHERE  Name = N'FieldName'
+    AND    Object_ID = OBJECT_ID(N'[Database].[dbo].[Table]')
+```
+
+---
+
 ## sqlserver 断片化  
 
 [SQL Serverの断片化したインデックスを再構築する方法](https://www.fenet.jp/dotnet/column/database/sql-server/4365/)  
@@ -302,14 +334,14 @@ END
 
 for xml pathは、なんかインテリセンスが働かないけど、`,TYPE).value(,)`なるオプション？が使える模様。  
 結論からいうと、型を変換するための命令っぽい。  
-今回のサンプルに関しては別にそこまで厳密に型指定しなくても動く。  
+別にそこまで厳密に型指定しなくても動く。  
 しかし、型の変換が必要な場合もあるのだろう。  
 
 ``` SQL
 -- このSQLを実行しても上でやったSQLの結果と違うことはない。
--- ALP202007250541,ALP202007250541,ALP202007250541
+-- ABC202007250541,ABC202007250541,ABC202007250541
 SELECT STUFF(
-    (SELECT TOP 3 ',' + PlayerNo FROM TFr_Slip FOR xml path(''),TYPE).value('.', 'NVARCHAR(MAX)'),
+    (SELECT TOP 3 ',' + TestID FROM TestTable FOR xml path(''),TYPE).value('.', 'NVARCHAR(MAX)'),
     1,
     1,
     ''
@@ -352,12 +384,15 @@ LEFT JOIN してIDがNULLってやり方でもいいかもしれないが、ま�
 【サンプル】  
 「CODE」項目で比較し、「商品マスタ」に存在しないデータを「購入リスト」からINSERTします。  
 
-商品マスタ   購入リスト     商品マスタ
-CODE NAME   CODE NAME     CODE NAME
-0001 りんご  0001 りんご   0001 りんご
-0003 みかん  0002 ぶどう → 0002 ぶどう
-0004 ばなな  0003 みかん   0003 みかん
-            0004 ばなな   0004 ばなな
+``` txt
+商品マスタ    |  購入リスト     | 商品マスタ
+
+CODE  NAME    |  CODE  NAME     | CODE  NAME
+0001  りんご  |  0001  りんご   | 0001  りんご
+0003  みかん  |  0002  ぶどう   | 0002  ぶどう
+0004  ばなな  |  0003  みかん   | 0003  みかん
+              |  0004  ばなな   | 0004  ばなな
+```
 
 EXISTSが返すのはboolなのでEXISTS内におけるSELECTは何でもいい。  
 EXISTSにおいて重要なのはWHEREでテーブルAとBを結びつけるフィールドを指定すること。  
@@ -382,17 +417,6 @@ where not exists(
 
 ---
 
-## 対象カラムが存在するかどうかをチェックするクエリ
-
-``` SQL
-    SELECT *
-    FROM   [Database].sys.columns
-    WHERE  Name = N'FieldName'
-    AND    Object_ID = OBJECT_ID(N'[Database].[dbo].[Table]')
-```
-
----
-
 ## FLOOR関数とCEILING関数
 
 Y君から、「これ何したいかわかります？」って質問されたが、そもそも関数が何やるかわからなかったのでまとめる。  
@@ -401,72 +425,22 @@ Y君から、「これ何したいかわかります？」って質問された�
     CEILING(FLOOR(金額 * 10) / 10)
 ```
 
-FLOOR : 床→切り下げ  
-CEILING : 天井→切り上げ  
+- FLOOR : 床→切り下げ  
+- CEILING : 天井→切り上げ  
+
 なるほど。言葉の意味そのままなのね。  
 因みにROUNDは四捨五入ね。
 
-例えば金額が「112.23」と来た場合  
-112.23  デフォ  
-1122.3  *10  
-1122    FLOOR  
-112.2   /10  
-113     CEILING  
+``` txt : 金額が「112.23」と来た場合
+デフォ  →  112.23
+*10     →  1122.3
+FLOOR   →  1122  
+/10     →  112.2 
+CEILING →  113   
+```
+
 普通に112.23の地点でCEILING使えばよくね？ってなるよね。  
 修正の履歴を見る限り、過去の修正を生かしつつ、辻褄を合わせるためにこうなったのだろうという結論で終結した。  
-
----
-
-## LIKE結合とEXCEPT
-
-全データがあるテーブルから存在しないレコードだけを抜き出したいという案件を受けた。  
-それだけなら差集合でいいけど、微妙に文字列が追加されていて、単純な結合ができない。  
-SQL SERVERで正規表現が使えればよかったが、SQL SERVERでは使えない模様。  
-LIKE句を使った結合はできたが、その先が分からなかった。  
-そんな時にドンピシャな記事があったのでまとめる。  
-
-[テーブル結合　LIKE演算子](https://teratail.com/questions/65949)
-[SQL EXCEPTのサンプル(差分を抽出する)](https://itsakura.com/sql-except)  
-
->下記の状況で最適なSQLを作成したいのです。  
->
->【情報】  
->テーブル1 カラム名：項目X  
->テーブル2 カラム名：項目Y(※レコード内容は項目Xに文字列を付与したものが入っています)  
->
->手順1.ある条件を元にして、テーブル1の項目XのSELECTします。(結果は複数行返ってきます)  
->手順2.手順1のSELECT結果をWHERE条件にLIKE演算子の前方一致でテーブル2の項目YをSELECTします。  
->
->最終的には、手順2で前方一致でぶつからなかった項目Xの値を知りたいと思っています。  
->これをSQLにて効率的に実行するには、どのようなやり方が望ましいのでしょうか。  
->テーブル1とテーブル2を結合する際の条件にLIKE演算子を用いるとかですかね、、、？  
-
-``` sql
--- 全データ
-SELECT `項目X` FROM `テーブル1`
-EXCEPT
--- 抽出したデータ
-SELECT
-    [Table2].`項目X`
-FROM
-    `テーブル2` AS [Table1]
-INNER JOIN
-    (SELECT `項目X` FROM `テーブル1` WHERE "ある条件") AS [Table2]
-ON
-    [Table1].`項目Y` LIKE [Table2].`項目X` + '%'
-```
-
-``` sql : こっちでもいけた
-SELECT
-    テーブル1.X 
-FROM
-    テーブル1
-    LEFT JOIN テーブル2 
-    ON テーブル2.Y 
-    LIKE テーブル1.X + '%' （AND / OR テーブル2でさらに絞りたい条件式）
-WHERE
-    テーブル2.Y IS NULL AND
-```
 
 ---
 
@@ -479,31 +453,11 @@ fkdさんはこんなのも提示した。
 `var id = rnWebConnection.QueryFirstOrDefault<long>("SELECT LAST_INSERT_ID()");`  
 
 ``` sql
-INSERT INTO Tfr_Reception
+INSERT INTO IDENTITY_TABLE
 (OfficeCD)
 OUTPUT
 inserted.SeqNo
 values('aaa')
-```
-
----
-
-## テーブル結合にLIKE演算子を使えるか
-
-普通に行ける。  
-[テーブル結合 LIKE演算子](https://teratail.com/questions/65949)  
-
-``` sql
-SELECT
-    テーブル1.X 
-FROM
-    テーブル1
-    LEFT JOIN テーブル2 
-    ON テーブル2.Y LIKE テーブル1.X + '%' 
-    (AND / OR テーブル2でさらに絞りたい条件式)
-WHERE
-    テーブル2.Y IS NULL 
-    AND ~~
 ```
 
 ---
@@ -515,7 +469,7 @@ WHERE
 ``` sql
 IF NOT EXISTS
 (
-    SELECT TOP 1 1 FROM Round3DatOCC.dbo.TMa_TimeFrameType WHERE [TimeFrameTypeCD] = 99
+    SELECT TOP 1 1 FROM TestTable WHERE [Code] = 99
 )
     -- 上記select文の結果がfalseならInsertが実行される。
     INSERT INTO
@@ -540,39 +494,6 @@ SELECT * INTO <コピー先テーブル名> FROM <コピー元テーブル名>
 
 ---
 
-## SQLの結合条件のON句の順番について
-
-<https://detail.chiebukuro.yahoo.co.jp/qa/question_detail/q11166323581>  
-
-SQLのLEFT JOIN とかのONの順番は関係無いらしい。  
-地味に知らなかったので、メモ。  
-
----
-
-## CROSS JOIN+WHERE と INNER JOIN
-
-<https://qiita.com/zaburo/items/548b3c40fee68cd1e3b7>  
-<https://stackoverflow.com/questions/17759687/cross-join-vs-inner-join-in-sql>  
-
-CROSS JOIN して WHERE で絞る方法(等価結合)とINNER JOINの結果は同じらしい。(厳密には内部処理的には違うらしいが)  
-まぁ、CROSS JOINしてWHEREで絞るくらいなら素直にINNER JOIN使えって話。  
-
-``` SQL
--- どちらも結果は同じになる
-
--- CROSS JOIN + WHERE
-SELECT depts.dept_name,employees.name
-FROM depts,employees
-WHERE depts.dept_id = employees.dept_id;
-
--- INNER JOIN
-SELECT depts.dept_name,employees.name
-FROM depts INNER JOIN employees
-WHERE depts.dept_id = employees.dept_id;
-```
-
----
-
 ## DISTINCTとワイルドカードの併用
 
 DISTINCTとワイルドカード `*` を併用したら.NETFrameworkでは実行速度が遅くなるらしい  
@@ -587,7 +508,7 @@ DISTINCTとワイルドカード `*` を併用したら.NETFrameworkでは実行
 TOPにPERCENT句を付けると上位N%のデータを取得することができる  
 
 ``` sql
-select TOP 50 PERCENT * FROM TPa_Reservation
+select TOP 50 PERCENT * FROM TastTeble
 
 --  100 : 90121件
 --   50 : 45061件

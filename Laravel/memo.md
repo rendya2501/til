@@ -161,15 +161,14 @@ Kernel.phpのCommand配列とCommandメソッドに色々登録すると、
 
 ---
 
-会社のルーティング
+## ルーティングサンプル
 
 ``` PHP
-    // プラン連携メンテナンス
-    Route::group(['prefix' => 'web-cooperation'], function () {
-        Route::group(['prefix' => 'plan-cooperation'], function () {
-            Route::group(['prefix' => 'maintenance'], function () {
-                Route::get('/list/{golfcode}', 'Api\WebCooperation\PlanCooperationController@getMaintenanceList');
-                Route::put('/', 'Api\WebCooperation\PlanCooperationController@maintenancePlan');
+    Route::group(['prefix' => 'layer1'], function () {
+        Route::group(['prefix' => 'layer2'], function () {
+            Route::group(['prefix' => 'hogehoge'], function () {
+                Route::get('/list/{code}', 'Api\layer1\layer2@gethogehogeList');
+                Route::put('/', 'Api\layer1\layer2@hogehoge');
             });
         });
     });

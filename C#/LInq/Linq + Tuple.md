@@ -12,13 +12,13 @@
 // 愚直に配列を宣言してそれからFor文に入る。
 // 変数を2つも用意しないといけないし、New一回で初期化が終わってくれないのでどうしても野暮ったく感じてしまう。
 // 最も原始的な方法だから分かりやすいんだけど古臭い。
-var cash = new TFr_FrontCashDetail[10];
-for (int i = 0; i <= cash.Length - 1; i++)
+var hogeArray = new HogeClass[10];
+for (int i = 0; i <= hogeArray.Length - 1; i++)
 {
-    var tmp = frontCashDetail.FirstOrDefault(f => f.DailyReportItemCD == i);
-    cash[i] = new TFr_FrontCashDetail()
+    var tmp = FugaList.FirstOrDefault(f => f.Code == i);
+    hogeArray[i] = new HogeClass()
     {
-        DailyReportItemName = tmp?.DailyReportItemName,
+        Name = tmp?.Namze,
         Amount = tmp?.Amount ?? decimal.Zero
     };
 }
@@ -31,15 +31,15 @@ var aaa = Enumerable
     .Range(0, 5)
     .Select(i =>
     {
-        var item = balanceDetailList.FirstOrDefault(f => f.CalcItemCD == i + 1);
+        var item = FugaList.FirstOrDefault(f => f.Code == i + 1);
         return (
-            Name: item?.CalcItemName,
+            Name: item?.Name,
             Disp: item?.Amount ?? decimal.Zero,
-            Calc: item?.CashExcessOrDeficiencyCalcType switch
+            Calc: item?.HogeType switch
             {
-                CalculationType.NotCalc => 0,
-                CalculationType.Plus => item.Amount ?? decimal.Zero,
-                CalculationType.Minus => -item.Amount ?? decimal.Zero,
+                HogeType.NotCalc => 0,
+                HogeType.Plus => item.Amount ?? decimal.Zero,
+                HogeType.Minus => -item.Amount ?? decimal.Zero,
                 _ => 0,
             }
         );
@@ -53,14 +53,14 @@ var bbb = Enumerable
     .Repeat<(string Name, decimal Disp, decimal Calc)>(("", 0, 0), 5)
     .Select((s, i) =>
     {
-        var item = balanceDetailList.FirstOrDefault(f => f.CalcItemCD == i + 1);
-        s.Name = item?.CalcItemName;
+        var item = FugaList.FirstOrDefault(f => f.Code == i + 1);
+        s.Name = item?.Name;
         s.Disp = item?.Amount ?? decimal.Zero;
-        s.Calc = item?.CashExcessOrDeficiencyCalcType switch
+        s.Calc = item?.HogeType switch
         {
-            CalculationType.NotCalc => 0,
-            CalculationType.Plus => item.Amount ?? decimal.Zero,
-            CalculationType.Minus => -item.Amount ?? decimal.Zero,
+            HogeType.NotCalc => 0,
+            HogeType.Plus => item.Amount ?? decimal.Zero,
+            HogeType.Minus => -item.Amount ?? decimal.Zero,
             _ => 0,
         };
         return s;
@@ -166,10 +166,9 @@ ValueTupleはFirstOrDefaultしてもnullにならない。
     {
         Console.WriteLine("Missing!");
     }
-    // こちらでも判定可能。null.Equalsだと思うけどエラーにならない。謎。
+    // こちらでも判定可能。null.Equalsに相当するものだと思われるがエラーにならない。謎。
     if (result.Equals(default))
     {
         Console.WriteLine("Missing!");
     }
-
 ```

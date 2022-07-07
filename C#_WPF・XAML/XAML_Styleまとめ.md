@@ -162,14 +162,14 @@ CSSのXAMLバージョン。
 
 何のことはない。ただのボタンでスタイルは共通で定義されているものを使っているだけ。  
 
-``` XML : Front.DutchTreat.Views.EditWindow.xaml
+``` XML
 <Button : 
     Command="{Binding ShowAttendeeListCommand}"
     IsTabStop="False"
     Style="{StaticResource SearchButton}" />
 ```
 
-``` XML : Common\Resource\DesignResourceDictionary.xaml
+``` XML
 <Style
     x:Key="SearchButton"
     BasedOn="{StaticResource {x:Type Button}}"
@@ -189,7 +189,6 @@ CSSのXAMLバージョン。
 ```
 
 ---
-
 
 ## 画像の追加
 

@@ -121,3 +121,37 @@ CommunityToolkit relaycommand
 [What is the MVVM pattern, What benefits does MVVM have?](https://www.youtube.com/watch?v=AXpTeiWtbC8)  
 
 アノテーションだけでバインディングできるようになってた。  
+
+---
+
+## WPFでMainWindow.xamlのフォルダを変更する
+
+[WPFでMainWindow.xamlのフォルダを変更する](https://www.paveway.info/entry/2019/07/01/wpf_startupuri)  
+
+App.xamlのStartupUriを変更する。
+
+``` xml : MainWindow.xamlをViewsフォルダに移動した場合
+<!-- 修正前 -->
+<Application
+    ...
+    StartupUri="MainWindow.xaml"
+/>
+<!-- 修正後 -->
+<Application
+    ...
+    StartupUri="Views/MainWindow.xaml"
+/>
+```
+
+上記だけで起動するが、Viewsに移動させた以上[MainWindow.xaml.cs]と[MainWindow.Xaml]の名前空間も変更しておく。
+
+``` xml : MainWindow.xaml
+<!-- 修正前 -->
+<Window
+    x:Class="WpfApp8.MainWindow"
+/>
+<!-- 修正後 -->
+<window
+    x:Class="WpfApp8.Views.MainWindow"
+/>
+```

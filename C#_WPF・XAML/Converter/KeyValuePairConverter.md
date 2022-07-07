@@ -28,8 +28,6 @@ ItemsSourceのIList<KeyValuePair<K, V>>を変換するコンバーターを実�
 
 ## 実装例
 
-参考 : 商品台帳 TaxationTypeItemSource  
-
 ``` XML
 <Control
     Binding="{Binding SampleEnum,

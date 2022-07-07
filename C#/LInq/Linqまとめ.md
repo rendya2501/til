@@ -53,12 +53,12 @@ var results = shops.Where(x => inCause.Contains(x.ShopId));
 var results = shops.Where(x => !inCause.Contains(x.ShopId));
 ```
 
-### Contains
+## Contains
 
 [配列やコレクション内に指定された要素があるか調べる](https://dobon.net/vb/dotnet/programing/arraycontains.html)  
 LinqのIN,NOT INでしれっとContainsを使っているけど、どういうメソッドなのか、実は知らないのでしらべた。  
 
-というわけで、上のINとNOT INでは、Whereで1レコード引っ張って、それをそのコレクションのContainsで回すって流れるなるわけか。  
+INとNOT INでは、Whereで1レコード引っ張って、それをそのコレクションのContainsで回すって流れるなるわけか。  
 で、あればTrueが返却されるので、そのレコードは取得され、それを繰り返していくわけだ。  
 
 ``` C#
@@ -87,86 +87,31 @@ bool b2 = al.Contains("a");
 
 <https://www.urablog.xyz/entry/2018/07/04/070000>  
 
+Exceptメソッド  
+
 ``` C#
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-public static class Hello{
-    
-    private class Parameter
+    // 人物データ
+    var dataA = new List<(int ID, string Name)>()
     {
-        public int      ID      { get; set; }
-        public string   Name    { get; set; }
+       (ID = 0, Name = "正一郎"),
+       (ID = 5, Name = "清次郎"),
+       (ID = 3, Name = "誠三郎"),
+       (ID = 9, Name = "征史郎"),
+    };
+    var dataB = new List<(int ID, string Name)>()
+    {
+       (ID = 5, Name = "清次郎"),
+       (ID = 3, Name = "誠三郎"),
+       (ID = 2, Name = "征史郎"),
+    };
+
+    var results  = dataA.Select(s => s.ID).Except(dataB.Select(s => s.ID));
+
+    // System.Console.WriteLine( "dataA  :{0}", dataA.Text() );
+    // System.Console.WriteLine( "dataB  :{0}", dataB.Text() );
+    foreach (var item in results){
+        System.Console.WriteLine( "results:{0}", item );    
     }
-
-    public static void Main(){
-        // 人物データ
-        var dataA = new List<Parameter>()
-        {
-            new Parameter() { ID = 0, Name = "正一郎" },
-            new Parameter() { ID = 5, Name = "清次郎" },
-            new Parameter() { ID = 3, Name = "誠三郎" },
-            new Parameter() { ID = 9, Name = "征史郎" },
-        };
-        var dataB = new List<Parameter>()
-        {
-            new Parameter() { ID = 5, Name = "清次郎" },
-            new Parameter() { ID = 3, Name = "誠三郎" },
-            new Parameter() { ID = 2, Name = "征史郎" },
-        };
-
-         var results  = dataA.Select(s => s.ID).Except(dataB.Select(s => s.ID));
-         
-        // System.Console.WriteLine( "dataA  :{0}", dataA.Text() );
-        // System.Console.WriteLine( "dataB  :{0}", dataB.Text() );
-        foreach (var item in results){
-            System.Console.WriteLine( "results:{0}", item );    
-        }
-        
-    }
-}
-
-// 引いて残った時間の情報だけをパターン明細から抜き出す。
-//foreach (var startTime in diffTimeList)
-//{
-//    // 絶対に時間はあるはずなのでFirst。なかったならおかしいので処理すべきではない。
-//    addList.Add(patternDetail.Where(w => w.StartTime == startTime).First());
-//}
-
-var huga1 = patternDetail.Select(s => s.StartTime);
-var huga2 = reservationFrame.Select(s => s.StartTime);
-_ = huga1.Except(huga2);
-
-
-var diffTimeList = patternDetail
-    .Select(s => s.StartTime)
-    .Except(reservationFrame.Select(s => s.StartTime));  
-
-
-//List<TRe_ReservationFramePatternDetail> getAddList()
-//{
-//    // パターン明細のスタート時間から予約枠のスタート時間を引く。
-//    // 引いて残った時間は予約枠に存在しない時間なので追加されるべき時間とみなせる。
-//    var diffTimeList = patternDetail
-//        .Select(s => s.StartTime)
-//        .Except(reservationFrame.Select(s => s.StartTime));
-//    return diffTimeList.Count() == 0
-//        // 時間の差異がないということは、パターン明細にある以上の時間が設定されているので追加する必要はない
-//        ? null
-//        // 引いて残った時間の情報だけをパターン明細から抜き出す。
-//        : patternDetail.Where(w => diffTimeList.Contains(w.StartTime)).ToList();
-//}
-//addList = reservationFrame.Count() == 0
-//    ? patternDetail.ToList()
-//    : getAddList();
-//if (addList == null)
-//{
-//    continue;
-//}
-```
-
 ---
 
 ## x.Items!=null && x.Items.Any()のショートカット
@@ -227,19 +172,12 @@ Console.WriteLine(res);
 ```
 
 ```C# : 実装例1
-// 中々うまくまとめれたのでまとめる。
-// 精算済みプレーヤーの警告を出すためメッセージを生成(精算済みプレーヤーのアナウンス)
-var warningMessage = _TRe_ReservationPlayerModel
-    .GetList(
-        new PlayerNoListCondition()
-        {
-            PlayerNoList = playerNoList,
-            ReservationCancelFlag = false,
-        }
-    )
+// 精算済みの警告を出すためメッセージを生成
+var warningMessage = TestModel
+    .GetList(condition)
     .Where(w => w.SettlementFlag == true)
     ?.Select(s => s != null
-        ? (!string.IsNullOrEmpty(s.AccountNo) ? "【" + s.AccountNo + "】　" : string.Empty)
+        ? (!string.IsNullOrEmpty(s.TestNo) ? "【" + s.TestNo + "】　" : string.Empty)
             + (!string.IsNullOrEmpty(s.Name) ? "【" + s.Name + "】様" : string.Empty)
             + "は精算済みです。"
         : null
@@ -252,24 +190,24 @@ var warningMessage = _TRe_ReservationPlayerModel
 
 ``` C# : 実装例2
 // これを
-if (AccountsReceivableList?.Any() == true)
+if (TestList?.Any() == true)
 {
-    var context = "売掛者";
-    foreach (var item in AccountsReceivableList)
+    var context = "文字列";
+    foreach (var item in TestList)
     {
-        var name = item.AccountsReceivableName ?? string.Empty;
+        var name = item.Name ?? string.Empty;
         var len = 60 - Encoding.GetEncoding("shift_jis").GetByteCount(name.ToCharArray());
         context += Environment.NewLine + " " + name.PadRight(len) + string.Format("￥{0:#,0}", item.Amount);
     }
-    Data.BasicItem.BusinessReport = context;
+    Report = context;
 }
 
 // こうできた
-Data.BasicItem.BusinessReport = AccountsReceivableList?.Any() == true
-    ? "売掛者" + AccountsReceivableList
+Report = TestList?.Any() == true
+    ? "文字列" + TestList
         .Select(s =>
         {
-            string name = s.AccountsReceivableName ?? string.Empty;
+            string name = s.Name ?? string.Empty;
             int len = 60 - Encoding.GetEncoding("shift_jis").GetByteCount(name.ToCharArray());
             // 名前 空白 \金額 の構成にする
             return $"{ name.PadRight(len)}￥{s.Amount:#,0}";
@@ -314,13 +252,13 @@ if (Data.ProductJanList.GroupBy(g => g.JanCD).Any(w => w.Count() > 1))
 ## 指定の要素数で初期化されたListを作成する方法
 
 [C#の配列を同じ値で初期化する](https://www.paveway.info/entry/2019/07/**15_csharp_initarray**)  
-Janコードの検索対応で調べたのでまとめ。  
+
 検索処理が複雑だったので、1件の時はいつも通りにするけど、2件以上あったら、適当に2件作って、
 フロント側で判断してごにょごにょするって感じで作った。  
 
 ``` C#
-    // List<SimpleProduct> Count() = 2にする
-    Enumerable.Repeat(new SimpleProduct(), 2).ToList();
+    // List<Product> Count() = 2にする
+    Enumerable.Repeat(new Product(), 2).ToList();
 ```
 
 ---
@@ -363,17 +301,17 @@ OfType\<T>は挙動の一貫性があり、予想外の値が来た時も安定�
     }
 ```
 
-``` C# : Wpf.Front.DutchTreat.ViewModels.cs
+``` C#
     // こうやるのと
     if (args?.AddedItems?.Count > 0
-        && args.AddedItems.OfType<SubjectLargeTypeWithSubjectCDList>() is IEnumerable<SubjectLargeTypeWithSubjectCDList> addItems)
+        && args.AddedItems.OfType<Hoge>() is IEnumerable<Hoge> addItems)
     {
-        SelectedSubjectLargeTypeItemList.AddRange(addItems);
+        HogeList.AddRange(addItems);
     }
     // こうやるのとだったら、こっちのほうがいいのでは
-    foreach (var addItem in args.AddedItems.OfType<SubjectLargeTypeWithSubjectCDList>())
+    foreach (var addItem in args.AddedItems.OfType<Hoge>())
     {
-        SelectedSubjectLargeTypeItemList.Add(addItem);
+        HogeList.Add(addItem);
     }
 ```
 
@@ -385,7 +323,7 @@ OfType\<T>は挙動の一貫性があり、予想外の値が来た時も安定�
 必要なくなったら消してもいいでしょう。  
 
 ``` C#
-string.Join(",", DutchTreatList.SelectMany(s2 => s2.SlipList.Select(s3 => s3.SubjectCD)).Distinct())
+string.Join(",", TestList.SelectMany(s2 => s2.SlipList.Select(s3 => s3.SubjectCD)).Distinct())
 // "20,120,900,131,800,900,20,120,900,110"
 ```
 
@@ -395,32 +333,28 @@ string.Join(",", DutchTreatList.SelectMany(s2 => s2.SlipList.Select(s3 => s3.Sub
 
 [C# LINQで特定の値を先頭にして並び替え](https://teratail.com/questions/120228)  
 
-チェックアウトの割り勘呼び出しで必要になったのでまとめ。  
 100,546を割り勘→100をチェックアウトで呼び出す→割り勘起動→546も引っ張られて表示される。  
 この時、もう一つ割り勘を開いて、546と入力すると、割り勘で排他を取っているはずなのに、「チェックアウトで精算中です」って言われてしまう。  
 原因は100,546の順で排他を取るので、100はチェックアウトで排他中なので、546と打ってもそうなってしまうから。  
 というわけで、排他を取る順番を指定した会計Noを先頭にして、後はそのままってやりたかったわけです。  
 そしたらドンピシャなモノがありました。  
-おかげで無事解決しましたが、後日エラーになって、それも解決したのでまとめます。  
+おかげで無事解決しました。  
 
 ``` C#
-    var result = Enumerable
-        // 10,11,12,13,14
-        .Range(10, 5)
-        // A,B,C,D,E
-        .Select(a => a.ToString("X"))
-        // C,A,B,D,E
-        .OrderBy(a => a == "C" ? 0 : 1);
-        // サンプルではThenByがあるが、なくても想定した動作になる。
-        // .ThenBy(a => a);
+var result = Enumerable
+    // 10,11,12,13,14
+    .Range(10, 5)
+    // A,B,C,D,E
+    .Select(a => a.ToString("X"))
+    // C,A,B,D,E
+    .OrderBy(a => a == "C" ? 0 : 1);
 
-    // 成果物
-    IEnumerable<SettlementDetailView> dutchTreatExclusive = settlementSet.SettlementDetailList
-        .Where(w => outerEditPlayerNoList?.Any() != true || !outerEditPlayerNoList.Contains(w.ReservationPlayerNo))
-        ?.OrderBy(a => a.AccountNo == accountNo ? 0 : 1)
-        // サンプルの通り、ThenBy(a => a)と書いていたが、それだと「failed to compare two elements in the array」とかいうエラーになってしまう。
-        // 単純に消したらうまく行ったし、順番に影響もなかった。
-        ?.ToList();
+    // サンプルではThenByがあるが、なくても想定した動作になる。
+    // .ThenBy(a => a);
+
+    // ThenBy(a => a)と書くと、場合によっては「failed to compare two elements in the array」というエラーになってしまう。
+    // なくてもうまく行くならなくてもいいかも。
+    // 実際に使ったときは順番に影響もなかった。
 ```
 
 ---
@@ -431,6 +365,7 @@ string.Join(",", DutchTreatList.SelectMany(s2 => s2.SlipList.Select(s3 => s3.Sub
 割り勘の伝票IDを取得して、重複を排除して、それが2件以上あれば、別々で割り勘を実行した人がいるという事なので、呼び出せないようにしたい。  
 ついでに、誰と誰が別々に割り勘しているのかをアナウンスしたいので、求めた伝票IDを持っている人の中でそれぞれ先頭の人だけを抜き出したい。  
 意外と難しかった。SelectManyとGroupByを組み合わせてうまい事出来たので、まとめる。  
+
 追記：  
 SelectManyとGroupByの第1,2引数まで使ったサンプルは中々難しかった。  
 第1引数の結果が第2引数のラムダのどちらの引数に入ってくるかも違うのも悩み物だ。  
@@ -566,18 +501,6 @@ if (dutchTreatSlipIDList.Count() >= 2)
     MessageDialogUtil.ShowWarning(Messenger, msg);
     return;
 }
-```
-
-``` C# : 失敗作
-// 何がしたいかわからないね。
-IEnumerable<string> targetPlayerList = SettlementDetailList
-    .SelectMany(
-        p => p.SlipList,
-        (s, slip) => new { s.AccountNo, s.ReservationPlayerName, slip }
-    )
-    .Where(w => dutchTreatSlipIDList.Contains(w.slip.SlipID))
-    .Select(s => $"【{s.AccountNo}】【{s.ReservationPlayerName}】様")
-    .ToList();
 ```
 
 ---
@@ -834,15 +757,15 @@ FirstOrDefaultしたものがプリミティブなら、Listは変更されな�
 ## GroupByして単純に足したい場合
 
 ``` C#
-    ConsumptionTaxList = aac
-        .GroupBy(g => new { g.TaxationType, g.TaxRate })
-        .Select(s =>
-        {
-            var taxSlip = s.FirstOrDefault();
-            taxSlip.TargetPrice = s.Sum(sum => sum.TargetPrice);
-            taxSlip.Tax = s.Sum(sum => sum.Tax);
-            return taxSlip;
-        }).ToList();
+ConsumptionTaxList = aac
+    .GroupBy(g => (g.TaxationType, g.TaxRate))
+    .Select(s =>
+    {
+        var taxSlip = s.FirstOrDefault();
+        taxSlip.Price = s.Sum(sum => sum.Price);
+        taxSlip.Tax = s.Sum(sum => sum.Tax);
+        return taxSlip;
+    }).ToList();
 ```
 
 ---
@@ -851,10 +774,10 @@ FirstOrDefaultしたものがプリミティブなら、Listは変更されな�
 
 [要素が重複しないようにして、複数の配列（またはコレクション）をマージする（和集合を取得する）](https://dobon.net/vb/dotnet/programing/arrayunion.html)  
 
-在席リストと空き席リストの予約枠番号を統合して重複を排除した合計が1より大きいか？みたいな判定する時に使ったのでメモ。
+AリストとBリストの番号を統合して重複を排除した合計が1より大きいか？みたいな判定する時に使ったのでメモ。  
 
 ``` C#
-if (selectedSeatList.Select(s => s.ReservationFrameNo).Union(emptieList.Select(s => s.ReservationFrameNo)).Distinct().Count(w => !string.IsNullOrEmpty(w)) > 1)
+if (TestList1.Select(s => s.TestNo).Union(TestList2.Select(s => s.TestNo)).Distinct().Count(w => !string.IsNullOrEmpty(w)) > 1)
 ```
 
 ---
@@ -868,15 +791,9 @@ LinqのAddはvoidなので、チェーンして書くことができない。
 ``` C#
     // 本来のパターン
     // 途中でAddさせたいならいったんチェーンを切らないといけないし、ToList化もしないといけない。
-    var framePlayerList = _TRe_ReservationPlayerModel
-        .GetList(
-            new ReservationFrameCondition()
-            {
-                ReservationFrameNo = targetPlayer.ReservationFrameNo,
-                ReservationCancelFlag = false
-            }
-        )
-        .Where(w => w.PlayerNo != targetPlayer.PlayerNo)
+    var framePlayerList = TestModel
+        .GetList(condition)
+        .Where(w => w.TestNo != targetPlayer.TestNo)
         .ToList();
     // チェックインするプレーヤーを追加する
     framePlayerList.Add(targetPlayer);
@@ -886,33 +803,21 @@ LinqのAddはvoidなので、チェーンして書くことができない。
 
     // UNIONで疑似的にADDしたパターン
     // 繋げるべきデータをUnion内で作ってしまえば、データの追加が可能というわけ
-    reservationFrame.ConfirmFlag = _TRe_ReservationPlayerModel
-        .GetList(
-            new ReservationFrameCondition()
-            {
-                ReservationFrameNo = targetPlayer.ReservationFrameNo,
-                ReservationCancelFlag = false
-            }
-        )
-        .Where(w => w.PlayerNo != targetPlayer.PlayerNo)
+    reservationFrame.ConfirmFlag = TestModel
+        .GetList(condition)
+        .Where(w => w.TestNo != targetPlayer.TestNo)
         // そのプレーヤーNoを除外した後、Listを作成してUNIONすることで疑似的なADDが可能というわけ
-        .Union(new List<TRe_ReservationPlayer>() { targetPlayer })
+        .Union(new List<TestClass>() { targetPlayer })
         .All(a => a.CheckinFlag == true);
 
 
     // ごめん。このサンプルだったらこれで済んだわ。
     // 比較したい要素はフラグだけだから、そのプレーヤーが既に存在するなら、
     // そのフラグだけ最新のプレーヤー情報に書き換えればいいだけだった。
-    var framePlayerList = _TRe_ReservationPlayerModel
-        .GetList(
-            new ReservationFrameCondition()
-            {
-                ReservationFrameNo = targetPlayer.ReservationFrameNo,
-                ReservationCancelFlag = false
-            }
-        )
+    var framePlayerList = TestModel
+        .GetList(condition)
         .All(a => {
-            if (a.PlayerNo == targetPlayer.PlayerNo) {
+            if (a.TestNo == targetPlayer.TestNo) {
                 a.CheckinFlag = targetPlayer.CheckinFlag;
             }
             return a.CheckinFlag == true;

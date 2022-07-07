@@ -23,20 +23,6 @@ SET name = (
 WHERE id = 2;
 ```
 
-``` sql : 別のデータベースの値と副問い合わせを行いUPDATEする(其の弐)
-UPDATE
-    [Test1].[dbo].[Product]
-SET
-    [Test1].[dbo].[Product].[TestID] = (
-        SELECT
-            [TestID]
-        FROM
-            [Test2].[dbo].[Product]
-        WHERE
-            [Test1].[dbo].[Product].[TestClsID] = [Test2].[dbo].[Product].[TestClsID]
-    )
-```
-
 ``` sql : UPDATE文のwhere句で副問合せを使用する(where in)
 -- テーブルの更新条件を副問い合わせで取ってくる
 -- https://sqlazure.jp/r/sql-server/403/
@@ -46,6 +32,45 @@ WHERE id in (
     select id from test
     where name = 'TEST'
 );
+```
+
+---
+
+## UPDATEでCASE式
+
+``` sql : UPDATE文でCASE式を使用する
+UPDATE
+    syain
+SET
+    name = case id
+        when 1 then '鈴木一郎'
+        when 2 then '田中二郎'
+        when 3 then '佐藤三郎'
+    end,
+    romaji = case
+        when id > 1 then 'tokumei'
+        ELSE 'i.suzuki'
+    end
+WHERE
+    id in(1, 2, 3)
+```
+
+---
+
+## 別のデータベースの値と副問い合わせを行いUPDATEする
+
+``` sql : 別のデータベースの値と副問い合わせを行いUPDATEする(其の弐)
+UPDATE
+    [DataBase1].[dbo].[Product]
+SET
+    [DataBase1].[dbo].[Product].[TestID] = (
+        SELECT
+            [TestID]
+        FROM
+            [DataBase2].[dbo].[Product]
+        WHERE
+            [DataBase1].[dbo].[Product].[TestClsID] = [DataBase2].[dbo].[Product].[TestClsID]
+    )
 ```
 
 ---
@@ -141,27 +166,6 @@ WHERE
 
 ---
 
-## UPDATEでCASE式
-
-``` sql : UPDATE文でCASE式を使用する
-UPDATE
-    syain
-SET
-    name = case id
-        when 1 then '鈴木一郎'
-        when 2 then '田中二郎'
-        when 3 then '佐藤三郎'
-    end,
-    romaji = case
-        when id > 1 then 'tokumei'
-        ELSE 'i.suzuki'
-    end
-WHERE
-    id in(1, 2, 3)
-```
-
----
-
 ## UPDATEでWITH句を使う
 
 [SQLでwith句とupdateを使う方法 サブクエリを共通テーブル式で置き換えるサンプルコード](https://style.potepan.com/articles/30390.html)  
@@ -176,22 +180,20 @@ Withのほうがインデントが浅くなる。
 それだけかもしれない。  
 普通に書いたほうが意味も通じる。
 
-``` sql : 実務でうまくいったパターン
+``` sql
 WITH SQ AS
 (
     SELECT
-        ROW_NUMBER() OVER(PARTITION BY [Reserve].[ReservationNo] ORDER BY [Player].[PlayerNo]) AS Seq,
-        [Player].*
+        ROW_NUMBER() OVER(PARTITION BY [Parent].[TestID] ORDER BY [Child].[TestNo]) AS Seq,
+        [Child].*
     FROM
-        TRe_Reservation AS [Reserve]
-        JOIN TRe_ReservationPlayer AS [Player]
-        ON [Reserve].[ReservationNo] = [Player].[ReservationNo]
-        AND [Reserve].[RepreCustomerCD] = [Player].[CustomerCD]
-        AND ISNULL([Reserve].[ReservationCancelFlag],1) = 0
-        AND REPLACE(REPLACE(ISNULL([Reserve].[RepreCustomerCD],''),' ',''),'　','') <> ''
+        [ParentTable] AS [Parent]
+        JOIN [ChildTable] AS [Child]
+        ON [Parent].[TestID] = [Child].[TestID]
+        AND ISNULL([Parent].[TestFlag],1) = 0
 )
 UPDATE SQ
-SET    ReservationRepreFlag =1
+SET    TestFlag =1
 WHERE  SQ.Seq = 1;
 ```
 
@@ -199,19 +201,17 @@ WHERE  SQ.Seq = 1;
 
 ``` sql
 UPDATE [SQ]
-SET [SQ].[ReservationRepreFlag] = 1
+SET [SQ].[TestFlag] = 1
 FROM
     (
         SELECT
-            ROW_NUMBER() OVER(PARTITION BY [Reserve].[ReservationNo] ORDER BY [Player].[PlayerNo]) AS Seq,
-            [Player].*
+            ROW_NUMBER() OVER(PARTITION BY [Parent].[TestID] ORDER BY [Child].[TestNo]) AS Seq,
+            [Child].*
         FROM
-            [TRe_Reservation] AS [Reserve]
-            JOIN [TRe_ReservationPlayer_Test] AS [Player]
-            ON [Reserve].[ReservationNo] = [Player].[ReservationNo]
-            AND [Reserve].[RepreCustomerCD] = [Player].[CustomerCD]
-            AND ISNULL([Reserve].[ReservationCancelFlag],1) = 0
-            AND REPLACE(REPLACE(ISNULL([Reserve].[RepreCustomerCD],''),' ',''),'　','') <> ''
+            [ParentTable] AS [Parent]
+            JOIN [ChildTable] AS [Child]
+            ON [Parent].[TestID] = [Child].[TestID]
+            AND ISNULL([Parent].[TestFlag],1) = 0
     ) AS [SQ]
 WHERE
     [SQ].[Seq] = 1

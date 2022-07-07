@@ -638,13 +638,7 @@ private void Test() {
     Task.Run(
         async () =>
         {
-            var key = new TMa_ProductKey
-            {
-                OfficeCD = Data.Product.OfficeCD,
-                DepartmentCD = Data.Product.DepartmentCD.Value,
-                ProductCD = setProduct.ProductCD
-            };
-            TMa_Product data = null;
+            Product data = null;
             // 非同期検索処理
             await ServiceErrorHandlingAsync(
                 async () => data = await ServiceAdapter.GetProductAsync(key),

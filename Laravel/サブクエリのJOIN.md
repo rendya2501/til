@@ -20,17 +20,17 @@ $users = DB::table('users')
 
 ## joinSubの代用
 
-```PHP
+```php
 $sub_query = Models\TestTable::
     join(
-        'TmGeneral as LevelName',
+        'OtherTable as Temp',
         function ($join) {
-            $join->on('LevelName.Code', 'TmCalendarDemandLevel.DemandLevelCode')
-                ->where('LevelName.GolfCode', 0)
+            $join->on('Temp.ClsCode', 'TestTable.ClsCode')
+                ->where('Temp.Code', 0)
         }
     )
     ->addSelect(~~~);
-$calendar = Models\TmCalendar::
+$query = Models\TestTable2::
     leftJoin(
         \DB::raw("({$this->rawSql($sub_query)}) as Alias"),
         function ($join) {
@@ -38,48 +38,4 @@ $calendar = Models\TmCalendar::
                 ->on('Alias.ID2', 'Base.ID2');
         }
     )
-```
-
-```PHP
-// 需要レベル一覧のサブクエリ
-$demand_level_list = Models\TmCalendarDemandLevel::
-    join(
-        'TmGeneral as LevelName',
-        function ($join) {
-            $join->on('LevelName.Code', 'TmCalendarDemandLevel.DemandLevelCode')
-                ->where('LevelName.GolfCode', 0)
-                ->where('LevelName.Section', 'demand_level_code_name')
-                ->where('LevelName.ValidFlag', \Config::get('const.valid_flag_type.VALID'));
-        }
-    )
-    ->where('TmCalendarDemandLevel.CourseGroupCode', $courseGroupCode)
-    ->where('TmCalendarDemandLevel.TimeBandCode', $timeBandCode)
-    ->addSelect(
-        'TmCalendarDemandLevel.GolfCode',
-        'TmCalendarDemandLevel.BusinessDate',
-        'TmCalendarDemandLevel.DemandLevelCode',
-        'LevelName.Name as DemandLevelName',
-        'TmCalendarDemandLevel.RateCode'
-    );
-$calendar = Models\TmCalendar::
-    leftJoin(
-        \DB::raw("({$this->rawSql($demand_level_list)}) as DemandLevelList"),
-        function ($join) {
-            $join->on('DemandLevelList.GolfCode', 'TmCalendar.GolfCode')
-                ->on('DemandLevelList.BusinessDate', 'TmCalendar.BusinessDate');
-        }
-    )
-    ->where('TmCalendar.GolfCode', $golfCode)
-    ->whereBetween('TmCalendar.BusinessDate', [$startDate, $endDate])
-    ->select('TmCalendar.BusinessDate')
-    ->selectRaw('null as BusinessDay')
-    ->selectRaw('null as HolidayFlag')
-    ->addSelect(
-        'TmCalendar.ChargeClassCode',
-        'DemandLevelList.DemandLevelCode',
-        'DemandLevelList.DemandLevelName',
-        'DemandLevelList.RateCode'
-    )
-    ->selectRaw('null as PortalSiteList')
-    ->get();
 ```

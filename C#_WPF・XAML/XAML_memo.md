@@ -64,64 +64,6 @@ TargetNullValueはこの値が来たらnullとして扱うことを設定する�
 
 ---
 
-## 依存関係プロパティの実装方法
-
-[【WPF】依存関係プロパティでユーザーコントロールをバインド対応する！](https://resanaplaza.com/%E3%80%90wpf%E3%80%91%E4%BE%9D%E5%AD%98%E9%96%A2%E4%BF%82%E3%83%97%E3%83%AD%E3%83%91%E3%83%86%E3%82%A3%E3%81%A7%E3%83%A6%E3%83%BC%E3%82%B6%E3%83%BC%E3%82%B3%E3%83%B3%E3%83%88%E3%83%AD%E3%83%BC/)
-
-DependencyProperty→バインディングができるようにする。  
-コントロールにそういう機能がある。  
-
-バインディングをしたときに、バインド間で通知をしてくれる。  
-この処理は.Net側の処理なので、その先で何をやっているかはわからない。  
-
----
-
-## 添付プロパティ
-
-例えば、テキストボックスとボタンがあります。
-カーソルが当たっている間は色を変えたいけれど、どちらにもその機能はない。
-それぞれを継承して拡張した、CustomButton,CustomTextを作ってもいいけど、どちらにも同じコードを書くことになるし作ること自体に手間がかかる。
-そういう時に添付プロパティなるものを作って、それをテキストボックスとボタンに実装してあげることで、その機能を実現することができる。
-それが、添付プロパティ。
-
-どうやって作るかは後でまとめる。
-
----
-
-## XAML プロパティの設定方法
-
-[XAML の基本構造（WPF）](https://ufcpp.net/study/dotnet/wpf_xamlbasic.html)  
-[XAMLの書き方（１）](https://techinfoofmicrosofttech.osscons.jp/index.php?XAML%E3%81%AE%E6%9B%B8%E3%81%8D%E6%96%B9%EF%BC%88%EF%BC%91%EF%BC%89#ra4d77a1)  
-
-### プロパティ属性構文(Attribute Syntax)
-
-要素の属性にテキストを使用して設定する。  
-値を文字列で指定できる（文字列そのもの or 文字列から直接変換可能な型）プロパティの場合はこの構文を使うと便利。  
-
-``` XML : プロパティ属性構文(Attribute Syntax)
-<TextBox 
-  Width = "100" FontSize = "30" Text = "text 1"
-  Background = "White" Foreground = "Blue" />
-```
-
-### プロパティ要素構文(Property Element Syntax)
-
-要素のinnerText・innerXMLを使用してプロパティを設定する。  
-複雑な型を持つプロパティの場合に有効。  
-XML 要素の子要素としてプロパティの値を設定する構文。  
-
-``` XML : プロパティ要素構文(Property Element Syntax)
-<TextBox>
-  <TextBox.Width>100</TextBox.Width>
-  <TextBox.FontSize>30</TextBox.FontSize>
-  <TextBox.Background>White</TextBox.Background>
-  <TextBox.Foreground>Blue</TextBox.Foreground>
-  <TextBox.Text>text 1</TextBox.Text>
-</TextBox>
-```
-
----
-
 ## DataContext
 
 [データ・バインディングを理解する](https://marikooota.hatenablog.com/entry/2017/05/30/002059)  
@@ -267,40 +209,6 @@ ControlTemplateは、TargetTypeにテンプレートを適用するコントロ�
 →  
 チェックボックスの例を見たときに、やたら複雑に書かれていたのはこういう仕組みがあったからか。  
 スタイルを適応するときも、元のコントロールと同じように再定義しないといけないのもこの仕組みのためだろうか。  
-
----
-
-## WPFでMainWindow.xamlのフォルダを変更する
-
-[WPFでMainWindow.xamlのフォルダを変更する](https://www.paveway.info/entry/2019/07/01/wpf_startupuri)  
-
-App.xamlのStartupUriを変更する。
-
-``` xml : MainWindow.xamlをViewsフォルダに移動した場合
-<!-- 修正前 -->
-<Application
-    ...
-    StartupUri="MainWindow.xaml"
-/>
-<!-- 修正後 -->
-<Application
-    ...
-    StartupUri="Views/MainWindow.xaml"
-/>
-```
-
-上記だけで起動するが、Viewsに移動させた以上[MainWindow.xaml.cs]と[MainWindow.Xaml]の名前空間も変更しておく。
-
-``` xml : MainWindow.xaml
-<!-- 修正前 -->
-<Window
-    x:Class="WpfApp8.MainWindow"
-/>
-<!-- 修正後 -->
-<window
-    x:Class="WpfApp8.Views.MainWindow"
-/>
-```
 
 ---
 
@@ -450,45 +358,20 @@ ScrollViewerにフォーカスが当たって点線の枠が表示されてし�
 
 ---
 
-## GrapeCityコンポーネントのDataTriggerにおけるTargetTypeの指定の仕方
-
-Labelとかは`<Style TargetType="Label">`でいいんだけど、C1系の指定はどうしたらいいかわからなかったので調べた。  
-
-<https://docs.grapecity.com/help/c1/xaml/xaml_gettingstarted/html/ImplicitandExplicitStyles.htm>  
-
-公式にちゃんと書いてあった。  
-
-``` XML
-     <c1:C1Calendar.Style>
-        <!-- {x:Type c1:○○}で指定する -->
-        <Style TargetType="{x:Type c1:C1Calendar}">
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding IsEditMode}" Value="False">
-                    <Setter Property="SelectionMode" Value="Multiple" />
-                </DataTrigger>
-                <DataTrigger Binding="{Binding IsEditMode}" Value="True">
-                    <Setter Property="SelectionMode" Value="Single" />
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-    </c1:C1Calendar.Style>
-```
-
----
-
 ## XAMLでConstファイルを読み込んで使いたい
 
 <https://www.it-swarm-ja.com/ja/wpf/%E6%96%87%E5%AD%97%E5%88%97%E3%82%92%E9%9D%99%E7%9A%84%E3%83%AA%E3%82%BD%E3%83%BC%E3%82%B9%E3%81%A8%E3%81%97%E3%81%A6%E5%AE%9A%E7%BE%A9%E3%81%99%E3%82%8B/971295591/>  
 
-FlexGrid操作用のTriggerActionで列名を指定する必要があったので、
 XAML上の列名とTriggerActionで指定する列名をConstで定義して参照したほうがいいだろうということで探して見た。  
 そしたら意外と探すのに苦労した。  
+
+XAMLは参照を追加して [クラス名.フィールド名] でアクセスすればよい。  
 
 ``` C#
     public class ColumnName
     {
         public const string IsSelected = "IsSelected";
-        public const string DutchTreatAmount = "DutchTreatAmount";
+        public const string Amount = "Amount";
     }
 ```
 
@@ -497,7 +380,7 @@ XAML上の列名とTriggerActionで指定する列名をConstで定義して参�
     xmlns:localresource="clr-namespace:namespace.ColumnName">
 
     <c1:Column
-        ColumnName="{x:Static localresource:ColumnName.DutchTreatAmount}"/>
+        ColumnName="{x:Static localresource:ColumnName.Amount}"/>
 </metro:MetroWindow>
 ```
 
@@ -521,13 +404,13 @@ BindingのStringFormatを使うことで実現可能であった。
         Width="90"
         VerticalAlignment="Center"
         Background="AliceBlue"
-        Text="{Binding Context.AccountsReceivableDate, StringFormat={}{0:yyyy/MM/dd}, ElementName=AccountNoInputDialogControl, Mode=OneWay}" />
+        Text="{Binding Context.Date, StringFormat={}{0:yyyy/MM/dd}, ElementName=TestDialog, Mode=OneWay}" />
     <TextBlock
         Width="300"
         Margin="10,0,0,0"
         VerticalAlignment="Center"
         Background="AliceBlue"
-        Text="{Binding Context.AccountsReceivableName, ElementName=AccountNoInputDialogControl, Mode=OneWay}" />
+        Text="{Binding Context.Name, ElementName=TestDialog, Mode=OneWay}" />
 </StackPanel>
 
 <!-- MultiBindingを使うことで1つのTextBlockで2つの内容を表示することができる -->
@@ -538,13 +421,13 @@ BindingのStringFormatを使うことで実現可能であった。
     <TextBlock.Text>
         <MultiBinding StringFormat="{}{0:yyyy/MM/dd}  {1}">
             <Binding
-                ElementName="AccountNoInputDialogControl"
+                ElementName="TestDialog"
                 Mode="OneWay"
-                Path="Context.AccountsReceivableDate" />
+                Path="Context.Date" />
             <Binding
-                ElementName="AccountNoInputDialogControl"
+                ElementName="TestDialog"
                 Mode="OneWay"
-                Path="Context.AccountsReceivableName" />
+                Path="Context.Name" />
         </MultiBinding>
     </TextBlock.Text>
 </TextBlock>
@@ -556,13 +439,11 @@ BindingのStringFormatを使うことで実現可能であった。
 
 <https://www.it-swarm-ja.com/ja/c%23/wpf%E3%81%AE%E3%82%B3%E3%83%BC%E3%83%89%E3%83%93%E3%83%8F%E3%82%A4%E3%83%B3%E3%83%89%E3%82%92%E4%BB%8B%E3%81%97%E3%81%9F%E3%83%AA%E3%82%BD%E3%83%BC%E3%82%B9%E3%81%B8%E3%81%AE%E3%82%A2%E3%82%AF%E3%82%BB%E3%82%B9/968279150/>
 
-xaml resourcedictionary コード 参照  
-FlexGridのセルテンプレート使ってチェックボックスを配置して実装していたが、勝手に見た目が変わってどうしようもなかったのでTriggerAction使ってコードビハインドで直接カラムを操作することにした。  
-その時、背景色をResourceDictionaryから取得したほうがいいよな～と思って調べた内容。  
+コードビハインドで、背景色をResourceDictionaryから取得して設定する方法がわからなかったのでまとめた。  
 
 ``` C#:使用例
     // Application.Current.Resources["resourceName"]
-    dutchTreatAmount.Background = (Brush)Application.Current.Resources["IsReadOnlyBackGroundColor"];
+   Amount.Background = (Brush)Application.Current.Resources["IsReadOnlyBackGroundColor"];
 ```
 
 ---
@@ -633,13 +514,10 @@ Manage NuGet Packages から CalcBindingをインストールしてWindowに参�
 
 [Bind Count of ItemsSource of an ItemsControl in a TextBlock using WPF](https://stackoverflow.com/questions/39482829/bind-count-of-itemssource-of-an-itemscontrol-in-a-textblock-using-wpf)  
 
-``` XML : Wpf.Front.DutchTreat.Views.EditWindow.xaml
+``` XML
 <c1:C1MultiSelect.Style>
     <Style TargetType="{x:Type c1:C1MultiSelect}">
         <Style.Triggers>
-            <DataTrigger Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type metro:MetroWindow}}, Path=DataContext.CanEditDutchTreat, Mode=OneWay}" Value="false">
-                <Setter Property="IsEnabled" Value="False" />
-            </DataTrigger>
             <!-- C1MultiSelectは内部にItemsプロパティがあって、ItemsのクラスにはCountがある -->
             <!-- それをRelativeSource Selfを指定することでアクセスできるようになる模様 -->
             <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=Items.Count}" Value="0">
@@ -996,37 +874,6 @@ StaticResourceを使いたかったらApp.xamlの`<Application.Resources>`要素
 
 ---
 
-## 添付プロパティをBindingのPathに指定する場合はカッコを付ける
-
-[添付プロパティをBindingのPathに指定する場合はカッコを付ける](https://qiita.com/flasksrw/items/7212453de6e7d8f221a1)
-
-BindingのPathに添付プロパティを指定する場合、カッコをつけないと「BindingExpression path error」になる。
-
-``` XML
-<Window x:Class="Sample.MainView"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="clr-namespace:Sample"
-    Title="MainView" Height="300" Width="300">
-    <Grid>
-        <TextBox>
-            <TextBox.Style>
-                <Style TargerType="TextBox">
-                    <Style.Triggers>
-                        <!--Pathにカッコを付ける-->
-                        <DataTrigger Binding="{Binding Path=(local:AttachedXXX.XXX), RelativeSource={RelativeSource Self}}" Value="True">
-                            <Setter Property="Background" Value="Blue"/>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </TextBox.Style>
-        </TextBox>
-    </Grid>
-</Window>
-```
-
----
-
 ## DataTemplateをResourceで定義する方法
 
 [How to create a static resource of DataTemplate?](https://social.msdn.microsoft.com/Forums/vstudio/en-US/0de6f454-bcde-4aa9-843d-ead2ad9d6d61/how-to-create-a-static-resource-of-datatemplate?forum=wpf)  
@@ -1177,44 +1024,6 @@ DataTemplateをResourceで定義する方法でもまとめた内容だが、全
     </ListView.View>
   </ListView>
 </Window>
-```
-
----
-
-## 依存プロパティをバインドする方法
-
-[Binding to custom dependency property](https://stackoverflow.com/questions/13956767/binding-to-custom-dependency-property-again)  
-
-マルチセレクトコンボボックス開発の時に直面。  
-全選択コンボボックスのcontextを設定できたほうが便利だと思って依存プロパティを作ったはいいものの、素直にバインドできなかったのでまとめ。  
-ただバインドさせるだけでは警告が出てうまく動作しない。
-
-結論としてはRelativeSourceで自分自身のコントロールの親を指定する必要がある。  
-Windowに乗っているならAncestorTypeはWindowだし、UsercontrolならAncestorTypeはUserControl。  
-
-``` XML
-<!-- SelectAllContentが依存プロパティとして外部公開し、実行時に反映する値 -->
-<CheckBox
-    Margin="5,1,0,1"
-    HorizontalAlignment="Left"
-    VerticalContentAlignment="Center"
-    Content="{Binding SelectAllContent, RelativeSource={RelativeSource FindAncestor, AncestorType=UserControl}}"
-    IsChecked="{x:Null}"
-    IsThreeState="True" />
-```
-
-``` C#
-    public static readonly DependencyProperty SelectAllContentProperty = DependencyProperty.Register(
-        "SelectAllContent",
-        typeof(string),
-        typeof(MultiSelectComboBox1),
-        new UIPropertyMetadata("Select All")
-    );
-    public string SelectAllContent
-    {
-        get { return (string)GetValue(SelectAllContentProperty); }
-        set { SetValue(SelectAllContentProperty, value); }
-    }
 ```
 
 ---
