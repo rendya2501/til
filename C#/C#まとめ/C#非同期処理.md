@@ -244,6 +244,26 @@ private int RunTaskB() // 同期メソッド
 }
 ```
 
+## 戻り値があるTaskの並列実行と結果の扱い方
+
+``` C#
+    Task<int> t1 = Task.Run(() => 1);
+    Task<int> t2 = Task.Run(() => 2);
+    Task<(int, int)> t3 = Task.Run(() => (3, 3));
+
+    Task.WaitAll(t1, t2, t3);
+
+    int result1 = t1.Result;
+    int result2 = t2.Result;
+    (int, int) result3 = t3.Result;
+
+    // Actionを返すTaskの定義方法
+    Task<Action> t1 = new Task<Action>(() =>
+    {
+        return () => { _ = 1; };
+    });
+```
+
 ---
 
 ## 非同期処理の完了を待たない
@@ -965,28 +985,6 @@ Task.Facotry.StartNewを一般的な用途でもっと手早く使うためにTa
 ただ、Task.RunのTaskCreationOptionが「DenyChildAttach」なので、Task.Runの中でTask.Factory.StartNewを「AttachedToParent」で使っても無効になってしまうことには注意が必要。  
 また、Task.Runは手軽だけど細かい設定はできない。  
 Task.Factory.StartNewが不要になったわけではない。  
-
----
-
-## 戻り値があるTaskの並列実行と結果の扱い方
-
-``` C#
-    Task<int> t1 = Task.Run(() => 1);
-    Task<int> t2 = Task.Run(() => 2);
-    Task<(int, int)> t3 = Task.Run(() => (3, 3));
-
-    Task.WaitAll(t1, t2, t3);
-
-    int result1 = t1.Result;
-    int result2 = t2.Result;
-    (int, int) result3 = t3.Result;
-
-    // Actionを返すTaskの定義方法
-    Task<Action> t1 = new Task<Action>(() =>
-    {
-        return () => { _ = 1; };
-    });
-```
 
 ---
 
