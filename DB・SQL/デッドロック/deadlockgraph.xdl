@@ -1,0 +1,147 @@
+<deadlock-list>
+<deadlock>
+    <victim-list>
+        <victimProcess id="process92ffd13468" />
+    </victim-list>
+    <process-list>
+        <process
+            id="process92ffd13468"
+            taskpriority="0"
+            logused="100"
+            waitresource="KEY: 57:72057594103791616 (61a06abd401c)"
+            waittime="5665"
+            ownerId="3872120"
+            transactionname="query2"
+            lasttranstarted="2022-06-09T18:34:57.590"
+            XDES="0x92c68ac430"
+            lockMode="X"
+            schedulerid="1"
+            kpid="5368"
+            status="suspended"
+            spid="101"
+            sbid="0"
+            ecid="0"
+            priority="0"
+            trancount="2"
+            lastbatchstarted="2022-06-09T18:34:57.590"
+            lastbatchcompleted="2022-06-09T18:34:57.590"
+            lastattention="1900-01-01T00:00:00.590"
+            clientapp="Core .Net SqlClient Data Provider"
+            hostname="DOTNETDEV4"
+            hostpid="15072"
+            loginname="sa"
+            isolationlevel="read committed (2)"
+            xactid="3872120"
+            currentdb="57"
+            currentdbname="itou_test_HKG"
+            lockTimeout="4294967295"
+            clientoption1="671088672"
+            clientoption2="128056">
+            <executionStack>
+                <frame
+                    procname="adhoc"
+                    line="1"
+                    stmtstart="58"
+                    stmtend="154"
+                    sqlhandle="0x02000000429e0d06f260b05a3384ec7190dc67e13ee3cb940000000000000000000000000000000000000000">  unknown    </frame>
+                <frame
+                    procname="adhoc"
+                    line="1"
+                    stmtend="106"
+                    sqlhandle="0x02000000e3b14c2b56ede94dc87a78d4c40f641b5183e3eb0000000000000000000000000000000000000000">  unknown    </frame>
+            </executionStack>
+            <inputbuf>  UPDATE [TEST_TBL1]  SET [Name] = &apos;ddddd&apos;  WHERE ID = 2;     </inputbuf>
+        </process>
+        <process
+            id="process92f77424e8"
+            taskpriority="0"
+            logused="236"
+            waitresource="KEY: 57:72057594103791616 (8194443284a0)"
+            waittime="5665"
+            ownerId="3872118"
+            transactionname="query1"
+            lasttranstarted="2022-06-09T18:34:57.590"
+            XDES="0x92f0e94430"
+            lockMode="X"
+            schedulerid="1"
+            kpid="4312"
+            status="suspended"
+            spid="90"
+            sbid="0"
+            ecid="0"
+            priority="0"
+            trancount="2"
+            lastbatchstarted="2022-06-09T18:34:57.590"
+            lastbatchcompleted="2022-06-09T18:34:57.590"
+            lastattention="1900-01-01T00:00:00.590"
+            clientapp="Core .Net SqlClient Data Provider"
+            hostname="DOTNETDEV4"
+            hostpid="15072"
+            loginname="sa"
+            isolationlevel="read committed (2)"
+            xactid="3872118"
+            currentdb="57"
+            currentdbname="itou_test_HKG"
+            lockTimeout="4294967295"
+            clientoption1="671088672"
+            clientoption2="128056">
+            <executionStack>
+                <frame
+                    procname="adhoc"
+                    line="1"
+                    stmtstart="58"
+                    stmtend="154"
+                    sqlhandle="0x02000000429e0d06f260b05a3384ec7190dc67e13ee3cb940000000000000000000000000000000000000000">  unknown    </frame>
+                <frame
+                    procname="adhoc"
+                    line="1"
+                    stmtend="106"
+                    sqlhandle="0x02000000a55b2c3155efaed6818bc0ef6c694caef565b8210000000000000000000000000000000000000000">  unknown    </frame>
+            </executionStack>
+            <inputbuf>  UPDATE [TEST_TBL1]  SET [Name] = &apos;bbbbb&apos;  WHERE ID = 1;     </inputbuf>
+        </process>
+    </process-list>
+    <resource-list>
+        <keylock
+            hobtid="72057594103791616"
+            dbid="57"
+            objectname="itou_test_HKG.dbo.TEST_TBL1"
+            indexname="PK__TEST_TBL__3214EC27077B4CB6"
+            id="lock930daa4b00"
+            mode="X"
+            associatedObjectId="72057594103791616">
+            <owner-list>
+                <owner
+                    id="process92f77424e8"
+                    mode="X" />
+            </owner-list>
+            <waiter-list>
+                <waiter
+                    id="process92ffd13468"
+                    mode="X"
+                    requestType="wait" />
+            </waiter-list>
+        </keylock>
+        <keylock
+            hobtid="72057594103791616"
+            dbid="57"
+            objectname="itou_test_HKG.dbo.TEST_TBL1"
+            indexname="PK__TEST_TBL__3214EC27077B4CB6"
+            id="lock92c7f15e00"
+            mode="X"
+            associatedObjectId="72057594103791616">
+            <owner-list>
+                <owner
+                    id="process92ffd13468"
+                    mode="X" />
+            </owner-list>
+            <waiter-list>
+                <waiter
+                    id="process92f77424e8"
+                    mode="X"
+                    requestType="wait" />
+            </waiter-list>
+        </keylock>
+    </resource-list>
+</deadlock>  
+</deadlock-list>
