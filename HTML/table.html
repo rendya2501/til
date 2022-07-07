@@ -1,0 +1,249 @@
+div Table案
+<table border="1">
+    <tr>
+        <th>見出し1</th>
+        <td>
+            <div style="display:table;">
+                <div style="display:table-cell; padding-right: 40px;">
+                    <table border="1">
+                        <tr>
+                            <!-- <th rowspan="2"></th> -->
+                            <td>
+                                <div style="display:table-cell; padding-right:
+                                    40px;">
+                                    データ1
+                                </div>
+                                <div style="display:table-cell;">
+                                    データ2
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div style="display:table-cell; padding-right:
+                                    40px;">
+                                    データ3
+                                </div>
+                                <div style="display:table-cell;">
+                                    データ4
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div style="display:table-cell; vertical-align: middle;">
+                    <button>
+                        プラン毎に設定1
+                    </button>
+                </div>
+            </div>
+        </td>
+    </tr>
+</table>
+
+position案
+<table border="1">
+    <tr>
+        <th rowspan="2">見出し1</th>
+        <td>
+            <div style="display:table-cell; padding-right: 40px;">
+                データ1
+            </div>
+            <div style="display:table-cell; padding-right: 40px;">
+                データ2
+            </div>
+            <div style="display:table-cell; position: relative; top: 17px">
+                <button>
+                    プラン毎に設定1
+                </button>
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <div style="display:table-cell; padding-right: 40px;">
+                データ3
+            </div>
+            <div style="display:table-cell;">
+                データ4
+            </div>
+        </td>
+    </tr>
+</table>
+
+Pタグ案
+<table border="1">
+    <tr>
+        <th rowspan="3">見出し1</th>
+        <td>
+            <div style="display:table;">
+                <div style="display:table-cell; padding-right: 40px;
+                    vertical-align: middle;">
+                    <div style="display:table-cell; padding-right: 40px;">
+                        データ1
+                    </div>
+                    <div style="display:table-cell;">
+                        データ2
+                    </div>
+                    <p>
+                        <div style="display:table-cell; padding-right: 40px;">
+                            データ3
+                        </div>
+                        <div style="display:table-cell;">
+                            データ4
+                        </div>
+                    </p>
+                </div>
+                <div style="display:table-cell; vertical-align: middle;">
+                    <button>
+                        プラン毎に設定1
+                    </button>
+                </div>
+            </div>
+        </td>
+    </tr>
+</table>
+
+BR案
+<table border="1">
+    <tr>
+        <th rowspan="3">見出し1</th>
+        <td>
+            <div style="display:table;">
+                <div style="display:table-cell; padding-right:
+                    40px;vertical-align: middle;">
+                    <div style="display:table-cell; padding-right: 40px;">
+                        データ1
+                    </div>
+                    <div style="display:table-cell;">
+                        データ2
+                    </div>
+                    <br>
+                    <div style="display:table-cell; padding-right: 40px;">
+                        データ3
+                    </div>
+                    <div style="display:table-cell;">
+                        データ4
+                    </div>
+                </div>
+                <div style="display:table-cell; vertical-align: middle;">
+                    <button>
+                        プラン毎に設定1
+                    </button>
+                </div>
+            </div>
+        </td>
+    </tr>
+</table>
+
+テスト案1
+<table border="1">
+    <tr>
+        <th rowspan="2">見出し1</th>
+        <td>
+            <div style="display:table-cell; padding-right: 50px;">
+                データ1
+            </div>
+            <div style="display:table-cell; padding-right: 40px;">
+                データ2
+            </div>
+        </td>
+        <td rowspan="2">
+            <div style="display:table-cell; padding-right: 40px;">
+                データ3
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <div style="display:table-cell; padding-right: 40px;">
+                データ4
+            </div>
+            <div style="display:table-cell; padding-right: 40px;">
+                データ5
+            </div>
+        </td>
+    </tr>
+</table>
+
+テスト案2
+<table border="1">
+    <tr>
+        <th rowspan="2">見出し1</th>
+        <td colspan="2">
+            <div style="display:table-cell; padding-right: 40px;">
+                データ1
+            </div>
+            <div style="display:table-cell; padding-right: 40px;">
+                データ2
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2">
+            <div style="display:table-cell; padding-right: 40px;">
+                データ3
+            </div>
+            <div style="display:table-cell; padding-right: 40px;">
+                データ4
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <th>見出し2</th>
+        <td>
+            <div style="display:table-cell; padding-right: 40px;">
+                データ5
+            </div>
+            <div style="display:table-cell; padding-right: 40px;">
+                データ6
+            </div>
+        </td>
+        <td rowspan="2">
+            <div style="display:table-cell; padding-right: 40px;">
+                データ7
+            </div>
+            <div style="display:table-cell; padding-right: 40px;">
+                データ8
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <th>見出し3</th>
+        <td>
+            <div style="display:table-cell; padding-right: 40px;">
+                データ9
+            </div>
+            <div style="display:table-cell; padding-right: 40px;">
+                データ10
+            </div>
+        </td>
+    </tr>
+</table>
+
+---
+
+[htmlのテーブルについてまとめてみた。](https://qiita.com/ritukiii/items/349ad7dee239bb220d6b)
+
+一番上の行をタイトルにしたい
+単純にセルを結合すれば良いだけだった。
+
+TableHeader案
+<table>
+    <th colspan="2">見出し1</th>
+    <tr>
+        <td>セル2-1</td>
+        <td>セル2-2</td>
+    </tr>
+</table>
+
+TableData案
+<table border="1">
+    <tr>    
+        <td colspan="2">セル1</td>
+    </tr>       
+    <tr>        
+        <td>セル2-1</td>
+        <td>セル2-2</td>
+    </tr>
+</table> 
