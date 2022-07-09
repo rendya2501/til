@@ -60,3 +60,60 @@ EnumExt.TryParse("Thursday", out wd); // true, wd = Weekday.Thursday
 SolarSystem ss; // Sun=0, Mercury, Venus, ...
 EnumExt.TryParse("5", out ss); // true, ss = SolarSystem.Jupiter
 ```
+
+---
+
+## Enumのインクリメント
+
+DataTrigger + Enum のサンプルを作っている時に、ボタンを押す度にEnumをインクリメントして、それに応じて色を変えるってサンプルをやっている時に、そこそこの試行錯誤といい感じにまとまったのでまとめ。  
+もちろんずっとインクリメントするわけには行かないので、上限に達したら戻してやらないといけない。  
+その塩梅をうまいこと書けなかったが、何とかワンセンテンスにまとめることができた。  
+
+``` C#
+public enum State
+{
+    Normal,
+    Warning,
+    Error
+}
+```
+
+Stateが最大だったらもとに戻して、そうでなければインクリメント。  
+参考演算子で ++Stateしたらインクリメントされた結果が戻ってくるのね。  
+具体的にどうなってるんだろう。  
+なんとなくこうかなって感じでやったらできたので、余裕があったら解析したい。  
+
+``` C# : 最終的な形
+public DelegateCommand ButtonCommand => new DelegateCommand(
+    () => State = (State == State.Error) ? State.Normal : ++State
+);
+```
+
+インクリメントした結果が最大値を超えていたらもとに戻す。  
+一番愚直かもしれないが、ifを切らないといけないので、中括弧が絶対に必要。  
+ここまでできるんだったらなんかあるだろうということで探求の旅に出た。
+
+``` C# : ボツ1
+public DelegateCommand ButtonCommand => new DelegateCommand(
+    () =>
+    {
+        if (++State > State.Error) State = State.Normal;
+    }
+);
+```
+
+全部参考演算子で判定する。  
+まぁ、中括弧はいらないが、毎回こんなことしてられないのでボツ。  
+
+``` C# : ボツ2
+public DelegateCommand ButtonCommand => new DelegateCommand(
+    () => State = (State == State.Normal) 
+           ? State.Warning 
+           : (State == State.Warning)
+               ? State.Error
+               : (State == State.Error)
+                   ? State.Normal
+                   : throw new Exception("ありえん");
+);
+
+```
