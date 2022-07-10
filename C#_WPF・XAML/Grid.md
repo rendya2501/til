@@ -23,23 +23,3 @@ GridのWidthやHeightに[*]や[Auto]を指定した時の動作が曖昧だっ�
 
 設置したコントロールの幅で動的に変動します。  
 おそらく、内部のコントロールが動的に変化する場合、Gridの大きさ同じように変化すると思われる。  
-
----
-
-## 左右に分けて配置するテク
-
-結構需要はあるのだが、毎回忘れるのでメモすることにした。  
-
-``` XML
-    <Grid Grid.Row="1">
-        <!-- 左のまとまり -->
-        <StackPanel HorizontalAlignment="Left" Orientation="Horizontal">
-            <!-- 内容 -->
-        </StackPanel>
-        
-        <!-- 右のまとまり -->
-        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
-            <!-- 内容 -->
-        </StackPanel>
-    </Grid>
-```

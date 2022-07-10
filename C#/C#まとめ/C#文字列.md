@@ -252,3 +252,17 @@ var num = int.Parse(match.Groups[2].Value);
 // MD + 124
 var after = match.Groups[1].Value + (num + 1);
 ```
+
+---
+
+## C#で0埋めする方法
+
+[C#で0埋めする方法](https://santerabyte.com/c-sharp-zero-padding/)  
+
+0埋めする場合は「D」のあとに桁数を指定するとその桁数になるように0が追加された文字列が返されます。  
+
+``` C#
+int num = 123;
+// str = "00123"
+string str = num.ToString("D5");
+```

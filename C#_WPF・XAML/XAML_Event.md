@@ -26,8 +26,10 @@ Trigger関係はPrismの機能らしい。
         <i:InvokeCommandAction Command="{Binding TestSelectedChanged, Mode=OneWay}" PassEventArgsToCommand="True" />
     </i:EventTrigger>
 </i:Interaction.Triggers>
-<!-- 
-EventArgsParameterPath
+```
+
+### EventArgsParameterPath
+
 EventArgsParameterPathプロパティにはListViewが持つプロパティのうち、Commandに渡したいプロパティの名前を指定します。
 この例では選択されたアイテムが格納されるSelectedItemを指定します。
 EventNameもEventArgsParameterPathも、指定した文字列のイベントやプロパティをPrismが探して使用してくれます。
@@ -35,10 +37,9 @@ EventNameもEventArgsParameterPathも、指定した文字列のイベントや�
 今回の例では、あると逆にエラーになってしまうので外した。
 EventArgsの中だけで十分な情報が入っているので、今回は使わないことにする。
 
-PassEventArgsToCommand
+### PassEventArgsToCommand
+
 PassEventArgsToCommandはEventArgsをViewModelに渡してくれるオプション
- -->
-```
 
 ---
 
@@ -52,20 +53,27 @@ PassEventArgsToCommandはEventArgsをViewModelに渡してくれるオプショ�
 実際にできたけど、ItemsSourceが変わった瞬間Resizeも走るので意味がないことが分かった。  
 検索し終わった後にトリガーを引くのも遅すぎるので、結局Invalidateで解決した。  
 
-``` xml : 基本
-<i:Interaction.Triggers>
-    <!-- いつも使っているやり方 -->
-    <l:InteractionMessageTrigger MessageKey="FlexGridInvalidateAction" Messenger="{Binding Messenger}">
-        <i:CallMethodAction MethodName="ArrangeScroll" />
-    </l:InteractionMessageTrigger>
+イベントを観測してメソッドの実行やプロパティの変更を行う場合は Interaction.TriggersのEventTriggerを使う  
 
-    <!-- イベントを観測する場合はEventTriggerを使う -->
+``` xml : イベントを観測する場合
+<i:Interaction.Triggers>
     <i:EventTrigger EventName="GotFocus">
         <!-- プロパティを変更したい場合ChangePropertyActionを使う -->
         <i:ChangePropertyAction PropertyName="HorizontalScrollBarVisibility" Value="Hidden" />
         <!-- 同じ要領でコントロールのメソッドを実行することも可能 -->
         <i:CallMethodAction MethodName="OnSizeChanged" />
     </i:EventTrigger>
+</i:Interaction.Triggers>
+```
+
+因みにViewModelからMessengerを通して実行しているいつものやり方はこんな感じ。  
+MessengerをBindしてCallMethodActionを実行しているだけ。  
+
+``` xml : 基本
+<i:Interaction.Triggers>
+    <l:InteractionMessageTrigger MessageKey="FlexGridInvalidateAction" Messenger="{Binding Messenger}">
+        <i:CallMethodAction MethodName="ArrangeScroll" />
+    </l:InteractionMessageTrigger>
 </i:Interaction.Triggers>
 ```
 
@@ -101,6 +109,7 @@ PassEventArgsToCommandはEventArgsをViewModelに渡してくれるオプショ�
 <https://qiita.com/koara-local/items/02d214f0b6fbf26866ec>  
 
 各コントロールにおいて、キーイベントによるコマンドの発火ができることがわかったので、これはこれで参考としてまとめておきます。  
+interactionTriggerにKeyTriggerなるものもあるので、そっちも場合によっては使えるかも。  
 
 ``` XML : Ctrl + S でViewModelの特定の内容を保存するコマンドを呼び出したい場合
     <!-- 実装例1(Gestureを利用) -->
@@ -117,5 +126,3 @@ PassEventArgsToCommandはEventArgsをViewModelに渡してくれるオプショ�
         </Grid.InputBindings>
     </Grid>
 ```
-
-interactionTriggerにKeyTriggerなるものもあるので、そっちも場合によっては使えるかも。
