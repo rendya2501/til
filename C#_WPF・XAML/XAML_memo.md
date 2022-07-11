@@ -317,31 +317,6 @@ Manage NuGet Packages から CalcBindingをインストールしてWindowに参�
 
 ---
 
-## 自分自身のItemsSourceのCountをXAML上で使用する方法
-
-自分自身の要素が1件も無かったらDataTriggerでEnableをFalseにしたくて調べた。  
-やっぱりそれなりに需要はあるみたいで、実現できたのでまとめる。  
-ここら辺はRelativeSourceの話になってくるが、そっちでも1記事レベルなのでそれは別でまとめる。1  
-
-[Bind Count of ItemsSource of an ItemsControl in a TextBlock using WPF](https://stackoverflow.com/questions/39482829/bind-count-of-itemssource-of-an-itemscontrol-in-a-textblock-using-wpf)  
-
-``` XML
-<c1:C1MultiSelect.Style>
-    <Style TargetType="{x:Type c1:C1MultiSelect}">
-        <Style.Triggers>
-            <!-- C1MultiSelectは内部にItemsプロパティがあって、ItemsのクラスにはCountがある -->
-            <!-- それをRelativeSource Selfを指定することでアクセスできるようになる模様 -->
-            <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=Items.Count}" Value="0">
-                <Setter Property="IsEnabled" Value="False" />
-            </DataTrigger>
-        </Style.Triggers>
-        <Setter Property="IsEnabled" Value="true" />
-    </Style>
-</c1:C1MultiSelect.Style>
-```
-
----
-
 ## DependencyProperyのSetterの値がNullになってしまう問題
 
 [Why does my Dependency Property send null to my view model?](https://stackoverflow.com/questions/38958177/why-does-my-dependency-property-send-null-to-my-view-model)  
@@ -923,4 +898,73 @@ public enum State
             </Style>
         </Button.Style>
     </Button>
+```
+
+---
+
+## 他のコントロールのプロパティを使いたい場合
+
+[【WPF】RelativeSource(バインディング)の使い方メモ](https://qiita.com/tera1707/items/73cda312b7cd9c4df40d)  
+[Q092. Binding.RelativeSource の使い方がよくわからない](https://hilapon.hatenadiary.org/entry/20130405/1365143758)  
+
+自分自身のプロパティ  
+self
+
+親のコントロールのプロパティ  
+`プロパティ = "{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type 親のコントロール名}}, Path=バインドさせたいプロパティ名}"`  
+
+``` xml
+<c1:Column
+    HorizontalAlignment="Left"
+    VerticalAlignment="Center"
+    Binding="{Binding Name}"
+    Foreground="Black"
+    Header="氏名"
+    HeaderHorizontalAlignment="Center"
+    HeaderVerticalAlignment="Center"
+    IsReadOnly="True">
+    <c1:Column.CellTemplate>
+        <DataTemplate>
+            <Grid>
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding MessageText, Mode=OneWay, Converter={StaticResource NullOrEmptyToBoolConverter}}" Value="false">
+                                <Setter Property="Background" Value="#CAFF9040" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+                <TextBlock
+                    Padding="8,0,0,0"
+                    VerticalAlignment="Center"
+                    Foreground="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type c1:Column}}, Path=Foreground}"
+                    Text="{Binding ReservationPlayerName}" />
+            </Grid>
+        </DataTemplate>
+    </c1:Column.CellTemplate>
+</c1:Column>
+```
+
+## 自分自身のItemsSourceのCountをXAML上で使用する方法
+
+自分自身の要素が1件も無かったらDataTriggerでEnableをFalseにしたくて調べた。  
+やっぱりそれなりに需要はあるみたいで、実現できたのでまとめる。  
+ここら辺はRelativeSourceの話になってくるが、そっちでも1記事レベルなのでそれは別でまとめる。1  
+
+[Bind Count of ItemsSource of an ItemsControl in a TextBlock using WPF](https://stackoverflow.com/questions/39482829/bind-count-of-itemssource-of-an-itemscontrol-in-a-textblock-using-wpf)  
+
+``` XML
+<c1:C1MultiSelect.Style>
+    <Style TargetType="{x:Type c1:C1MultiSelect}">
+        <Style.Triggers>
+            <!-- C1MultiSelectは内部にItemsプロパティがあって、ItemsのクラスにはCountがある -->
+            <!-- それをRelativeSource Selfを指定することでアクセスできるようになる模様 -->
+            <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=Items.Count}" Value="0">
+                <Setter Property="IsEnabled" Value="False" />
+            </DataTrigger>
+        </Style.Triggers>
+        <Setter Property="IsEnabled" Value="true" />
+    </Style>
+</c1:C1MultiSelect.Style>
 ```
