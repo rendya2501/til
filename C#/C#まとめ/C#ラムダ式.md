@@ -163,3 +163,34 @@ var aa = new Func<IEnumerable<int>>(() =>
 [C#のActionとローカル関数のどちらを使うべきか調査](https://shibuya24.info/entry/action_or_local_method)  
 
 ローカル関数のほうが早いので、特段の理由が無ければローカル関数を使うべし。  
+
+---
+
+## デリゲートにはローカル関数を代入可能
+
+``` C#
+    {
+        // ローカル関数
+        IEnumerable<int> GetIntList(IEnumerable<string> stringList)
+            => this.GetIntList(stringList, arg1, arg2, arg3, arg4);
+
+        // デリゲート
+        var result = GetGroupSettlementSet(customer, GetIntList);
+    }
+
+    private Result GetPackSettlementSet(
+        Customer customer,
+        Func<IEnumerable<string>, IEnumerable<int>> getIntList)
+    {
+        // この処理の中で文字列一覧を生成
+        var stringList = new List<string>();
+        // デリゲートの実行
+        var intList = getIntList(stringList);
+    }
+
+    private IEnumerable<int> GetIntList(
+        IEnumerable<string> stringList,
+        string arg1,string arg2,string arg3,string arg4)
+    {
+    }
+```

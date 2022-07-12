@@ -266,3 +266,29 @@ int num = 123;
 // str = "00123"
 string str = num.ToString("D5");
 ```
+
+---
+
+## 文字列補完式の中で三項演算子を使う
+
+文字列補完式`{}`の中で三項演算をしつつ、なおかつ文字列を追加したい場合の書き方が分からなかったが、結果的にできたのでまとめる。  
+単純に三項演算子を括弧で囲えばよかった。  
+三項演算子の部分を1つの処理と見立てる意味では括弧で囲うのは自然なことなのかもしれない。  
+
+[C# における文字列補間](https://docs.microsoft.com/ja-jp/dotnet/csharp/tutorials/string-interpolation)  
+
+``` C#
+// 愚直にやるならこう
+var aa = "【" + (!string.IsNullOrEmpty(customer.Name) ? customer.Name : "席No" + customer.SeatNo) + "】様";
+
+// 三項演算子使いたいならこう {( 処理内容 )}
+var aa = $"【{(!string.IsNullOrEmpty(customer.Name) ? customer.Name : "席No" + customer.SeatNo)}】様";
+```
+
+---
+
+## ToString()の書式設定
+
+[書式を指定して数値を文字列に変換する](https://dobon.net/vb/dotnet/string/inttostring.html)  
+
+Enum.ToString("D")で数値に変換できるのは知っていたけど、まとめていなかったのでまとめる。  
