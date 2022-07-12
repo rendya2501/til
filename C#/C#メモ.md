@@ -814,3 +814,31 @@ Console.WriteLine(object.Equals(s1, s2)); //true
 ```
 
 ---
+
+## ToListしないで済ませる
+
+``` C#
+var code = "aaaaaa";
+var stringList = _Dapper.Execute(
+    // ①Dapperでデータベースからコード一覧を取得する。
+    // WHERE Code = @code
+);
+// ②addメソッドを使いたいのでToListする
+stringList.ToList();
+// ③検索条件に使ったcodeをAddすることで1つのコード一覧とする。
+stringList.Add(code);
+```
+
+上の方法だと、Where条件として使ってるのに、もう一度追加する必要があるのでなんか無駄に感じる。
+
+``` C#
+var code = "aaaaaa";
+var stringList = _Dapper.Execute(
+    // SELECT @code AS code
+    // UNION
+    // SELECT code FROM table
+    // Where Code = @code
+)
+```
+
+Dapperに流すクエリの中でUNIONしてやればそのひと手間をなくせるのでは？というサンプル。  
