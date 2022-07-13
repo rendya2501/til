@@ -136,11 +136,7 @@ ROWLOCK、PAGLOCK、または TABLOCK と組み合わせて指定すると、排
 
 ---
 
-## テーブル構造を出力する
-
-``` sql
-EXEC sp_help [Table];
-```
+## CREATE TABLEのスクリプト出力
 
 [【SQL Server】SSMSを使用して、各種定義やレコードをエクスポートする](https://sqlserver.work/2020/06/28/ssms%E3%82%92%E4%BD%BF%E7%94%A8%E3%81%97%E3%81%A6%E3%80%81%E5%90%84%E7%A8%AE%E5%AE%9A%E7%BE%A9%E3%82%84%E3%83%AC%E3%82%B3%E3%83%BC%E3%83%89%E3%82%92%E3%82%A8%E3%82%AF%E3%82%B9%E3%83%9D%E3%83%BC/)  
 
@@ -154,33 +150,6 @@ CREATE TABLEする時のSQL文を出力するためにはスクリプトを実�
 5. クリップボードに保存  
 6. 詳細設定→[スクリプトを作成するデータの種類]が[スキーマのみ]になっていることを確認  
 7. 次へを押していけば完了  
-
----
-
-## テーブル構造を吐き出すクエリ
-
-``` sql <https://kojimanotech.com/2020/09/13/252/>
-EXEC sp_columns @table_name = 'TableName';
-```
-
-``` sql <https://lightgauge.net/database/sqlserver/3697/>
-SELECT
-     tbls.name AS table_name
-    ,key_const.name AS constraint_name
-    ,idx_cols.key_ordinal AS key_ordinal
-    ,cols.name AS col_name
-FROM
-    sys.tables AS tbls
-    INNER JOIN sys.key_constraints AS key_const ON
-    tbls.object_id = key_const.parent_object_id AND key_const.type = 'PK'
-    AND tbls.name = 'TableName'
-    INNER JOIN sys.index_columns AS idx_cols ON
-    key_const.parent_object_id = idx_cols.object_id
-    AND key_const.unique_index_id  = idx_cols.index_id
-    INNER JOIN sys.columns AS cols ON
-    idx_cols.object_id = cols.object_id
-    AND idx_cols.column_id = cols.column_id
-```
 
 ---
 
