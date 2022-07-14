@@ -555,6 +555,19 @@ configuration of the system
 
 命令
 
+## Dataは複数形
+
+単数形はdatumらしい。
+
+## Helper以上、Manager以下のちょうどいい英単語はあるか？
+
+Helperをまとめつつ、判定等を返す程度のクラス。  
+.NetはManagerという形で似たような機能をまとめているが、正直そこまでまとめているわけではない。  
+そういった場合のいい感じの英単語って何かないだろうか。  
+因みに.NetはHelperかManagerの2つしか見つけることができなかった。  
+
+役職のランク的にはManagerの下がLeaderなので、そのまま当てはめるなら○○Leaderになるが、クラスとか機能って別に人じゃないし、これもなんか違う気がする。  
+
 ---
 
 ## Delete,Erase,Remove,Eliminate
