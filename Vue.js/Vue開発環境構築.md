@@ -1,4 +1,3 @@
-
 # Vue開発環境構築
 
 VueにはClassStyleとObjectStyleの2つの記法がある模様。  
@@ -15,10 +14,9 @@ VueにはClassStyleとObjectStyleの2つの記法がある模様。
 2. vue/cliをインストール  
    - `npm install -g @vue/cli`  
 
-プロジェクト作成  
 class styleでのプロジェクト作成の仕方  
-
-- vueプロジェクトの生成  
+Use class-style component syntax? をyesにすることで実務で開発した形にできる。
+[【2021年版】Vue.js + TypeScriptの開発スタイル](https://tech-blog.rakus.co.jp/entry/20210901/frontend)  
 
 TypeScriptの環境構築
 [簡単な例で始めるVue3でTypeScript入門](https://reffect.co.jp/vue/vue3-typescript)  
@@ -50,6 +48,7 @@ Node.jsとnpmを再インストールする（推奨）
 [Vue.jsでTypeScriptを使う(with vue-property-decorator)](https://qiita.com/paragaki/items/b3fc4b1bd334f54f33e0)  
 →  
 `npm install --save vue-property-decorator`
+`npm i -S vue-property-decorator`  
 
 [vue-property-decorator + TypeScriptで書かれたVueコンポーネントをscript setupで書き換える](https://zenn.dev/r57ty7/articles/53d189afa27aeb)  
 
