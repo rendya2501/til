@@ -28,12 +28,6 @@ TypeScriptの環境構築
 
 ---
 
-## ASP.Net Core API + Vue axios 通信サンプル
-
-[Vue3とaxiosで外部サイトにアクセス](https://akkunblog-happy-life.com/vue3-20/)  
-
----
-
 ## トラブルシューティング
 
 ### npmでpermission deniedになった時の対処法
@@ -57,6 +51,8 @@ vue2系と違ってここら辺に変更が入ったっぽい？
 なぜvue-property-decoratorに固執するのかと言えば、実務でもそれを使っていたし、ほとんどのサイトでも使っているのを見るから。  
 なんの考えもなしに3系で使おうとするとエラーになって動かせない。  
 それについて解説しているところもどこにもない。  
+
+vue2であれば[vue-property-decorator]はデフォルトであることを確認した。  
 
 ### 後からTypeScriptを足したい
 
