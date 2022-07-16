@@ -568,6 +568,8 @@ Helperをまとめつつ、判定等を返す程度のクラス。
 
 役職のランク的にはManagerの下がLeaderなので、そのまま当てはめるなら○○Leaderになるが、クラスとか機能って別に人じゃないし、これもなんか違う気がする。  
 
+[英語の肩書きから「ランク」を理解する](https://xtech.nikkei.com/it/article/Watcher/20070215/262079/)  
+
 ---
 
 ## Delete,Erase,Remove,Eliminate
