@@ -52,6 +52,12 @@ Node.jsとnpmを再インストールする（推奨）
 
 [vue-property-decorator + TypeScriptで書かれたVueコンポーネントをscript setupで書き換える](https://zenn.dev/r57ty7/articles/53d189afa27aeb)  
 
+どうやらvue3系ではvue-property-decoratorは必要なくなった模様。  
+vue2系と違ってここら辺に変更が入ったっぽい？  
+なぜvue-property-decoratorに固執するのかと言えば、実務でもそれを使っていたし、ほとんどのサイトでも使っているのを見るから。  
+なんの考えもなしに3系で使おうとするとエラーになって動かせない。  
+それについて解説しているところもどこにもない。  
+
 ### 後からTypeScriptを足したい
 
 [[Vue3.x]createを使って既存projectにTypeScriptを足してみた](https://zenn.dev/gamin/articles/57d7a1aec6dcb8)  
