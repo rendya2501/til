@@ -28,6 +28,27 @@ TypeScriptの環境構築
 
 ---
 
+## Vue2とVue3におけるClassStyleについて
+
+Vue3ではClassStyleでの書き方は推奨されない見たい。  
+どうりでVue3でPropsデコレーターについて調べても全然出てこない訳だ。  
+vue-class-componentがRFCからリジェクトされた、ということはその書き方は非推奨になったと言えるだろう。  
+vue-class-componentやvue-property-decoratorは使えなくはないけど、どうせ書くならってやつかね。  
+
+[vue-cliで手っ取り早くVue 3 + TypeScriptのプロジェクトを作ろう！](https://qiita.com/jesus_isao/items/0b305c7d90c45ad66c1b)  
+>一方で、Vue 3ではclass-styleではなく、Composition APIというものを使った新しい書き方がスタンダードになるはずです。  
+
+[Vue3でもClass Style Componentが使えそう](https://note.com/shunex/n/n50cd8e1ec4fe)  
+>RC版ではありますが，Vue3でもProperty Decoratorが使えることがわかりました．今回は検証のためにClass Style Componentを選択しましたが，今から新規にプロジェクトを作成する場合はこちらは選ばないほうが良いです．
+
+[2020年秋にVue.jsのアプリケーションを作るなら、押さえておきたい5つのポイント](https://future-architect.github.io/articles/20201013/)  
+>そんなvue-class-componentですがVue3のRFCとしてはリジェクトされてしまいました
+>Vue3ではcomposition-apiがRFCとして扱われています。
+
+[vue3 typescript チュートリアル](https://www.bacancytechnology.com/blog/vue3-typescript)
+
+---
+
 ## トラブルシューティング
 
 ### npmでpermission deniedになった時の対処法
@@ -53,6 +74,11 @@ vue2系と違ってここら辺に変更が入ったっぽい？
 それについて解説しているところもどこにもない。  
 
 vue2であれば[vue-property-decorator]はデフォルトであることを確認した。  
+
+Vueに関してはそもそも勘違いをしていたみたいだ。  
+実務で使っていたバージョンがVue3だと思っていたが実はVue2であり、Vue3でVue2みたいな書き方しようとしてたから色々駄目だったんだ。  
+素直に、Vue2で同じようなコンポーネントを使ってやってみたら普通に行けたわ。  
+というわけで、Vue2でaxiosを使ったサンプルはそのまま作るとして、Vue3も入門書を見ながらまとめたいですね。  
 
 ### 後からTypeScriptを足したい
 
