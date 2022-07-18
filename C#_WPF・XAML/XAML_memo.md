@@ -968,3 +968,34 @@ self
     </Style>
 </c1:C1MultiSelect.Style>
 ```
+
+---
+
+## 行番号をつけたい
+
+[Simple way to display row numbers on WPF DataGrid](https://stackoverflow.com/questions/4661998/simple-way-to-display-row-numbers-on-wpf-datagrid)  
+[DataGridに行番号を表示しよう](http://tawamuredays.blog.fc2.com/blog-entry-75.html)  
+
+DataGridにはAlternationIndexなるプロパティがあるのでいいけど、FlexGridのはないのでおとなしくCellFactory使うしかないみたい。  
+AlternationIndexで見事解決かと思ったが、Indexなので0から始まる。  
+バインドするついでに+1くらいできないかなと思ったが、できない模様。  
+それくらい何とかしてくれと思うのだが・・・。
+素直にConverterを使えと行ってくる。  
+はぁ  
+
+wpf binding add two values
+
+``` xml
+<DataGrid
+    AlternationCount="{Binding Items.Count, RelativeSource={RelativeSource Self}}">
+    <DataGrid.Columns>
+        <DataGridTextColumn Width="10" Binding="{Binding AlternationIndex, RelativeSource={RelativeSource AncestorType=DataGridRow}, StringFormat=その1{0}をつかう}" />
+    </DataGrid.Columns>
+</DataGrid>
+```
+
+---
+
+## BindingのStringFormat
+
+[【WPF】Bindingと文字列を結合して表示する方法4選](https://threeshark3.com/binding-string-concat/)  

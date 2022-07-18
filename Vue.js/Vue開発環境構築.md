@@ -85,3 +85,16 @@ Vueに関してはそもそも勘違いをしていたみたいだ。
 [[Vue3.x]createを使って既存projectにTypeScriptを足してみた](https://zenn.dev/gamin/articles/57d7a1aec6dcb8)  
 
 [はじめてのvue-property-decorator (nuxtにも対応）](https://qiita.com/simochee/items/e5b77af4aa36bd0f32e5)  
+
+---
+
+## Vue3
+
+なー－んか不評？  
+Vue3に対する見解を述べているサイトを2つほど見てみたが、別にVueじゃなくてReactでいいじゃん的な感じのことが書かれてた。  
+2でもまぁ、そこそこよくできてたけど、3になったときにVueの中核的な部分が中途半端になったとか何とか。  
+お手軽で学習コストも低いから個人的には好きだなーと思ってたけど、何もわからない状態でそう思ってるだけだったから、もっと知ったら俺も嫌いになるんだろうな。  
+
+とりあえず、参考サイトまとめ  
+
+[Vue3 + Typescript を試してみた](https://gaprot.jp/2021/02/04/vue3-typescript/)  

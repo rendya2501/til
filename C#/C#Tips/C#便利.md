@@ -94,34 +94,38 @@ Process.Start(
 
 ## 親クラスの全プロパティの値を子クラスにコピーする方法
 
-<https://qiita.com/microwavePC/items/54f0082f3d76922a6259>  
+[【C#】親クラスの全プロパティの値を子クラスに簡単にコピーできるようにする方法](https://qiita.com/microwavePC/items/54f0082f3d76922a6259)  
 
 ``` C#
     /// <summary>
     /// コンストラクタ
     /// </summary>
     /// <param name="parent"></param>
-    public ExtendSearchCondition(SearchCondition parent)
+    public Child(Parent parent)
     {
         // 親クラスのプロパティ情報を一気に取得して使用する。
         List<PropertyInfo> props = parent
             .GetType()
             .GetProperties(BindingFlags.Instance | BindingFlags.Public)
-            ?.ToList();
+            .ToList();
         foreach (var prop in props)
         {
             var propValue = prop.GetValue(parent);
-            typeof(SearchCondition).GetProperty(prop.Name).SetValue(this, propValue);
+            typeof(Child).GetProperty(prop.Name).SetValue(this, propValue);
         }
     }
 ```
 
 ``` C# : 少し応用してキーバリューで出力するサンプル
-    var props = condition
+    var props = instance
         .GetType()
         .GetProperties(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public)
-        .Select(s => (s.Name ,s.GetValue(condition)))
+        .Select(s => (key: s.Name ,value: s.GetValue(instance)))
         .ToList();
+    foreach (var (key,value) in props)
+    {
+        typeof(Child).GetProperty(key).SetValue(this, value);
+    }
 ```
 
 ---
