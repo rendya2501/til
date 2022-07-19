@@ -310,3 +310,42 @@ DataTriggerとMultiDataTriggerは共存可能であるという例。
         </Style.Triggers>
     </Style>
 ```
+
+---
+
+## MultiTrigger
+
+[XAMLのStyle.Triggersで複合条件を指定したい](https://ja.stackoverflow.com/questions/7653/xaml%E3%81%AEstyle-triggers%E3%81%A7%E8%A4%87%E5%90%88%E6%9D%A1%E4%BB%B6%E3%82%92%E6%8C%87%E5%AE%9A%E3%81%97%E3%81%9F%E3%81%84)  
+
+``` XML : ラジオボタンをクリックしたら文字列が「aaaaa」になるサンプル
+<RadioButton
+    Margin="183,300,0,0"
+    HorizontalAlignment="Left"
+    VerticalAlignment="Top">
+    <RadioButton.Style>
+        <Style TargetType="{x:Type RadioButton}">
+            <Setter Property="Content" Value="Button" />
+            <Style.Triggers>
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsEnabled" Value="true" />
+                        <Condition Property="IsChecked" Value="true" />
+                    </MultiTrigger.Conditions>
+                    <Setter Property="Content" Value="aaaaa" />
+                </MultiTrigger>
+            </Style.Triggers>
+        </Style>
+    </RadioButton.Style>
+</RadioButton>
+```
+
+---
+
+## MultiTriggerとMultiDataTrigger
+
+[WPF MultiTrigger and MultiDataTrigger](https://wpf-tutorial.com/styles/multi-triggers-multitrigger-multidatatrigger/)  
+
+マルチトリガーには2つのタイプがあります。
+
+- MultiTrigger : 通常のトリガーと同じように依存関係プロパティで機能するTrigger  
+- MultiDataTrigger : 任意の種類のプロパティにバインドすることで機能するTrigger  
