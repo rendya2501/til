@@ -153,17 +153,6 @@ CREATE TABLEする時のSQL文を出力するためにはスクリプトを実�
 
 ---
 
-## 対象カラムが存在するかどうかをチェックするクエリ
-
-``` SQL
-    SELECT *
-    FROM   [Database].sys.columns
-    WHERE  Name = N'FieldName'
-    AND    Object_ID = OBJECT_ID(N'[Database].[dbo].[Table]')
-```
-
----
-
 ## sqlserver 断片化  
 
 [SQL Serverの断片化したインデックスを再構築する方法](https://www.fenet.jp/dotnet/column/database/sql-server/4365/)  

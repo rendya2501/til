@@ -17,3 +17,44 @@ select ROW_NUMBER() OVER (PARTITION BY Code ORDER BY UpdateDateTime DESC), * fro
 -- こうやって怒られるので、最低限、ORDER BY は必要見たい。
 select ROW_NUMBER() OVER (), * from [Table]
 ```
+
+---
+
+## PARTITION BYの組み合わせ
+
+[SQL PARTITION BYの基本と効率的に集計する便利な方法](https://zukucode.com/2017/08/sql-over-partition-by.html)  
+
+``` txt : employee（社員）
+id  first_name  last_name  department_id  height
+1   一郎         山田       1              170
+2   次郎         佐藤       2              175
+3   三郎         田中       1              185
+4   四郎         鈴木       2              155
+```
+
+``` sql
+SELECT
+  last_name,
+  --全体の総件数
+  COUNT(1) OVER() total_count,
+  --部門ごとの件数
+  COUNT(1) OVER(PARTITION BY department_id) section_count,
+  --部門ごとの最大身長
+  MAX(height) OVER(PARTITION BY department_id) section_max_height,
+  --部門ごとの身長順（身長順に並び替えたときの行番号）
+  ROW_NUMBER() OVER(PARTITION BY department_id ORDER BY height DESC) section_height_order,
+  --全体の身長順（身長順に並び替えたときの行番号）
+  ROW_NUMBER() OVER(ORDER BY height DESC) height_order
+FROM
+  employee
+ORDER BY
+  id
+```
+
+``` txt : 取得結果
+last_name  total_count  section_count  section_max_height  section_height_order  height_order
+山田        4            2              185                 2                     3
+佐藤        4            2              175                 1                     2
+田中        4            2              185                 1                     1
+鈴木        4            2              175                 2                     4
+```
