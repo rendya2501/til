@@ -58,3 +58,79 @@ last_name  total_count  section_count  section_max_height  section_height_order 
 田中        4            2              185                 1                     1
 鈴木        4            2              175                 2                     4
 ```
+
+---
+
+## 分子分母を出力するサンプル
+
+プレーヤーが複数の時間に跨いで予約を取っている状況において、その人にとってその時間が何番目なのかを分母分子で表示するサンプル  
+
+``` sql : データ準備
+CREATE TABLE TestReservation
+(
+    [Id] INT NOT NULL IDENTITY(1,1) PRIMARY KEY,  
+    [ReservationTime] time,  
+    [PlayerNo] nvarchar(255)
+);
+
+INSERT INTO TestReservation
+VALUES
+     ('07:00:00.0000000','Player202204160001')
+    ,('07:07:00.0000000','Player202204160001')
+    ,('07:14:00.0000000','Player202204160001')
+    ,('07:00:00.0000000','Player202204160002')
+    ,('07:07:00.0000000','Player202204160002')
+    ,('07:00:00.0000000','Player202204160003')
+    ,('07:00:00.0000000','Player202204160004')
+    ,('07:14:00.0000000','Player202204160004')
+```
+
+``` sql
+SELECT
+    [ReservationTime],
+    [PlayerNo],
+    -- プレーヤー毎の時間順(分子)
+    ROW_NUMBER() OVER(PARTITION BY [PlayerNo] ORDER BY [ReservationTime]) AS [Numerator],
+    -- プレーヤー毎の件数(分母)
+    COUNT(1) OVER(PARTITION BY [PlayerNo]) AS [Denominator]
+FROM [TestReservation]
+
+-- 07:00:00.0000000    Player202204160001    1    3
+-- 07:07:00.0000000    Player202204160001    2    3
+-- 07:14:00.0000000    Player202204160001    3    3
+-- 07:00:00.0000000    Player202204160002    1    2
+-- 07:07:00.0000000    Player202204160002    2    2
+-- 07:00:00.0000000    Player202204160003    1    1
+-- 07:00:00.0000000    Player202204160004    1    2
+-- 07:14:00.0000000    Player202204160004    2    2
+```
+
+``` sql : 超愚直にやるならこう
+SELECT
+    [SQ_Numerator].[ReservationTime],
+    [SQ_Numerator].[PlayerNo],
+    CONVERT(nvarchar,[SQ_Numerator].[Numerator]) AS [Numerator],
+    CONVERT(nvarchar,[SQ_Denominator].[Denominator]) AS [Denominator]
+FROM (
+    -- 時間を上から見ていった時のシーケンス(分子:Numerator)
+    SELECT
+        [ReservationTime],
+        [PlayerNo],
+        ROW_NUMBER() OVER(PARTITION BY [PlayerNo] ORDER BY [ReservationTime]) AS Numerator
+    FROM 
+        [TestReservation]
+    GROUP BY
+        [ReservationTime],[PlayerNo]
+    ) AS [SQ_Numerator]
+JOIN (
+    -- プレーヤーが持っている時間の数(分母:Denominator)
+    SELECT
+        [PlayerNo],
+        COUNT(DISTINCT [ReservationTime]) AS [Denominator]
+    FROM 
+        [TestReservation]
+    GROUP BY 
+        [PlayerNo]
+) AS [SQ_Denominator]
+ON [SQ_Numerator].[PlayerNo] = [SQ_Denominator].[PlayerNo]
+```
