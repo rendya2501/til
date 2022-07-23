@@ -1,6 +1,19 @@
 # XAML_分岐処理まとめ
 
-## XAMLにおけるif文
+- Triger  
+- MultiTrigger  
+- DataTrigger  
+- MultiDataTrigger  
+- 各プロパティ + MultiBinding  
+
+ViewModelのプロパティとのバインドで使うのがDataTrigger系  
+コントロール自身のプロパティとのバインドで使うのがTrigger系  
+
+大体よく使うのがViewModelとの条件連携なので、DataTriggerをメインにまとめていく  
+
+---
+
+## XAMLにおけるif文の基本
 
 [さんさめ_【WPF】Binding入門5。DataTriggerの活用](https://threeshark3.com/wpf-binding-datatrigger/)  
 
@@ -31,157 +44,10 @@ Styleでは、通常、「Setter」というオブジェクトを配置してプ
 
 ---
 
-## デフォルトの状態を設定する上で注意すること
-
-デフォルトの状態を設定したい場合、それはSetterタグで記述しないとDataTriggerで変化させることができない。  
-デフォルトの状態をプロパティ属性構文で記述すると変化してくれないことを発見したので注意する。  
-
-また、Styleで定義するので、BaseOnでスタイル元を継承すること。  
-そうしないと、レイアウトが崩れてしまう。  
-
-``` XML : これは問題ない
-<Button>
-    <Button.Style>
-        <Style TargetType="{x:Type Button}">
-            <!-- セッターでデフォルトの状態を定義する分には動く -->
-            <Setter Property="Background" Value="Red"/> 
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding Name}" Value="">
-                    <Setter Property="Background" Value="Blue"/>
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-    </Button.Style>
-</Button>
-```
-
-``` XML : これはダメ
-<!-- プロパティ属性構文でデフォルトの状態を定義すると変化しない -->
-<Button Background="Red">
-    <Button.Style>
-        <Style TargetType="{x:Type Button}">
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding Name}" Value="">
-                    <Setter Property="Background" Value="Blue"/>
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-    </Button.Style>
-</Button>
-```
-
----
-
-## 別のコントロールの値を条件として利用する場合
-
-ElementNameとBindingしたい値を指定することで実現可能  
-
-``` XML
-<CheckBox>
-    <CheckBox.Style>
-        <Style TargetType="{x:Type CheckBox}">
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding Value, ElementName=TestTextBox}" Value="0">
-                    <Setter Property="IsEnabled" Value="False" />
-                    <Setter Property="IsChecked" Value="False" />
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-    </CheckBox.Style>
-</CheckBox>
-```
-
----
-
-## True,Falseどちらの場合も定義する必要性
-
-両方の状態を定義できるけど、そうする必要はない。  
-デフォルトの状態を定義しておいて、残ったほうで状態を変化させるだけで十分。  
-
-``` XML : TrueとFalse、両方定義する場合
-<DockPanel.Style>
-    <Style TargetType="{x:Type DockPanel}">
-        <Style.Triggers>
-            <DataTrigger Binding="{Binding Name, Mode=OneWay, Converter={StaticResource NullOrEmptyToBoolConverter}}" Value="true">
-                <Setter Property="Background" Value="Transparent" />
-            </DataTrigger>
-            <DataTrigger Binding="{Binding Name, Mode=OneWay, Converter={StaticResource NullOrEmptyToBoolConverter}}" Value="false">
-                <Setter Property="Background" Value="IndianRed" />
-            </DataTrigger>
-        </Style.Triggers>
-    </Style>
-</DockPanel.Style>
-```
-
-どちらかでも意味は同じ。  
-
-``` XML
-<DockPanel.Style>
-    <Style TargetType="{x:Type DockPanel}">
-        <Setter Property="Background" Value="Transparent" />
-        <Style.Triggers>
-            <DataTrigger Binding="{Binding Name, Mode=OneWay, Converter={StaticResource NullOrEmptyToBoolConverter}}" Value="false">
-                <Setter Property="Background" Value="IndianRed" />
-            </DataTrigger>
-        </Style.Triggers>
-    </Style>
-</DockPanel.Style>
-
-<DockPanel.Style>
-    <Style TargetType="{x:Type DockPanel}">
-        <Setter Property="Background" Value="IndianRed" />
-        <Style.Triggers>
-            <DataTrigger Binding="{Binding Name, Mode=OneWay, Converter={StaticResource NullOrEmptyToBoolConverter}}" Value="true">
-                <Setter Property="Background" Value="Transparent" />
-            </DataTrigger>
-        </Style.Triggers>
-    </Style>
-</DockPanel.Style>
-
-```
-
----
-
 ## And条件とOr条件の書き方
 
 [MultiDataTrigger with OR instead of AND](https://stackoverflow.com/questions/38396419/multidatatrigger-with-or-instead-of-and)  
 [StryleのMultiDataTrigger](http://gootara.org/library/2017/01/wpfao.html)
-
-- DataTrigger  
-- MultiDataTrigger  
-- 各プロパティ + MultiBinding  
-
-の組み合わせで実現可能。  
-
-### Or条件
-
-Or条件はDataTriggerで実現可能。  
-
-2回も同じこと書くのが気にくわないけど仕方なし。  
-セッターの部分をまとめることができないか調べてみたが、できなさそうだった。  
-
-``` XML : or条件
-<CheckBox>
-    <CheckBox.Style>
-        <Style TargetType="CheckBox">
-            <!-- or条件に合わない場合の状態を記述する -->
-            <Setter Property="IsEnabled" Value="False" />
-            <Setter Property="IsTabStop" Value="False" />
-            <!-- or条件はDataTriggerで当てはまってほしい条件を全て記述する -->
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding Name}" Value="">
-                    <Setter Property="IsEnabled" Value="False" />
-                    <Setter Property="IsChecked" Value="False" />
-                </DataTrigger>
-                <DataTrigger Binding="{Binding Name}" Value="{x:Null}">
-                    <Setter Property="IsEnabled" Value="False" />
-                    <Setter Property="IsChecked" Value="False" />
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-    </CheckBox.Style>
-</CheckBox>
-```
 
 ### And
 
@@ -257,9 +123,39 @@ MultiDataTriggerは複数定義可能なので、And条件のOr条件みたい�
 どっちがいいかという議論  
 [MultiDataTrigger vs DataTrigger with multibinding](https://stackoverflow.com/questions/20993293/multidatatrigger-vs-datatrigger-with-multibinding)  
 
+### Or条件
+
+Or条件はDataTriggerで実現可能。  
+
+2回も同じこと書くのが気にくわないけど仕方なし。  
+セッターの部分をまとめることができないか調べてみたが、できなさそうだった。  
+
+``` XML : or条件
+<CheckBox>
+    <CheckBox.Style>
+        <Style TargetType="CheckBox">
+            <!-- or条件に合わない場合の状態を記述する -->
+            <Setter Property="IsEnabled" Value="True" />
+            <Setter Property="IsTabStop" Value="True" />
+            <!-- or条件はDataTriggerで当てはまってほしい条件を全て記述する -->
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Name}" Value="">
+                    <Setter Property="IsEnabled" Value="False" />
+                    <Setter Property="IsChecked" Value="False" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Name}" Value="{x:Null}">
+                    <Setter Property="IsEnabled" Value="False" />
+                    <Setter Property="IsChecked" Value="False" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </CheckBox.Style>
+</CheckBox>
+```
+
 ---
 
-## MultiBindingによるAnd,Or条件の実現
+## プロパティ + MultiBindingによるAnd,Or条件の実現
 
 プロパティの中でMultiBindingを使うことでもAnd,Orを実現できる。  
 しかし、その場合、MultiConverterを使わないといけない。  
@@ -276,6 +172,118 @@ MultiConverterを使わないといけない地点で手軽さが失われる。
         </MultiBinding>
     </CheckBox.IsEnabled>
 </CheckBox>
+```
+
+---
+
+## デフォルトの状態を設定する上で注意すること
+
+デフォルトの状態を設定したい場合、それはSetterタグで記述しないとDataTriggerで変化させることができない。  
+デフォルトの状態をプロパティ属性構文で記述すると変化してくれないことを発見したので注意する。  
+
+また、Styleで定義するので、BaseOnでスタイル元を継承すること。  
+そうしないと、レイアウトが崩れてしまう。  
+
+``` XML : これは問題ない
+<Button>
+    <Button.Style>
+        <Style TargetType="{x:Type Button}">
+            <!-- セッターでデフォルトの状態を定義する分には動く -->
+            <Setter Property="Background" Value="Red"/> 
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Name}" Value="">
+                    <Setter Property="Background" Value="Blue"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </Button.Style>
+</Button>
+```
+
+``` XML : これはダメ
+<!-- プロパティ属性構文でデフォルトの状態を定義すると変化しない -->
+<Button Background="Red">
+    <Button.Style>
+        <Style TargetType="{x:Type Button}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Name}" Value="">
+                    <Setter Property="Background" Value="Blue"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </Button.Style>
+</Button>
+```
+
+---
+
+## 別のコントロールの値を条件として利用する場合
+
+ElementNameとBindingしたい値を指定することで実現可能。  
+またDataTriggerを使うこと。  
+
+``` XML
+<CheckBox>
+    <CheckBox.Style>
+        <Style TargetType="{x:Type CheckBox}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Value, ElementName=TestTextBox}" Value="0">
+                    <Setter Property="IsEnabled" Value="False" />
+                    <Setter Property="IsChecked" Value="False" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </CheckBox.Style>
+</CheckBox>
+```
+
+---
+
+## True,Falseどちらの場合も定義する必要性
+
+両方の状態を定義できるけど、そうする必要はない。  
+デフォルトの状態を定義しておいて、残ったほうで状態を変化させるだけで十分。  
+
+``` XML : TrueとFalse、両方定義する場合
+<DockPanel.Style>
+    <Style TargetType="{x:Type DockPanel}">
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding Name, Mode=OneWay, Converter={StaticResource NullOrEmptyToBoolConverter}}" Value="true">
+                <Setter Property="Background" Value="Transparent" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Name, Mode=OneWay, Converter={StaticResource NullOrEmptyToBoolConverter}}" Value="false">
+                <Setter Property="Background" Value="IndianRed" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+</DockPanel.Style>
+```
+
+どちらかでも意味は同じ。  
+
+``` XML
+<DockPanel.Style>
+    <Style TargetType="{x:Type DockPanel}">
+        <Setter Property="Background" Value="Transparent" />
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding Name, Mode=OneWay, Converter={StaticResource NullOrEmptyToBoolConverter}}" Value="false">
+                <Setter Property="Background" Value="IndianRed" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+</DockPanel.Style>
+
+<DockPanel.Style>
+    <Style TargetType="{x:Type DockPanel}">
+        <Setter Property="Background" Value="IndianRed" />
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding Name, Mode=OneWay, Converter={StaticResource NullOrEmptyToBoolConverter}}" Value="true">
+                <Setter Property="Background" Value="Transparent" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+</DockPanel.Style>
+
 ```
 
 ---

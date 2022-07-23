@@ -8,7 +8,6 @@
 [WPF4.5入門](https://www.slideshare.net/okazuki0130/wpf45-38048141)  
 
 [DataGridView編メニュー](https://dobon.net/vb/dotnet/datagridview/)  
-[PrismとLivetで画面を閉じるMVVM](https://redwarrior.hateblo.jp/entry/2020/08/31/090000)  
 [Windows Presentation Foundation実践](http://kisuke0303.sakura.ne.jp/blog/wordpress/wp-content/uploads/2016/08/4843696230c1698ad8ff7d086b998344.pdf)
 
 [[C# WPF] なんとかしてWPFの描画を速くしたい「Canvas.Childrenへのオブジェクト追加」](https://www.peliphilo.net/archives/2390)

@@ -844,3 +844,41 @@ var stringList = _Dapper.Execute(
 Dapperに流すクエリの中でUNIONしてやればそのひと手間をなくせるのでは？というサンプル。  
 
 ---
+
+## ContinueWithを使ったワンセンテンステク
+
+このようなダイアログを表示する非同期処理があったとする。  
+警告文があれば表示して常にfalseを返却するのだが、以下のようにワンクッション挟まなければならない。  
+それがもどかしい。  
+
+``` C#
+    private async Task<bool> ConfirmAsync()
+    {
+        // 警告文を生成
+        string msg = CreateWarningMessage();
+        // 警告文があれば、ダイアログを表示する
+        if (!string.IsNullOrEmpty(msg))
+        {
+            // ダイアログを表示している間は処理を止める
+            await MessageDialogUtil.ShowWarningAsync(Messenger, msg);
+            // 警告なので常にfalse
+            return false;
+        }
+        // 警告文がなければ常にtrue
+        return true;
+    }
+```
+
+TaskのContinueWithを使うことでワンセンテンス化が可能になる。  
+ContinueWithにより、ダイアログを閉じたときに続けてfalseを返却するように記述することができる。  
+
+``` C#
+    private async Task<bool> ConfirmAsync()
+    {
+        // 警告文を生成
+        string msg = CreateWarningMessage();
+        // 警告文があれば、ダイアログを表示しつつ、falseを返却する。
+        return string.IsNullOrEmpty(msg)
+            || await MessageDialogUtil.ShowWarningAsync(Messenger, msg).ContinueWith(f => false);
+    }
+```
