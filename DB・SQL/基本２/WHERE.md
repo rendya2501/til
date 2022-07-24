@@ -47,6 +47,9 @@ where BusinessDate != '2022-05-25'
 [条件で絞ったテーブル同士でJOINのレスポンスについて](https://atmarkit.itmedia.co.jp/bbs/phpBB/viewtopic.php?topic=32176&forum=26)  
 [SQL joinの際に条件を先に絞るか後に絞るかでスピードの違いはあるのでしょうか？](https://teratail.com/questions/250008)  
 
+[インデックスと実行計画を理解する@SQLServer](https://qiita.com/okuzou1/items/f710bcde64beb22cd50b)  
+[実行計画の表示方法](https://use-the-index-luke.com/ja/sql/explain-plan/sql-server/getting-an-execution-plan)  
+
 ```sql : 条件を絞ってからJoin
 select * from
 (select * from Table_A where Name = '田中') A

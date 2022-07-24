@@ -4,7 +4,9 @@
 [PrismとLivetで画面を閉じるMVVM](https://redwarrior.hateblo.jp/entry/2020/08/31/090000)  
 [WPF Livet使ってWPFアプリを作り始めた](https://hakase0274.hatenablog.com/entry/2021/01/31/200000)  
 [LivetにおけるWPFでのダイアログ表示のいろは](https://days-of-programming.blogspot.com/2018/01/livetwpf.html)  
+[C# WPFアプリ(Livet)の画面遷移を理解する](https://setonaikai1982.com/livet_screen-trans/)  
 
+[WPF Prism を使ってみた](https://houwa-js.co.jp/2020/09/20200915/)  
 [Livet](https://github.com/runceel/Livet)  
 
 ---
