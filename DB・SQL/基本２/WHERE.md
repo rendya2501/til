@@ -44,4 +44,35 @@ where BusinessDate != '2022-05-25'
 
 ## 「条件を絞ってからJoin」 するのと 「Joinしてから条件を絞る」 のはどちらが良いのか？
 
-[](https://atmarkit.itmedia.co.jp/bbs/phpBB/viewtopic.php?topic=32176&forum=26)  
+[条件で絞ったテーブル同士でJOINのレスポンスについて](https://atmarkit.itmedia.co.jp/bbs/phpBB/viewtopic.php?topic=32176&forum=26)  
+[SQL joinの際に条件を先に絞るか後に絞るかでスピードの違いはあるのでしょうか？](https://teratail.com/questions/250008)  
+
+```sql : 条件を絞ってからJoin
+select * from
+(select * from Table_A where Name = '田中') A
+left outer join Table_B B
+on A.ID = B.ID
+```
+
+``` sql : Joinしてから条件を絞る
+select * from
+Table_A A
+left outer join Table B
+on A.ID = B.ID
+where A.Name = '田中'
+```
+
+特にこれといった回答はなかった。  
+これに関してはケースバイケースっぽい。  
+後はオプティマイザーがどのように作用するのかといった感じか。  
+まずはSQLServerの実行評価の見方を勉強してからになるかなー。  
+
+[1]  
+オプティマイザが十分賢ければ同等のプランとなるはずですから、両者の違いはほとんどないはずです。  
+ただし2のクエリのほうが複雑ですから、(わずかでしょうが)コンパイルに時間がかかるでしょうし、間違ったプランを吐く可能性もないとはいえません。  
+ですので、クエリは可能な限りシンプルにしたほうがいいでしょう。  
+
+[2]  
+URLに書いてあるように適切なインデックスが設定してあって、実行計画が合理的か確認します。  
+現在は一つのテーブルだけで何億レコードってテーブルは珍しくないので、パフォーマンスの調査もできるだけ負荷が少ない方法も習得しておかなければなりません。  
+調査するテーブルが田中さんが非常に少ない場合は ① が、TABLE_A と TABLE_B の JOIN 結果が少なければ ② の方が処理時間が短いのでは？って想像できます。  

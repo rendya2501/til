@@ -194,8 +194,111 @@ WHERE rk=1
 
 ---
 
-## aaa
+## DROP TABLEはロールバック可能か？
+
+SQLServerではロールバック可能。  
+他はDBによる。  
+
+「クエリを2回流したらデータが消えた」みたいなトラブルがあったので、自分がいつも作る列追加のクエリは大丈夫なのか調べたのがきっかけ。  
+そもそもDROP TABLEはロールバックが可能なのかと。  
+
+DBによることが判明した。  
+SQLServerではロールバック可能。
+ロールバック不可能なDBに関してはdrop tableやtruncate等のDDL(テーブル構造)命令は、RollBackが利かない模様。  
+なので、自分がいつも作るクエリは大丈夫なことが分かった。  
 
 [DELETE文 TRUNCATE文 DROP文の違い(SQL構文)](https://www.earthlink.co.jp/engineerblog/technology-engineerblog/2680/)  
-drop tableやtruncateはDDL(テーブル構造)の命令に当たるので、RollBackは利かない。  
-なので、droptableは最後の最後で実行すべし。  
+
+### DELETE文
+
+表内のデータを(全)削除する。  
+
+`DELETE FROM (表名);`  
+
+- 語訳は「削除」  
+- DML(データ操作言語)  
+- COMMITしていなければロールバック可能です。  
+
+### TRUNCATE文
+
+表内のデータを全削除する。
+
+`TRUNCATE TABLE (表名);`  
+
+- 語訳は「切り取る」  
+- DDL(データ定義言語)  
+- TRUNCATE文はWHERE句で指定できませんのでテーブルのデータを全て削除する。  
+- テーブルごと削除してから再作成するのでDELETE文よりも高速。  
+- トランザクションが効かない。  
+- ロールバックができない。  
+
+### DROP文
+
+表内のオブジェクトを完全に削除する。  
+
+`DROP TABLE (表名);`  
+
+- 語訳は「捨てる」  
+- DDL(データ定義言語)  
+- 完全に削除するのでロールバックができません。表構造も残りません。  
+- DROP文はオブジェクトに対するSQL文なのでTABLEを変えてあげれば索引なども削除できる。  
+
+---
+
+## DDLのトランザクション
+
+[DDLのトランザクション(PostgresSQL,Oracle,MySQL)](https://tamata78.hatenablog.com/entry/2017/02/20/112026)  
+[SqlServerではDDL(create文等)をロールバックすることが出来る](https://culage.hatenablog.com/entry/20110129/p6)  
+[SQL Server でDDLがRollbackできる？](https://www.ilovex.co.jp/Division/ITD/archives/2005/05/sql_server_ddlr.html)  
+
+### PostgreSQL
+
+CREATE TABLEやALTER TABLEなどのDDL命令もCOMMIT、ROLLBACKの対象になる。  
+
+PostgreSQLでは、CREATE TABLE や DROP TABLE などの DDL もトランザクションの一部となるため、トランザクションの途中でDROP TABLE を実行した場合でも、最後に ROLLBACK すれば、DROP したテーブルが元に戻ります。  
+
+### Oracle
+
+DDLはトランザクション対象にはならない。暗黙コミットされる。
+
+### MySQL
+
+DDLはトランザクション対象にはならない。暗黙コミットされる。
+
+### SqlServer
+
+DDL(create文等)はロールバックすることが出来る。  
+SQL Server ではTransaction 管理下ではRollback が可能なようです。
+
+---
+
+## 暗黙的なコミット
+
+MySQLでの話にはなるが、概要として理解するには十分なのでそのまま引用する。  
+
+MySQLの暗黙的なコミットは、特定のクエリを実行した際に現在のセッションで実行されているトランザクションを全てコミットしてから実行されるクエリで、クエリ自身の実行後もコミットされます。  
+
+DROP TABLEを行ったクエリの順番で考えていきます。
+
+``` sql
+mysql> START TRANSACTION;
+mysql> DROP TABLE zipcode;
+mysql> ROLLBACK;
+```
+
+上記のクエリに、先ほど説明した内容の暗黙的なコミットを明示的に入れ込んでみると、以下のようになります。
+
+``` sql
+mysql> START TRANSACTION;
+mysql> COMMIT; -- 処理の前に自動的にコミットされる
+mysql> DROP TABLE zipcode;
+mysql> COMMIT; -- 処理の後に自動的にコミットされる
+mysql> ROLLBACK;
+```
+
+ということで、ROLLBACKを打ったとしても結果が全てコミットされてしまっているため、元に戻せないことがわかります。
+
+よくある悲劇的な話としては、テーブル内のデータの削除の高速化のためにDELETE文で削除していたものを、TRUNCATE TABLEに変更した時などに起こります。  
+トランザクション処理の途中で単純に置き換えをしてしまった場合に、暗黙のコミットが挟まってしまって予期せぬ挙動になってしまうことがあります。  
+
+[DDLと暗黙的なコミットについて](https://gihyo.jp/dev/serial/01/mysql-road-construction-news/0134)  
