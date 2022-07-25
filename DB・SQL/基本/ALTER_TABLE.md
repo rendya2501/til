@@ -2,6 +2,8 @@
 
 テーブルの構造を変更する命令
 
+[テーブル定義を変更する（ALTER TABLE）](https://www.projectgroup.info/tips/SQLServer/SQL/SQL000005.html)  
+
 ---
 
 ## カラム名を変更する
@@ -10,7 +12,7 @@
 ALTER TABLE [TableName] RENAME COLUMN [Falg] TO [Flag]
 ```
 
-<https://docs.microsoft.com/ja-jp/sql/relational-databases/system-stored-procedures/sp-rename-transact-sql?view=sql-server-ver15>  
+[sp_rename](https://docs.microsoft.com/ja-jp/sql/relational-databases/system-stored-procedures/sp-rename-transact-sql?view=sql-server-ver15)  
 
 ``` sql : SQLServer
 EXEC sp_rename 'スキーマ名.テーブル名.現在のカラム名', '新しいカラム名', 'COLUMN';
@@ -20,6 +22,14 @@ USE TableName;
 GO
 EXEC sp_rename 'dbo.TestTable.Falg','Flag','COLUMN';
 GO
+```
+
+---
+
+## テーブルの名前を変更する
+
+``` sql : SQLServer
+EXEC sp_rename '現在のテーブル名','変更するテーブル名','OBJECT'
 ```
 
 ---
@@ -37,20 +47,32 @@ SQLServerではそのような命令はないので、Tempテーブルにデー�
 
 ---
 
+## テーブルに列を追加する
+
+``` sql
+ALTER TABLE テーブル名 ADD
+     列名1  VARCHAR (10) DEFAULT '' NOT NULL
+    ,列名2  VARCHAR (10) DEFAULT '' NOT NULL
+```
+
+---
+
 ## カラムを削除する
 
-``` sql : mariaDB
--- TestテーブルからFlagフィールドを削除する
+``` sql : mariaDB,SQLServer
+ALTER TABLE テーブル名 DROP COLUMN 列名1,列名2;
+
+-- 例 : TestテーブルからFlagフィールドを削除する
 ALTER TABLE Test DROP COLUMN Flag;
 ```
 
 ---
 
-## カラムのデータ型を変更する
+## カラムのデータ型を変更する(列定義を変更する)
 
 ```SQL : SQLServer
-ALTER TABLE (操作対象テーブル) ALTER column (データ型を変更する列名) (変更するデータ型)
+ALTER TABLE (操作対象テーブル) ALTER COLUMN (データ型を変更する列名) (変更するデータ型)
 
 -- 例 : ProductテーブルのTestCodeカラムの型をintに変更するクエリ
-ALTER TABLE [Product] ALTER column [TestCode] int
+ALTER TABLE [Product] ALTER COLUMN [TestCode] int
 ```

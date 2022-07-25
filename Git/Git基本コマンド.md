@@ -369,43 +369,6 @@ Rebaseは、結果として逆Mergeと同じ状態となります。異なるの
 
 [あなたはmerge派？rebase派？綺麗なGitログで実感したメリット](https://style.biglobe.co.jp/entry/2022/03/22/090000#develop%E3%83%96%E3%83%A9%E3%83%B3%E3%83%81%E3%82%92%E7%B6%BA%E9%BA%97%E3%81%AB%E4%BF%9D%E3%81%A4Git%E6%93%8D%E4%BD%9C%E3%83%9E%E3%83%BC%E3%82%B8%E7%B7%A8)  
 
-### fast-forwardマージ
-
-[fast-forwardマージから理解するgit rebase](https://qiita.com/vsanna/items/451b42f886c599a16a55)  
-
-ブランチXと、そこから切ったブランチYがあるとする。  
-YがXでの変更をすべて含むときに行われるマージをfast-forward（早送り）マージという。  
-つまり、分岐後に、元ブランチXにおいて変更がないときに行われるマージのこと  
-
-ReleaseからFixを切り、Fixをリベースして追加の修正を行い、そのままReleaseにマージしてもマージコミットが発生しないのはこの仕組みがあるからっぽい。  
-全てをマージしたときはがっつりマージコミットと分岐の履歴が残るけど、リベースの場合は残らない。  
-ここから先は実環境で確かめてみるしかないかも。  
-
-``` txt : 元の状態
-      A---B---C Fix/1234
-     /
-D---E---F---G Release
-```
-
-``` txt : リベース
-               A'--B'--C' Fix/1234
-              /
-D---E---F---G Release
-```
-
-``` txt: リベースしてからD',E'をコミット
-               A'--B'--C'--D'--E' Fix/1234
-              /
-D---E---F---G Release
-```
-
-``` txt : Fix/1234をReleaseにマージした場合のコミット状況
-D---E---F---G---A'--B'--C'--D'--E' Fix/1234,Release
-```
-
-あくまでReleaseFixまでの話で、Releaseにマージする時はプルリクするからマージコミットが出来上がるはず。
-まぁ、それほど影響はないのかな？
-
 ---
 
 ## git cherry-pick
@@ -430,3 +393,75 @@ D---E---F------------G ブランチA
    │ /   /
    └A---B---C ブランチB
 ```
+
+---
+
+## Fast Forward
+
+派生先ブランチが派生元ブランチでの変更をすべて含むときに行われるマージをfast-forward（早送り）マージという。  
+
+``` txt
+      A---B---C Fix/1234
+     /
+D---E Release
+
+D---E---A---B---C Fix/1234,Release
+```
+
+上記のような状態であったとする。  
+
+この状態ではブランチ Fix/1234 はブランチ Release に安全にマージ可能。  
+ブランチ Fix/1234 に対して行ったコミットを Release にも行えば良いだけだが、同じ変更をせっせと再生するのではなく、単に Release ブランチをブランチ Fix/1234 と同じコミットをポイントするように変更するだけでよい。  
+
+これが Fast Forward(早送り) マージ。  
+
+[fast-forwardマージから理解するgit rebase](https://qiita.com/vsanna/items/451b42f886c599a16a55)  
+[Non-Fast-Forward Push の解決](https://linux.keicode.com/prog/git-resolve-non-fast-forward-push-problem.php)  
+
+### Rebaseした後、元のブランチにマージしなおした時に発生したマージがこれ
+
+ReleaseからFixを切り、Fixをリベースして追加の修正を行い、そのままReleaseにマージしてもマージコミットが発生しないのはこの仕組みがあるから。  
+
+``` txt : 元の状態
+      A---B---C Fix/1234
+     /
+D---E---F---G Release
+```
+
+``` txt : Fix/1234をリベース
+               A'--B'--C' Fix/1234
+              /
+D---E---F---G Release
+```
+
+``` txt: リベースしてからD',E'をコミット
+               A'--B'--C'--D'--E' Fix/1234
+              /
+D---E---F---G Release
+```
+
+``` txt : Fix/1234をReleaseにマージした場合のコミット状況
+D---E---F---G---A'--B'--C'--D'--E' Fix/1234,Release
+```
+
+## Non Fast Forward
+
+Fast Forwardではないマージ。  
+マージコミットが発生するタイプのマージ。  
+
+``` txt
+      A---B---C Fix/1234
+     /
+D---E---F---G Release
+
+      A---B---C
+     /         ╲
+D---E---F---G---H Fix/1234,Release
+
+※Hはマージコミット
+```
+
+ブランチ Fix/1234 を作ってそこでコミットを行う。  
+同時に Release ブランチでもコミットを行った場合、明らかに Release のポインタを差し替えるだけではマージ作業は解決できません。  
+
+ブランチ Fix/1234 の内容と Release の内容を活かしつつ、それらをマージして新たな合流地点を作る、そうした作業が Non Fast Forward マージです。  

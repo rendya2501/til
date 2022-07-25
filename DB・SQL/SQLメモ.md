@@ -196,6 +196,22 @@ WHERE rk=1
 
 ## DROP TABLEはロールバック可能か？
 
+不可能。  
+SQLServerはDDLをロールバック可能ということで、いけるかと思ったが、調べてみたら普通に駄目だった。  
+SQLServerで無理なのだから他のDBでも基本的に無理なのだろう。  
+
+ただ、SQLSERVER truncateまではロールバックできるので、なんか色々ある模様。  
+
+``` sql
+Begin Tran
+Select * From A --- 1
+drop Table A
+Select * From A --- 2
+
+Rollback Tran
+Select * From A --- 3
+```
+
 SQLServerではロールバック可能。  
 他はDBによる。  
 
