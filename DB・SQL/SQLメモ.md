@@ -69,7 +69,8 @@ last_name  total_count  section_count  section_max_height  section_height_order 
 
 ## 分子分母を出力するサンプル
 
-プレーヤーが複数の時間に跨いで予約を取っている状況において、その人にとってその時間が何番目なのかを分母分子で表示するサンプル  
+OVER PARTITIONを使った実践的なサンプル。  
+プレーヤーが複数の時間に跨いで予約を取っている状況において、その時間にとってその人が何番目なのかを分母分子で表示するサンプル  
 
 ``` sql : データ準備
 CREATE TABLE TestReservation
@@ -82,33 +83,36 @@ CREATE TABLE TestReservation
 INSERT INTO TestReservation
 VALUES
      ('07:00:00.0000000','Player202204160001')
-    ,('07:07:00.0000000','Player202204160001')
-    ,('07:14:00.0000000','Player202204160001')
     ,('07:00:00.0000000','Player202204160002')
-    ,('07:07:00.0000000','Player202204160002')
     ,('07:00:00.0000000','Player202204160003')
     ,('07:00:00.0000000','Player202204160004')
+    ,('07:07:00.0000000','Player202204160001')
+    ,('07:07:00.0000000','Player202204160002')
+    ,('07:14:00.0000000','Player202204160001')
     ,('07:14:00.0000000','Player202204160004')
+    ,('07:14:00.0000000','Player202204160005')
 ```
 
 ``` sql
 SELECT
     [ReservationTime],
     [PlayerNo],
-    -- プレーヤー毎の時間順(分子)
-    ROW_NUMBER() OVER(PARTITION BY [PlayerNo] ORDER BY [ReservationTime]) AS [Numerator],
-    -- プレーヤー毎の件数(分母)
-    COUNT(1) OVER(PARTITION BY [PlayerNo]) AS [Denominator]
+    -- 時間毎のプレーヤー順(分子)
+    ROW_NUMBER() OVER(PARTITION BY [ReservationTime] ORDER BY [PlayerNo]) AS [Numerator],
+    -- 時間毎の件数(分母)
+    COUNT(1) OVER(PARTITION BY [ReservationTime]) AS [Denominator]
 FROM [TestReservation]
 
--- 07:00:00.0000000    Player202204160001    1    3
--- 07:07:00.0000000    Player202204160001    2    3
--- 07:14:00.0000000    Player202204160001    3    3
--- 07:00:00.0000000    Player202204160002    1    2
+
+-- 07:00:00.0000000    Player202204160001    1    4
+-- 07:00:00.0000000    Player202204160002    2    4
+-- 07:00:00.0000000    Player202204160003    3    4
+-- 07:00:00.0000000    Player202204160004    4    4
+-- 07:07:00.0000000    Player202204160001    1    2
 -- 07:07:00.0000000    Player202204160002    2    2
--- 07:00:00.0000000    Player202204160003    1    1
--- 07:00:00.0000000    Player202204160004    1    2
--- 07:14:00.0000000    Player202204160004    2    2
+-- 07:14:00.0000000    Player202204160001    1    3
+-- 07:14:00.0000000    Player202204160004    2    3
+-- 07:14:00.0000000    Player202204160005    3    3
 ```
 
 ``` sql : 超愚直にやるならこう
