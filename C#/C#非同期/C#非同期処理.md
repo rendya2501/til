@@ -559,7 +559,10 @@ public async Task ToaruAsyncMethod()
 ## async void と _ = Task.Run は同じか？
 
 [c# async voidでawait Task.Run()失敗の巻](https://qiita.com/twentyfourhours/items/3451f39567239f951a1a)  
-多分同じ。  
+
+仕事投げっぱなしで終了を検知しないという意味では同じ。  
+async void は終了を検知できないけど、 Task.Runは検知できる。  
+だけど、破棄することであえて検知しない→投げっぱなしにすることも可能で、その状態はasync void を実行したのと同じような状態とみなせる。  
 
 ``` C#
         // Start 0
@@ -880,30 +883,6 @@ System.Windows.Application.Current.Dispatcher.Invoke((Action)(() => {
 
 ---
 
-## ContinueWith
-
-``` C#
-
-private void FUGA()
-{
-    async InnerMethod() {
-        await Task.Run(() => !_IsInitializing)
-            .ContinueWith(res => Messenger.Raise(new InteractionMessage("AccountNoFocusAction")));
-    }
-
-    Initialize();
-}
-
-private async void Initialize()
-{
-    _IsInitializing = true;
-    await HOGE();
-    _IsInitializing = false;
-}
-```
-
----
-
 ## 非同期メソッドの並列実行
 
 <https://docs.microsoft.com/ja-jp/dotnet/csharp/programming-guide/concepts/async/>  
@@ -991,12 +970,10 @@ Task.Factory.StartNewが不要になったわけではない。
 ## AsyncをAwaitするのと同期は同じか？
 
 ibさんからAsyncをAwaitするのと、普通の同期処理は同じか？という質問を受けた。  
-ibさんは毎回いい質問を持ってきてくれる。  
 厳密には違うだろうが、どう違うのか、考えてみればわからないのでまとめることにした。  
 
 同期処理における時間のかかる処理は白くなって動かせなくなる。  
 しかし、AsyncAwaitは普通に動かせる。  
-おそらくだが、実行するスレッドが違うからこのような違いになると思われる。  
 同期処理における待機は、UIスレッドそのものを止めるので、画面が固まってしまうが、AsyncAwaitはUIスレッド以外で新しくスレッド作ってそちらで実行するので、画面は固まらない。  
 でも、処理を実行しているスレッドでは、実質同期的な停止と同じなのだろう。  
 
