@@ -29,6 +29,7 @@ select ROW_NUMBER() OVER (), * from [Table]
 ## PARTITION BY
 
 [SQL PARTITION BYの基本と効率的に集計する便利な方法](https://zukucode.com/2017/08/sql-over-partition-by.html)  
+[分析関数（ウインドウ関数）をわかりやすく説明してみた](https://qiita.com/tlokweng/items/fc13dc30cc1aa28231c5)  
 
 ``` txt : employee（社員）
 id  first_name  last_name  department_id  height
@@ -76,21 +77,23 @@ OVER PARTITIONを使った実践的なサンプル。
 CREATE TABLE TestReservation
 (
     [Id] INT NOT NULL IDENTITY(1,1) PRIMARY KEY,  
-    [ReservationTime] time,  
-    [PlayerNo] nvarchar(255)
+    [ReservationTime] TIME,  
+    [SeatNo] INT,
+    [PlayerNo] nvarchar(255),
+    [GroupNo] INT
 );
 
 INSERT INTO TestReservation
 VALUES
-     ('07:00:00.0000000','Player202204160001')
-    ,('07:00:00.0000000','Player202204160002')
-    ,('07:00:00.0000000','Player202204160003')
-    ,('07:00:00.0000000','Player202204160004')
-    ,('07:07:00.0000000','Player202204160001')
-    ,('07:07:00.0000000','Player202204160002')
-    ,('07:14:00.0000000','Player202204160001')
-    ,('07:14:00.0000000','Player202204160004')
-    ,('07:14:00.0000000','Player202204160005')
+     ('07:00:00.0000000',1,'Player202204160001',1)
+    ,('07:00:00.0000000',2,'Player202204160002',1)
+    ,('07:00:00.0000000',3,'Player202204160003',2)
+    ,('07:00:00.0000000',4,'Player202204160004',2)
+    ,('07:07:00.0000000',1,'Player202204160001',1)
+    ,('07:07:00.0000000',2,'Player202204160002',1)
+    ,('07:14:00.0000000',1,'Player202204160001',1)
+    ,('07:14:00.0000000',2,'Player202204160004',2)
+    ,('07:14:00.0000000',3,'Player202204160005',3)
 ```
 
 ``` sql
@@ -113,6 +116,57 @@ FROM [TestReservation]
 -- 07:14:00.0000000    Player202204160001    1    3
 -- 07:14:00.0000000    Player202204160004    2    3
 -- 07:14:00.0000000    Player202204160005    3    3
+```
+
+[Partition Function COUNT() OVER possible using DISTINCT](https://stackoverflow.com/questions/11202878/partition-function-count-over-possible-using-distinct)  
+
+``` sql
+-- COUNT(DISTINCT GroupNo)が出来ない。時間の中に複数のグループがいることを確認したいだけなのに。
+
+SELECT
+    [ReservationTime],
+    [PlayerNo],
+    -- 時間毎のプレーヤー順(分子)
+    ROW_NUMBER() OVER(PARTITION BY [ReservationTime] ORDER BY [PlayerNo]) AS [Numerator],
+    -- 時間毎の件数(分母)
+    COUNT(1) OVER(PARTITION BY [ReservationTime]) AS [Denominator],
+
+    else 0 end) over (order by GroupNo)
+    --ROW_NUMBER() OVER(PARTITION BY [ReservationTime] ORDER BY [PlayerNo])
+    --+ '/' 
+    --+ COUNT(1) OVER(PARTITION BY [ReservationTime])
+    --+ CASE WHEN COUNT(GroupNo) OVER(PARTITION BY [ReservationTime]) > 1 THEN '+' ELSE '' END  AS [FrameCount]
+FROM [TestReservation]
+
+
+SELECT
+    [ReservationTime],
+    [PlayerNo],
+    -- 時間毎のプレーヤー順(分子)
+    ROW_NUMBER() OVER(PARTITION BY [ReservationTime] ORDER BY [PlayerNo]) AS [Numerator],
+    -- 時間毎の件数(分母)
+    COUNT(1) OVER(PARTITION BY [ReservationTime]) AS [Denominator],
+    -- その時間にどれくらいの
+    dense_rank() over (partition by ReservationTime order by GroupNo) + dense_rank() over (partition by ReservationTime order by GroupNo desc) - 1,
+    CONVERT(nvarchar,ROW_NUMBER() OVER(PARTITION BY [ReservationTime] ORDER BY [PlayerNo]))
+    + '/' 
+    + CONVERT(nvarchar,COUNT(1) OVER(PARTITION BY [ReservationTime]))
+    + CASE WHEN (dense_rank() over (partition by ReservationTime order by GroupNo) + dense_rank() over (partition by ReservationTime order by GroupNo desc) - 1) > 1 THEN '+' ELSE '' END  AS [FrameCount]
+FROM [TestReservation]
+
+ORDER BY ReservationTime,PlayerNo
+
+
+-- ReservationTime     PlayerNo   Numerator  Denominator  FrameByGroupCount    FrameCount
+-- 07:00:00.0000000    Player202204160001    1    4    2                         1/4+
+-- 07:00:00.0000000    Player202204160002    2    4    2                         2/4+
+-- 07:00:00.0000000    Player202204160003    3    4    2                         3/4+
+-- 07:00:00.0000000    Player202204160004    4    4    2                         4/4+
+-- 07:07:00.0000000    Player202204160001    1    2    1                         1/2
+-- 07:07:00.0000000    Player202204160002    2    2    1                         2/2
+-- 07:14:00.0000000    Player202204160001    1    3    3                         1/3+
+-- 07:14:00.0000000    Player202204160004    2    3    3                         2/3+
+-- 07:14:00.0000000    Player202204160005    3    3    3                         3/3+
 ```
 
 ``` sql : 超愚直にやるならこう
