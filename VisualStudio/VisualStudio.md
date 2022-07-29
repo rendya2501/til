@@ -103,3 +103,17 @@ Revertコミットが自動的に生成されるのでプッシュすればRever
 1. ソリューション エクスプローラーで、プロジェクト ノードを右クリックし、 [追加]>[新しい項目] の順に選択します。  
 2. [共通項目]>[全般] の順に展開してから、テンプレートの一覧から [クラス ダイアグラム] を選択します。  
 3. 作成したクラスダイアグラムを開いた状態でソリューションエクスプローラーからクラス等をドラッグ&ドロップするとクラス図が作成されます。  
+
+---
+
+## VisualStudio開発におけるgitignore
+
+[ipentec](https://www.ipentec.com/document/visual-studio-create-gitignore-file)  
+
+`dotnet new gitignore`  
+
+PowerShell または DOSプロンプトでコマンドを実行するだけでgitignoreが生成される。  
+そのディレクトリでやったほうがいいので、右クリックしてプロンプトを立ち上げてから実行するのが良い。  
+
+直接置いてあるっぽいので、コピるのもありかも。  
+[github_VisualStudio.gitignore](https://github.com/github/gitignore/blob/main/VisualStudio.gitignore)  
