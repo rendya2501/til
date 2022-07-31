@@ -139,10 +139,8 @@ git push origin Fix/2239
 そういう質問をされたのでまとめる。  
 リポジトリの中にブランチがあるので、ブランチをプルという表現自体がおかしい。  
 
-実際に特定のブランチを拝見したかったら、そのリポジトリをクローンしたのち、VSCodeで開いて左下のブランチを切り替えるくらいしか方法がないと思われるが、  
-もしかしたら本当に実現できるのかも？  
+実際に特定のブランチを拝見したかったら、そのリポジトリをクローンしたのち、VSCodeで開いて左下のブランチを切り替えるくらいしか方法がないと思われるが、もしかしたら本当に実現できるのかも？  
 というか、リポジトリとかブランチの関係を完全に把握しているわけではないので、なんとも言えないのが正直なところ。  
-はぁ。勉強したいなぁ。  
 
 pullではなくcloneなら普通にありました。  
 [リモートのブランチをcloneする](https://qiita.com/shim0mura/items/85aa7fc762112189bd73)  
@@ -152,14 +150,11 @@ pullではなくcloneなら普通にありました。
 `git checkout -b development origin/development`  
 
 2022/05/20 追記  
-
 普通にありました。  
 
+`git clone -b ブランチ名 https://リポジトリのアドレス`  
+
 [リモートから特定のブランチを指定してcloneする](https://qiita.com/icoxfog417/items/5776e0f0f758f0f0e48a)  
-
-リモートから特定のブランチを指定してcloneする方法
-
-`git clone -b ブランチ名 https://リポジトリのアドレス`
 
 ---
 
@@ -359,3 +354,21 @@ index.lockファイルがあるとpullやcommitができなくなる模様。
 .gitフォルダを含めた状態でいっぺんにコミットしようとしたらなった記憶。  
 
 [git/index.lockを解除し無事にadd/commitできました。](https://creepfablic.site/2019/07/07/git-index-lock/)  
+
+---
+
+## Special Repository (GitHub_プロフィールのREADME)
+
+転職のため、折角アカウントを公開するのだから、最初に開いたときにわかりやすい説明を表示させたい。  
+と、思ったので調べた。  
+
+■**作り方**  
+
+1. New Repositoryで自分のアカウント名と同じ名前でリポジトリを作る  
+
+`Special Repository`という扱いらしく、その名の通り特別扱いらしい。  
+リポジトリを作ろうとするとスペシャルな文言が表示される。  
+>○○/○○ is a ✨special ✨ repository that you can use to add a README.md to your GitHub profile. Make sure it’s public and initialize it with a README to get started.  
+
+[GitHub のプロフィールをかっこよくしたい](https://blog.kosappi.net/entry/2021/04/17/002051)  
+[GitHub Readme Stats](https://github.com/anuraghazra/github-readme-stats)  

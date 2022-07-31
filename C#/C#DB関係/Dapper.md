@@ -153,9 +153,7 @@ INSERT,UPDATE,DELETE等を実行するためのメソッド。
 
 ## トランザクション
 
-[C# DapperでDB接続する方法（トランザクション編）](https://learning-collection.com/c-dapper%E3%81%A7db%E6%8E%A5%E7%B6%9A%E3%81%99%E3%82%8B%E6%96%B9%E6%B3%95%EF%BC%88%E3%83%88%E3%83%A9%E3%83%B3%E3%82%B6%E3%82%AF%E3%82%B7%E3%83%A7%E3%83%B3%E7%B7%A8%EF%BC%89/)  
-
-`connection.Execute`メソッドの第三引数にSqlTransactionインスタンスを渡せば良かった。  
+Executeメソッドの第三引数にSqlTransactionインスタンスを渡せば良い。  
 
 ``` C#
 {
@@ -179,6 +177,8 @@ INSERT,UPDATE,DELETE等を実行するためのメソッド。
     }
 }
 ```
+
+[C# DapperでDB接続する方法（トランザクション編）](https://learning-collection.com/c-dapper%E3%81%A7db%E6%8E%A5%E7%B6%9A%E3%81%99%E3%82%8B%E6%96%B9%E6%B3%95%EF%BC%88%E3%83%88%E3%83%A9%E3%83%B3%E3%82%B6%E3%82%AF%E3%82%B7%E3%83%A7%E3%83%B3%E7%B7%A8%EF%BC%89/)  
 
 ---
 
