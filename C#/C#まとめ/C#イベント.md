@@ -1,102 +1,150 @@
 # イベント
 
+---
+
+## 概要
+
+[1]  
+デリゲートによるコールバックメカニズムに、安全な購読と購読解除機能を追加するための文法  
+
+[2]  
+イベントとは通知である。  
+通知されたら、対応した処理を実行する仕組みである。  
+
 [C#のイベント機能](https://dobon.net/vb/dotnet/vb2cs/event.html)  
+[[C#] イベント入門](https://qiita.com/laughter/items/e9cf666e0430acc39e95)  
 
-イベントは要するにデリゲートである。  
-そのイベントが発火したときに何をやらせたいのか、その処理を登録するだけ。  
+---
 
-``` C# : 基本的なイベント
-Console.WriteLine("ボタンを押した体");
-SleepClass clsSleep = new();
-// ① イベントハンドラの追加
-// イベントが発生した時に実行したい処理を登録する。
-clsSleep.Time += new EventHandler(SleepClass_Time);
-// ② 処理開始
-clsSleep.Start();
+## とりあえず最小実装
 
-/// <summary>
-/// イベントが発生したときに呼び出されるメソッド
-/// </summary>
-void SleepClass_Time(object sender, EventArgs e)
-{
-    // ⑥ 登録された処理として、画面にハローワールドが表示される。
-    Console.WriteLine("Hello, World!");
-}
+1. イベント定義  
+2. 処理を定義  
+3. イベントに処理を登録  
+4. イベント発火  
+5. 登録した処理の実行  
 
-public class SleepClass
-{
-    // データを持たないイベントデリゲートの宣言
-    // ここでは"Time"というイベントデリゲートを宣言する
-    public event EventHandler? Time;
-
-    /// <summary>
-    /// イベントを発火させるメソッド
-    /// </summary>
-    /// <param name="e"></param>
-    protected virtual void OnTime(EventArgs e)
+``` C#
+    class EventTest
     {
-        // ⑤ Timeに紐づけられた処理が実行される。
-        // 今回の例の場合SleepClass_Timeが発動する。
-        Time?.Invoke(this, e);
-    }
+        // 1. イベント定義  
+        private event EventHandler TestEvent;
 
-    /// <summary>
-    /// 処理を開始する。
-    /// 1秒後にイベント発火
-    /// </summary>
-    public void Start()
-    {
-        // ③ 1秒待つ
-        Thread.Sleep(1000);
-        // ④ イベントを発火させるメソッド
-        OnTime(EventArgs.Empty);
-        // 別にここにこう書いてもいい
-        //  Time?.Invoke(this, e);
+        // 2. 処理を定義  
+        private void DoSomething(object sender, EventArgs e)
+        {
+            // 5. 登録した処理の実行  
+            Console.WriteLine("Event!");
+        }
+
+        // 3. イベントに処理を登録  
+        public EventTest()
+        {
+            TestEvent += DoSomething;
+        }
+
+        // 4. イベント発火
+        public void OnRaiseEvent()
+        {
+            TestEvent?.Invoke(this, new EventArgs());
+        }
     }
-}
 ```
 
-``` C# : 値が帰ってくるサンプル
-Console.WriteLine("値が帰ってくるサンプル");
-SleepClass2 SleepClass2 = new();
-SleepClass2.Time += new SleepClass2.TimeEventHandler(SleepClass_Time2);
-SleepClass2.Start();
+---
 
-/// <summary>
-/// 値が帰ってくるイベントのサンプルクラス
-/// </summary>
-public class SleepClass2
-{
-    //デリゲートの宣言
-    //TimeEventArgs型のオブジェクトを返すようにする
-    public delegate void TimeEventHandler(object sender, TimeEventArgs e);
+## 任意の値を通知先に渡すタイプのイベント
 
-    //イベントデリゲートの宣言
-    public event TimeEventHandler? Time;
+ジェネリックタイプのEventHandlerを使うとよろしい。  
+`EventHandler<TEventArgs>`  
 
-    protected virtual void OnTime(TimeEventArgs e) => Time?.Invoke(this, e);
+1. ジェネリックタイプのイベントを定義  
+2. 処理を定義  
+3. イベントに処理を登録  
+4. イベント発火  
+5. 登録した処理の実行  
 
-    public void Start()
+``` C#
+    class EventTest
     {
-        Thread.Sleep(1000);
-        //返すデータの設定
-        TimeEventArgs e = new();
-        e.Message = "終わったよ。";
-        //イベントの発生
-        OnTime(e);
-    }
-}
+        // 1. ジェネリックタイプのイベントを定義
+        private event EventHandler<string> TestEvent;
 
-/// <summary>
-/// Timeイベントで返されるデータ
-/// ここではstring型のひとつのデータのみ返すものとする
-/// </summary>
-/// <remarks>
-/// EventArgsの派生クラスを用いてデータを返していたが、必ずしもそうする必要はない。
-/// しかし、EventArgsを使った方法が.NETでは推奨されているので余程のことがない限りは従うべき。
-/// </remarks>
-public class TimeEventArgs : EventArgs{ public string Message; }
+        // 2. 処理を定義
+        private void DoSomething(object sender, string msg)
+        {
+            // 5. 登録した処理の実行
+            Console.WriteLine(msg);
+        }
+
+        // 3. イベントに処理を登録
+        public EventTest()
+        {
+            TestEvent += DoSomething;
+        }
+
+        // 4. イベント発火
+        public void OnRaiseEvent()
+        {
+            TestEvent?.Invoke(this, "Event!");
+        }
+    }
 ```
+
+---
+
+## 任意の値を通知先に渡すタイプのイベント2
+
+独自のEventArgsとEventHandlerを定義するタイプの実装。  
+ジェネリックタイプの実装ができる今、実装する意味はまったくないけど、備忘録として残しておく。  
+
+1. EventArgsの派生クラスを定義  
+2. オリジナルのEventHandlerを定義  
+3. イベント定義  
+4. 処理を定義  
+5. イベントに処理を登録  
+6. イベント発火  
+7. 登録した処理の実行  
+
+``` C#
+    // 1. EventArgsの派生クラスを定義
+    public class HogeEventArgs : EventArgs { 
+        public string Message; 
+    }
+
+    public class EventTest
+    {
+        // 2. オリジナルのEventHandlerを定義
+        public delegate void HogeEventHandler(object sender, HogeEventArgs e);
+
+        // 3. イベント定義  
+        private event HogeEventHandler TestEvent;
+
+        // 4. 処理を定義  
+        private void DoSomething(object sender, HogeEventArgs e)
+        {
+            // 7. 登録した処理の実行  
+            Console.WriteLine(e.Message);
+        }
+
+        // 5. イベントに処理を登録
+        public EventTest()
+        {
+            TestEvent += DoSomething;
+        }
+
+        // 6. イベント発火
+        public void OnRaiseEvent()
+        {
+            TestEvent?.Invoke(this, new HogeEventArgs { Message = "終わったよ。" });
+        }
+    }
+```
+
+>EventArgsの派生クラスを用いてデータを返していたが、必ずしもそうする必要はない。  
+>しかし、EventArgsを使った方法が.NETでは推奨されているので余程のことがない限りは従うべき。  
+
+と、メモしているが、一体何だったか。
 
 ---
 
