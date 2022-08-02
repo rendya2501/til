@@ -201,3 +201,19 @@ intとして解釈されるため、型の関係で取得できない模様。
 `CONVERT(BIT,'TRUE') AS [Flag]` のように、ちゃんとコンバートしないと取得できない模様。  
 
 [SQLServerでboolean型（True/Falseの真偽値）を扱うbit型](https://johobase.com/sqlserver-boolean-bit/)  
+
+---
+
+## メモ
+
+``` txt
+実行するときにコネクションを取得。
+終わったら解放。
+取得してやるか、Actionを渡してやるか。
+
+一貫してトランザクションを実行したい場合、TransactionScopeのOnScopeの中でやるか。
+実務ではそうしている。
+だけどOnScopeの中でOnScopeというあれもある。
+実務のやつが地味に優秀だったのかなぁ。
+あとは、各種Selectの種類と簡単な接続ラップサンプルをやりたい。
+```
