@@ -199,3 +199,67 @@ JOIN (
 ) AS [SQ_Denominator]
 ON [SQ_Numerator].[PlayerNo] = [SQ_Denominator].[PlayerNo]
 ```
+
+---
+
+## FIRST_VALUEサンプル
+
+MainTableとSubTableのような親子関係のあるテーブルがあるとする。  
+MainKeyだけでJoinしたとして、そのMainKeyに対するSubKeyが持つ、TestNumberを代表(Repre)として特定して表示させたい という課題に対応するとき、Window関数とFIRST_VALUEを用いてうまいことできたのでまとめる。
+
+後日、後で気が付いたが、これでうまく行ったのは、順番の列が定義されていたからだ。  
+
+``` txt : MainTable
+MainKey  SubKey
+Key001   AAA
+Key002   DDD
+```
+
+``` txt : SubTable
+MainKey  SubKey  TestNumber  OrderNumber
+Key001   AAA     0001        1
+Key001   BBB     0002        2
+Key002   CCC     0003        2
+Key002   DDD     0004        1
+Key002   EEE     0005        3
+```
+
+``` txt : 表示させたい結果
+MainKey  SubKey Repre  TestNumber
+Key001   AAA    0001   0001
+Key001   AAA    0001   0002
+Key002   DDD    0004   0003
+Key002   DDD    0004   0004
+Key002   DDD    0004   0005
+```
+
+MainKeyとSubKeyでグループ化すしてOrderNumberでOrderByする。  
+目的のTestNumberが一番上にある状態なので、FIRST_VALUEで先頭のTestNumberを取得する。  
+
+``` sql
+SELECT
+    [MainTable].[MainKey],
+    [MainTable].[SubKey],
+    FIRST_VALUE([SubTable].[TestNumber]) OVER (PARTITION BY [MainTable].[MainKey],[MainTable].[SubKey] ORDER BY [SubTable].[OrderNumber]) AS [Repre],
+    [SubTable].[TestNumber]
+FROM [MainTable]
+JOIN [SubTable]
+ON [MainTable].[MainKey] = [SubTable].[MainKey]
+```
+
+愚直にやるなら自分自身をJoinすればいける。  
+
+``` sql
+SELECT
+    [MainTable].[MainKey],
+    [MainTable].[SubKey],
+    [Self].[TestNumber] AS [Repre],
+    [SubTable].[TestNumber]
+FROM [MainTable] 
+JOIN [SubTable]
+ON [MainTable].[MainKey] = [SubTable].[MainKey]
+-- 自分自身を各々のキーでJoinすれば、代表となるNumberを特定できる
+JOIN [SubTable] AS [Self]
+ON [MainTable].[MainKey] = [Self].[MainKey]
+AND [MainTable].[SubKey] = [Self].[SubKey]
+```
