@@ -263,3 +263,45 @@ JOIN [SubTable] AS [Self]
 ON [MainTable].[MainKey] = [Self].[MainKey]
 AND [MainTable].[SubKey] = [Self].[SubKey]
 ```
+
+割と可能性を感じる。  
+ここからもう一ついければ達成できるのでは？  
+
+``` sql
+SELECT
+    [MainTable].[MainKey],
+    [MainTable].[SubKey],
+    CASE WHEN [MainTable].[SubKey] = [SubTable].[SubKey]
+        THEN [SubTable].[TestNumber] 
+        ELSE ''
+    END AS [Repre],
+    [SubTable].[TestNumber]
+FROM [MainTable]
+JOIN [SubTable]
+ON [MainTable].[MainKey] = [SubTable].[MainKey]
+
+-- MainKey  SubKey  Repre  TestNumber
+-- Key001   AAA     0001   0001
+-- Key001   AAA            0002
+-- Key002   DDD            0003
+-- Key002   DDD     0004   0004
+-- Key002   DDD            0005
+```
+
+こういう芸当も可能な模様。  
+夢が広がる。  
+
+``` sql
+SELECT
+    ISNULL([MainTable].[MainKey],[SubTable].[MainKey]),
+    ISNULL([MainTable].[SubKey],[SubTable].[SubKey]),
+    FIRST_VALUE(CASE WHEN [MainTable].[SubKey] = [SubTable].[SubKey]
+        THEN [SubTable].[TestNumber] 
+        ELSE ''
+    END) OVER (PARTITION BY [MainTable].[MainKey],[MainTable].[SubKey] ORDER BY [SubTable].[MainKey]) AS [Repre],
+    [SubTable].[TestNumber]
+FROM [SubTable]
+LEFT JOIN [MainTable]
+ON [SubTable].[MainKey] = [MainTable].[MainKey]
+AND  [SubTable].[SubKey] = [MainTable].[SubKey]
+```
