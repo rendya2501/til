@@ -71,158 +71,177 @@ last_name  total_count  section_count  section_max_height  section_height_order 
 
 ## 分子分母を出力するサンプル
 
-OVER PARTITIONを使った実践的なサンプル。  
-プレーヤーが複数の時間に跨いで予約を取っている状況において、その時間にとってその人が何番目なのかを分母分子で表示するサンプル  
+Window関数を初めて知ってから組み上げた個人的な実践サンプル。  
+
+1つの予約が複数の時間に跨っている様を分母分子で表示するサンプル  
+1つの時間に複数の予約がある場合は「+」を表示させる。  
 
 ``` sql : データ準備
+DROP TABLE IF EXISTS TestReservation
 CREATE TABLE TestReservation
 (
     [Id] INT NOT NULL IDENTITY(1,1) PRIMARY KEY,  
     [ReservationTime] TIME,  
-    [SeatNo] INT,
-    [PlayerNo] nvarchar(255),
-    [GroupNo] INT
+    [ReservationNo] nvarchar(255)
 );
-
 INSERT INTO TestReservation
 VALUES
-     ('07:00:00.0000000',1,'Player202204160001',1)
-    ,('07:00:00.0000000',2,'Player202204160002',1)
-    ,('07:00:00.0000000',3,'Player202204160003',2)
-    ,('07:00:00.0000000',4,'Player202204160004',2)
-    ,('07:07:00.0000000',1,'Player202204160001',1)
-    ,('07:07:00.0000000',2,'Player202204160002',1)
-    ,('07:14:00.0000000',1,'Player202204160001',1)
-    ,('07:14:00.0000000',2,'Player202204160004',2)
-    ,('07:14:00.0000000',3,'Player202204160005',3)
+     ('07:00:00.0000000','RES202204160001')
+    ,('07:07:00.0000000','RES202204160001')
+    ,('07:14:00.0000000','RES202204160001')
+    ,('07:21:00.0000000','RES202204160001')
+    ,('07:28:00.0000000','RES202204160002')
+    ,('07:35:00.0000000','RES202204160002')
+    ,('07:42:00.0000000','RES202204160003')
+    ,('07:42:00.0000000','RES202204160004')
+    ,('07:49:00.0000000','RES202204160003')
+    ,('07:56:00.0000000','RES202204160005')
 ```
 
 ``` sql
 SELECT
     [ReservationTime],
-    [PlayerNo],
-    -- 時間毎のプレーヤー順(分子)
-    ROW_NUMBER() OVER(PARTITION BY [ReservationTime] ORDER BY [PlayerNo]) AS [Numerator],
-    -- 時間毎の件数(分母)
-    COUNT(1) OVER(PARTITION BY [ReservationTime]) AS [Denominator]
-FROM [TestReservation]
-
-
--- 07:00:00.0000000    Player202204160001    1    4
--- 07:00:00.0000000    Player202204160002    2    4
--- 07:00:00.0000000    Player202204160003    3    4
--- 07:00:00.0000000    Player202204160004    4    4
--- 07:07:00.0000000    Player202204160001    1    2
--- 07:07:00.0000000    Player202204160002    2    2
--- 07:14:00.0000000    Player202204160001    1    3
--- 07:14:00.0000000    Player202204160004    2    3
--- 07:14:00.0000000    Player202204160005    3    3
-```
-
-[Partition Function COUNT() OVER possible using DISTINCT](https://stackoverflow.com/questions/11202878/partition-function-count-over-possible-using-distinct)  
-
-``` sql
--- COUNT(DISTINCT GroupNo)が出来ない。時間の中に複数のグループがいることを確認したいだけなのに。
-
-SELECT
-    [ReservationTime],
-    [PlayerNo],
-    -- 時間毎のプレーヤー順(分子)
-    ROW_NUMBER() OVER(PARTITION BY [ReservationTime] ORDER BY [PlayerNo]) AS [Numerator],
-    -- 時間毎の件数(分母)
-    COUNT(1) OVER(PARTITION BY [ReservationTime]) AS [Denominator],
-
-    else 0 end) over (order by GroupNo)
-    --ROW_NUMBER() OVER(PARTITION BY [ReservationTime] ORDER BY [PlayerNo])
-    --+ '/' 
-    --+ COUNT(1) OVER(PARTITION BY [ReservationTime])
-    --+ CASE WHEN COUNT(GroupNo) OVER(PARTITION BY [ReservationTime]) > 1 THEN '+' ELSE '' END  AS [FrameCount]
-FROM [TestReservation]
-
-
-SELECT
-    [ReservationTime],
-    [PlayerNo],
-    -- 時間毎のプレーヤー順(分子)
-    ROW_NUMBER() OVER(PARTITION BY [ReservationTime] ORDER BY [PlayerNo]) AS [Numerator],
-    -- 時間毎の件数(分母)
-    COUNT(1) OVER(PARTITION BY [ReservationTime]) AS [Denominator],
-    -- その時間にどれくらいの
-    dense_rank() over (partition by ReservationTime order by GroupNo) + dense_rank() over (partition by ReservationTime order by GroupNo desc) - 1,
-    CONVERT(nvarchar,ROW_NUMBER() OVER(PARTITION BY [ReservationTime] ORDER BY [PlayerNo]))
+    [ReservationNo],
+    -- その予約の時間の順番(分子:Numerator)
+    ROW_NUMBER() OVER(PARTITION BY [ReservationNo] ORDER BY [ReservationTime]) AS [Numerator],
+    -- その予約の合計(分母:Denominator)
+    COUNT(1) OVER(PARTITION BY [ReservationNo]) AS [Denominator],
+    -- 分数表示。その時間に複数の予約がある場合は+を表示する
+    CONVERT(nvarchar,ROW_NUMBER() OVER(PARTITION BY [ReservationNo] ORDER BY [ReservationTime]))
     + '/' 
-    + CONVERT(nvarchar,COUNT(1) OVER(PARTITION BY [ReservationTime]))
-    + CASE WHEN (dense_rank() over (partition by ReservationTime order by GroupNo) + dense_rank() over (partition by ReservationTime order by GroupNo desc) - 1) > 1 THEN '+' ELSE '' END  AS [FrameCount]
+    + CONVERT(nvarchar,COUNT(1) OVER(PARTITION BY [ReservationNo]))
+    + CASE WHEN COUNT(*) OVER (PARTITION BY [ReservationTime]) > 1 THEN '+' ELSE '' END
+    AS [Result]
 FROM [TestReservation]
+GROUP BY [ReservationTime],[ReservationNo]
 
-ORDER BY ReservationTime,PlayerNo
-
-
--- ReservationTime     PlayerNo   Numerator  Denominator  FrameByGroupCount    FrameCount
--- 07:00:00.0000000    Player202204160001    1    4    2                         1/4+
--- 07:00:00.0000000    Player202204160002    2    4    2                         2/4+
--- 07:00:00.0000000    Player202204160003    3    4    2                         3/4+
--- 07:00:00.0000000    Player202204160004    4    4    2                         4/4+
--- 07:07:00.0000000    Player202204160001    1    2    1                         1/2
--- 07:07:00.0000000    Player202204160002    2    2    1                         2/2
--- 07:14:00.0000000    Player202204160001    1    3    3                         1/3+
--- 07:14:00.0000000    Player202204160004    2    3    3                         2/3+
--- 07:14:00.0000000    Player202204160005    3    3    3                         3/3+
+-- ReservationTime   ReservationNo    Numerator  Denominator  Result
+-- 07:00:00.0000000  RES202204160001      1          4        1/4   
+-- 07:07:00.0000000  RES202204160001      2          4        2/4   
+-- 07:14:00.0000000  RES202204160001      3          4        3/4   
+-- 07:21:00.0000000  RES202204160001      4          4        4/4   
+-- 07:28:00.0000000  RES202204160002      1          2        1/2   
+-- 07:35:00.0000000  RES202204160002      2          2        2/2   
+-- 07:42:00.0000000  RES202204160003      1          2        1/2+  
+-- 07:42:00.0000000  RES202204160004      1          1        1/1+  
+-- 07:49:00.0000000  RES202204160003      2          2        2/2   
+-- 07:56:00.0000000  RES202204160005      1          1        1/1   
 ```
+
+Window関数がよくわからなかったときに組んだ事例も備忘録として残しておく。  
 
 ``` sql : 超愚直にやるならこう
 SELECT
-    [SQ_Numerator].[ReservationTime],
-    [SQ_Numerator].[PlayerNo],
-    CONVERT(nvarchar,[SQ_Numerator].[Numerator]) AS [Numerator],
-    CONVERT(nvarchar,[SQ_Denominator].[Denominator]) AS [Denominator]
+    [A].[ReservationTime],
+    [A].[ReservationNo],
+    CONVERT(nvarchar,[A].[Numerator]) AS [Numerator],
+    CONVERT(nvarchar,[B].[Denominator]) AS [Denominator],
+    CASE WHEN COUNT(*) OVER (PARTITION BY [ReservationTime]) > 1 THEN '+' ELSE '' END AS [Emphasis],
+    CONVERT(nvarchar,[A].[Numerator])
+    + '/'
+    + CONVERT(nvarchar,[B].[Denominator])
+    + CASE WHEN COUNT(*) OVER (PARTITION BY [ReservationTime]) > 1 THEN '+' ELSE '' END AS [Result]
 FROM (
-    -- 時間を上から見ていった時のシーケンス(分子:Numerator)
+    -- その予約の時間の順番(分子:Numerator)
     SELECT
         [ReservationTime],
-        [PlayerNo],
-        ROW_NUMBER() OVER(PARTITION BY [PlayerNo] ORDER BY [ReservationTime]) AS Numerator
+        [ReservationNo],
+        ROW_NUMBER() OVER(PARTITION BY [ReservationNo] ORDER BY [ReservationTime]) AS [Numerator]
     FROM 
         [TestReservation]
     GROUP BY
-        [ReservationTime],[PlayerNo]
-    ) AS [SQ_Numerator]
+        [ReservationTime],[ReservationNo]
+    ) AS [A]
 JOIN (
-    -- プレーヤーが持っている時間の数(分母:Denominator)
+    -- その予約の合計(分母:Denominator)
     SELECT
-        [PlayerNo],
+        [ReservationNo],
         COUNT(DISTINCT [ReservationTime]) AS [Denominator]
     FROM 
         [TestReservation]
     GROUP BY 
-        [PlayerNo]
-) AS [SQ_Denominator]
-ON [SQ_Numerator].[PlayerNo] = [SQ_Denominator].[PlayerNo]
+        [ReservationNo]
+) AS [B]
+ON [A].[ReservationNo] = [B].[ReservationNo]
+
+-- ReservationTime   ReservationNo    Numerator  Denominator  Emphasis  Result
+-- 07:00:00.0000000  RES202204160001    1             4                 1/4
+-- 07:07:00.0000000  RES202204160001    2             4                 2/4
+-- 07:14:00.0000000  RES202204160001    3             4                 3/4
+-- 07:21:00.0000000  RES202204160001    4             4                 4/4
+-- 07:28:00.0000000  RES202204160002    1             2                 1/2
+-- 07:35:00.0000000  RES202204160002    2             2                 2/2
+-- 07:42:00.0000000  RES202204160003    1             2          +      1/2+
+-- 07:42:00.0000000  RES202204160004    1             1          +      1/1+
+-- 07:49:00.0000000  RES202204160003    2             2                 2/2
+-- 07:56:00.0000000  RES202204160005    1             1                 1/1
 ```
+
+---
+
+## COUNT(DISTINCT)は出来ない
+
+時間の中に複数の予約があったら、「+」を表示しようとして、COUNT(DISTINCT GroupNo)なんてしようとしたけど、出来なくてなんで？ってなった気がする。  
+だけど、時間の中に複数のグループがいたらって判定は普通にCOUNT() OVER()で行けた。  
+まぁ、黒魔術みたいな呪文で似たようなことで切ることを発見したので、それはそれでまとめる。  
+
+``` sql
+SELECT
+    [ReservationTime],
+    [ReservationNo],
+    CONVERT(nvarchar,ROW_NUMBER() OVER(PARTITION BY [ReservationNo] ORDER BY [ReservationTime]))
+    + '/' 
+    + CONVERT(nvarchar,COUNT(1) OVER(PARTITION BY [ReservationNo]))
+    -- 黒魔術
+    + CASE WHEN (
+        DENSE_RANK() OVER (PARTITION BY [ReservationTime] ORDER BY [ReservationNo]) 
+        + DENSE_RANK() OVER (PARTITION BY [ReservationTime] ORDER BY [ReservationNo] DESC) 
+        - 1
+        ) > 1 
+        THEN '+'
+        ELSE '' 
+    END
+    AS [Result]
+FROM [TestReservation]
+GROUP BY [ReservationTime],[ReservationNo]
+
+-- ReservationTime   ReservationNo    Result
+-- 07:00:00.0000000  RES202204160001  1/4   
+-- 07:07:00.0000000  RES202204160001  2/4   
+-- 07:14:00.0000000  RES202204160001  3/4   
+-- 07:21:00.0000000  RES202204160001  4/4   
+-- 07:28:00.0000000  RES202204160002  1/2   
+-- 07:35:00.0000000  RES202204160002  2/2   
+-- 07:42:00.0000000  RES202204160003  1/2+  
+-- 07:42:00.0000000  RES202204160004  1/1+  
+-- 07:49:00.0000000  RES202204160003  2/2   
+-- 07:56:00.0000000  RES202204160005  1/1   
+```
+
+[Partition Function COUNT() OVER possible using DISTINCT](https://stackoverflow.com/questions/11202878/partition-function-count-over-possible-using-distinct)  
 
 ---
 
 ## FIRST_VALUEサンプル
 
-MainTableとSubTableのような親子関係のあるテーブルがあるとする。  
-MainKeyだけでJoinしたとして、そのMainKeyに対するSubKeyが持つ、TestNumberを代表(Repre)として特定して表示させたい という課題に対応するとき、Window関数とFIRST_VALUEを用いてうまいことできたのでまとめる。
+こういうデータを用意する。
 
-後日、後で気が付いたが、これでうまく行ったのは、順番の列が定義されていたからだ。  
+``` sql
+drop table if exists MainTable;
+create table MainTable(MainKey varchar(32) primary key,SubKey varchar(32));
+insert into MainTable values('Key001','AAA');
+insert into MainTable values('Key002','DDD');
 
-``` txt : MainTable
-MainKey  SubKey
-Key001   AAA
-Key002   DDD
+drop table if exists SubTable;
+create table SubTable(MainKey varchar(32),SubKey varchar(32),TestNumber varchar(5) CONSTRAINT [PK_SubTable] PRIMARY KEY (MainKey,SubKey));
+insert into SubTable values('Key001','AAA','0001');
+insert into SubTable values('Key001','BBB','0002');
+insert into SubTable values('Key002','CCC','0003');
+insert into SubTable values('Key002','DDD','0004');
+insert into SubTable values('Key002','EEE','0005');
 ```
 
-``` txt : SubTable
-MainKey  SubKey  TestNumber  OrderNumber
-Key001   AAA     0001        1
-Key001   BBB     0002        2
-Key002   CCC     0003        2
-Key002   DDD     0004        1
-Key002   EEE     0005        3
-```
+こうやって表示させたい。
 
 ``` txt : 表示させたい結果
 MainKey  SubKey Repre  TestNumber
@@ -233,39 +252,11 @@ Key002   DDD    0004   0004
 Key002   DDD    0004   0005
 ```
 
-MainKeyとSubKeyでグループ化すしてOrderNumberでOrderByする。  
-目的のTestNumberが一番上にある状態なので、FIRST_VALUEで先頭のTestNumberを取得する。  
+肝はRepre列。  
+MainKeyとSubKeyが一致した行のTestNumberを他の行でも表示させたい。  
 
-``` sql
-SELECT
-    [MainTable].[MainKey],
-    [MainTable].[SubKey],
-    FIRST_VALUE([SubTable].[TestNumber]) OVER (PARTITION BY [MainTable].[MainKey],[MainTable].[SubKey] ORDER BY [SubTable].[OrderNumber]) AS [Repre],
-    [SubTable].[TestNumber]
-FROM [MainTable]
-JOIN [SubTable]
-ON [MainTable].[MainKey] = [SubTable].[MainKey]
-```
-
-愚直にやるなら自分自身をJoinすればいける。  
-
-``` sql
-SELECT
-    [MainTable].[MainKey],
-    [MainTable].[SubKey],
-    [Self].[TestNumber] AS [Repre],
-    [SubTable].[TestNumber]
-FROM [MainTable] 
-JOIN [SubTable]
-ON [MainTable].[MainKey] = [SubTable].[MainKey]
--- 自分自身を各々のキーでJoinすれば、代表となるNumberを特定できる
-JOIN [SubTable] AS [Self]
-ON [MainTable].[MainKey] = [Self].[MainKey]
-AND [MainTable].[SubKey] = [Self].[SubKey]
-```
-
-割と可能性を感じる。  
-ここからもう一ついければ達成できるのでは？  
+一致した行だけを表示すると以下のようになってしまう。  
+歯抜け部分をどのように補えばいいか悩んだ末に出来たのでまとめる。  
 
 ``` sql
 SELECT
@@ -288,8 +279,105 @@ ON [MainTable].[MainKey] = [SubTable].[MainKey]
 -- Key002   DDD            0005
 ```
 
-こういう芸当も可能な模様。  
-夢が広がる。  
+■**案1 FIRST_VALUE OVER**  
+
+`FIRST_VALUE() OVER (PARTITION BY ORDER BY)`構文を使った方法。  
+
+1. MainKeyとSubKeyでPARTITON BYする。  
+2. ORDER BY は CASE文でMainKeyとSubKeyが一致する行を先頭とし、後は適当に並べて、DESCする。(この書き方が一番の肝)  
+3. この地点で`0001`や`0004`が先頭に来ているので、それをFIRST_VALUEで回収する。  
+
+``` sql
+SELECT
+    [MainTable].[MainKey],
+    [MainTable].[SubKey],
+    FIRST_VALUE([SubTable].[TestNumber]) OVER (
+        PARTITION BY [MainTable].[MainKey],[MainTable].[SubKey]
+        ORDER BY (
+            CASE WHEN [MainTable].[SubKey] = [SubTable].[SubKey]
+                THEN 1
+                ELSE 0
+            END
+        ) DESC
+    ) AS [Repre],
+    [SubTable].[TestNumber]
+FROM [MainTable]
+JOIN [SubTable]
+ON [MainTable].[MainKey] = [SubTable].[MainKey]
+```
+
+■**案2 MAX OVER**  
+
+`MAX() OVER()`構文を使った方法。  
+
+1. CASE文でSubKeyと一致した行のTestNumberを取得し、それ以外は空白とする。  
+2. `MAX() OVER()`構文でCASE文のMAXを取得する。  
+3. OVERの条件はPARTITION BYでメインキー2種が安定。  
+
+OrderByやPARTITION BYの条件次第では、他にも目的の結果になってくれる条件はあるが、キーで絞るのが安定だと思われる。  
+SubTableのSub_Key等でOrderByしない限りは目的のデータになってくれる。  
+
+``` sql
+SELECT
+    [MainTable].[MainKey],
+    [MainTable].[SubKey],
+    CASE WHEN [MainTable].[SubKey] = [SubTable].[SubKey]
+        THEN [SubTable].[TestNumber] 
+        ELSE ''
+    END AS [Repre1],
+    MAX(CASE WHEN [MainTable].[SubKey] = [SubTable].[SubKey]
+        THEN [SubTable].[TestNumber] 
+        ELSE ''
+    END) OVER (ORDER BY [SubTable].[MainKey]) AS [ORDER_Main],
+    MAX(CASE WHEN [MainTable].[SubKey] = [SubTable].[SubKey]
+        THEN [SubTable].[TestNumber] 
+        ELSE ''
+    END) OVER (ORDER BY [SubTable].[SubKey]) AS [ORDER_Sub],
+    MAX(CASE WHEN [MainTable].[SubKey] = [SubTable].[SubKey]
+        THEN [SubTable].[TestNumber] 
+        ELSE ''
+    END) OVER (PARTITION BY [MainTable].[MainKey]) AS [PAR_Main],
+    MAX(CASE WHEN [MainTable].[SubKey] = [SubTable].[SubKey]
+        THEN [SubTable].[TestNumber] 
+        ELSE ''
+    END) OVER (PARTITION BY [MainTable].[SubKey]) AS [PAR_Sub],
+    MAX(CASE WHEN [MainTable].[SubKey] = [SubTable].[SubKey]
+        THEN [SubTable].[TestNumber] 
+        ELSE ''
+    END) OVER (PARTITION BY [MainTable].[MainKey],[MainTable].[SubKey]) AS [PAR_Keys],
+    [SubTable].[TestNumber]
+FROM [MainTable]
+JOIN [SubTable]
+ON [MainTable].[MainKey] = [SubTable].[MainKey]
+
+-- MainKey  SubKey Repre  ORDER_Main  ORDER_Sub  PAR_Main  PAR_Sub  PAR_Keys  TestNumber
+-- Key001   AAA    0001   0001        0001       0001      0001     0001      0001
+-- Key001   AAA           0001        0001       0001      0001     0001      0002
+-- Key002   DDD           0004        0001       0004      0004     0004      0003
+-- Key002   DDD    0004   0004        0004       0004      0004     0004      0004
+-- Key002   DDD           0004        0004       0004      0004     0004      0005
+```
+
+■**案3 自己結合**  
+
+安直に実現するなら自分自身をJoinすればいける。  
+ただ、2回も同じ情報を結合したくなかったので今回の検証をしたので、この回答は最低限である。  
+
+``` sql
+SELECT
+    [MainTable].[MainKey],
+    [MainTable].[SubKey],
+    [Self].[TestNumber] AS [Repre],
+    [SubTable].[TestNumber]
+FROM [MainTable] 
+JOIN [SubTable]
+ON [MainTable].[MainKey] = [SubTable].[MainKey]
+JOIN [SubTable] AS [Self]
+ON [MainTable].[MainKey] = [Self].[MainKey]
+AND [MainTable].[SubKey] = [Self].[SubKey]
+```
+
+■試行錯誤の跡
 
 ``` sql
 SELECT
