@@ -813,3 +813,14 @@ Console.WriteLine(object.Equals(s1, s2)); //true
     Console.WriteLine(Equals(A, B));
 ```
 
+---
+
+## null許容参照型
+
+[null許容参照型](https://ufcpp.net/study/csharp/resource/nullablereferencetype/?p=3#null-forgiving)  
+
+`a!.○○`の`!.`が探しても全然見つからなかった。  
+これは`!.`ではなく、`a!`までがNull許容参照型らしい。  
+IDEのnullの警告を抑制する程度の演算子らしい。  
+
+Null許容参照型は8.0以上と警告が出る。  

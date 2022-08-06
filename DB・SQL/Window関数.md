@@ -179,7 +179,7 @@ ON [A].[ReservationNo] = [B].[ReservationNo]
 
 ---
 
-## COUNT(DISTINCT)は出来ない
+## Window関数のCOUNT(DISTINCT)は出来ない
 
 時間の中に複数の予約があったら、「+」を表示しようとして、COUNT(DISTINCT GroupNo)なんてしようとしたけど、出来なくてなんで？ってなった気がする。  
 だけど、時間の中に複数のグループがいたらって判定は普通にCOUNT() OVER()で行けた。  
@@ -313,6 +313,17 @@ ON [MainTable].[MainKey] = [SubTable].[MainKey]
 1. CASE文でSubKeyと一致した行のTestNumberを取得し、それ以外は空白とする。  
 2. `MAX() OVER()`構文でCASE文のMAXを取得する。  
 3. OVERの条件はPARTITION BYでメインキー2種が安定。  
+
+``` sql
+SELECT
+    [MainTable].[MainKey],
+    [MainTable].[SubKey],
+    MAX(CASE WHEN [MainTable].[SubKey] = [SubTable].[SubKey] THEN [SubTable].[TestNumber] ELSE '' END) OVER (PARTITION BY [MainTable].[MainKey],[MainTable].[SubKey]) AS [Repre],
+    [SubTable].[TestNumber]
+FROM [MainTable]
+JOIN [SubTable]
+ON [MainTable].[MainKey] = [SubTable].[MainKey]
+```
 
 OrderByやPARTITION BYの条件次第では、他にも目的の結果になってくれる条件はあるが、キーで絞るのが安定だと思われる。  
 SubTableのSub_Key等でOrderByしない限りは目的のデータになってくれる。  
