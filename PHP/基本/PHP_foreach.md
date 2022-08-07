@@ -4,12 +4,45 @@
 
 ## 概要
 
-- `foreach(引数 as 要素名)`  
-- 配列とオブジェクトだけ使用可能。それ以外はエラーになる。  
-- PHPの文字列はC#と違い、Char型の配列という扱いではないのでエラーになる。  
-  またPHPにCHAR型は存在しない。String型のみである  
+反復可能な値に対してループ処理を行う  
+
+- 2つの構文がある  
+- 配列とオブジェクトに対してだけ使用可能。それ以外はエラーとなる。  
+- 文字列には使えない。  
+  - PHPの文字列はC#と違い、Char型の配列という扱いではないのでエラーになる。  
+  - 余談だが、PHPにCHAR型は存在しない。String型のみである  
 
 [【VB.NETプログラマーから見たPHP】foreachについて](https://vowlog.com/644/)  
+
+---
+
+## foreach (iterable_expression as $value)
+
+- iterable_expression で指定した反復可能な値に 関してループ処理を行う  
+- 反復において現在の要素の値が $valueに代入される  
+
+``` php
+$arr = [1,2,3,4];
+foreach ($arr as $value) {
+    $value = $value * 2;
+    echo $value."\n";
+}
+// 2
+// 4
+// 6
+// 8
+```
+
+---
+
+## foreach (iterable_expression as $key => $value)
+
+``` php
+$arr = [1,2,3,4];
+foreach ($arr as $key => $value) {
+    echo "{$key} => {$value}\n";
+}
+```
 
 ---
 
@@ -23,12 +56,13 @@ unsetはマナー的にあってもいいのかもしれないですね。
 
 ## 空配列
 
-空配列をforeachに渡した場合、エラーにはならない。  
-foreachの内部処理はされずに、foreachを抜ける。  
+空配列をforeachに渡した場合、foreachの内部処理はされずに、foreachを抜ける。  
+エラーにはならない。  
 
 ``` php
     // $item = []だとエラーにならず、処理されずに終わる。
-    foreach($item as $value)
+    foreach($item as $value){
+    }
 ```
 
 ---
