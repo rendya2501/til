@@ -1,10 +1,10 @@
 # PHP基礎・基本
 
-## 変数
+---
 
-・型の宣言は不要  
-・実行時に判定される  
-・最初の文字列を格納した変数に後から数字をセットしても問題ない→型の相互変換  
+## PHP
+
+Hypertext Preprocessor
 
 ---
 
@@ -38,66 +38,11 @@ PHP5の後、当初はPHP6のリリースが予定されており、実行エン
 
 ---
 
-## foreach
+## 変数
 
-・`foreach(引数 as 要素名)`  
-・配列とオブジェクトだけ使用可能。それ以外はエラーになる。  
-・PHPの文字列はC#と違い、Char型の配列という扱いではないのでエラーになる。  
-　またPHPにCHAR型は存在しない。String型のみである  
-
-### foreachで作った変数はforeach抜けた後も有効
-
-割と罠。  
-公式のリファレンスにも書いてありました。  
-unsetはマナー的にあってもいいのかもしれないですね。  
-
-``` PHP
-<?php
-    $str = "aaaa";
-    foreach ($str as $a){
-        echo $a;
-    }
-    // PHP Warning:  foreach() argument must be of type array|object, string given in /workspace/Main.php on line 4
-
-    $null = null;
-    foreach ($null as $a){
-        echo $a;
-    }
-    // PHP Warning:  foreach() argument must be of type array|object, null given in /workspace/Main.php on line 14
-
-    $num = 1;
-    foreach ($num as $a){
-        echo $a;
-    }
-    // PHP Warning:  foreach() argument must be of type array|object, int given in /workspace/Main.php on line 19
-?>
-```
-
-### invalid argument supplied for foreach()
-
-[Warning: Invalid argument supplied for foreach() とでたら。。。](https://hacknote.jp/archives/19783/)  
-
-supplied : 供給  
-違法な引数をforeachに供給した  
-
-何をしたらforeachでこのようなエラーが出るのか答えられなかったのでまとめ。  
-PaizaIOで確かめてもこのエラーにならなかった。  
-結局、foreachにnullを渡せばこのエラーになるのはわかったけど、なぜエラー内容が違うのかわからないままだ。  
-
-``` php
-// $itemがnullだとエラー。
-// $item = []だとエラーにならず、処理されずに終わる。
-foreach($item as $value)
-
-// 関数に渡したらエラーになるかと思ったけど、ならなかった。最後まで謎だった。
-function aa($str) {
-    foreach ($str as $a){
-        echo $a;
-    }
-}
-$str = null;
-aa($str);
-```
+・型の宣言は不要  
+・実行時に判定される  
+・最初の文字列を格納した変数に後から数字をセットしても問題ない→型の相互変換  
 
 ---
 
@@ -164,9 +109,6 @@ function commonAPIAction(callable $createRequest)
 ここはプログラムでどうにかできる問題では無い。  
 完全にインフラ側の問題。  
 
-応用で勉強したので状況がわかる。  
-勉強の成果が表れている。  
-
 ---
 
 ## nullと文字列結合演算子
@@ -195,72 +137,27 @@ print is_null($ee) ? 1 : 0; // 0
 
 ---
 
-## PHPのオーバーロード
+## 最後の文字を消す
 
-結論からいうと、PHPにオーバーロードはない。  
-前にも調べた記憶があるので、この際に「ない」ということをまとめる。  
-
-実現の仕方はあるらしいが、そうしたい場合は改めて調べてくれ。  
-時間がなさすぎる。  
-
-[PHPでのオーバーロード（引数ちがいの同名関数）](https://qiita.com/yasumodev/items/cf3da2a2f5547358e780)  
-
----
-
-## エルビス演算子
-
-phpにはfalseの時だけ実行するエルビス演算子なるものが存在する。  
-falseの時だけ実行してほしい処理って割とあるので、C#にもあってほしいと願うのだがどうなるかね。  
-
-```php : エルビス演算子の使いどころさん
-// statusCodeが500の時エラーメッセージを取得する
-$status = 500;
-$message = 'err';
-$err = null;
-
-// falseの時だけ実行される。200 === 500でfalse。
-$status === 200 ?: $err .= $message;
-
-print $err ?? 'naiyo';
-```
-
----
-
-## 三項演算子
-
-phpの三項演算子は癖が強く、なんでそうなるの？って動作をしたのでまとめたのだが、だいぶ前にまとめた内容なので、また綺麗にまとめたい。  
+[PHP で文字列から最後の文字を削除する](https://www.delftstack.com/ja/howto/php/php-remove-last-character-from-string/)  
+別にまとめる程のことでもないかもしれないが、色々方法があるので、一番手っ取り早い奴だけまとめておく  
 
 ``` php
-<?php
-    const DELETE_TYPE_PHYSICAL = 1;
-    const DELETE_TYPE_LOGICAL_WITH_HAS_ACHIEVE = 0;
-    const DELETE_TYPE_LOGICAL_WITH_NO_ACHIEVE = 2;
-    
-    $delType = DELETE_TYPE_PHYSICAL;
-    $landingAchieveFlag = true;
-    
-    $extendDelType = $delType === DELETE_TYPE_PHYSICAL
-        // 物理削除はそのまま
-        ? DELETE_TYPE_PHYSICAL
-        : $landingAchieveFlag
-            // 論理削除+実績あり
-            ? DELETE_TYPE_LOGICAL_WITH_HAS_ACHIEVE
-            // 論理削除+実績なし
-            : DELETE_TYPE_LOGICAL_WITH_NO_ACHIEVE;
-            
-    $extendDelType2 = (function ($delType, $landingAchieveFlag) {
-        if ($delType === DELETE_TYPE_PHYSICAL) {
-            return DELETE_TYPE_PHYSICAL;
-        } else {
-            if ($landingAchieveFlag) {
-                return DELETE_TYPE_LOGICAL_WITH_HAS_ACHIEVE;
-            } else {
-                return DELETE_TYPE_LOGICAL_WITH_NO_ACHIEVE;
-            }
-        }
-    })($delType,$landingAchieveFlag);
-    
-    var_dump($extendDelType);
-    var_dump($extendDelType2);
-?>
+// 対象文字列、スタート位置、長さ
+// substr($string, $start, $length)
+$mystring = "This is a PHP program.";
+echo substr($mystring, 0, -1);
+// 出力：This is a PHP program
 ```
+
+---
+
+## PHPのプロセスを止める方法
+
+<https://flashbuilder-job.com/php/635.html>
+
+`ps aux | grep php`  
+これでプロセスID（左から２つ目の値）を調べる。  
+
+ルートユーザー、またはルートになれるユーザーでコマンド実行  
+`sudo kill -9 (プロセスID)`  
