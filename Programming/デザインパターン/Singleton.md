@@ -1,10 +1,5 @@
 # Singletonパターン
 
-[デザインパターン「Singleton」](https://qiita.com/shoheiyokoyama/items/c16fd547a77773c0ccc1)  
-[[Swift]Singleton(シングルトン)とは？メリット、実装方法、使い方](https://ticklecode.com/swiftsingleton/)  
-[シングルトンがなぜ必要なのか](https://teratail.com/questions/36721)  
-[【Singeltonパターン】考え方は単純だが、使いどころが大切なデザインパターン【コード例はRubyとJava】](https://debimate.jp/2020/04/26/%E3%80%90singelton%E3%83%91%E3%82%BF%E3%83%BC%E3%83%B3%E3%80%91%E8%80%83%E3%81%88%E6%96%B9%E3%81%AF%E5%8D%98%E7%B4%94%E3%81%A0%E3%81%8C%E3%80%81%E4%BD%BF%E3%81%84%E3%81%A9%E3%81%93%E3%82%8D%E3%81%8C/)  
-
 ---
 
 ## 概要
@@ -110,3 +105,10 @@ public class Singleton
 上記のクラス(機能)を踏まえると、リソース管理にSingletonパターンが適していると考えられます。  
 リソースに対して複数のインスタンスが管理を行えば、状態管理で不整合が生じる可能性があります。  
 この不整合を防止するために、Singletonを用いるのは自然な事だと思います。  
+
+---
+
+[デザインパターン「Singleton」](https://qiita.com/shoheiyokoyama/items/c16fd547a77773c0ccc1)  
+[[Swift]Singleton(シングルトン)とは？メリット、実装方法、使い方](https://ticklecode.com/swiftsingleton/)  
+[シングルトンがなぜ必要なのか](https://teratail.com/questions/36721)  
+[【Singeltonパターン】考え方は単純だが、使いどころが大切なデザインパターン【コード例はRubyとJava】](https://debimate.jp/2020/04/26/%E3%80%90singelton%E3%83%91%E3%82%BF%E3%83%BC%E3%83%B3%E3%80%91%E8%80%83%E3%81%88%E6%96%B9%E3%81%AF%E5%8D%98%E7%B4%94%E3%81%A0%E3%81%8C%E3%80%81%E4%BD%BF%E3%81%84%E3%81%A9%E3%81%93%E3%82%8D%E3%81%8C/)  

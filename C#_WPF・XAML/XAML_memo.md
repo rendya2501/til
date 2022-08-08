@@ -998,3 +998,115 @@ wpf binding add two values
 ## BindingのStringFormat
 
 [【WPF】Bindingと文字列を結合して表示する方法4選](https://threeshark3.com/binding-string-concat/)  
+
+---
+
+## WindowをActiveにする
+
+Window1 から Window2を開く。そのWindow2からWindow3を開く。  
+Window3を閉じたとき、Window2がWindow1の前に来てほしいのだが、Window1が前に来てしまう。  
+解決するために色々やってうまく出来たのでまとめる。  
+
+Window1から指定したWindowをActiveにするTriggerActionを実行することで解決できた。  
+これ以外にもEventAggregaterも考えたが、ViewModel間で頑張る必要もないし、親ウィンドウが子ウィンドウの存在を知っているのだから何かしら操作可能だろうということでTriggerActionにした。  
+
+- MahApp:MetroWindow  
+- Livet  
+
+``` C# : ViewModel
+Messenger.Raise(new Livet.Messaging.InteractionMessage("ActivateWindow"));
+```
+
+``` XML : View
+<metro:MetroWindow
+    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:l="http://schemas.livet-mvvm.net/2011/wpf"
+    xmlns:namespace="clr-namespace:namespace.Views;assembly=assembly">
+    <i:Interaction.Triggers>
+        <l:InteractionMessageTrigger MessageKey="ActivateWindow" Messenger="{Binding Messenger}">
+            <action:ActiveWindowAction TargetWindow="{x:Type namespace:Window}" />
+        </l:InteractionMessageTrigger>
+    </i:Interaction.Triggers>
+</metro:MetroWindow>
+```
+
+``` C# : TriggerAction
+using MahApps.Metro.Controls;
+using Microsoft.Xaml.Behaviors;
+using System;
+using System.Linq;
+using System.Windows;
+
+namespace RN3.Wpf.Common.TriggerAction
+{
+    /// <summary>
+    /// WindowをActiveにするトリガーアクション
+    /// </summary>
+    public class ActiveWindowAction : TriggerAction<MetroWindow>
+    {
+        #region 依存関係プロパティ
+        /// <summary>
+        /// 対象となるWindowのTypeの依存関係プロパティ
+        /// </summary>
+        public static readonly DependencyProperty TargetWindowProperty =
+            DependencyProperty.Register(
+                "TargetWindow",
+                typeof(Type),
+                typeof(ActiveWindowAction),
+                new PropertyMetadata(null)
+            );
+        /// <summary>
+        /// 対象となるWindowのType
+        /// </summary>
+        public Type TargetWindow
+        {
+            get => (Type)GetValue(TargetWindowProperty);
+            set { SetValue(TargetWindowProperty, value); }
+        }
+        #endregion
+
+        /// <summary>
+        /// 指定WindowをActiveにする処理を実行します
+        /// </summary>
+        /// <param name="parameter"></param>
+        protected override void Invoke(object parameter)
+        {
+            if (TargetWindow == null)
+            {
+                return;
+            }
+            // 対象Windowが開かれているか探す
+            MetroWindow window = Application.Current.Windows.OfType<MetroWindow>().FirstOrDefault(f => f.ToString() == TargetWindow.FullName);
+            if (window == null)
+            {
+                return;
+            }
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                // 最小化している場合はウィンドウサイズを元へ戻す
+                if (window.WindowState == WindowState.Minimized)
+                {
+                    window.WindowState = WindowState.Normal;
+                }
+                // 対象ウィンドウをアクティブにする
+                window.Activate();
+                // ウィンドウを最前面へ移動
+                window.Topmost = true;
+                window.Topmost = false;
+            });
+        }
+
+        /// <summary>
+        /// Detach前処理
+        /// </summary>
+        protected override void OnDetaching()
+        {
+            TargetWindow = null;
+            base.OnDetaching();
+        }
+    }
+}
+```
+
+[WPF の Window が開いていれば前面に表示する](https://blog.okazuki.jp/entry/20101215/1292384080)  
+[C# WPFアプリ(Livet)の画面遷移を理解する](https://setonaikai1982.com/livet_screen-trans/)  

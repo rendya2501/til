@@ -1,8 +1,6 @@
 # Dispatcher
 
-<https://hilapon.hatenadiary.org/entry/20130225/1361779314>  
-<https://araramistudio.jimdo.com/2017/05/02/c-%E3%81%A7%E5%88%A5%E3%82%B9%E3%83%AC%E3%83%83%E3%83%89%E3%81%8B%E3%82%89%E3%82%B3%E3%83%B3%E3%83%88%E3%83%AD%E3%83%BC%E3%83%AB%E3%82%92%E6%93%8D%E4%BD%9C%E3%81%99%E3%82%8B/>  
-<https://www.it-swarm-ja.com/ja/c%23/dispatcherinvoke%E3%82%92%E4%BD%BF%E7%94%A8%E3%81%97%E3%81%A6%E9%9D%9E%E3%83%A1%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%AC%E3%83%83%E3%83%89%E3%81%8B%E3%82%89wpf%E3%82%B3%E3%83%B3%E3%83%88%E3%83%AD%E3%83%BC%E3%83%AB%E3%82%92%E5%A4%89%E6%9B%B4%E3%81%99%E3%82%8B/968851135/>  
+---
 
 `Application.Current.Dispatcher.Invoke(() =>`謎の呪文。後で調べたい。  
 →  
@@ -42,3 +40,11 @@ System.Windows.Application.Current.Dispatcher.Invoke((Action)(() => {
     // 同期処理
 }));
 ```
+
+<https://hilapon.hatenadiary.org/entry/20130225/1361779314>  
+<https://araramistudio.jimdo.com/2017/05/02/c-%E3%81%A7%E5%88%A5%E3%82%B9%E3%83%AC%E3%83%83%E3%83%89%E3%81%8B%E3%82%89%E3%82%B3%E3%83%B3%E3%83%88%E3%83%AD%E3%83%BC%E3%83%AB%E3%82%92%E6%93%8D%E4%BD%9C%E3%81%99%E3%82%8B/>  
+<https://www.it-swarm-ja.com/ja/c%23/dispatcherinvoke%E3%82%92%E4%BD%BF%E7%94%A8%E3%81%97%E3%81%A6%E9%9D%9E%E3%83%A1%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%AC%E3%83%83%E3%83%89%E3%81%8B%E3%82%89wpf%E3%82%B3%E3%83%B3%E3%83%88%E3%83%AD%E3%83%BC%E3%83%AB%E3%82%92%E5%A4%89%E6%9B%B4%E3%81%99%E3%82%8B/968851135/>  
+
+## UIスレッド以外からUIのコントロールを操作する
+
+[【C#】UIスレッド以外からUIのコントロールを操作する](https://hikotech.net/post-388/)  

@@ -1,6 +1,8 @@
 # C#のアクセス修飾子
 
-<https://www.fenet.jp/dotnet/column/language/6153/>
+---
+
+## 早見表
 
 - public    : あらゆる所からアクセスできる  
 - private   : 同じクラス内のみアクセスできる  
@@ -9,15 +11,23 @@
 - protected internal : 同じアセンブリと別アセンブリの派生クラスでアクセスできる  
 - private protected  : 同じクラスと同じアセンブリの派生したクラスのみアクセスできる  
 
+<https://www.fenet.jp/dotnet/column/language/6153/>
+
 ---
 
 ## internal
 
-<https://www.fenet.jp/dotnet/column/language/4831/#internal>  
-
-同一アセンブリ内(同一exe/同一dll)のクラスからのみアクセス可能な修飾子です。  
+同一アセンブリ内(同一exe/同一dll)のクラスからのみアクセス可能な修飾子。  
 他のプロジェクトからは、参照設定がされていてもinternalの場合はアクセス不可となります。  
-publicと違い修正範囲が限定されているため、同じアセンブリ内でのみ使用するならば、こちらを使う方が良いでしょう。  
+
+※アセンブリ : exeやdllのこと
+※同じアセンブリ内とは同じプロジェクト内ということ  
+
+Aプロジェクト,public Aクラス,internal BクラスでDLLを作成する。  
+BプロジェクトでAプロジェクトDLLを参照する。  
+BプロジェクトからAプロジェクトのAクラスは参照できるが、Bクラスは参照できない。  
+
+[C#のinternalについて分かりやすく解説！｜C#のinternalを正しく使いこなそう](https://www.fenet.jp/dotnet/column/language/6153/)  
 
 ---
 
