@@ -8,11 +8,23 @@ Hypertext Preprocessor
 
 ---
 
+## 書き始め
+
+`<?php`で書き始め`?>`で閉じる。  
+`?>`は省略可能。  
+
+``` php
+<?php
+
+?>
+```
+
+---
+
 ## PHP6
 
-どうでもいい事まとめたくなった。  
 PHPの参考書を読んでいた時にコラムに書いてあった奴。  
-結局何だっけ？ってのをまとめておく。  
+なぜPHP6はないのか。
 
 要約すると、文字コードのUTF-16対応が6のメインだったけど、出来たものがメモリを食い過ぎて使い物にならなくなったのでゴミを化したらしい。  
 
@@ -63,11 +75,11 @@ call_user_func関数は文字列で指定するのでなんかいやだ。
 [PHPでコールバック関数を利用する](https://qiita.com/tricogimmick/items/23fb5958b6ea914bbfb5)  
 とりあえず、困ったらここ見ればいいんじゃないかな。  
 
-``` PHP : うまくいった無名関数を使ったAPI実行サンプル
+``` PHP : 無名関数を使ったAPI実行サンプル
 function callGetAPI()
 {
-    // パラメータ生成
-    $params = 'linkage_plan_ids=';
+    // クエリパラメータ
+    $params = 'linkage_ids=';
     // リクエスト生成コールバック生成
     $createRequest = function ($token) use ($params) {
         return new Request(
