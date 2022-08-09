@@ -19,6 +19,17 @@
 
 ---
 
+## WPFでコンソールログを出力する
+
+``` C#
+using System.Diagnostics;
+Trace.WriteLine("text");
+```
+
+[No output to console from a WPF application?](https://stackoverflow.com/questions/160587/no-output-to-console-from-a-wpf-application)  
+
+---
+
 ## XAMLでNULLの指定の仕方
 
 ``` XML

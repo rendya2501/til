@@ -2,11 +2,49 @@
 
 <https://blog.okazuki.jp/entry/2014/12/23/180413>
 
+---
+
 ## MVVMパターンとは
 
 プログラムの構成をView(見た目),ViewModel(見た目とデータの制御),Model(データの制御)に分けた物。  
 基本的に、View,ViewModel間のやり取りはプロパティのBindingを行う。  
 プロパティ変更通知はINotifyPropertyChangedインターフェースを使用するが、Prismは便利なサポート  
+
+---
+
+## WPFでMainWindow.xamlのフォルダを変更する
+
+[WPFでMainWindow.xamlのフォルダを変更する](https://www.paveway.info/entry/2019/07/01/wpf_startupuri)  
+
+App.xamlのStartupUriを変更する。
+
+``` xml : MainWindow.xamlをViewsフォルダに移動した場合
+<!-- 修正前 -->
+<Application
+    ...
+    StartupUri="MainWindow.xaml"
+/>
+<!-- 修正後 -->
+<Application
+    ...
+    StartupUri="Views/MainWindow.xaml"
+/>
+```
+
+上記だけで起動するが、Viewsに移動させた以上[MainWindow.xaml.cs]と[MainWindow.Xaml]の名前空間も変更しておく。
+
+``` xml : MainWindow.xaml
+<!-- 修正前 -->
+<Window
+    x:Class="WpfApp8.MainWindow"
+/>
+<!-- 修正後 -->
+<window
+    x:Class="WpfApp8.Views.MainWindow"
+/>
+```
+
+---
 
 ``` C# : ViewModel
 using Microsoft.Practices.Prism.Commands;
@@ -110,48 +148,4 @@ xmlns:l="clr-namespace:MVVMSample01"
         <TextBlock Text="{Binding Output}" />
     </StackPanel>
 </Window>
-```
-
----
-
-[.NET standard2.x時代のMVVMライブラリ](https://qiita.com/hqf00342/items/40a753edd8e37286f996)  
-Microsoft.Toolkit.Mvvm  
-CommunityToolkit relaycommand  
-
-[What is the MVVM pattern, What benefits does MVVM have?](https://www.youtube.com/watch?v=AXpTeiWtbC8)  
-
-アノテーションだけでバインディングできるようになってた。  
-
----
-
-## WPFでMainWindow.xamlのフォルダを変更する
-
-[WPFでMainWindow.xamlのフォルダを変更する](https://www.paveway.info/entry/2019/07/01/wpf_startupuri)  
-
-App.xamlのStartupUriを変更する。
-
-``` xml : MainWindow.xamlをViewsフォルダに移動した場合
-<!-- 修正前 -->
-<Application
-    ...
-    StartupUri="MainWindow.xaml"
-/>
-<!-- 修正後 -->
-<Application
-    ...
-    StartupUri="Views/MainWindow.xaml"
-/>
-```
-
-上記だけで起動するが、Viewsに移動させた以上[MainWindow.xaml.cs]と[MainWindow.Xaml]の名前空間も変更しておく。
-
-``` xml : MainWindow.xaml
-<!-- 修正前 -->
-<Window
-    x:Class="WpfApp8.MainWindow"
-/>
-<!-- 修正後 -->
-<window
-    x:Class="WpfApp8.Views.MainWindow"
-/>
 ```
