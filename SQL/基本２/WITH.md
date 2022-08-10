@@ -1,10 +1,18 @@
 # WITH句
 
-[SQL WITH句で同じSQLを１つのSQLに共通化する](https://zukucode.com/2017/09/sql-with.html)  
+---
+
+## 概要
 
 ビューみたいな定義ができる構文。  
 JOIN句の中では使えないことが判明した。  
 なので、単品で使う分でしか無理っぽい。  
+
+[SQL WITH句で同じSQLを１つのSQLに共通化する](https://zukucode.com/2017/09/sql-with.html)  
+
+---
+
+## 実装例
 
 ``` sql : 使い方例
 WITH employee_with AS (

@@ -1,5 +1,9 @@
 # ALTER TABLE
 
+---
+
+## 概要
+
 テーブルの構造を変更する命令
 
 [テーブル定義を変更する（ALTER TABLE）](https://www.projectgroup.info/tips/SQLServer/SQL/SQL000005.html)  
