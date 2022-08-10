@@ -18,6 +18,16 @@
 
 ---
 
+## PHP VSCode 環境構築
+
+大体ここ参考にした。  
+XAMPP安定。  
+
+[【2022年版】Visual Studio CodeでPHP開発環境＋デバッグ作業でステップ実行できるようにする方法](https://my-web-note.com/vscode-php-develop-debug/)  
+[Visual Studio CodeでPHP開発環境を構築する手順](https://zhuzhuming.com/technology/vscode_phpdebugenv/)  
+
+---
+
 ## 書き始め
 
 - `<?php`で書き始め`?>`で閉じる。  

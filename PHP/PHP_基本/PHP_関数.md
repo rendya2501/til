@@ -51,3 +51,9 @@ function commonAPIAction(callable $createRequest)
     return $response;
 }
 ```
+
+---
+
+## 引数
+
+[【PHP】引数の二種類の NULL 許容型の宣言方法とその違い](https://qiita.com/ymm1x/items/e53ded283080ca3a42b4)
