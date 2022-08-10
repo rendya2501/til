@@ -1,5 +1,9 @@
 # XAMLまとめ
 
+---
+
+## 参考リンク集
+
 [WPFのソースコード](https://github.com/dotnet/wpf)  
 [コントロールのスタイルとテンプレート](http://msdn.microsoft.com/ja-jp/library/aa970773(v=vs.110).aspx)  
 [WPFのコントロール一覧](https://water2litter.net/rye/post/c_control_list/#my_mokuji10)  
@@ -1121,3 +1125,30 @@ namespace RN3.Wpf.Common.TriggerAction
 
 [WPF の Window が開いていれば前面に表示する](https://blog.okazuki.jp/entry/20101215/1292384080)  
 [C# WPFアプリ(Livet)の画面遷移を理解する](https://setonaikai1982.com/livet_screen-trans/)  
+
+---
+
+## ViewModelからViewModelへの通知
+
+1. Modelを介して行う。  
+2. PrismのEventAggregatorを使う。  
+
+``` txt
+ViewModel  ViewModel
+   ↓         ↑
+       Model
+```
+
+[Prism入門 その5 - IEventAggregator](https://qiita.com/swd/items/2910c1d87a4c54f16077)  
+[C# WPFアプリ MVVMモデル内の連携方法](https://setonaikai1982.com/mvvm-comm/)  
+
+---
+
+## Prism EventAggregator
+
+EventAggregator とは Publisher-Subscriber パターンを Prism で実装したものです。  Publisher-Subscriber パターンとは、アプリケーションの非同期通信を容易にするため設計されたメッセージングのパターンのことです。  
+具体的には、リンクすることが困難なコンポーネント間でメッセージをやり取りするといった、問題を解決します。  
+
+Prism のプロジェクトでは、EventAggregator は、2つ以上の ViewModel の間や、お互いに参照を持たないサービスの間でメッセージを送受信するためによく利用されます。  
+
+[Prism EventAggregator をなぜ使うべきか](https://shikaku-sh.hatenablog.com/entry/wpf-prism-why-should-use-eventaggregator)  
