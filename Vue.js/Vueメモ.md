@@ -39,6 +39,8 @@ const vh = window.innerHeight;
 [JavaScriptのtouchstartを止めるとclickイベントが発火しない](https://qiita.com/krmbn0576/items/fb8f1c90128b242a83bc)  
 [[javascript] ダブルタップでブラウザが拡大するのを防ぐ](https://qiita.com/ELIXIR/items/1d007313c09489738e26)  
 
+[axiosとは何か？Vue.jsでAPIのデータを取得する方法｜取得したデータの中身や処理の指定方法（変数名の変更, then, catch, finally）](https://prograshi.com/language/vue-js/axios/)  
+
 ## テーブルを作る
 
 [Vue.jsのv-forでTableを表示させてみた](https://neco913.kirara.st/post-12827/)  

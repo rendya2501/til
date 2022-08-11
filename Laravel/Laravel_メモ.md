@@ -2,71 +2,6 @@
 
 ---
 
-## Controller→WorkerServiceを実現する最小のサンプル
-
-①WorkerServiceの作成  
-\appにServicesフォルダを作成する。  
-そのフォルダの中にTestService.phpを作成する。  
-
-``` php : TestService.php
-namespace App\Services;
-// 書いた後整形しろ。短くしたいから1文で書いてる
-class TestService{ public function Hoge() { echo 'hoge2'; } }
-```
-
-②Controllerの作成  
-\app\Http\ControllersにTestController.phpを作成する  
-
-``` php : TestController.php
-namespace App\Http\Controllers;
-
-use App\Services\TestService;
-
-class TestController extends Controller
-{
-    private $test;
-    public function __construct(TestService $test_service)
-    {
-        $this->test = $test_service;
-    }
-    public function index(TestService $test_service)
-    {
-        $this->test->hoge();
-        $test_service->hoge();
-    }
-}
-```
-
-③Routeを通す  
-\Routes\web.phpに2文追加  
-
-``` php : web.php
-use App\Http\Controllers\TestController;
-Route::resource('/test', TestController::class);
-```
-
-④アクセス  
-Laravel立ち上げて、`/test`でアクセスすると`hoge2hoge2`と表示される  
-
-総評  
-サンプルはごまんとあるが、DIの設定したり、色々やっていて、すぐにできるものはなかった。  
-もう少し余裕が出来たら、DIも含めた設定とかもやりたいが、とりあえず最小サンプルはこれで。  
-これさえ出来れば「Laravelプロジェクトを作って、collection,Eloquentのテスト環境を作る」の案件もクリアしたようなものだろう。  
-Collection使うだけならワーカーサービスに`use Illuminate\Support\Collection;`を書けばCollectionは使えるようになるので、後は適当なメソッド作ってそこにアクセスできるようにすればよいだけだ。  
-
-一番参考になったサイト  
-[Laravel ルーティング[web.php][Route] 8.x](https://noumenon-th.net/programming/2019/09/25/route/)  
-`routes/web.php`の`Route::resource('/sample', SampleController::class);`の書き方がDIを通さず実現する一番手っ取り早い書き方で、他のサイトでは説明されていなかった。  
-useしないといけないので、実用的では使ってはいけないだろうけど、とりあえず動かすだけならこれで十分  
-
-他参考サイト  
-こいつらはDIからファサードの登録まで実用的で必要最低限の設定をしているので、できるならこっちでやったほうがいい。  
-[Laravel でサービス(Service)クラスの作り方](https://qiita.com/ntm718/items/14751e6d52b4bebde810)  
-[【Laravel】サービスクラス作成手順](https://daiki-sekiguchi.com/2018/08/31/laravel-how-to-make-service-class/)  
-[LaravelでServiceクラスを作成する手順まとめ！](https://himakuro.com/laravel-service-class-guide)  
-
----
-
 ## LaravelのVender機能だけをダウンロードするやり方
 
 [【php】Laravelで/vendor以下のディレクトリが見つからない時](https://mokabuu.com/it/php/%E3%80%90php%E3%80%91laravel%E3%81%A7-vendor%E4%BB%A5%E4%B8%8B%E3%81%AE%E3%83%87%E3%82%A3%E3%83%AC%E3%82%AF%E3%83%88%E3%83%AA%E3%81%8C%E8%A6%8B%E3%81%A4%E3%81%8B%E3%82%89%E3%81%AA%E3%81%84%E6%99%82)  
@@ -77,23 +12,6 @@ useしないといけないので、実用的では使ってはいけないだ�
 composer.jsonとかcomposer.lockとかあるので、ダウンロードすべき情報はそちらに乗っていて、それを基にcomposerが必要なダウンロードを行ってくれるっぽいので、
 そうしたらvenderフォルダが出来上がるっぽいです。  
 全部ぽいだ。  
-
----
-
-## LaravelのDB接続情報
-
-.envファイル
-
----
-
-## ファサード
-
-<https://qiita.com/minato-naka/items/095f2a1beec1d09f423e>  
-
-staticメソッドのようにメソッドを実行できる仕組み。  
-実際にはstaticじゃなくて、ちゃんとnewして実行している。  
-詳しくは解説を読むべし。  
-読んで思ったのは、うまいこと出来てるんだなって事。  
 
 ---
 
@@ -159,9 +77,8 @@ Allowed : 許可された
 
 ---
 
-## Laravelでログを出力する
+## ログ出力
 
-[Laravelでログを出力する](https://uedive.net/2019/3625/laravellog/)  
 ファサードで整えられたログ出力ではなく、プレーンな状態でのログ出力の方法が分からなかったのでメモ。  
 
 ①use宣言する  
@@ -184,8 +101,9 @@ Log::debug($message);
 ```
 
 どのファシリティでも出力されるけど、とりあえずdebug使っておけばいいんじゃないかな。  
-
 因みに出力先は、デフォルトの設定の場合、`storage/logs/laravel.log` に出力される。  
+
+[Laravelでログを出力する](https://uedive.net/2019/3625/laravellog/)  
 
 ---
 

@@ -1,4 +1,3 @@
-
 # FizzBuzz
 
 wiki
