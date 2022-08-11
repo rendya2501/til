@@ -104,9 +104,9 @@ var_dump(hoge_void());
 
 ## 型宣言 (タイプヒンティング)
 
-関数の宣言時、関数が受け取る引数の型を指定して、指定型以外のデータが渡された場合にエラーが発生する機能です。  
+関数の宣言時、関数が受け取る引数の型を指定して、指定型以外のデータが渡された場合にエラーが発生する機能。  
 
-指定できる型
+指定できる型一覧
 
 - 文字列型  
 - 整数型  
@@ -171,20 +171,3 @@ function commonAPIAction(callable $createRequest)
     return $response;
 }
 ```
-
----
-
-## 無名関数 (クロージャ)
-
-[公式](https://www.php.net/manual/ja/functions.anonymous.php)  
->無名関数はクロージャとも呼ばれ、 関数名を指定せずに関数を作成できるようにするものです。  
-callable パラメータとして使う際に便利ですが、用途はそれにとどまりません。  
-無名関数の実装には Closure クラスを使っています。  
-
-``` php
-$hoge = function () {
-
-};
-```
-
-[【PHP】無名関数にuse()を使用する時の注意点](https://qiita.com/westhouse_k/items/fe527b59146739cf7af3)  

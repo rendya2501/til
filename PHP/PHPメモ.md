@@ -65,22 +65,22 @@ mbstringをプラグインインストールからするのがめんどくさい
 
 ## cURL error 56: TCP connection reset by peer
 
-<https://deep-blog.jp/engineer/5443/>  
-
 内容的にはネットワークの部類に入るのだろうけど、実務でphpで通信処理を書いている時に発生したのでここに書く。  
 参考サイト的にはpeerとは相手のことを指すので、この場合、接続相手から接続を切られてしまったことを意味するとか。  
 実務で発生した現象だと、管理サイトにはプランが出ていたので、リクエストは受け付けられた模様。  
 その後の切断処理がうまくいかなかったと思われる。  
 ここはプログラムでどうにかできる問題では無い。  
 
+<https://deep-blog.jp/engineer/5443/>  
+
 ---
 
 ## PHPのプロセスを止める方法
-
-<https://flashbuilder-job.com/php/635.html>
 
 `ps aux | grep php`  
 これでプロセスID（左から２つ目の値）を調べる。  
 
 ルートユーザー、またはルートになれるユーザーでコマンド実行  
 `sudo kill -9 (プロセスID)`  
+
+<https://flashbuilder-job.com/php/635.html>
