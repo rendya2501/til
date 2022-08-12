@@ -137,6 +137,7 @@ call_user_func関数は文字列で指定するのでなんかいやだ。
 
 [いい感じのコールバックサンプル](https://qiita.com/dublog/items/0eb8bcea2fc452c0b4b2)  
 [PHPでコールバック関数を利用する](https://qiita.com/tricogimmick/items/23fb5958b6ea914bbfb5)  
+[(PHP) コールバック関数とは？使い方を分かりやすく解説](https://hara-chan.com/it/programming/php-callback/)  
 
 ### 無名関数を使ったAPI実行サンプル
 

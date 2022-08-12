@@ -93,15 +93,28 @@ require_once("external_file.php");
 
 ## autoload
 
-composer.jsonに登録されたクラスを読み込む仕組み。  
-なので、オートロードを使用するためにはcomposerが必要。  
+通常は`require_once`等でファイルを明示的に読み込む必要があるが、これを自動的に行ってくれる仕組み。  
+オートロードを使用するためにはcomposerが必要。  
+composerによって生成された`composer.json`に登録したファイルを読み込む。  
+
+詳しい設定の仕方はここらへんを参考にされたし。  
+[PHPのオートロード(autoload)](https://qiita.com/atwata/items/5ba72d3d881a81227c2a)  
+[(PHP) autoload(オートロード)とは – composerを理解する –](https://hara-chan.com/it/programming/php-autoload-composer/)  
 
 ---
 
 ## spl_autoload_register
 
-基本的に裏で動くモノらしい。  
+未定義のクラスを使うとエラーになる。  
+そのエラーとなる前に、最後の救済メソッドとして登録しておいたメソッドを実行する。  
+それがこの`spl_autoload_register`であり、未定義のクラスを探しにいく処理を書いておくことで、エラーを回避する。  
+
 autoloadが使える環境ならそちらを使うのがメジャーっぽい。  
+外部ファイルの読み込みはjsonで登録できるようにして、読み込んだほうがいいに決まっている。  
+コードに書くものでもあるまい。  
+`spl_autoload_register`はそのファイルに直接記述するものではなく、ある程度決まったクラスや書き方があるので、それをUtilみたいに裏で定義して動かすモノっぽい。  
+
+### シンプルなサンプル
 
 ``` php
 <?php
@@ -113,6 +126,81 @@ $foo = new Foo();
 echo $foo->name;
 
 // Want to load Foo.
+// 佐藤
+```
+
+``` php : Foo.php
+<?php
+class Foo {
+    public $name = '佐藤';
+}
+```
+
+### Util的なサンプル
+
+こちらのソースを使って検証してみたが、確かに動いた。  
+[PHP で、spl_autoload_register を使って、require_once 地獄を脱出しよう](https://qiita.com/misogi@github/items/8d02f2eac9a91b4e6215)  
+
+``` php
+<?php
+/**
+ * Classが定義されていない場合に、ファイルを探すクラス
+ */
+class ClassLoader
+{
+    // class ファイルがあるディレクトリのリスト
+    private static $dirs;
+
+    /**
+     * クラスが見つからなかった場合呼び出されるメソッド
+     * spl_autoload_register でこのメソッドを登録してください
+     * @param  string $class 名前空間など含んだクラス名
+     * @return bool 成功すればtrue
+     */
+    public static function loadClass($class)
+    {
+        foreach (self::directories() as $directory) {
+            // 名前空間や疑似名前空間をここでパースして
+            // 適切なファイルパスにしてください
+            $file_name = "{$directory}/{$class}.php";
+
+            if (is_file($file_name)) {
+                require $file_name;
+
+                return true;
+            }
+        }
+    }
+
+    /**
+     * ディレクトリリスト
+     * @return array フルパスのリスト
+     */
+    private static function directories()
+    {
+        if (empty(self::$dirs)) {
+            $base = __DIR__;
+            self::$dirs = array(
+                // ここに読み込んでほしいディレクトリを足していきます
+                $base . '/controllers',
+                $base . '/models',
+                $base
+            );
+        }
+        return self::$dirs;
+    }
+}
+
+// これを実行しないとオートローダーとして動かない
+spl_autoload_register(array('ClassLoader', 'loadClass'));
+```
+
+``` php
+<?php
+require_once 'ClassLoader.php';
+
+$foo = new Foo();
+echo $foo->name;
 // 佐藤
 ```
 

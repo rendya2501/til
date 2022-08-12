@@ -16,7 +16,7 @@ class クラス名{
 
 ## コンストラクタ
 
-`__construct)`  
+`__construct()`  
 
 ---
 

@@ -84,3 +84,81 @@ mbstringをプラグインインストールからするのがめんどくさい
 `sudo kill -9 (プロセスID)`  
 
 <https://flashbuilder-job.com/php/635.html>
+
+---
+
+## ::class
+
+Laravelでよく見るけど、どういう意味なのかわからなかったのでまとめ。  
+
+- `::class`とは、クラスの完全修飾名を文字列として取得するための記述。  
+- PHP5.5から使用可能。  
+- PHP8.0以降は、オブジェクト（インスタンス）に対しても `::class` を使って、そのクラスの完全修飾名を取得することができる。  
+- 自分がここでそのクラス名を使うとどのクラスを実行することになるのかを調べられる。  
+- 名前解決やエイリアスの設定で用いられる。  
+
+[【PHP】::classとは何か？名前解決や完全修飾名の意味や使い方を実例で解説（ダブルコロン２つ クラス、名前空間、最初のバックスラッシュ）](https://prograshi.com/language/php/php-class-namespace/)  
+
+### シンプルな例
+
+名前空間「App\Service」の中の「TestClass」の完全修飾名は「App\Service\TestClass」  
+名前空間「App\Service」の中で「echo TestClass::class」を実行すると「App\Service\TestClass」となる。  
+
+``` php
+<?php
+namespace App\Service{
+    class TestClass{
+        public static function greeting(){
+            echo "Hello!";
+        }
+    }
+    echo TestClass::class;
+    // App\Service\TestClass
+}
+```
+
+### \クラス::class
+
+名前空間の中など、どのファイルからでも同じクラス名を指定するには、冒頭に「\」バックスラッシュをつけ、「\名前空間\クラス名」のように指定する。  
+
+`App\Baa`名前空間で`App\Service\TestClass::class`とすると`App\Bbb\App\Service\TestClass`となってしまう。  
+
+頭に`\`をつけて`\App\Service\TestClass::class`とすることで`App\Service\TestClass`となる。  
+
+``` php
+<?php
+namespace App\Service{
+    class TestClass{
+        public static function greeting(){
+            echo "Hello!";
+        }
+    }
+}
+
+namespace App\Bbb{
+    class TestClass{
+        public static function greeting(){
+            echo "Hello! Bbb";
+        }
+    }
+    // App\Bbb\App\Service\TestClass
+    echo App\Service\TestClass::class."\n";
+    // App\Service\TestClass
+    echo \App\Service\TestClass::class."\n";
+    
+    // PHP Fatal error:  Uncaught Error: Class "App\Bbb\App\Service\TestClass" not found in /workspace/Main.php:20
+    // echo App\Service\TestClass::class::greeting();
+
+    // Hello! Bbb
+    echo TestClass::class::greeting()."\n";
+    // Hello!
+    echo \App\Service\TestClass::class::greeting()."\n";
+}
+```
+
+---
+
+## PHP_通信
+
+[PHPでPOST送信まとめ](https://qiita.com/okdyy75/items/d21eb95f01b28f945cc6)  
+[APIクライアント開発時のモックに使えるhttpbinの紹介](https://qiita.com/sameyasu/items/adacceb8a1bee893599b)  
