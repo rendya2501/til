@@ -173,6 +173,26 @@ foo();
 
 ---
 
+## 可変関数
+
+変数名の後ろに`()`を付与することで、変数の値と同名の関数を呼び出すことができる機能。  
+
+``` php
+function hoge(){
+    echo 'Hello!';
+}
+
+$func = 'hoge';
+$func();
+// Hello!
+
+
+// これは駄目
+// 'hoge'();
+```
+
+---
+
 ## コールバック
 
 phpのコールバックは3種類ある。  
@@ -191,36 +211,80 @@ call_user_func関数は文字列で指定するのでなんかいやだ。
 [PHPでコールバック関数を利用する](https://qiita.com/tricogimmick/items/23fb5958b6ea914bbfb5)  
 [(PHP) コールバック関数とは？使い方を分かりやすく解説](https://hara-chan.com/it/programming/php-callback/)  
 
-### 無名関数を使ったAPI実行サンプル
+### 可変関数のコールバック
 
-``` PHP : 無名関数を使ったAPI実行サンプル
-function callGetAPI()
+``` php
+// ①コールバック関数定義
+function callback_func()
 {
-    // クエリパラメータ
-    $params = 'linkage_ids=';
-    // リクエスト生成コールバック生成
-    $createRequest = function ($token) use ($params) {
-        return new Request(
-            'GET',
-            SERVICE_URL . API_URI . '?' . $params,
-            ['Authorization' => 'Bearer ' . $token]
-        );
+    return "foo";
+}
+
+// ②コールバック関数を受け取る関数を定義
+function execute($call_back)
+{
+    // ④ 可変関数を利用して文字列で渡された名称の関数を呼び出す
+    // 変数の後ろに()を付けてコール
+    echo "callback function result : {$call_back()}\n";
+}
+
+// ③関数にコールバック関数を渡す
+execute("callback_func");
+
+```
+
+### 無名関数のコールバック
+
+``` php
+function execute(){
+    // ①無名関数定義
+    $hoge = function(string $str) {
+        echo $str;
     };
-    // API実行
-    return commonAPIAction($createRequest);
+    // ②hugaにコールバックとして無名関数を渡す
+    huga($hoge);
 }
 
-// 引数にcallableを指定すると、引数がコールバック関数であることを明示できる(タイプヒンティング)
-function commonAPIAction(callable $createRequest)
-{
-    // ログインAPIを実行してトークンを取得
-    $token = callLoginAPI();
-    // リクエスト生成
-    $request = $createRequest($token);
-    // クライアント生成
-    $client = new Client(['http_errors' => false, 'function' => 'functionfunction']);
-    // API実行
-    $response = executeAPI($client, $request);
-    return $response;
+// コールバックを受け取る関数
+function huga(callable $call_back){
+    $str = "huga";
+    // ③受け取ったコールバックに対して引数を渡して実行する
+    $call_back($str);
 }
+
+execute();
+```
+
+### call_user_func() 関数を利用したコールバック
+
+可変関数を利用したコールバック関数ではクラスやオブジェクトのメソッドをコールバック関数として渡すことができない。  
+それを可能にするのが`call_user_func()関数`。  
+
+``` php
+class SampleClass
+{
+    // 普通のメソッド
+    function callbackMethod()
+    {
+        return "hoge";
+    }
+    // 静的メソッド
+    static function staticCallbackMethod()
+    {
+        return "fuga";
+    }
+}
+
+// コールバック関数を受け取る関数
+function execute($call_back)
+{
+    echo "callback function result : {call_user_func($call_back)}";
+}
+
+# 普通のクラスメソッドをコール
+$obj = new SampleClass();
+execute(array($obj, "callbackMethod"));// hoge
+
+# 静的メソッドをコール
+execute(array("SampleClass", "staticCallbackMethod")); // fuga
 ```

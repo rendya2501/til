@@ -106,26 +106,38 @@ $hoge();
 
 ---
 
-## 無名関数のコールバック
+## 無名関数を使った実践的なAPI実行サンプル
 
-``` php
-function execute(){
-    // ①無名関数定義
-    $hoge = function(string $str) {
-        echo $str;
+``` PHP
+function callGetAPI()
+{
+    // クエリパラメータ
+    $params = 'linkage_ids=';
+    // リクエスト生成コールバック生成
+    $createRequest = function ($token) use ($params) {
+        return new Request(
+            'GET',
+            SERVICE_URL . API_URI . '?' . $params,
+            ['Authorization' => 'Bearer ' . $token]
+        );
     };
-    // ②hugaにコールバックとして無名関数を渡す
-    huga($hoge);
+    // API実行
+    return commonAPIAction($createRequest);
 }
 
-// コールバックを受け取る関数
-function huga(callable $call_back){
-    $str = "huga";
-    // ③受け取ったコールバックに対して引数を渡して実行する
-    $call_back($str);
+// 引数にcallableを指定すると、引数がコールバック関数であることを明示できる(タイプヒンティング)
+function commonAPIAction(callable $createRequest)
+{
+    // ログインAPIを実行してトークンを取得
+    $token = callLoginAPI();
+    // リクエスト生成
+    $request = $createRequest($token);
+    // クライアント生成
+    $client = new Client(['http_errors' => false, 'function' => 'functionfunction']);
+    // API実行
+    $response = executeAPI($client, $request);
+    return $response;
 }
-
-execute();
 ```
 
 ---

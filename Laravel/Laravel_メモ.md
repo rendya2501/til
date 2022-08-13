@@ -119,7 +119,7 @@ Log::debug($message);
 ## Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory' not found
 
 プロキシでレスポンスをそのまま返そうとした時にエラーが発生。  
-結果的に`symfony/psr-http-message-bridge`がないことが原因だった。  
+タイトルの通り`symfony/psr-http-message-bridge`がないことが原因だった。  
 composerでインストールしようとしたら嵌ったのでまとめる。  
 
 主にphpのメモリのエラーとローカルでインストールしようとした時のcomposerとphpのバージョンの違いによるエラーでにっちもさっちも行かなくなった。  
@@ -128,27 +128,28 @@ composerでインストールしようとしたら嵌ったのでまとめる。
 メモリーの制限を外しつつ、バージョンを指定したインストールのコマンド。  
 `COMPOSER_MEMORY_LIMIT=-1 composer require symfony/psr-http-message-bridge:"1.3.0"`  
 
-[Laravel Guzzle GET request](https://stackoverflow.com/questions/51331903/laravel-guzzle-get-request/55671570)  
+``` php
+    try {
+        Log::debug('1');
+        Log::debug($response->getStatusCode()); // HTTP status code;
+        Log::debug($response->getReasonPhrase()); // Response message;
+        // Log::debug(json_decode('   ',true)); // Body as the decoded JSON;
+        // Log::debug(\GuzzleHttp\json_decode('   ', true)); 
+        Log::debug((string) $response->getBody()); // Body, normally it is JSON;
+        // Log::debug($response->getHeaders()); // Headers array;
+        // Log::debug($response->hasHeader('Content-Type')); // Is the header presented?
+        // Log::debug($response->getHeader('Content-Type')[0]); // Concrete header value;
+        return json_decode($response->getBody(), true);
+    } catch (Exception $e) {
+        Log::debug('2');
+    }
+```
+
+- 参考  
+  - [Laravel Guzzle GET request](https://stackoverflow.com/questions/51331903/laravel-guzzle-get-request/55671570)  
 [composerでgitの公開レポジトリからcloneする際のエラーの回避方法](https://qiita.com/pikanji/items/8997db5a773372393b02)  
 [Composerのバージョン指定方法でのチルダ（~）とキャレット（^）の違い](http://blog.a-way-out.net/blog/2015/06/19/composer-version-tilde-and-caret/)  
 [composer requireで"Allowed memory size of 1610612736 bytes exhausted"エラーが出た場合の対処法](https://qiita.com/96kuroguro/items/51a7be874e624227a3bb)  
 [よく使うcomposerコマンドとバージョン指定方法の備忘録](https://tanden.dev/%E3%82%88%E3%81%8F%E4%BD%BF%E3%81%86composer%E3%82%B3%E3%83%9E%E3%83%B3%E3%83%89%E3%81%A8%E3%83%90%E3%83%BC%E3%82%B8%E3%83%A7%E3%83%B3%E6%8C%87%E5%AE%9A%E3%81%AE%E5%82%99%E5%BF%98%E9%8C%B2/)  
 [laravel api return]  
 [symfony/psr-http-message-bridge](https://packagist.org/packages/symfony/psr-http-message-bridge)  
-
-``` txt
-        // try {
-        //     Log::debug('1');
-        //     Log::debug($response->getStatusCode()); // HTTP status code;
-        //     Log::debug($response->getReasonPhrase()); // Response message;
-        //     // Log::debug(json_decode('   ',true)); // Body as the decoded JSON;
-        //     // Log::debug(\GuzzleHttp\json_decode('   ', true)); 
-        //     Log::debug((string) $response->getBody()); // Body, normally it is JSON;
-        //     // Log::debug($response->getHeaders()); // Headers array;
-        //     // Log::debug($response->hasHeader('Content-Type')); // Is the header presented?
-        //     // Log::debug($response->getHeader('Content-Type')[0]); // Concrete header value;
-        //     return json_decode($response->getBody(), true);
-        // } catch (Exception $e) {
-        //     Log::debug('2');
-        // }
-```

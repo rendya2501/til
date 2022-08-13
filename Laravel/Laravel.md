@@ -2,6 +2,24 @@
 
 ---
 
+## Laravelプロジェクトのディレクトリ構成
+
+``` txt
+-- sample
+    ├- app       :: アプリケーションのロジック
+    ├- bootstrap :: laravelフレームワークの起動コード
+    ├- config    :: 設定ファイル
+    ├- database  :: MigrationファイルなどDB関連
+    ├- public    :: Webサーバのドキュメントルート
+    ├- resources :: ビューや言語変換用ファイルなど
+    ├- routes    :: ルーティング用ファイル
+    ├- storage   :: フレームワークが使用するファイル
+    ├- tests     :: テストコード
+    └- vendor    :: Composerでインストールしたライブラリ
+```
+
+---
+
 ## Illuminate
 
 ### Illuminateとは何か？

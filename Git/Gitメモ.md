@@ -372,3 +372,9 @@ index.lockファイルがあるとpullやcommitができなくなる模様。
 
 [GitHub のプロフィールをかっこよくしたい](https://blog.kosappi.net/entry/2021/04/17/002051)  
 [GitHub Readme Stats](https://github.com/anuraghazra/github-readme-stats)  
+
+---
+
+## Aブランチをリベースした後にBブランチにマージして、Aブランチを更にBブランチでリベースしてBブランチにマージすると同じ修正が2回も入るのを確認したのでリベースは最初の一回のみに限る
+
+普通そんなことしないんだろうけど、やったらそうなったのでまとめ。  
