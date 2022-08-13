@@ -60,40 +60,52 @@ print $err ?? 'naiyo';
 
 ## 三項演算子
 
-phpの三項演算子は癖が強く、なんでそうなるの？って動作をしたのでまとめたのだが、だいぶ前にまとめた内容なので、また綺麗にまとめたい。  
+**PHPの三項演算子は右から順に評価される**。  
+
+下記例では`$a`がTrueなので「あ」が出力されるはず。  
+しかし、「い」が出力されてしまう。  
+PHP8.0になってからなのか知らないが、ネストした演算を括弧で囲まない場合、エラーになる模様。  
+PHP7時代では普通にできていた気がする。  
 
 ``` php
-<?php
-    const DELETE_TYPE_PHYSICAL = 1;
-    const DELETE_TYPE_LOGICAL_WITH_HAS_ACHIEVE = 0;
-    const DELETE_TYPE_LOGICAL_WITH_NO_ACHIEVE = 2;
-    
-    $delType = DELETE_TYPE_PHYSICAL;
-    $landingAchieveFlag = true;
-    
-    $extendDelType = $delType === DELETE_TYPE_PHYSICAL
-        // 物理削除はそのまま
-        ? DELETE_TYPE_PHYSICAL
-        : $landingAchieveFlag
-            // 論理削除+実績あり
-            ? DELETE_TYPE_LOGICAL_WITH_HAS_ACHIEVE
-            // 論理削除+実績なし
-            : DELETE_TYPE_LOGICAL_WITH_NO_ACHIEVE;
-            
-    $extendDelType2 = (function ($delType, $landingAchieveFlag) {
-        if ($delType === DELETE_TYPE_PHYSICAL) {
-            return DELETE_TYPE_PHYSICAL;
-        } else {
-            if ($landingAchieveFlag) {
-                return DELETE_TYPE_LOGICAL_WITH_HAS_ACHIEVE;
-            } else {
-                return DELETE_TYPE_LOGICAL_WITH_NO_ACHIEVE;
-            }
-        }
-    })($delType,$landingAchieveFlag);
-    
-    var_dump($extendDelType);
-    var_dump($extendDelType2);
+$a = true; $b = true;
+// PHP 7時代は普通に実行されていたが今はエラーになる
+// PHP Fatal error:  Unparenthesized `a ? b : c ? d : e` is not supported. Use either `(a ? b : c) ? d : e` or `a ? b : (c ? d : e)` in /workspace/Main.php on line 5
+echo $a 
+    ? 'あ' 
+    : $b 
+        ? 'い' 
+        : 'う'; 
+// い
+```
+
+ネスト部分を括弧で囲むと意図した通りに実行される。  
+
+``` php
+$a = true; $b = true;
+
+echo $a 
+    ? 'あ' 
+    : ( $b 
+        ? 'い' 
+        : 'う' ); 
+#=> あ
+```
+
+PHPでは参考演算子で関数の実行が可能。  
+C#では不可能。  
+
+``` php
+function foo() { echo "foo\n";}
+function bar() { echo "bar\n";}
+
+$int = 1;
+$int == 1 ? foo() : bar();
+// foo
+
+$int++;
+$int == 1 ? foo() : bar();
+// bar
 ```
 
 ---
