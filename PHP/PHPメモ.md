@@ -164,3 +164,168 @@ namespace App\Bbb{
 [APIクライアント開発時のモックに使えるhttpbinの紹介](https://qiita.com/sameyasu/items/adacceb8a1bee893599b)  
 
 [PHP でルーターを書いてみる](https://zenn.dev/iamwanabi/articles/52326ab451373b)  
+
+---
+
+## if
+
+phpのifは括弧で囲む標準タイプ。  
+省略形もあり。
+
+``` php
+// 例1 : 基本形
+if ($a > $b) {
+    echo "aはbより大きい";
+} else {
+    echo "aはbより小さい";
+}
+```
+
+``` php
+// 例2 : 省略形
+if ($a > $b) echo "aはbより大きい";
+
+if ($a > $b) 
+    echo "aはbより大きい";
+```
+
+``` php
+// 例3 : else if
+if ($aaa) {
+    // 処理a
+} else if ($bbb) {
+    // 処理b
+} else {
+    // 処理c
+}
+```
+
+---
+
+## switch
+
+caseの最後コロンはセミコロンでも問題ない。  
+phpは ==演算子による緩やかな比較を行う。
+
+``` php
+// 例1 : 基本形
+switch ($i){
+    case 0:
+        echo "iは0に等しい";
+        break;
+    case 1:
+        echo "iは1に等しい";
+        break;
+    default:
+        echo "iは0でも1でもない";
+        break;
+}
+```
+
+``` php
+// 例2 : caseの最後がセミコロン & or条件の記述
+switch($beer)
+{
+    case 'ツボルグ';
+    case 'カールスバーグ';
+    case 'ステラ';
+    case 'ハイネケン';
+        echo 'いいっすねぇ';
+        break;
+    default;
+        echo 'ほかのを選んでみませんか?';
+        break;
+}
+```
+
+```php
+// 例3 :  型の厳密比較をしたい場合等のテクニック
+$value = '';
+switch (true) {
+    case $value === 0:
+        echo 'valueは0です';
+        break;
+    case $value === 1:
+        echo 'valueは1です';
+        break;
+    default:
+        echo 'valueは0でも1でも2でもありません';
+        break;
+}
+// valueは0でも1でも2でもありません。
+```
+
+[公式](https://www.php.net/manual/ja/control-structures.switch.php)  
+
+---
+
+## for
+
+phpのfor文は括弧で囲む。  
+各式(`式1;式2;式3`)は空にすることが可能。  
+式1はループ開始時に無条件に実行される。  
+式2は各繰り返しの開始時に評価される。  
+式3は各繰り返しの後に評価される。  
+複数の式をカンマで区切って指定することも可能。  
+
+``` php
+// 例1 : 基本形
+for ($i = 0; $i <= 10; i++){
+    echo $i;
+}
+
+// 例2 : 第2式を内部で実行
+for ($i = 0; ;$i++){
+    if ($i <= 10) {
+        break;
+    }
+    echo $i;
+}
+
+// 例3 : 全てのセクションの処理を外部または内部で実行
+$i = 1;
+for (;;){
+    if ($i > 10) {
+        break;
+    }
+    echo $i;
+    $i++;
+}
+
+// 例4 : ワンセンテンステクニック
+// 第3式は毎回実行されるため、ここにカンマ区切りで全ての式を書き込み、最後にインクリメントを実行することでワンセンテンスで記述可能
+for ($i = 1, $j = 0; $i <= 10; $j += $i, print "{$i},{$j}\n", $i++);  
+// 1,1
+// 2,3
+// 3,6
+// 4,10
+// 5,15
+// 6,21
+// 7,28
+// 8,36
+// 9,45
+// 10,55
+```
+
+### for文の最適化例
+
+第2式で配列のサイズを取得すると、毎回取得することになって効率が悪いので、それを最適化する例。  
+
+``` php
+$people = [
+    ['name' => 'hoge', 'salt' => '787878'],
+    ['name' => 'huga', 'salt' => '989898']
+];
+
+// このfor分は配列のサイズを毎回取得しているため実行が遅くなる。
+for ($i = 0; $i < count($people); ++$i>){
+    $people[$i]['salt'] = mt_rand(00000,99999);
+}
+
+// 式1のセクションにおいて、カンマ区切りで変数に要素数を取得することで、毎回配列のサイズを取得することがなくなる。
+for ($i = 0, $size = count($people); $i < $size; ++$i) {
+
+}
+```
+
+[公式](https://www.php.net/manual/ja/control-structures.for.php)  
