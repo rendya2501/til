@@ -14,7 +14,7 @@
 ``` php
 // クラスにアクセス修飾子はつけられない
 class Hoge{
-    // コンストラクタ
+    // コンストラクタにはfunction句が必要
     public function __construct(){
 
     }

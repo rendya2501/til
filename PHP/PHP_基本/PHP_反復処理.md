@@ -1,8 +1,81 @@
-# PHP_foreach
+# PHP_反復処理
 
 ---
 
-## 概要
+## for
+
+phpのfor文は括弧で囲む。  
+各式(`式1;式2;式3`)は空にすることが可能。  
+式1はループ開始時に無条件に実行される。  
+式2は各繰り返しの開始時に評価される。  
+式3は各繰り返しの後に評価される。  
+複数の式をカンマで区切って指定することも可能。  
+
+``` php
+// 例1 : 基本形
+for ($i = 0; $i <= 10; i++){
+    echo $i;
+}
+
+// 例2 : 第2式を内部で実行
+for ($i = 0; ;$i++){
+    if ($i <= 10) {
+        break;
+    }
+    echo $i;
+}
+
+// 例3 : 全てのセクションの処理を外部または内部で実行
+$i = 1;
+for (;;){
+    if ($i > 10) {
+        break;
+    }
+    echo $i;
+    $i++;
+}
+
+// 例4 : ワンセンテンステクニック
+// 第3式は毎回実行されるため、ここにカンマ区切りで全ての式を書き込み、最後にインクリメントを実行することでワンセンテンスで記述可能
+for ($i = 1, $j = 0; $i <= 10; $j += $i, print "{$i},{$j}\n", $i++);  
+// 1,1
+// 2,3
+// 3,6
+// 4,10
+// 5,15
+// 6,21
+// 7,28
+// 8,36
+// 9,45
+// 10,55
+```
+
+### for文の最適化例
+
+第2式で配列のサイズを取得すると、毎回取得することになって効率が悪いので、それを最適化する例。  
+
+``` php
+$people = [
+    ['name' => 'hoge', 'salt' => '787878'],
+    ['name' => 'huga', 'salt' => '989898']
+];
+
+// このfor分は配列のサイズを毎回取得しているため実行が遅くなる。
+for ($i = 0; $i < count($people); ++$i>){
+    $people[$i]['salt'] = mt_rand(00000,99999);
+}
+
+// 式1のセクションにおいて、カンマ区切りで変数に要素数を取得することで、毎回配列のサイズを取得することがなくなる。
+for ($i = 0, $size = count($people); $i < $size; ++$i) {
+
+}
+```
+
+[公式](https://www.php.net/manual/ja/control-structures.for.php)  
+
+---
+
+## PHP_foreach
 
 反復可能な値に対してループ処理を行う  
 
@@ -18,7 +91,7 @@
 
 ---
 
-## foreach (iterable_expression as $value)
+### foreach (iterable_expression as $value)
 
 - iterable_expression で指定した反復可能な値に 関してループ処理を行う  
 - 反復において現在の要素の値が $valueに代入される  
@@ -37,7 +110,7 @@ foreach ($arr as $value) {
 
 ---
 
-## foreach (iterable_expression as $key => $value)
+### foreach (iterable_expression as $key => $value)
 
 `key => value`形式では、インデックスを取得可能。  
 
@@ -54,7 +127,7 @@ foreach ($arr as $key => $value) {
 
 ---
 
-## 連想配列 + foreach
+### 連想配列 + foreach
 
 連想配列の場合、keyはインデックスではなく、キーの内容がそのまま表示される。
 
@@ -80,7 +153,7 @@ foreach($arr as $key => $value){
 
 ---
 
-## 値渡し
+### 値渡し
 
 foreach中でvalueを2倍にしているが、var_dumpしたarrの値は変わっていない。  
 これは値渡しの状態なので、元のarrの状態に変化はない。  
@@ -97,7 +170,7 @@ var_dump($arr);
 // array(4) { [0]=> int(1) [1]=> int(2) [2]=> int(3) [3]=> int(4) }
 ```
 
-## 参照渡し
+### 参照渡し
 
 ループの中で配列の要素を直接変更したい場合は、 $value の前に `&` をつける。  
 変数の先頭に&をつけることで参照しとなり、$arrの値を算出した結果にする事が出来る。  
@@ -115,9 +188,7 @@ var_dump($arr);
                                                        // ↑参照になっている
 ```
 
----
-
-## foreachで作った変数はforeach抜けた後も有効
+### foreachで作った変数はforeach抜けた後も有効
 
 - foreach ループを終えた後でも、 \$value は配列の最後の要素を参照したままとなる  
 - 意図しない結果や事故を防ぐために `unset()` でその参照を解除しておく必要がある  
@@ -153,9 +224,7 @@ var_dump($arr);
 公式のリファレンスにも書いてありました。  
 unsetはマナー的にあってもいいのかもしれないですね。  
 
----
-
-## 空配列
+### 空配列
 
 空配列をforeachに渡した場合、foreachの内部処理はされずに、foreachを抜ける。  
 エラーにはならない。  
@@ -168,7 +237,7 @@ foreach($arr as $value){
 
 ---
 
-## invalid argument supplied for foreach()
+### invalid argument supplied for foreach()
 
 supplied : 供給  
 違法な引数をforeachに供給した  

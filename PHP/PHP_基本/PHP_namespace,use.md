@@ -72,9 +72,6 @@ namespace huga{
 - 関数をインポート。  
 - 定数をインポート。  
 
-実務で使っていた例はuseでクラスをインポートする使い方だった。  
-1ファイル,1名前空間,1クラスだから困ることがなかったんだ。  
-
 ``` php : tokyo.php
 // サブ名前空間
 namespace asia\japan\kanto\tokyo;
@@ -106,5 +103,7 @@ echo $c->getPref(); // tokyo
 ```
 
 ---
+
+## 参考リンク
 
 [【PHP超入門】名前空間（namespace・use）について](https://qiita.com/7968/items/1e5c61128fa495358c1f)  
