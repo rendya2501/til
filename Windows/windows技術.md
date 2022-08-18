@@ -199,3 +199,32 @@ Windows 10で導入されたWindowsアプリケーションのパッケージ形
 [WPFアプリのmsixによるweb配布、自動更新方法](https://qiita.com/smi/items/17cdc56c08b8a5dab58e)  
 [.NET Coreに対応したInputManで次世代のアプリ配布方法を試す（MSIX編）](https://devlog.grapecity.co.jp/inputman-dotnetcore-create-msix-package/)  
 [MSIX でサービスをインストールしてみた](https://zenn.dev/okazuki/articles/fb36fad5d6d0a6906b68)  
+
+---
+
+## Windows認証
+
+[「分かりそう」で「分からない」](https://wa3.i-3-i.info/word13296.html)  
+Windowsパソコンにログインするときに使った認証情報を使いまわしてやる認証  
+「Windows認証」という用語を見かけるのは、おそらくIISかSQLServerの話でしょう。  
+
+今回はSQLServerを例に説明します。  
+SQLServerの場合、認証のやり方は2種類あります。  
+
+1つは、普通にIDとパスワードを入れて認証するやり方です。  
+これを「**SQLServer認証**」と言います。  
+
+もう1つは、Windowsパソコンにログインするときに使った認証情報を使いまわして認証するやり方です。  
+これが**Windows認証**です。  
+
+例えば、パソコンに「ピヨ太」「ピヨ子」「アクマ」の3人のユーザが設定されていたとしましょう。  
+「ピヨ太」「ピヨ子」「アクマ」のどれかでログインすれば、パソコンを使うことができます。  
+
+それに対して、SQLServerには「『ピヨ太』だけ使って良いよ」と設定されていたとしましょう。  
+そうすると「ピヨ太」でパソコンにログインしている場合は、SQLServerを使えます。  
+「ピヨ子」か「アクマ」でログインしている場合は、SQLServerが使えない状態になります。  
+
+このような結果になるのは、SQLServerを使って良いか判定する認証において、Windowsにログインするときに使った認証情報を使いまわしているからです。  
+
+これがWindows認証です。  
+ですから、SQLServerを使おうとしたときに、改めてIDとパスワードを入力する必要はありません。  
