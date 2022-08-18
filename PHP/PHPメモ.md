@@ -157,12 +157,3 @@ namespace App\Bbb{
 ```
 
 ---
-
-## PHP_通信
-
-[PHPでPOST送信まとめ](https://qiita.com/okdyy75/items/d21eb95f01b28f945cc6)  
-[APIクライアント開発時のモックに使えるhttpbinの紹介](https://qiita.com/sameyasu/items/adacceb8a1bee893599b)  
-
-[PHP でルーターを書いてみる](https://zenn.dev/iamwanabi/articles/52326ab451373b)  
-
----

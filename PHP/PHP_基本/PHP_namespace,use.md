@@ -27,6 +27,8 @@ namespace test {
         echo "Hoge_Func\n";
     }
 }
+// グローバル名前空間
+// 名前空間がない場所で定義した場合のデフォルト名前空間
 namespace {
     $hoge = new \test\Hoge; // Hoge
     \test\Hoge_Func();      // Hoge_Func
