@@ -8,18 +8,19 @@
 ファイルの代わりにURLを指定して外部のサイトにアクセスする機能がある。  
 Webブラウザのような操作はできない。  
 
-``` php
+``` php : post例
     $url = 'https://httpbin.org/post';
+    $header = [
+        'Accept-Charset: UTF-8',
+        'Content-Type: application/x-www-form-urlencoded'
+    ];
     $param = [
         'msg' => 'メッセージ',
     ];
     $context = [
         'http' => [
             'method'  => 'POST',
-            'header'  => [
-                'Accept-Charset: UTF-8',
-                'Content-Type: application/x-www-form-urlencoded'
-            ],
+            'header'  => $header,
             'content' => json_encode($param)
         ]
     ];
