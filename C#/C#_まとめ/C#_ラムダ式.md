@@ -2,6 +2,24 @@
 
 ---
 
+## デリゲートとは？
+
+>メソッドを参照するための型  
+C++の関数ポインターのようなもの  
+関数ポインターや関数オブジェクトをオブジェクト指向に適するように拡張したもの  
+他のメソッドに処理を丸投げするためのオブジェクト  
+[未確認飛行C](https://ufcpp.net/study/csharp/sp_delegate.html)  
+
+「メソッドを格納するための型」といえるかもしれない。  
+
+---
+
+## Action,Func,Delegate
+
+[【C#】delegate, Action, Funcについて 多分一番易しい解説](https://hikotech.net/post-449/)  
+
+---
+
 ## 匿名関数の即時実行
 
 [C#でJavascriptみたいな即時関数を実行する](https://yuzutan-hnk.hatenablog.com/entry/2017/01/15/022643)  
@@ -168,13 +186,15 @@ var aa = new Func<IEnumerable<int>>(() =>
 
 ## デリゲートにはローカル関数を代入可能
 
+当時は珍しく感じたが、デリゲートは関数を格納する型なので、普通に考えていける。  
+
 ``` C#
     {
         // ローカル関数
         IEnumerable<int> GetIntList(IEnumerable<string> stringList)
             => this.GetIntList(stringList, arg1, arg2, arg3, arg4);
 
-        // デリゲート
+        // デリゲート,第2引数にローカル関数を渡す
         var result = GetGroupSettlementSet(customer, GetIntList);
     }
 

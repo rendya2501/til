@@ -2,6 +2,18 @@
 
 ---
 
+## Linqとは？
+
+統合言語クエリ (LINQ: Language-Integrated Query)  
+
+>foreach のパワーアップ版  
+[はじめての LINQ](https://qiita.com/nskydiving/items/c9c47c1e48ea365f8995)  
+>
+>ループ処理を簡潔に記載でき、操作メソッドを数多く提供するライブラリ  
+[【C#入門】LINQ（統合言語クエリ）をわかりやすく解説](https://www.modis.co.jp/candidate/insight/column_137)  
+
+---
+
 ## 特定の月のすべての日付を取得する方法
 
 <https://www.it-mure.jp.net/ja/c%23/c%EF%BC%83%E3%81%A7%E7%89%B9%E5%AE%9A%E3%81%AE%E6%9C%88%E3%81%AE%E3%81%99%E3%81%B9%E3%81%A6%E3%81%AE%E6%97%A5%E4%BB%98%E3%82%92%E5%8F%96%E5%BE%97%E3%81%99%E3%82%8B%E6%96%B9%E6%B3%95/971126391/>
