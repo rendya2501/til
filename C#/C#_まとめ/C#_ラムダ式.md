@@ -12,9 +12,49 @@ C++の関数ポインターのようなもの
 
 「メソッドを格納するための型」といえるかもしれない。  
 
+基本的な使い方  
+`宣言⇒インスタンス化⇒メソッド代入`
+
+``` C#
+// ①宣言
+delegate void del_func(int val);
+
+public static void Main(){
+    // ②インスタンス化
+    // ③メソッド代入
+    del_func hoge = new del_func(hoge_func);
+
+    hoge.Invoke();
+}
+
+// 代入する関数
+static void hoge_func(int val){
+    _ = val;
+}
+```
+
 ---
 
-## Action,Func,Delegate
+## Action,Func
+
+Action,Funcは通常のdelegateを使いやすくした型。  
+通常のdelegateような宣言が必要なくなった。  
+
+delegateの基本的な使い方 : `宣言⇒インスタンス化⇒メソッド代入` →面倒くさい。  
+Action : ``  
+
+``` C#
+public static void Main(){
+    Action<int> hoge = hoge_func;
+
+    hoge.Invoke();
+}
+
+// 代入する関数
+static void hoge_func(int val){
+    _ = val;
+}
+```
 
 [【C#】delegate, Action, Funcについて 多分一番易しい解説](https://hikotech.net/post-449/)  
 
@@ -22,12 +62,10 @@ C++の関数ポインターのようなもの
 
 ## 匿名関数の即時実行
 
-[C#でJavascriptみたいな即時関数を実行する](https://yuzutan-hnk.hatenablog.com/entry/2017/01/15/022643)  
-
 VB.Netの時、usingした結果だけを受け取りたい場合によく利用したが、C#になってからあまり使っていなかった。  
 でもって、すぐにやり方がわからなかったのでまとめ。  
 
-``` C#
+``` C# : 最も単純な例
 int x = new Func<int>(() => 1)();
 
 new Action(() => 処理)();
@@ -64,6 +102,8 @@ new Action(() => 処理)();
         _ = account();
     }
 ```
+
+[C#でJavascriptみたいな即時関数を実行する](https://yuzutan-hnk.hatenablog.com/entry/2017/01/15/022643)  
 
 タプルでの受け取りは無理だった。
 エラーにはならなかったが、全部初期値が入って使い物にならなかった。
@@ -178,9 +218,9 @@ var aa = new Func<IEnumerable<int>>(() =>
 
 ## Actionとローカル関数のどちらを使うべきか調査
 
-[C#のActionとローカル関数のどちらを使うべきか調査](https://shibuya24.info/entry/action_or_local_method)  
-
 ローカル関数のほうが早いので、特段の理由が無ければローカル関数を使うべし。  
+
+[C#のActionとローカル関数のどちらを使うべきか調査](https://shibuya24.info/entry/action_or_local_method)  
 
 ---
 

@@ -22,11 +22,90 @@ Byteなので普通に0だが、面白いのは定義したEnumが1から始ま�
 
 ---
 
+## EnumのDisplayAtributeを取得する
+
+``` C#
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.WriteLine(Gender.Unknown.GetDisplayName());
+            Console.WriteLine(Gender.Unknown.GetDescription());
+            // 不明Display
+            // 不明Description
+
+            Console.WriteLine(Gender.Male.GetDisplayName());
+            Console.WriteLine(Gender.Male.GetDescription());
+            // Male
+            // 男性Description
+
+            Console.WriteLine(Gender.Female.GetDisplayName());
+            Console.WriteLine(Gender.Female.GetDescription());
+            // 女性Display
+            // Female
+        }
+    }
+
+    public enum Gender
+    {
+        [Display(Name = "不明Display")]
+        [Description("不明Description")]
+        Unknown,
+        [Description("男性Description")]
+        Male,
+        [Display(Name = "女性Display")]
+        Female,
+    }
+
+    /// <summary>
+    /// Enum拡張クラス
+    /// </summary>
+    public static class EnumExtentions
+    {
+        /// <summary>
+        /// Enumに定義してあるDisplay属性を表示する。
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static string GetDisplayName(this Enum value) =>
+            !Enum.IsDefined(value.GetType(), value)
+                ? string.Empty
+                : value.GetEnumAttribute<DisplayAttribute>()?.Name ?? value.ToString();
+
+        /// <summary>
+        /// Enumに定義してあるDescription属性を表示する。
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static string GetDescription(this Enum value) =>
+            !Enum.IsDefined(value.GetType(), value)
+                ? string.Empty
+                : value.GetEnumAttribute<DescriptionAttribute>()?.Description ?? value.ToString();
+
+        /// <summary>
+        /// Attributeの値を取得する共通処理
+        /// </summary>
+        /// <typeparam name="TAttribute"></typeparam>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static TAttribute GetEnumAttribute<TAttribute>(this Enum value) where TAttribute : Attribute =>
+            value.GetType().GetField(value.ToString()).GetCustomAttributes(typeof(TAttribute), false)?.OfType<TAttribute>()?.FirstOrDefault();
+    }
+```
+
+[Enumに定義してあるDisplay属性を表示する。リソースファイルがある場合、リソースから取得する拡張メソッド](https://qiita.com/mak_in/items/7909e51d249826115403)  
+[Enumの値の属性を取得する](https://www.web-dev-qa-db-ja.com/ja/c%23/enum%E3%81%AE%E5%80%A4%E3%81%AE%E5%B1%9E%E6%80%A7%E3%82%92%E5%8F%96%E5%BE%97%E3%81%99%E3%82%8B/968546402/)  
+
+---
+
 ## Enumに付与した属性と属性の値を取得する
 
-[C#でEnumに付与した属性と属性の値を取得する](https://takap-tech.com/entry/2018/12/20/231234)  
-
 Enumのアノテーションから値を取得するのは遅いので、速度が必要なければそれでもいいけど、別にDictionaryでEnumと文字列を定義して、それで取得でもいいのではという話。  
+
+[C#でEnumに付与した属性と属性の値を取得する](https://takap-tech.com/entry/2018/12/20/231234)  
 
 ---
 

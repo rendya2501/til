@@ -2,29 +2,48 @@
 
 ---
 
-## クラスの宣言
-
-- クラスにアクセス修飾子はつけることはできない。  
-  - (C#は普通につけられる)  
-- コンストラクタはfunction句が必要。  
-  - (C#はクラス名だけで良い)  
-- クラスのnewに`()`は必要ない。`$a = new class;`  
-  - (C#は必要`var a = new class();`)  
+## 手っ取り早くクラスを使う
 
 ``` php
 // クラスにアクセス修飾子はつけられない
 class Hoge{
-    // コンストラクタにはfunction句が必要
-    public function __construct(){
+    // プロパティの宣言
+    public $hoge_prop = "hoge_prop";
 
+    // コンストラクタの宣言
+    // コンストラクタの宣言にはfunction句が必要
+    public function __construct(){
+        echo "construct\n";
+    }
+
+    // メソッドの宣言
+    public function hoge_func(){
+        // クラス内部の要素にアクセスする場合は「$this->」が必要
+        echo $this->hoge_prop."\n";
     }
 }
 
-// クラスの宣言に()は必要ない。
-$a = new Hoge;
+// インスタンスの生成
+$hoge_obj = new Hoge();
+// プロパティへのアクセス
+echo $hoge_obj->hoge_prop;
+// 関数の実行
+$hoge_obj->hoge_func();
 ```
 
---
+---
+
+## C#との比較
+
+- クラスにアクセス修飾子はつけることはできない。  
+  - C#は普通につけられる  
+- コンストラクタはfunction句が必要。  
+  - C#はクラス名だけで良い  
+- クラスのnewに`()`はあってもなくてもよい。
+  - PHPは `$a = new class;` も可能  
+  - C#は絶対に必要 `var a = new class();`  
+
+---
 
 ## コンストラクタ
 
@@ -43,7 +62,7 @@ $a = new Hoge;
 
 ---
 
-## メモ
+## $this
 
 基本的にクラス内部の要素や関数を使いたい場合は`$this->`でアクセスする必要がある。  
 双方向リストを実装している時にやらかしたミスをメモっておく。  
