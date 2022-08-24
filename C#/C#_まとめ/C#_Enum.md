@@ -91,7 +91,7 @@ using System.ComponentModel.DataAnnotations;
         /// <typeparam name="TAttribute"></typeparam>
         /// <param name="value"></param>
         /// <returns></returns>
-        public static TAttribute GetEnumAttribute<TAttribute>(this Enum value) where TAttribute : Attribute =>
+        private static TAttribute GetEnumAttribute<TAttribute>(this Enum value) where TAttribute : Attribute =>
             value.GetType().GetField(value.ToString()).GetCustomAttributes(typeof(TAttribute), false)?.OfType<TAttribute>()?.FirstOrDefault();
     }
 ```
@@ -111,34 +111,58 @@ Enumのアノテーションから値を取得するのは遅いので、速度�
 
 ## 文字列を enum 型 に変換する方法
 
-[文字列から enum 型への安全な変換](https://qiita.com/masaru/items/a44dc30bfc18aac95015)  
+普通に変換させる分にはEnum.TryParseで問題ない。  
+数字からの変換が曲者。  
+enum 型で定義していない値でも変換に成功したことにして outの変数に入れてしまう模様。  
 
-普通に変換させる分にはEnum.TryParseでよろしい。  
-数字の文字列をEnumに変換するときは一工夫必要。  
+``` C#
+enum Weekday
+{
+    Sunday = 0,
+    Monday = 1,
+    Tuesday = 2,
+    //...
+    Saturday = 6
+}
+
+Weekday wd;
+Enum.TryParse("2", out wd); // true, wd = Weekday.Tuesday →わかる
+Enum.TryParse("Tuesday", out wd); // true, wd = Weekday.Tuesday →わかる
+Enum.TryParse("April", out wd); // false, wd = Weekday.Saturday →わかる
+Enum.TryParse("100", out wd); // true, wd = 100 →!!!!!!!!
+```
 
 - Parse() : 成功すれば変換された値が返ってくるが、失敗したときに例外を吐くので少々扱いにくい。  
 - TryParse() : 変換の成否は戻り値。変換された値は第2引数でoutされる。  
 
-数字からの変換が曲者で、enum 型で定義していない値でも変換に成功したことにして outの変数に入れてしまいます。  
-`Enum.TryParse("100", out wd); // true, wd = 100`  
-
-ある値が enum 型で定義されているか検証するには、Enum.IsDefined() を使います。  
-これを TryParse() と組み合わせれば、安全な変換が実現できます。  
+ある値が enum 型で定義されているか検証するには、`Enum.IsDefined()` を使う。  
+これを TryParse() と組み合わせれば、安全な変換が実現できる。  
 
 ``` C#
-static class EnumExt
-{
-    static bool TryParse<TEnum>(string s, out TEnum wd) where TEnum : struct
+    /// <summary>
+    /// Enum拡張クラス
+    /// </summary>
+    public static class EnumExtentions
     {
-        return Enum.TryParse(s, out wd) && Enum.IsDefined(typeof(TEnum), wd);
+        /// <summary>
+        /// 拡張TryParse
+        /// Enumに定義されていない値をfalseとします。
+        /// </summary>
+        /// <typeparam name="TEnum"></typeparam>
+        /// <param name="s"></param>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        public static bool TryParse<TEnum>(string s, out TEnum result) where TEnum : struct =>
+            Enum.TryParse(s, out result) && Enum.IsDefined(typeof(TEnum), result);
     }
-}
 
-Weekday wd;
-EnumExt.TryParse("Thursday", out wd); // true, wd = Weekday.Thursday
-SolarSystem ss; // Sun=0, Mercury, Venus, ...
-EnumExt.TryParse("5", out ss); // true, ss = SolarSystem.Jupiter
+EnumExtentions.TryParse("2", out wd); // true, wd = Weekday.Tuesday
+EnumExtentions.TryParse("Tuesday", out wd); // true, wd = Weekday.Tuesday
+EnumExtentions.TryParse("April", out wd); // false, wd = Weekday.Saturday
+EnumExtentions.TryParse("100", out wd); // false, wd = 100 →falseになった
 ```
+
+[文字列から enum 型への安全な変換](https://qiita.com/masaru/items/a44dc30bfc18aac95015)  
 
 ---
 
