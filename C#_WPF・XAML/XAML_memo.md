@@ -1152,3 +1152,139 @@ EventAggregator とは Publisher-Subscriber パターンを Prism で実装し�
 Prism のプロジェクトでは、EventAggregator は、2つ以上の ViewModel の間や、お互いに参照を持たないサービスの間でメッセージを送受信するためによく利用されます。  
 
 [Prism EventAggregator をなぜ使うべきか](https://shikaku-sh.hatenablog.com/entry/wpf-prism-why-should-use-eventaggregator)  
+
+---
+
+## WPF Window 最前面
+
+[親フォームを子フォームの前面に表示出来るのでしょうか](http://bbs.wankuma.com/index.cgi?mode=al2&namber=54099&KLOG=90)  
+→  
+Ownerを設定した上だと無理っぽい。  
+魔界の仮面弁士がそういっているなら無理なのだろう。  
+
+[WPFでウインドウにフォーカスが当たらない](http://www.ria-lab.com/archives/2998)  
+→  
+Delayさせるなら問題はないが、安定性はなくなる。  
+
+[qshinoの日記](https://qshino.hatenablog.com/entry/2017/03/27/023443)  
+→  
+Owner設定した場合、「4. 親は子を覆わない。」  
+というわけで、親をクリックしたら親が全面に来るということは出来ない。  
+
+[【.NET】ウインドウを一時的に最前面に表示しフォーカスを奪う](https://qiita.com/yaju/items/af308376f04ef2ff1325)  
+→  
+win32apiを使う方法も試してみたが、結局他でdelayされたら奪われる。  
+
+``` C#
+    internal static class WindowsHandles
+    {
+        [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool SetWindowPos(IntPtr hWnd, int hWndInsertAfter, int x, int y, int cx, int cy, int uFlags);
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetForegroundWindow();
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool SetForegroundWindow(IntPtr hWnd);
+        [DllImport("user32.dll")]
+        private static extern int GetWindowThreadProcessId(IntPtr hWnd, out int lpdwProcessId);
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern bool AttachThreadInput(int idAttach, int idAttachTo, bool fAttach);
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern bool SystemParametersInfo(uint uiAction, uint uiParam, IntPtr pvParam, uint fWinIni);
+
+        // ウィンドウの最前面/解除
+        public static void SetTopMostWindow(IntPtr handle, bool isTopMost)
+        {
+            const int SWP_NOSIZE = 0x0001;
+            const int SWP_NOMOVE = 0x0002;
+            const int SWP_SHOWWINDOW = 0x0040;
+            const int HWND_TOPMOST = -1;
+            const int HWND_NOTOPMOST = -2;
+
+            if (isTopMost)
+            {
+                // 最前面
+                SetWindowPos(handle, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+            }
+            else
+            {
+                // 最前面解除
+                SetWindowPos(handle, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_SHOWWINDOW | SWP_NOMOVE | SWP_NOSIZE);
+            }
+        }
+
+        /// <summary>
+        /// Windowフォームアクティブ化処理
+        /// </summary>
+        /// <param name="handle">フォームハンドル</param>
+        /// <returns>true : 成功 / false : 失敗</returns>
+        private static bool ForceActive(IntPtr handle)
+        {
+            const uint SPI_GETFOREGROUNDLOCKTIMEOUT = 0x2000;
+            const uint SPI_SETFOREGROUNDLOCKTIMEOUT = 0x2001;
+            const int SPIF_SENDCHANGE = 0x2;
+
+            IntPtr dummy = IntPtr.Zero;
+            IntPtr timeout = IntPtr.Zero;
+
+            bool isSuccess = false;
+
+            int processId;
+            // フォアグラウンドウィンドウを作成したスレッドのIDを取得
+            int foregroundID = GetWindowThreadProcessId(GetForegroundWindow(), out processId);
+            // 目的のウィンドウを作成したスレッドのIDを取得
+            int targetID = GetWindowThreadProcessId(handle, out processId);
+
+            // スレッドのインプット状態を結び付ける
+            AttachThreadInput(targetID, foregroundID, true);
+
+            // 現在の設定を timeout に保存
+            SystemParametersInfo(SPI_GETFOREGROUNDLOCKTIMEOUT, 0, timeout, 0);
+            // ウィンドウの切り替え時間を 0ms にする
+            SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, dummy, SPIF_SENDCHANGE);
+
+            // ウィンドウをフォアグラウンドに持ってくる
+            isSuccess = SetForegroundWindow(handle);
+
+            // 設定を元に戻す
+            SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, timeout, SPIF_SENDCHANGE);
+
+            // スレッドのインプット状態を切り離す
+            AttachThreadInput(targetID, foregroundID, false);
+
+            return isSuccess;
+        }
+
+        /// <summary>
+        /// ウィンドウを前面化する
+        /// </summary>
+        /// <param name="isTopMostOnly">最前面化設定</param>
+        public static void SetActiveWindow(MetroWindow window)
+        {
+            // 自身をアクティブにする
+            window.Activate();
+
+            var helper = new System.Windows.Interop.WindowInteropHelper(window);
+            // 表示の最初は最前面とする
+            WindowsHandles.SetTopMostWindow(helper.Handle, true);
+            // 最前面にした後に解除することで前面化させる
+            WindowsHandles.SetTopMostWindow(helper.Handle, false);
+
+            // 強制的にフォーカスを奪う
+            WindowsHandles.ForceActive(helper.Handle);
+
+            // 背面に隠れることがあるため、再度繰り返す
+            for (int i = 0; i < 2; i++)
+            {
+                // 表示の最初は最前面とする
+                WindowsHandles.SetTopMostWindow(helper.Handle, true);
+                // 最前面にした後に解除することで前面化させる
+                WindowsHandles.SetTopMostWindow(helper.Handle, false);
+            }
+        }
+    }
+```
+
+一回だけならOwnerを設定して、開いた瞬間にOwnerをnullにすることで、全面に持ってくることができる模様。  
+ただ、暫く画面を表示しなければいけない場合では、この方法は使えないだろう。  
