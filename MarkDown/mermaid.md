@@ -52,6 +52,16 @@ graph TB
   IFB-->End([End])
 ```
 
+---
+
+## mermaid + クラス図
+
+[mermaidのクラス図メモ](https://zenn.dev/tak_uchida/articles/da583cf960e854)  
+
+---
+
+## 参考
+
 [NotionのMermaid記法](https://twitter.com/paranishian/status/1559657386125668352)  
 [【Mermaidの紹介】Qiitaでダイアグラム・チャートが簡単に書けるようになりました！](https://qiita.com/Qiita/items/c07f3262d8f3b25f06c9)  
 [公式](https://mermaid-js.github.io/mermaid/#/)  
