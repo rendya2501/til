@@ -10,13 +10,6 @@ ROLLBACK TRANSACTION
 
 ---
 
-## SQL Server のGOコマンド
-
-[SQL ServerのGOコマンドとは？](https://sql-oracle.com/sqlserver/?p=708)  
-[SQL Server のユーティリティのステートメント - GO](https://docs.microsoft.com/ja-jp/sql/t-sql/language-elements/sql-server-utilities-statements-go?view=sql-server-ver16)  
-
----
-
 ## SQL Server のロック命令
 
 [ＳＱＬサーバー　ロック](https://development.station-t.com/SqlServer_Lock.htm)  
