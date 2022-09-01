@@ -20,12 +20,56 @@
 - コマンドや状態の追加で既存に影響がない。  
 - 処理の修正は各Stateクラス内で完結する。  
 - コードの見通しがよくなる。  
+- 分岐を減らせる可能性がある。  
 
 ---
 
 ## デメリット
 
 - 状態に応じてクラスが増える。  
+
+---
+
+## 分岐された関数を実行する時のアンチパターン
+
+[分岐アンチパターン](https://qiita.com/pakkun/items/9bef9132f168ba0befd7)  
+このサイトの分岐処理のベストプラクティスとしてStateパターンが照会されていたのがきっかけでStateをまとめることになった。  
+
+以下のように、状態によって実行する関数を変化させたい場合にStateパターンが有効である。  
+
+``` php
+if ($article->type === 'news') {
+    return $this->getNewsInfo();
+} else if ($article->type === 'entertainment') {
+    return $this->getEntertainmentInfo();
+} else if ($article->type === 'recipe') {
+    return $this->getRecipeInfo();
+}
+return null;
+```
+
+get○○Infoはインターフェースとして括ることができる。  
+状態とオブジェクトの関係は連想配列やDictionaryでまとめておけば、キーに応じたインスタンスが生成される。  
+後はインターフェースのメソッドを呼び出せばインスタンスを気にする必要がなくなるという訳。  
+
+``` php
+$type_classes = [
+    'news' => NewsType::class,
+    'entertainment' => EntertainmentType::class,
+    'recipe' => RecipeType::class
+];
+
+if (!array_key_exists($article->type, $type_classes))
+{
+    return null;
+}
+
+$type_instance = new $type_classes[$article->type];
+return $type_instance->getInfo();
+```
+
+- Stateパターンを使えば、仕様を一箇所にまとめることができる。  
+- 分岐で「状態」や「タイプ」を参照し始めたら、Stateパターンを適応できる可能性が高い。  
 
 ---
 
