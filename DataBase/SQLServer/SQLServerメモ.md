@@ -29,30 +29,6 @@
 
 ---
 
-## sqlserver 断片化  
-
-[SQL Serverの断片化したインデックスを再構築する方法](https://www.fenet.jp/dotnet/column/database/sql-server/4365/)  
-
-毎日稼働しているシステムは、日々テーブルにデータがため込まれていきます。  
-トランザクションテーブルのように最終行にデータが追加されるテーブルもあれば、マスタテーブルのように行の途中にデータを追加、またはインデックスのキー値を変更するテーブルも存在します。  
-テーブルによっては、データの物理的な順序や論理的な順序がバラバラになることがあり、このことを「断片化」と呼びます。  
-
-断片化の状況は、断片化率を見ることで確認可能です  
-
-``` sql
-declare @DB_ID int
-  ,@OBJECT_ID int
- 
-set @DB_ID = DB_ID('DB_TEST')
-set @OBJECT_ID = OBJECT_ID('USER')
- 
-select *
-from sys.dm_db_index_physical_stats(@DB_ID, @Object_ID, null, null, 'DETAILED') as A
-join sys.objects as B on A.object_id = B.object_id
-```
-
----
-
 ## SQL Server のRand関数を用いたテストデータの作成
 
 [SQLで乱数を使ってテストデータを作る](https://nonbiri-dotnet.blogspot.com/2017/04/sql.html)

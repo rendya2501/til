@@ -1288,3 +1288,13 @@ win32apiを使う方法も試してみたが、結局他でdelayされたら奪�
 
 一回だけならOwnerを設定して、開いた瞬間にOwnerをnullにすることで、全面に持ってくることができる模様。  
 ただ、暫く画面を表示しなければいけない場合では、この方法は使えないだろう。  
+
+---
+
+## 参照 'RelativeSource FindAncestor'を使用したバインディングのソースが見つかりません
+
+ContextMenuからFindAncestorがうまく行かない。  
+そもそもRelativeSourceでFindAncestorした時、
+
+[参照 'RelativeSource FindAncestor'を使用したバインディングのソースが見つかりません](https://www.web-dev-qa-db-ja.com/ja/wpf/%E5%8F%82%E7%85%A7-%27relativesource-findancestor%27%E3%82%92%E4%BD%BF%E7%94%A8%E3%81%97%E3%81%9F%E3%83%90%E3%82%A4%E3%83%B3%E3%83%87%E3%82%A3%E3%83%B3%E3%82%B0%E3%81%AE%E3%82%BD%E3%83%BC%E3%82%B9%E3%81%8C%E8%A6%8B%E3%81%A4%E3%81%8B%E3%82%8A%E3%81%BE%E3%81%9B%E3%82%93/1072766554/)  
+[【WPF】ContextMenuからFindAncestorする方法](https://threeshark3.com/contextmenu-findancestor/)  
