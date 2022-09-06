@@ -1294,7 +1294,46 @@ win32apiを使う方法も試してみたが、結局他でdelayされたら奪�
 ## 参照 'RelativeSource FindAncestor'を使用したバインディングのソースが見つかりません
 
 ContextMenuからFindAncestorがうまく行かない。  
-そもそもRelativeSourceでFindAncestorした時、
+そもそもRelativeSourceでFindAncestorした時、Bindのタイミングが遅かったりしてうまくいかないことが多い印象。  
+そのための機能としてBindingProxyなる方法が用意されている模様。  
+
+### 1. BindingProxyを使う方法
+
+やってみたが、これだとインスタンスが生成されていない状態で実行されてエラーとなってしまった。  
+これはこれで生成タイミングが早すぎるのかもしれない。  
+
+``` XML
+<metro:MetroWindow.Resources>
+    <data:BindingProxy x:Key="Proxy" Data="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type metro:MetroWindow}}, Path=DataContext, Mode=OneWay}" />
+</metro:MetroWindow.Resources>
+
+<MenuItem
+    Command="{Binding Source={StaticResource Proxy}, Path=Data.DeleteUseTaxDetailCommand}"
+    CommandParameter="{Binding Source={StaticResource Proxy}, Path=Data.UseTaxDetailSelectedItem, Mode=TwoWay}"
+    Header="{Binding Source={StaticResource Proxy}, Path=Data.UseTaxDetailSelectedIndex, Mode=TwoWay, TargetNullValue={x:Static sys:String.Empty}, Converter={StaticResource AdditionConverter}, ConverterParameter=1}"
+    HeaderStringFormat="{}{0:N0} 行目を削除" />
+```
 
 [参照 'RelativeSource FindAncestor'を使用したバインディングのソースが見つかりません](https://www.web-dev-qa-db-ja.com/ja/wpf/%E5%8F%82%E7%85%A7-%27relativesource-findancestor%27%E3%82%92%E4%BD%BF%E7%94%A8%E3%81%97%E3%81%9F%E3%83%90%E3%82%A4%E3%83%B3%E3%83%87%E3%82%A3%E3%83%B3%E3%82%B0%E3%81%AE%E3%82%BD%E3%83%BC%E3%82%B9%E3%81%8C%E8%A6%8B%E3%81%A4%E3%81%8B%E3%82%8A%E3%81%BE%E3%81%9B%E3%82%93/1072766554/)  
+
+### 2. PlacementTargetプロパティを使う方法
+
+結局こっちに落ち着いた。  
+でもって何行目を削除って出さないだけでだいぶ機能的に楽になったのでそれも辞めた。  
+インデックスなんて内部でわかってるんだから別に渡す必要なんてなかったんだ。  
+
+``` XML
+        <!-- <ResourceDictionary>
+            <Style
+                x:Key="RightClickMenuItem"
+                BasedOn="{StaticResource {x:Type MenuItem}}"
+                TargetType="{x:Type MenuItem}">
+                <Setter Property="Command" Value="{Binding DeleteUseTaxDetailCommand}" />
+                <Setter Property="CommandParameter" Value="{Binding UseTaxDetailSelectedItem, Mode=TwoWay}" />
+                <Setter Property="Header" Value="{Binding UseTaxDetailSelectedIndex, Mode=TwoWay, TargetNullValue={x:Static sys:String.Empty}, Converter={StaticResource AdditionConverter}, ConverterParameter=1}" />
+                <Setter Property="HeaderStringFormat" Value="{}{0:N0} 行目を削除" />
+            </Style>
+        </ResourceDictionary>-->
+```
+
 [【WPF】ContextMenuからFindAncestorする方法](https://threeshark3.com/contextmenu-findancestor/)  

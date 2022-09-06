@@ -2,17 +2,26 @@
 
 なんとなく使ってはいるが、なぜ使うのか、どういうものなのかずっとわからなかったのでまとめることにした。  
 
-[マイクロソフト公式](https://docs.microsoft.com/ja-jp/dotnet/api/system.collections.objectmodel.observablecollection-1?view=netcore-3.1)  
->項目が追加または削除されたとき、あるいはリスト全体が更新されたときに通知を行う動的なデータ コレクションを表します。  
+---
 
-[意外と知らない！？ C#の便利なコレクション！](https://qiita.com/hiki_neet_p/items/75bf39838ce580cca92d)  
+## 概要
+
+>項目が追加または削除されたとき、あるいはリスト全体が更新されたときに通知を行う動的なデータ コレクションを表します。  
+[マイクロソフト公式](https://docs.microsoft.com/ja-jp/dotnet/api/system.collections.objectmodel.observablecollection-1?view=netcore-3.1)  
+
+<!--  -->
 >コレクションのアイテムに対する、追加、削除、変更、移動操作があった場合、またはリスト全体が更新されたとき、CollectionChanged イベントを発生させることができるコレクションです。  
 >「Observable」という名前がついていますが、IObservable\<T> や IObserver\<T> とは直接の関連はありません。  
 >むしろ、INotifyPropertyChanged に近いイメージです。  
 >ObservableCollection\<T> は INotifyPropertyChanged も実装していますが、そのイベントを直接購読することはできないようになっています。
+[意外と知らない！？ C#の便利なコレクション！](https://qiita.com/hiki_neet_p/items/75bf39838ce580cca92d)  
 
 →  
 追加や削除した時にイベントを発生させるので、追加、削除した時に何かやりたい時はObservableCollectionを使う必要がある。  
+
+---
+
+## 実装
 
 ``` C# : 実装例
     public class ViewModel
