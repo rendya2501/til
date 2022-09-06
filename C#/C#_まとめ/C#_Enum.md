@@ -66,7 +66,7 @@ using System.ComponentModel.DataAnnotations;
     public static class EnumExtentions
     {
         /// <summary>
-        /// Enumに定義してあるDisplay属性を表示する。
+        /// Enumに定義してあるDisplay属性を取得する。
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
@@ -76,7 +76,7 @@ using System.ComponentModel.DataAnnotations;
                 : value.GetEnumAttribute<DisplayAttribute>()?.Name ?? value.ToString();
 
         /// <summary>
-        /// Enumに定義してあるDescription属性を表示する。
+        /// Enumに定義してあるDescription属性を取得する。
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
@@ -109,7 +109,10 @@ Enumのアノテーションから値を取得するのは遅いので、速度�
 
 ---
 
-## 文字列を enum 型 に変換する方法
+## 文字列 → enum変換
+
+- Parse() : 成功すれば変換された値が返ってくるが、失敗したときに例外を吐くので少々扱いにくい。  
+- TryParse() : 変換の成否は戻り値。変換された値は第2引数でoutされる。  
 
 普通に変換させる分にはEnum.TryParseで問題ない。  
 数字からの変換が曲者。  
@@ -131,9 +134,6 @@ Enum.TryParse("Tuesday", out wd); // true, wd = Weekday.Tuesday →わかる
 Enum.TryParse("April", out wd); // false, wd = Weekday.Saturday →わかる
 Enum.TryParse("100", out wd); // true, wd = 100 →!!!!!!!!
 ```
-
-- Parse() : 成功すれば変換された値が返ってくるが、失敗したときに例外を吐くので少々扱いにくい。  
-- TryParse() : 変換の成否は戻り値。変換された値は第2引数でoutされる。  
 
 ある値が enum 型で定義されているか検証するには、`Enum.IsDefined()` を使う。  
 これを TryParse() と組み合わせれば、安全な変換が実現できる。  
@@ -163,6 +163,45 @@ EnumExtentions.TryParse("100", out wd); // false, wd = 100 →falseになった
 ```
 
 [文字列から enum 型への安全な変換](https://qiita.com/masaru/items/a44dc30bfc18aac95015)  
+
+---
+
+## 数値 → Enum変換
+
+1. 単純なキャスト  
+2. Enum.ToObject  
+
+``` C#
+enum SomeEnum {
+  FOO = 1,
+  BAR = 2,
+  BAZ = 3,
+}
+```
+
+()によるキャスト  
+
+``` C#
+int x = 1;
+SomeEnum ex = (SomeEnum) x;
+Console.WriteLine(ex); //=> FOO
+```
+
+Enum.ToObjectによるキャスト  
+`typeof`によるキャストが可能なので、リフレクションで元の値に変換しなおしたい時にはこちらを使うべし。  
+
+``` C#
+int x = 1;
+SomeEnum ex = (SomeEnum) Enum.ToObject(typeof(SomeEnum), x);
+Console.WriteLine(ex); //=> FOO
+
+// ()によるキャストをしないとobject型となってしまうが、値はしっかり反映されている。
+var ex2 = Enum.ToObject(typeof(SomeEnum), x);
+Console.WriteLine(ex2); //=> FOO
+```
+
+[[C#] 数値→enum値に変換する（Enum.ToObject）](https://csharp.programmer-reference.com/convert-int-enum/)  
+[Type変数を使用して変数をキャストする](https://www.web-dev-qa-db-ja.com/ja/c%23/type%E5%A4%89%E6%95%B0%E3%82%92%E4%BD%BF%E7%94%A8%E3%81%97%E3%81%A6%E5%A4%89%E6%95%B0%E3%82%92%E3%82%AD%E3%83%A3%E3%82%B9%E3%83%88%E3%81%99%E3%82%8B/957671824/)  
 
 ---
 
@@ -218,5 +257,4 @@ public DelegateCommand ButtonCommand => new DelegateCommand(
                    ? State.Normal
                    : throw new Exception("ありえん");
 );
-
 ```

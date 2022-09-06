@@ -62,17 +62,6 @@ Usingはビルド時にそのクラスの一番上で定義されていなけれ
 
 ---
 
-## アトリビュートに設定されている文字列の長さを取得する方法
-
-``` C#
-/// <summary>
-/// Codeの桁数を取得
-/// </summary>
-private static readonly int CodeLength = (Attribute.GetCustomAttribute(typeof(TestClass).GetProperty(nameof(TestClass.Code)), typeof(StringLengthAttribute)) as StringLengthAttribute)?.MaximumLength ?? 20;
-```
-
----
-
 ## C#でURLを既定のブラウザで開く
 
 [C#でURLを既定のブラウザで開く](https://qiita.com/tsukasa_labz/items/80a94d202f5e88f1ddc0)  
@@ -88,61 +77,4 @@ Process.Start(
         UseShellExecute = true,
     }
 );
-```
-
----
-
-## 親クラスの全プロパティの値を子クラスにコピーする方法
-
-[【C#】親クラスの全プロパティの値を子クラスに簡単にコピーできるようにする方法](https://qiita.com/microwavePC/items/54f0082f3d76922a6259)  
-
-``` C#
-    /// <summary>
-    /// コンストラクタ
-    /// </summary>
-    /// <param name="parent"></param>
-    public Child(Parent parent)
-    {
-        // 親クラスのプロパティ情報を一気に取得して使用する。
-        List<PropertyInfo> props = parent
-            .GetType()
-            .GetProperties(BindingFlags.Instance | BindingFlags.Public)
-            .ToList();
-        foreach (var prop in props)
-        {
-            var propValue = prop.GetValue(parent);
-            typeof(Child).GetProperty(prop.Name).SetValue(this, propValue);
-        }
-    }
-```
-
-``` C# : 少し応用してキーバリューで出力するサンプル
-    var props = instance
-        .GetType()
-        .GetProperties(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public)
-        .Select(s => (key: s.Name ,value: s.GetValue(instance)))
-        .ToList();
-    foreach (var (key,value) in props)
-    {
-        typeof(Child).GetProperty(key).SetValue(this, value);
-    }
-```
-
----
-
-## C#リフレクションTIPS 55連発
-
-[C#リフレクションTIPS 55連発](https://qiita.com/gushwell/items/91436bd1871586f6e663)  
-
-### 47.プロパティの値を取得する
-
-``` C#
-// 1行で完結させたやつ
-object value = obj.GetType().GetProperty("MyProperty").GetValue(obj);
-
-// ばらしたやつ
-Type type = obj.GetType();
-PropertyInfo prop = type.GetProperty("MyProperty");
-object value = prop.GetValue(obj);
-Console.WriteLine(value);   
 ```
