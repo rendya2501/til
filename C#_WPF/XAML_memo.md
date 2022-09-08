@@ -1337,3 +1337,25 @@ ContextMenuからFindAncestorがうまく行かない。
 ```
 
 [【WPF】ContextMenuからFindAncestorする方法](https://threeshark3.com/contextmenu-findancestor/)  
+
+---
+
+## ElementNameでバインドする
+
+`Property="{Binding BindValue, ElementName= elementName}"`  
+
+``` xml
+<Grid>
+    <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="Auto"/>
+    </Grid.ColumnDefinitions>
+    <Slider x:Name="slider" Width="300" Height="23" Margin="5"
+            HorizontalAlignment="Left" VerticalAlignment="Top"/>
+    <TextBlock Grid.Column="1" Width="70" Height="23" Margin="5"
+               HorizontalAlignment="Left" VerticalAlignment="Top"
+               Text="{Binding Value, ElementName=slider}"/>
+</Grid>
+```
+
+[[C# WPF]他のコントロールのプロパティをBindする](http://cswpf.seesaa.net/article/313843359.html)  
