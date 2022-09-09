@@ -17,6 +17,56 @@
 
 ---
 
+## mermaid + クラス図
+
+``` txt
+記号 | 意味               | サンプル
+-----+--------------------+----------------------
+<|-- | Inheritance(継承)  | ClassA <|-- ClassB
+<|.. | Realization(実現)  | ClassC <|.. ClassD
+<--  | Association(関連)  | ClassE <-- ClassF
+<..  | Dependency(依存)   | ClassG <.. ClassH
+*--  | Composition(委譲)  | ClassI *-- ClassJ
+o--  | Aggregation(集約)  | ClassK o-- ClassL
+--   | Link(線)           | ClassM -- ClassN
+..   | Link(破線)         | ClassO .. ClassP
+-----+--------------------+-----------------------
+*    | Abstract           | foo*, foo()*
+$    | Static             | foo$, foo()$
++    | Public             | +foo, +foo()
+-    | Private            | -foo, -foo()
+#    | Protected          | #foo, #foo()
+~    | Package/Internal   | ~foo
+```
+
+頭に`classDiagram`をつける。  
+順序を逆にするなら`direction BT`をつける。  
+
+ラベルを付ける場合 : `ClassA <-- ClassB : Label`  
+関連の向きを変える場合 : `ClassA --> ClassB`  
+
+変数 : `foo`  
+型を指定する場合 : `int foo`  
+
+関数 : `foo()`  
+戻り値の型を指定する場合 : `foo(): int`  
+引数を指定する場合 : `foo(bar, baz)`  
+引数の型を指定する場合 `foo(int bar, String baz)`  
+
+``` mermaid : 例
+classDiagram
+direction BT
+
+class Hoge{
+    -hensuu
+    +Method()*
+}
+```
+
+[mermaidのクラス図メモ](https://zenn.dev/tak_uchida/articles/da583cf960e854)  
+
+---
+
 ## 例
 
 ``` mermaid
@@ -51,12 +101,6 @@ graph TB
   C-->IFB[\  /]
   IFB-->End([End])
 ```
-
----
-
-## mermaid + クラス図
-
-[mermaidのクラス図メモ](https://zenn.dev/tak_uchida/articles/da583cf960e854)  
 
 ---
 
