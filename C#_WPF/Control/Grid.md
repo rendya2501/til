@@ -16,6 +16,15 @@ GridのWidthやHeightに[*]や[Auto]を指定した時の動作が曖昧だっ�
     </Grid.ColumnDefinitions>
 ```
 
+``` xml : 行定義
+    <Grid.RowDefinitions>
+        <RowDefinition Height="123"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="2*"/>
+    </Grid.RowDefinitions>
+```
+
 ### 数値
 
 絶対値でピクセルを指定。  

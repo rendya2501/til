@@ -1,4 +1,4 @@
-# XAML_分岐処理まとめ
+# XAML_If
 
 - Triger  
 - MultiTrigger  
@@ -14,8 +14,6 @@ ViewModelのプロパティとのバインドで使うのがDataTrigger系
 ---
 
 ## XAMLにおけるif文の基本
-
-[さんさめ_【WPF】Binding入門5。DataTriggerの活用](https://threeshark3.com/wpf-binding-datatrigger/)  
 
 DataTrigger（データトリガー）とは、Bindingした値に応じてプロパティを変化させる仕組みです。  
 Styleでは、通常、「Setter」というオブジェクトを配置してプロパティの値を定義します。  
@@ -41,6 +39,8 @@ Styleでは、通常、「Setter」というオブジェクトを配置してプ
     </Button.Style>
 </Button>
 ```
+
+[さんさめ_【WPF】Binding入門5。DataTriggerの活用](https://threeshark3.com/wpf-binding-datatrigger/)  
 
 ---
 

@@ -193,6 +193,28 @@ var results = conn.Query(sql, new { ids = new[] { 1, 2, 3, 4, 5 }});
 
 ---
 
+## Dapper Like
+
+``` C#
+// 案1 CONCAT関数を使用する
+string sql = "SELECT * FROM SomeTable WHERE Name LIKE CONCAT('%',@name,'%')"
+
+// 案2 +演算子を使用する
+string sql = "SELECT * FROM SomeTable WHERE Name LIKE '%' + @name + '%'"
+
+// 案3 パラメーターで頑張る
+var results = conn.Query(sql, new { name = "%" + name + "%" });
+```
+
+`LIKE '%' || @name || '%'`も紹介されていたが、SQLServerでは使えなかった。  
+`||`演算子による文字列連結はOracleやPostgreSQLで有効な模様。  
+SQLServerはもっぱら`CONCAT`か`+`演算子になる模様。  
+
+[Does Dapper support the like operator?](https://stackoverflow.com/questions/6030099/does-dapper-support-the-like-operator)  
+[文字列を連結する](https://www.sql-reference.com/string/concatenate.html)  
+
+---
+
 ## Dapper boolの受け取り
 
 SELECTで `1 AS [Flag]` とか `0 AS [Flag]` と定義して、タプルとかでboolのつもりで受けようとしても取得できない。  

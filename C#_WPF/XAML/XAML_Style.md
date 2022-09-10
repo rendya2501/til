@@ -1,13 +1,14 @@
 # XAML_Styleまとめ
 
+---
+
 ## Style
 
-[WPF4.5入門 その50 「Style」](https://blog.okazuki.jp/entry/2014/09/04/200304)  
-
-コントロールに設定するプロパティの値のセットを集めるためのもの。  
+>コントロールに設定するプロパティの値のセットを集めるためのもの。  
 Styleは、Setterというオブジェクトを使って、どのプロパティにどんな値を設定するか指定できます。  
 スタイルを設定するには、コントロールのStyleプロパティにStyleを設定します。  
 ResourceやResourceDictionaryに定義することでコントロールのプロパティの設定を複数のコントロールで共通化することが出来ます。  
+[WPF4.5入門 その50 「Style」](https://blog.okazuki.jp/entry/2014/09/04/200304)  
 
 ---
 
@@ -31,8 +32,6 @@ ResourceやResourceDictionaryに定義することでコントロールのプロ
 ---
 
 ## BaseOn
-
-[[WPF/xaml]BasedOnを使って元のstyleを受け継ぐ](https://qiita.com/tera1707/items/3c4f598c5d022e4987a2)  
 
 親のスタイルを受け継ぐ。  
 受け継いだうえで、指定したプロパティは上書きすることができる。  
@@ -88,6 +87,8 @@ ResourceやResourceDictionaryに定義することでコントロールのプロ
 </Window>
 ```
 
+[[WPF/xaml]BasedOnを使って元のstyleを受け継ぐ](https://qiita.com/tera1707/items/3c4f598c5d022e4987a2)  
+
 ---
 
 ## Trigger
@@ -111,10 +112,6 @@ TriggerのPropertyに設定可能なプロパティは、依存関係プロパ�
 ---
 
 ## ResourceDictionary
-
-[WPF のリソース](http://var.blog.jp/archives/67298406.html)  
-[[WPF/xaml]リソースディクショナリを作って、画面のコントロールのstyleを変える](https://qiita.com/tera1707/items/a462678cdfb61a87334b)  
-[[WPF] Styleでできることと書き方](https://qiita.com/tera1707/items/cb8ad4c40107ae25b565)  
 
 CSSのXAMLバージョン。  
 スタイルの定義をまとめ、複数のプロジェクトから参照できるようにしたもの。  
@@ -155,3 +152,7 @@ CSSのXAMLバージョン。
     </ResourceDictionary>
 </Window.Resources>
 ```
+
+[WPF のリソース](http://var.blog.jp/archives/67298406.html)  
+[[WPF/xaml]リソースディクショナリを作って、画面のコントロールのstyleを変える](https://qiita.com/tera1707/items/a462678cdfb61a87334b)  
+[[WPF] Styleでできることと書き方](https://qiita.com/tera1707/items/cb8ad4c40107ae25b565)  
