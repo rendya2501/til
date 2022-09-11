@@ -1,20 +1,16 @@
 # C#メモ
 
-[今日からできるC#のパフォーマンス改善小ネタ10選](https://qiita.com/shun-shun123/items/cb6689a9f210e90b9833)
-[匿名型_ipentec](https://www.ipentec.com/document/csharp-using-anonymous-type)  
-
 ---
 
 ## シリアライズとデシリアライズを繰り返すと？
 
-<https://www.jpcert.or.jp/java-rules/ser10-j.html>  
-支払方法変更処理において、F4の初期化を実行するとメモリーがどんどん増えていくことに気が付いた。  
-そこでは、まっさらなデータをDeepCopy(シリアライズとデシリアライズ)して代入する処理をしていたのだが、  
-もしかしてこの場合、ガベージコレクションされないのかなと思ったらされない模様。  
+実務において、初期化を繰り返すとメモリーがどんどん増えていくことに気が付いた。  
+そこでは、まっさらなデータをDeepCopy(シリアライズとデシリアライズ)して代入する処理をしていたのだが、もしかしてこの場合、ガベージコレクションされないのかなと思ったらされない模様。  
 おとなしくループさせて、必要な項目だけを初期化したらメモリーが増えることはなくなった。  
 
-シリアライズがどういうことをするのか説明できないので、その記事も参考に置いておきますね。  
-<http://funini.com/kei/java/serialize.shtml>  
+>オブジェクトをシリアライズすると、ガベージコレクタに回収されず、生存期間が延長されることがある。  
+ガベージコレクタはよそから参照されているオブジェクトインスタンスを回収することはできないため、参照の一覧表が存在するかぎり、シリアライズしたオブジェクトはガベージコレクタに回収されない。  
+<https://www.jpcert.or.jp/java-rules/ser10-j.html>  
 
 シリアライズとは、メモリ上のデータをバイトに変換すること。  
 メモリ上のそのインスタンスが保持するデータ全てがバイト列に置き変わる。  
@@ -23,6 +19,10 @@
 デシリアライズすると、バイト列のデータが元に戻るので、全く同じデータを持つインスタンスを作ることができる。  
 もちろんこの時、メモリーのアドレスやポインタ等は新しくなっている。  
 しかし、これを延々と繰り返すと、同じデータが無限に増やせるので、メモリリークの原因になるらしい。  
+
+[Java のシリアライズ (serializer, 直列化) について](http://funini.com/kei/java/serialize.shtml)
+
+---
 
 ## シリアライズしたデータを見てみたい
 
@@ -96,13 +96,12 @@ XMLの他にJsonもある。多分バイト列にするやつもある。
 
 ## json deserialize object to int
 
-[C# で数字を object 型にキャストした値型の扱いについて](https://cms.shise.net/2014/10/csharp-object-cast/)  
-[【C#】Boxing / Unboxing ってどこで使われてるのか調べてみた](https://mslgt.hatenablog.com/entry/2017/11/18/132025)  
-
 サーチボックスで主キーが2つある場合に、主キーを送る仕組みがなかったので、objectに格納して送信するようにした時に、  
 キャストエラーになったので色々調べた。  
+
 そもそもobject型に変換されたものはConvert.ToInt32系のメソッドを使って変換しないとエラーになってしまう模様。  
 後は、jsonは数値型しかなく、値の劣化の心配がないlong型(int64)に自動的に変換される模様。  
+
 Boxing,Unboxingという仕組みもあり、なかなか奥が深かった。  
 実際に、jsonにシリアライズしてデシリアライズしたときにエラーになるので、そういう物と認識したほうがいいかもしれない。  
 
@@ -123,6 +122,9 @@ Boxing,Unboxingという仕組みもあり、なかなか奥が深かった。
     int i = (int)o;
     Console.WriteLine(i);
 ```
+
+[C# で数字を object 型にキャストした値型の扱いについて](https://cms.shise.net/2014/10/csharp-object-cast/)  
+[【C#】Boxing / Unboxing ってどこで使われてるのか調べてみた](https://mslgt.hatenablog.com/entry/2017/11/18/132025)  
 
 ---
 
@@ -151,13 +153,12 @@ var aa = true ? (bool?)false : null;
 
 ## インスタンスの状態
 
-[[C# 入門] クラスのインスタンスについて](https://yaspage.com/prog/csharp/cs-instance/)  
-
-DependencyPropertyのBindingの件でazmさんがインスタンスの状態なんて事を言っていたので調べたわけだが、  
-それとは別にインスタンスについての基礎を紹介しているページがわかりやすかったのでまとめる。  
+DependencyPropertyのBindingの件でazmさんがインスタンスの状態なんて事を言っていたので調べたわけだが、それとは別にインスタンスについての基礎を紹介しているページがわかりやすかったのでまとめる。  
 
 後日、azmさんがまた使っていたので、意味合いから想像すると、例えばLinqで.Where()を実行したときと、.ToList()を実行したときでは、戻ってくる値が違うわけで、  
 azmさんはどうやら帰ってくる型の事をインスタンスの状態と言っている見たいだ。  
+
+[[C# 入門] クラスのインスタンスについて](https://yaspage.com/prog/csharp/cs-instance/)  
 
 ---
 
@@ -234,47 +235,6 @@ Foreachでnullが来ても大丈夫な書き方でEnumerableとListの2パター
 
 ---
 
-## using
-
-usingの省略範囲はforeachやwhileのように直前の1つだけじゃなくて、そのブロックの終わりまで続くらしい。  
-割と初めて知った。  
-
-using宣言は8.0からの機能である模様。  
-
-``` C# : 省略前
-    string constr = @"接続文字列";
-    using (SqlConnection con = new SqlConnection(constr))
-    {
-        con.Open();
-
-        string sqlstr = "select * from products";
-        SqlCommand com = new SqlCommand(sqlstr, con);
-
-        using (SqlDataReader sdr = com.ExecuteReader())
-        {
-            while (sdr.Read())
-            {
-                _TextBox1.Text += $"{(string)sdr["name"]:s}:{(int)sdr["price"]:d} \r\n";
-            }
-        }
-    }
-```
-
-``` C# : 省略後
-    string constr = @"接続文字列";
-    using SqlConnection con = new SqlConnection(constr);
-    con.Open();
-
-    string sqlstr = "select * from products";
-    SqlCommand com = new SqlCommand(sqlstr, con);
-
-    using SqlDataReader sdr = com.ExecuteReader();
-    while (sdr.Read())
-        _TextBox1.Text += $"{sdr["name"].ToString():s}:{(int)sdr["price"]:d} {Environment.NewLine}";
-```
-
----
-
 ## varの意味
 
 型を同じにしてくれる。  
@@ -323,44 +283,6 @@ public class Print
 
 ---
 
-## const,readonly,static readonlyの違い
-
-<https://qiita.com/4_mio_11/items/203c88eb5299e4a45f31>
-
-### const
-
-コンパイル時に定義する。  
-なので、メソッドの結果など、実行しなければ確定しないものは定数として定義できない。  
-これによって、バージョニング問題が発生するとか。  
-
-``` C#
-    class Hoge
-    {
-        public const double PI = 3.14;     // OK
-        public const double piyo = PI \* PI;     // OK
-        public const double payo = Math.Sqrt(10);   // NG
-
-        void Piyo(){
-        //コンパイルで生成される中間言語では下の条件式はmyData == 3.14となる
-        if(Moge == PI)
-            //処理
-    }
-```
-
-### readonly
-
-コンストラクタでのみ書き込み可能。  
-それ以降は変更不可。  
-
-### static readonly
-
-コンパイル時ではなく、実行時に値が定まり、以後不変となる。  
-コンパイルした後の話なので、メソッドを実行した結果をプログラム実行中の定数として扱うことができる。  
-バージョニング問題的な観点から、constよりstatic readonlyが推奨される。  
-ちなみにconstは暗黙的にstaticに変換されるので、staticを嫌悪する必要はない。  
-
----
-
 ## アノテーション
 
 Annotation:注釈  
@@ -394,104 +316,6 @@ static void Deconstruct()
 ```
 
 同様の機能は、型スイッチや出力変数宣言でも使えます。  
-
----
-
-## using static
-
-<https://ufcpp.net/study/csharp/oo_static.html>  
-
-using static ディレクティブを書くことで、クラス名を省略して、直接静的メソッドを呼べるようになります。  
-例えば、Math クラス(System 名前空間)中のメソッド呼び出しであれば、以下のように書けます。  
-
-``` C#
-using System;
-using static System.Math;
-
-class Program
-{
-    static void Main()
-    {
-        // using static を使わないならMath.Asin(1)
-        var pi = 2 * Asin(1);
-        Console.WriteLine(PI == pi);
-    }
-}
-```
-
-ちなみに、using static は任意のクラスに対して使えます(静的クラスでないとダメとかの制限はありません)。  
-たとえば以下の例では、TimeSpan構造体やTaskクラスを using static していますが、これらは static 修飾子がついていない普通のクラスです。  
-
-``` C#
-using System.Threading.Tasks;
-using static System.Threading.Tasks.Task;
-using static System.TimeSpan;
-
-class UsingStaticNormalClass
-{
-    public async Task XAsync()
-    {
-        // TimeSpan.FromSeconds
-        var sec = FromSeconds(1);
-
-        // Task.Delay
-        await Delay(sec);
-    }
-}
-```
-
-### using staticと列挙型
-
-列挙型のメンバーも静的なので、using staticを使って、型名を省略して参照できます。  
-
-``` C#
-using static Color;
-
-class UsingStaticEnum
-{
-    public void X()
-    {
-        // enum のメンバーも using static で参照できる
-        var cyan = Blue | Green;
-        var purple = Red | Blue;
-        var yellow = Red | Green;
-    }
-}
-
-enum Color
-{
-    Red = 1,
-    Green = 2,
-    Blue = 4,
-}
-```
-
-### using staticと拡張メソッド
-
-using static を使う場合でも、そのクラス中の拡張メソッドはあくまで拡張メソッドとしてだけ使えます。  
-using static だけでは、拡張メソッドを普通の静的メソッドと同じ呼び方で呼べません。  
-
-``` C#
-using static System.Linq.Enumerable;
-
-class UsingStaticSample
-{
-    public void X()
-    {
-        // 普通の静的メソッド
-        // Enumerable.Range が呼ばれる
-        var input = Range(0, 10);
-
-        // 拡張メソッド
-        // Enumerable.Select が呼ばれる
-        var output1 = input.Select(x => x * x);
-
-        // 拡張メソッドを普通の静的メソッドとして呼ぼうとすると
-        // コンパイル エラー
-        var output2 = Select(input, x => x * x);
-    }
-}
-```
 
 ---
 
@@ -601,305 +425,4 @@ class Program
 // bはBaseClass型？       = False
 // bはChildClass型？      = False
 // bはGrandChildClass型？ = True
-```
-
----
-
-## 範囲アクセス
-
-`a[i..j]` という書き方で「i番目からj番目の要素を取り出す」というような操作ができるようになりました。  
-C# 8.0からの機能なので、.NetFramework(C# 7.3)では使えません。  
-
-``` C#
-class Program
-{
-    static void Main()
-    {
-        var a = new[] { 1, 2, 3, 4, 5 };
-         // 前後1要素ずつ削ったもの
-        var middle = a[1..^1];
-         // 2, 3, 4 が表示される
-        foreach (var x in middle)
-            Console.WriteLine(x);
-    }
-}
-```
-
----
-
-## Equalsメソッドと ==演算子 の違い
-
-[==演算子とEqualsメソッドの違いとは？［C#］](https://atmarkit.itmedia.co.jp/ait/articles/1802/28/news028.html)  
-[2つの値が等しいか調べる、等値演算子(==)とEqualsメソッドの違い](https://dobon.net/vb/dotnet/beginner/equality.html)  
-[【C#】文字列を比較する（== 演算子、Equalメソッド、Compareメソッド）](https://nyanblog2222.com/programming/c-sharp/193/)  
-
-Javaの時にもまとめたかもしれないが、改めて==とEqualsの違いをまとめる。  
-
-事の発端はY君がEqualsで文字列の比較をしていて、左辺の文字列がnullで.Equalsメソッドで比較しようとしてエラーになるのを発見したためだ。  
-文字列の比較にEqualsを使う必要性は何だったのかわからなかったので、そもそもどういう違いがあるのか、==ではダメだったのかを調べた。  
-
-[バグのもと!?”==”と”Equals”の使い分け](https://fledglingengineer.xyz/equals/)  
->C#ではNULLがあり得る単純な文字列比較の場合、“==”を使用した方が良いです。  
-
-早速結論が出た。  
-
-### == 値の等価
-
-値の等価とは、比較する2つのオブジェクトの中身が同じであるということです。  
-
-``` C#
-string a = new string("Good morning!");
-string b = new string("Good morning!");
-
-if(a == b) // True
-{
-    Console.WriteLine("True!");
-}
-```
-
-こちらは”a”と”b”の中身の文字列を比較しており、中身の文字列が一致しているためTrueとなります。  
-![a](https://fledglingengineer.xyz/wp-content/uploads/2020/09/image-24.png)  
-
-### Equals 参照の等価
-
-一方で、参照の等価とは、比較する両者が同じインスタンスを参照しているということです。  
-
-``` C#
-string a = new string("Good morning!");
-string b = new string("Good morning!");
-
-if (a.Equals(b)) // True
-{
-    Console.WriteLine("True!");
-}
-```
-
-![q](https://fledglingengineer.xyz/wp-content/uploads/2020/09/image-22.png)
-
-### オブジェクトの比較
-
-先程の値の参照に”(object)”を付けた場合どうなるか?  
-その場合、オブジェクトの比較となり、“a”と”b”はそれぞれ異なるオブジェクトのため、Falseとなる。  
-
-``` C#
-string a = new string("Good morning!");
-string b = new string("Good morning!");
-
-if ((object)a == (object)b) // False
-{
-    Console.WriteLine("True!");
-}
-```
-
-![s](https://fledglingengineer.xyz/wp-content/uploads/2020/09/image-25.png)
-
-### NULLの判定は”==”を使うべき
-
-``` C#
-string name1 = "Mike";
-string name2 = "Mike";
-
-if(name1 == name2) // True
-{
-    Console.WriteLine("True!");
-}
-```
-
-上記の場合は、特にインスタンスを生成しているわけではないので、“==”を使用しても、”Equals”を使用しても値の等価となり、一見問題ないように考えられます。  
-
-しかし、以下の場合はどうなるでしょうか?
-
-``` C#
-// “name1″にnullが入るかもしれないため、nullチェックを設けたとする。  
-string name1 = null;
-
-// “==”を使用したif文は正常に動作し、Trueを返す。  
- if(name1 == null) // True
-{
-    Console.WriteLine("True!");
-}
-
-// 一方で、”Equals”を使用したif文では例外が発生する。  
-// こちらはコンパイル時に、エラーとはならないため、思わぬバグを生んでしまう可能性があるため単純な文字列の比較は==が無難。  
-if (name1.Equals(null)) // System.NullReferenceException: 'Object reference not set to an instance of an object.'
-{
-    Console.WriteLine("True!");
-}
-```
-
-### 等値演算子とEqualsメソッドの違い
-
-C#では、値型の比較に==演算子を使うと「値の等価」を調べることになります。  
-参照型の比較に==演算子を使うと、通常は「参照の等価」を調べます。  
-しかし、String型のように、クラスで等値演算子がオーバーロードされているならば、参照型でも==演算子で「値の等価」を調べます。  
-
-Equalsメソッドは、値型の比較に使うと、「値の等価」を調べます。  
-参照型の比較に使うと、通常は「参照の等価」を調べます。  
-しかし、String型のように、クラスのEqualsメソッドがオーバーライドされていれば、参照型でも「値の等価」を調べます。  
-
-「参照の等価」を調べるためには、Object.ReferenceEqualsメソッドを使用することもできます。  
-さらにC#では、Object型にキャストしてから==演算子で比較することでも、確実に参照の等価を調べることができます。  
-
-### Stringクラス
-
-等値演算子とEqualsメソッドで値の等価を調べることができるクラス（等値演算子がオーバーロードされ、かつ、Equalsメソッドがオーバーライドされているクラス）は多くありません。  
-
-その代表は、Stringクラスです。  
-その他にもVersionクラスなどもそのようですが、とりあえずStringクラスはこのように特別なクラスであることを覚えておいてください。  
-このようなクラスでは、参照型にもかかわらず、等値演算子やEqualsメソッドで「値の等価」を調べることができます。  
-
-### 結局、どちらを使うべきか
-
-値型の等価は==演算子で調べるのが良いでしょう。  
-参照型で値の等価を調べるには、Equalsメソッドを使うのが確実でしょう。  
-参照型で明確に参照の等価を調べたいならば、Object.ReferenceEqualsメソッド（またはObject型にキャストしてから==演算子）を使います。
-
-``` C#
-//値型の等価を調べる
-int i1 = 1;
-int i2 = i1 * i1;
-Console.WriteLine(i1 == i2); //true
-Console.WriteLine(i1.Equals(i2)); //true
-Console.WriteLine(object.Equals(i1, i2)); //true
-
-//参照型の等価を調べる
-//o1とo2は別のインスタンス
-object o1 = new object();
-object o2 = new object();
-Console.WriteLine(o1 == o2); //false
-Console.WriteLine(o1.Equals(o2)); //false
-Console.WriteLine(object.Equals(o1, o2)); //false
-
-//o1とo2は同じインスタンス
-o2 = o1;
-Console.WriteLine(o1 == o2); //true
-Console.WriteLine(o1.Equals(o2)); //true
-Console.WriteLine(object.Equals(o1, o2)); //true
-
-//String型の等価を調べる
-//s1とs2は同じ値だが、別のインスタンス
-string s1 = new string('a', 10);
-string s2 = new string('a', 10);
-Console.WriteLine(s1 == s2); //true
-Console.WriteLine(s1.Equals(s2)); //true
-Console.WriteLine(object.ReferenceEquals(s1, s2)); //false
-Console.WriteLine(object.Equals(s1, s2)); //true
-```
-
-``` C# : なんか個人でいろいろ頑張った後
-    string A = "AA";
-    string B = "BB";
-
-    Console.WriteLine(A.Equals(B));
-    Console.WriteLine( A == B);
-    Console.WriteLine(Equals(A, B));
-
-    B = "AA";
-
-    Console.WriteLine(A.Equals(B));
-    Console.WriteLine(A == B);
-    Console.WriteLine(Equals(A, B));
-
-    A = null;
-    B = null;
-
-    Console.WriteLine(A == B);
-    Console.WriteLine(A?.Equals(B) ?? false);
-    Console.WriteLine(Equals(A, B));
-```
-
----
-
-## null許容参照型
-
-[null許容参照型](https://ufcpp.net/study/csharp/resource/nullablereferencetype/?p=3#null-forgiving)  
-
-`a!.○○`の`!.`が探しても全然見つからなかった。  
-これは`!.`ではなく、`a!`までがNull許容参照型らしい。  
-IDEのnullの警告を抑制する程度の演算子らしい。  
-
-Null許容参照型は8.0以上と警告が出る。  
-
----
-
-## DictionaryはRemoveしてAddすると順番が保証されない
-
-addし続けるなら問題ないが、途中でRemoveすると順番が保証されない模様。  
-OrderByすればソートされるけど、文字列の場合は文字列順にソートされてしまうので、純粋に追加した順番にはなってくれない。  
-
-そこで考えたのが`List<KeyValuePair<K,V>>`  
-Listは順番を保証してくれる。  
-事実、途中でRemoveしてAddしても追加した順番になっている。  
-問題点は要素の追加が面倒くさいことだろうか。  
-
-[C# Dictionary add entry with wrong order](https://stackoverflow.com/questions/24223344/c-sharp-dictionary-add-entry-with-wrong-order)  
-
-``` C#
-    var dic1 = new Dictionary<string, string>()
-    {
-        {"a","A" },
-        {"b","B" },
-        {"c","C" },
-        {"d","D" },
-    };
-    foreach (var item in dic1)
-    {
-        Console.WriteLine($"{item.Key},{item.Value}");
-    }
-    Console.WriteLine("---");
-    dic1.Remove("b");
-    dic1.Remove("c");
-    dic1.Add("e", "E");
-    dic1.Add("a1", "A1");
-    foreach (var item in dic1)
-    {
-        Console.WriteLine($"{item.Key},{item.Value}");
-    }
-
-    Console.WriteLine("---");
-    Console.WriteLine("---");
-
-    var dic2 = new List<KeyValuePair<string, string>>()
-    {
-        new KeyValuePair<string, string>("a","A"),
-        new KeyValuePair<string, string>("b","B"),
-        new KeyValuePair<string, string>("c","C"),
-        new KeyValuePair<string, string>("d","D"),
-    };
-    foreach (var item in dic2)
-    {
-        Console.WriteLine($"{item.Key},{item.Value}");
-    }
-    Console.WriteLine("---");
-    dic2.RemoveAt(2);
-    dic2.RemoveAt(2);
-    dic2.Add(new KeyValuePair<string, string>("e", "E"));
-    dic2.Add(new KeyValuePair<string, string>("a1", "A1"));
-    foreach (var item in dic2)
-    {
-        Console.WriteLine($"{item.Key},{item.Value}");
-    }
-```
-
-``` C#
-// a,A
-// b,B
-// c,C
-// d,D
-// ---
-// a,A
-// a1,A1
-// e,E
-// d,D
-// ---
-// ---
-// a,A
-// b,B
-// c,C
-// d,D
-// ---
-// a,A
-// b,B
-// e,E
-// a1,A1
 ```

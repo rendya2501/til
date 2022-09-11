@@ -4,12 +4,7 @@
 
 ## 匿名型（匿名クラス）を動的に作成する
 
-[.NET Core (C#) 匿名型（匿名クラス）を動的に作成する](https://marock.tokyo/2021/01/24/net-core-%E5%8C%BF%E5%90%8D%E5%9E%8B%EF%BC%88%E5%8C%BF%E5%90%8D%E3%82%AF%E3%83%A9%E3%82%B9%EF%BC%89%E3%82%92%E5%8B%95%E7%9A%84%E3%81%AB%E4%BD%9C%E6%88%90%E3%81%99%E3%82%8B/)  
-[匿名型の動的生成に関して](https://dobon.net/vb/bbs/log3-54/31793.html)  
-[匿名型を動的に作成しますか？](https://www.web-dev-qa-db-ja.com/ja/c%23/%E5%8C%BF%E5%90%8D%E5%9E%8B%E3%82%92%E5%8B%95%E7%9A%84%E3%81%AB%E4%BD%9C%E6%88%90%E3%81%97%E3%81%BE%E3%81%99%E3%81%8B%EF%BC%9F/970777402/)  
-[新しい匿名クラスを動的にするには？](https://www.web-dev-qa-db-ja.com/ja/c%23/%E6%96%B0%E3%81%97%E3%81%84%E5%8C%BF%E5%90%8D%E3%82%AF%E3%83%A9%E3%82%B9%E3%82%92%E5%8B%95%E7%9A%84%E3%81%AB%E3%81%99%E3%82%8B%E3%81%AB%E3%81%AF%EF%BC%9F/970949625/)  
-
-匿名型（匿名クラス）を動的に作成するには、System.DynamicのExpandoObjectクラスを使用する必要がある。  
+匿名型（匿名クラス）を動的に作成するには、`System.DynamicのExpandoObjectクラス`を使用する必要がある。  
 newしたインスタンスに対して愚直にaddするしかない模様。  
 というか、思った以上に深い内容だった。  
 
@@ -109,17 +104,18 @@ d.GetType().GetProperty("Name")
 どうしても1行で済ませたいならFuncデリゲートを使うしかない。  
 
 ``` C#
- dynamic d = new Func<IDictionary<string, object>>(() =>
+dynamic d = new Func<IDictionary<string, object>>(() =>
+{
+    IDictionary<string, object> expando = new ExpandoObject();
+    foreach (var item in dic)
     {
-        IDictionary<string, object> expando = new ExpandoObject();
-        foreach (var item in dic)
-        {
-            expando.Add(item.Key, item.Value);
-        }
-        return expando;
-    }).Invoke();
-    Console.WriteLine(d.key1);
-    Console.WriteLine(d.key2);
+        expando.Add(item.Key, item.Value);
+    }
+    return expando;
+}).Invoke();
+
+Console.WriteLine(d.key1);
+Console.WriteLine(d.key2);
 ```
 
 こういう芸当もできる。  
@@ -131,14 +127,20 @@ Dapperに渡す条件を生成するときに使えるだろう。
         StudentId = "1",
         StudentName = "Cnillincy"
     };
+    
+    // 匿名型定義
     IDictionary<string, object> anonymousType = new ExpandoObject();
+    // 匿名型に追加
     foreach (var (key, value) in student
         .GetType()
         .GetProperties(BindingFlags.Instance | BindingFlags.Public))
     {
         anonymousType.Add(s.Name,  s.GetValue(condition));
     }
+    // dynamicに変換
     dynamic dynamic = anonymousType;
+
+    // アクセス
     Console.WriteLine(dynamic.key1);  // キー1
     Console.WriteLine(dynamic.key2);  // キー2
 ```
@@ -156,6 +158,11 @@ Dapperに渡す条件を生成するときに使えるだろう。
     Console.WriteLine(d["key1"]);
     Console.WriteLine(d["key2"]);
 ```
+
+[.NET Core (C#) 匿名型（匿名クラス）を動的に作成する](https://marock.tokyo/2021/01/24/net-core-%E5%8C%BF%E5%90%8D%E5%9E%8B%EF%BC%88%E5%8C%BF%E5%90%8D%E3%82%AF%E3%83%A9%E3%82%B9%EF%BC%89%E3%82%92%E5%8B%95%E7%9A%84%E3%81%AB%E4%BD%9C%E6%88%90%E3%81%99%E3%82%8B/)  
+[匿名型の動的生成に関して](https://dobon.net/vb/bbs/log3-54/31793.html)  
+[匿名型を動的に作成しますか？](https://www.web-dev-qa-db-ja.com/ja/c%23/%E5%8C%BF%E5%90%8D%E5%9E%8B%E3%82%92%E5%8B%95%E7%9A%84%E3%81%AB%E4%BD%9C%E6%88%90%E3%81%97%E3%81%BE%E3%81%99%E3%81%8B%EF%BC%9F/970777402/)  
+[新しい匿名クラスを動的にするには？](https://www.web-dev-qa-db-ja.com/ja/c%23/%E6%96%B0%E3%81%97%E3%81%84%E5%8C%BF%E5%90%8D%E3%82%AF%E3%83%A9%E3%82%B9%E3%82%92%E5%8B%95%E7%9A%84%E3%81%AB%E3%81%99%E3%82%8B%E3%81%AB%E3%81%AF%EF%BC%9F/970949625/)  
 
 ---
 
@@ -204,3 +211,7 @@ private SampleData GetSample(Condition condition)
     );
 }
 ```
+
+---
+
+[匿名型_ipentec](https://www.ipentec.com/document/csharp-using-anonymous-type)  

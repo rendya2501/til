@@ -1,5 +1,7 @@
 # .NetのバージョンとC#のバージョン早見表
 
+---
+
 [【C# 機能別】知らん書き方が出てきたらこれを見ろ！C# 10 までの進化を1ページで](https://oita.oika.me/2021/12/23/csharp-10-history)  
 [C# の歴史](https://docs.microsoft.com/ja-jp/dotnet/csharp/whats-new/csharp-version-history)  
 [.NET Framework のバージョン対応表](https://qiita.com/nskydiving/items/3af8bab5a0a63ccb9893)  

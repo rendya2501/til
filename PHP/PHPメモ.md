@@ -157,3 +157,31 @@ namespace App\Bbb{
 ```
 
 ---
+
+## PHP 改行
+
+`PHP_EOL`  
+
+`PHP_EOL`はPHPの定義済み定数。  
+OSに応じて自動的に改行文字を設定してくれる。  
+なので、OSに関係なく改行することができる。  
+
+- Windows : `\r\n`（CRLF）  
+- Linux/Unix系、MacOSなど : `\n`（LF）  
+
+つまりこういうこと。  
+
+``` php
+<?php
+    switch(PHP_EOL){
+        case "\r\n": 
+            echo "PHP_EOLは\\r\\nに設定されました。";
+            break;
+        case "\n":
+            echo "PHP_EOLは\\nに設定されました。";
+            break;
+    }
+?>
+```
+
+[コピペだけで試せる! PHPの改行方法「PHP_EOL」の使い方](https://it-kyujin.jp/article/detail/1528/)  
