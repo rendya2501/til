@@ -41,6 +41,13 @@ cURLはデフォルトで通信を暗号化する。
 
 ## guzzle http client
 
+今、主流のhttpクライアント。  
+Laravelではデフォルトで入っている模様。  
+パッケージとして提供されているので、コンポーザーでこれ単体でインストール可能。  
+
+>Guzzle は、HTTP 要求の送信を容易にし、簡単に Web サービスと統合できるようにする PHP HTTP クライアントです。  
+[公式](https://docs.guzzlephp.org/en/stable/)  
+
 ---
 
 ## 受け取るAPI側
