@@ -96,15 +96,17 @@ class PubSub
      * イベント名に対するコールバックを解除する
      *
      * @param callable $callback
-     * @return void
+     * @return bool
      */
-    function unsubscribe(callable $callback)
+    function unsubscribe(callable $callback) : bool
     {
         foreach ($this->topics as $i => $topic) {
             foreach ($topic as $j => $_callback) {
                 if ($callback === $_callback) {
+                    // array_spliceにより、配列の一部を削除する。
+                    // イベント名に対する対象コールバックのインデックスを削除する
                     array_splice($this->topics[$i], $j, 1);
-                    return $callback;
+                    return true;
                 }
             }
         }
@@ -115,10 +117,11 @@ class PubSub
      * 発行
      *
      * @param [type] $topic
-     * @return void
+     * @return bool
      */
-    public function publish($topic)
+    public function publish($topic) : bool
     {
+        // イベント名に対する処理が何もなければ失敗として処理終了
         if (!isset($this->topics[$topic])) {
             return false;
         }
@@ -132,7 +135,7 @@ class PubSub
             call_user_func_array($callback, $args);
         }
 
-        return $this;
+        return true;
     }
 }
 
