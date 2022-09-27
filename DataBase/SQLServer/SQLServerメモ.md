@@ -184,3 +184,124 @@ select TOP 50 PERCENT * FROM TastTeble
 >ということで、そのようなビューの使い方は正しいアプローチではありませんが、SQL Serverの裏ワザの一つですと認識ください。  
 
 ---
+
+## 移行におけるあれこれ
+
+Aデータベースの動作が不安定なのでBデータベースを新しく立てて、そちらにデータを移動させることになった。  
+デタッチしてmdfファイルを直接移動させて、アタッチする方式を取ろうとしたが、エラーが発生してうまく行かなかった。  
+エラーの内容は以下の通り。  
+
+``` txt
+TITLEMicrosoft SQL Server Management Studio
+------------------------------
+
+データベース 'sample_database' の復元に失敗しました。 (Microsoft.SqlServer.Management.RelationalEngineTasks)
+
+------------------------------
+ADDITIONAL INFORMATION:
+
+Transact-SQL ステートメントまたはバッチの実行中に例外が発生しました。 (Microsoft.SqlServer.SmoExtended)
+
+------------------------------
+
+データベース 'sample_database' は、オブジェクト 'sample_tabel' の一部または全体でデータ圧縮または vardecimal ストレージ形式が有効になっているため、このエディションの SQL Server では開けません。データ圧縮および vardecimal ストレージ形式がサポートされているのは、SQL Server Enterprise Edition だけです。
+データベース 'sample_database' は、このエディションの SQL Server では起動できません。このデータベースには、パーティション関数 'sample_func' が含まれています。パーティション分割は SQL Server Enterprise Edition でしかサポートされません。
+SQL Server の現在のエディションではデータベース機能の一部が使用できないため、データベース 'sample_database' を開くことができません。 (Microsoft SQL Server、エラー: 909)
+
+ヘルプを表示するには https://docs.microsoft.com/sql/relational-databases/errors-events/mssqlserver-909-database-engine-error をクリック
+```
+
+[sqlserver error 909]  
+このエラー自体は上位エディション(Enterprise Edition)から下位エディション()に移行した時に発生する現象な模様。  
+しかし、`SELECT SERVERPROPERTY('Edition');`このクエリで確認してみると、AもBもStandard Editionであった。  
+
+色々調べた結果、テーブルに圧縮の設定がされている場合に発生してしまう模様。  
+調査クエリで確認したり、圧縮の設定を解除するクエリを流したり、直接テーブルの設定を変えたらうまく行った。  
+
+DB単位で Enterprise Edition のどの機能を使用しているかを確認するクエリ
+
+``` sql
+select * from sys.dm_db_persisted_sku_features
+```
+
+データ圧縮されているオブジェクトのリストを表示するクエリ
+
+``` sql
+SELECT
+    SCHEMA_NAME(sys.objects.schema_id) AS SchemaName
+    ,OBJECT_NAME(sys.objects.object_id) AS ObjectName
+    -- VarDecimalStorage 形式の圧縮があるかどうかを確認する
+    ,OBJECTPROPERTY ( OBJECT_ID ( OBJECT_NAME(sys.objects.object_id) ), 'TableHasVarDecimalStorageFormat' )
+    ,[rows]
+    ,[data_compression_desc]
+FROM sys.partitions
+INNER JOIN sys.objects ON sys.partitions.object_id = sys.objects.object_id
+WHERE data_compression > 0 AND SCHEMA_NAME(sys.objects.schema_id) != 'SYS'
+ORDER BY SchemaName, ObjectName
+
+```
+
+データ圧縮オプションを「なし」にしてインデックスを再構築し、圧縮を無効にするクエリ。  
+
+``` sql
+ALTER INDEX ALL ON sample_table REBUILD WITH ( DATA_COMPRESSION = None );
+```
+
+上記クエリは1行ずつしか実行できないのでカーソル処理としたもの。  
+
+``` sql
+--カーソルの値を取得する変数宣言
+DECLARE @ObjectName varchar(255)
+
+--カーソル定義
+DECLARE CUR_AAA CURSOR FOR
+    SELECT OBJECT_NAME(sys.objects.object_id) AS ObjectName
+    FROM sys.partitions
+    INNER JOIN sys.objects ON sys.partitions.object_id = sys.objects.object_id
+    WHERE data_compression > 0 AND SCHEMA_NAME(sys.objects.schema_id) != 'SYS'
+    ORDER BY ObjectName
+
+--カーソルオープン
+OPEN CUR_AAA;
+
+--最初の1行目を取得して変数へ値をセット
+FETCH NEXT FROM CUR_AAA
+INTO @ObjectName;
+
+--データの行数分ループ処理を実行する
+WHILE @@FETCH_STATUS = 0
+BEGIN
+
+    -- ========= ループ内の実際の処理 ここから===
+    EXEC('ALTER INDEX ALL ON ' + @ObjectName + ' REBUILD WITH ( DATA_COMPRESSION = None );')
+    -- ========= ループ内の実際の処理 ここまで===
+
+    --次の行のデータを取得して変数へ値をセット
+    FETCH NEXT FROM CUR_AAA
+    INTO @ObjectName;
+END
+
+--カーソルを閉じる
+CLOSE CUR_AAA;
+DEALLOCATE CUR_AAA;
+```
+
+なんかのついでに拾ったクエリ。  
+一応参考程度に残しておく。  
+
+``` sql
+SELECT s.[name]+'.'+o.[name] AS [object], i.[type_desc] COLLATE database_default+ISNULL(' '+i.[name], '') AS index_name,
+       (CASE WHEN COUNT(DISTINCT p.partition_number)>1 THEN 'Is partitioned' ELSE '' END) AS [partitioned?],
+       ISNULL(MIN(NULLIF(p.data_compression_desc, 'NONE'))+' compression', '') AS [compressed?],
+       (CASE WHEN ISNULL(OBJECTPROPERTY(p.[object_id], 'TableHasVarDecimalStorageFormat'), 0)=0 THEN '' ELSE 'vardecimal' END) AS [vardecimal?]
+FROM sys.partitions AS p
+INNER JOIN sys.indexes AS i ON p.[object_id]=i.[object_id] AND p.index_id=i.index_id
+INNER JOIN sys.objects AS o ON i.[object_id]=o.[object_id]
+INNER JOIN sys.schemas AS s ON o.[schema_id]=s.[schema_id]
+GROUP BY p.[object_id], s.[name], o.[name], i.index_id, i.[type_desc], i.[name]
+ORDER BY s.[name], o.[name], i.index_id
+```
+
+[Microsoft SQL Server: エラー: 909 データベースを SQL Server 2008 の SQL Server Enterprise Edition から任意の下位エディションに移行中に発生する](http://www.thesqlpost.com/2012/06/microsoft-sql-server-error-909-while.html)  
+[SQL Server 2008 R2 で新しい (ContosoRetailDW) を作成するときのエラー 909。エラー 909 を受け取り、](https://social.msdn.microsoft.com/Forums/en-US/0057feb1-2034-448c-a9ea-c66484b048ba/error-909-when-creating-new-contosoretaildw-on-sql-server-2008-r2-receiving-error-909?forum=sqlgetstarted)  
+[Enterprise Edition の DB バックアップを Standard Edition にリストア](https://blog.engineer-memo.com/2014/12/24/enterprise-edition-%E3%81%AE-db-%E3%83%90%E3%83%83%E3%82%AF%E3%82%A2%E3%83%83%E3%83%97%E3%82%92-standard-edition-%E3%81%AB%E3%83%AA%E3%82%B9%E3%83%88%E3%82%A2/)  

@@ -75,69 +75,30 @@ SET
 
 ---
 
-## SQLServerにおけるUPDATE JOIN
+## UPDATE JOIN
 
-**SQLServerでJoinしつつUpdateするならパターン1のように書く必要がある**。  
+**SQLServerでJoinしつつUpdateしたい場合、パターン1のように書く必要がある**。  
+SELECT FROM JOIN WHERE の基本の流れと同じ。  
+
 肝はUPDATE文に指定するテーブル名は別名でなければいけないということ。  
-
-後はFROM JOIN WHERE の流れは普通のSELECT文と同じ。  
-UPDATEしようとしているテーブルの情報をサブクエリに使うこともできたのね。
-
-[UPDATE と JOIN を使ってデータを更新する](https://sql55.com/t-sql/t-sql-update-1.php)  
-[SQL Serverで、SELECT結果でUPDATEする方法](https://sqlazure.jp/r/sql-server/403/)  
+→  
+別に別名でなくてもいけことが分かった。  
 
 ``` sql : パターン1
 UPDATE
-    [Alias]
+    [main_table]
 SET
-    [Alias].col1 = [other_table].col1,
-    [Alias].col2 = [other_table].col2
+    [main_table].col1 = [other_table].col1,
+    [main_table].col2 = [other_table].col2
 FROM
-    [Alias] AS [Alias]
+    [main_table]
     JOIN [other_table]
-    ON [Alias].id = [other_table].id
+    ON [main_table].id = [other_table].id
 ```
 
 [SQLServer にて他のテーブルのSELECT結果を利用したUPDATE](https://pg.4696.info/db/mssql/sqlserver-sql.html)  
-別名でなくてもいける？  
-もう少し深堀する必要がありけり。  
-
-``` sql :
-UPDATE [会員テーブル]
-SET 
-    [とあるコード]= sub1.[とあるコード]
-    ,[更新日時] = SYSDATETIME ()
-FROM 
-    [会員テーブル]
-    inner join 
-    (
-        select
-            e1.ID
-            ,e1.[とあるコード]
-        from
-            [エントリーテーブル] as e1
-        inner join 
-        (
-            select 
-                ID
-                ,MAX([登録日時]) as '最大登録日時'
-            from
-                [エントリーテーブル]
-            where
-                [とあるコード] is not null
-                and [とあるコード] != '0'
-            group by
-                ID
-        ) AS e2
-        ON 
-            e1.ID = e2.ID
-            AND e1.[登録日時] = e2.'最大登録日時'
-    ) AS sub1
-    ON 
-        [会員テーブル].ID = sub1.ID
-where 
-    [会員テーブル].[とあるコード] = '';
-```
+[UPDATE と JOIN を使ってデータを更新する](https://sql55.com/t-sql/t-sql-update-1.php)  
+[SQL Serverで、SELECT結果でUPDATEする方法](https://sqlazure.jp/r/sql-server/403/)  
 
 ---
 

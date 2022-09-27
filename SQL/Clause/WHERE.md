@@ -87,4 +87,27 @@ URLに書いてあるように適切なインデックスが設定してあっ�
 - 検索項目に対する値を切り替えるパターン  
 - 検索項目自体を切り替えるパターン  
 
+``` sql
+SELECT * 
+FROM dbo.社員マスタ
+WHERE 
+    1=1
+    AND 社員番号 = CASE WHEN @社員番号 IS NULL THEN 社員番号 ELSE @社員番号 END
+    AND 社員名 = CASE WHEN @社員名 IS NULL THEN 社員名 ELSE @社員名 END
+    AND 拠点 = CASE WHEN @拠点 IS NULL THEN 拠点 ELSE @拠点 END;
+```
+
+歩合給（comm）がNULLであれば給料（sal）、NULLでなければ給料と歩合給の合計値が、5000以上のレコードを問い合わせるSQL文の例。  
+
+``` sql
+SELECT *
+FROM emp
+WHERE
+    CASE
+        WHEN comm IS NULL THEN sal
+        WHEN comm IS NOT NULL THEN sal + comm
+    END >= 5000
+```
+
 [CASE式をWHERE句で使う（SQL Server）](https://www.dbsheetclient.jp/blog/?p=2211)  
+[SQL CASE式](https://segakuin.com/oracle/sql/case.html)  
