@@ -277,3 +277,65 @@ ORDER BY BusinessDate DESC
 ```
 
 [集約関数にCASE式で条件をつける](https://qiita.com/yatto5/items/8c9b8ca6b01d83bd95bc)  
+
+---
+
+## ORDER BY で特定のレコードを先頭にする
+
+sql order by 特定  
+
+代表者テーブルとメンバーテーブルがあるとする。  
+代表者を先頭にしたい。  
+
+``` sql
+drop table if exists MainTable;
+create table MainTable(MainKey varchar(32) primary key,SubKey varchar(32));
+insert into MainTable values('Key001','AAA');
+insert into MainTable values('Key002','DDD');
+
+drop table if exists SubTable;
+create table SubTable(MainKey varchar(32),SubKey varchar(32),TestNumber varchar(5) CONSTRAINT [PK_SubTable] PRIMARY KEY (MainKey,SubKey));
+insert into SubTable values('Key001','AAA','0001');
+insert into SubTable values('Key001','BBB','0002');
+insert into SubTable values('Key002','CCC','0003');
+insert into SubTable values('Key002','DDD','0004');
+insert into SubTable values('Key002','EEE','0005');
+```
+
+``` txt : 表示させたい結果
+MainKey  SubKey TestNumber
+Key001   AAA    0001 ←代表者
+Key002   DDD    0004 ←代表者
+Key001   AAA    0002
+Key002   DDD    0003
+Key002   DDD    0005
+```
+
+SQLServerではCASE WHEN句を使う。  
+他のデータベースではORDER BYの中で`=`を使うことができる模様。  
+
+``` sql
+SELECT
+    [MainTable].[MainKey],
+    [MainTable].[SubKey],
+    [SubTable].[TestNumber]
+FROM [MainTable]
+JOIN [SubTable]
+ON [MainTable].[MainKey] = [SubTable].[MainKey]
+ORDER BY
+    CASE
+        WHEN [MainTable].[MainKey] = [SubTable].[MainKey] 
+            AND [MainTable].[SubKey] = [SubTable].[SubKey] THEN 0
+        ELSE 1 
+    END,
+    [MainTable].[MainKey]
+
+-- MainKey  SubKey TestNumber
+-- Key001   AAA    0001
+-- Key002   DDD    0004
+-- Key001   AAA    0002
+-- Key002   DDD    0005
+-- Key002   DDD    0003
+```
+
+[SQLServer Order By 並べ替え](https://hironimo.com/prog/sql/orderby/)  
