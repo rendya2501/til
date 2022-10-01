@@ -584,25 +584,19 @@ public enum State
 1. Modelを介して行う。  
 2. PrismのEventAggregatorを使う。  
 
+モデルを介する場合のイメージはこう。  
+この場合、容易に他のViewへの操作を依頼できるが、Modelに依存してしまう。  
+
 ``` txt
 ViewModel  ViewModel
    ↓         ↑
        Model
 ```
 
-[Prism入門 その5 - IEventAggregator](https://qiita.com/swd/items/2910c1d87a4c54f16077)  
+依存の問題を解決する仕組みがPublisher/Subscriberパターンであり、それをPrismで実装したものがEventAggregator。  
+そちらでの実装方法は「Prism.EventAggregator」でまとめているので、そちらを参照されたし。  
+
 [C# WPFアプリ MVVMモデル内の連携方法](https://setonaikai1982.com/mvvm-comm/)  
-
----
-
-## Prism EventAggregator
-
-EventAggregator とは Publisher-Subscriber パターンを Prism で実装したものです。  Publisher-Subscriber パターンとは、アプリケーションの非同期通信を容易にするため設計されたメッセージングのパターンのことです。  
-具体的には、リンクすることが困難なコンポーネント間でメッセージをやり取りするといった、問題を解決します。  
-
-Prism のプロジェクトでは、EventAggregator は、2つ以上の ViewModel の間や、お互いに参照を持たないサービスの間でメッセージを送受信するためによく利用されます。  
-
-[Prism EventAggregator をなぜ使うべきか](https://shikaku-sh.hatenablog.com/entry/wpf-prism-why-should-use-eventaggregator)  
 
 ---
 
