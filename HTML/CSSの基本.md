@@ -4,6 +4,23 @@
 
 ---
 
+## idとclassの適応の仕方
+
+``` html
+<h1 id="headline">HeadLine</h1>
+<p class="text">Text</p>
+<style>
+    #headline{
+        color: red;
+    }
+    .text {
+        color: blue;
+    }
+</style>
+```
+
+---
+
 ## 書式の基本
 
 ### セレクタ・プロパティ・値

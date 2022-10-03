@@ -305,3 +305,12 @@ ORDER BY s.[name], o.[name], i.index_id
 [Microsoft SQL Server: エラー: 909 データベースを SQL Server 2008 の SQL Server Enterprise Edition から任意の下位エディションに移行中に発生する](http://www.thesqlpost.com/2012/06/microsoft-sql-server-error-909-while.html)  
 [SQL Server 2008 R2 で新しい (ContosoRetailDW) を作成するときのエラー 909。エラー 909 を受け取り、](https://social.msdn.microsoft.com/Forums/en-US/0057feb1-2034-448c-a9ea-c66484b048ba/error-909-when-creating-new-contosoretaildw-on-sql-server-2008-r2-receiving-error-909?forum=sqlgetstarted)  
 [Enterprise Edition の DB バックアップを Standard Edition にリストア](https://blog.engineer-memo.com/2014/12/24/enterprise-edition-%E3%81%AE-db-%E3%83%90%E3%83%83%E3%82%AF%E3%82%A2%E3%83%83%E3%83%97%E3%82%92-standard-edition-%E3%81%AB%E3%83%AA%E3%82%B9%E3%83%88%E3%82%A2/)  
+
+---
+
+## FORMAT関数
+
+FORMAT関数が使えるのは2012から。  
+2008R2では分析ツール用のクエリでは使えるが、組み込み関数としては使えない。  
+
+[SQLServerのFORMAT関数にハマったのでメモ (2008 R2では使えない)](https://devlights.hatenablog.com/entry/2015/03/09/143355)  

@@ -15,3 +15,5 @@
 <https://code.msdn.microsoft.com/windowsdesktop/11-Using-7483c4a0>  
 
 https://anderson02.com/cs/cskiso/cskisoniwari-24/
+
+[Dispose の意味が未だわからないのですが](https://atmarkit.itmedia.co.jp/bbs/phpBB/viewtopic.php?topic=34497&forum=7)  

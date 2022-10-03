@@ -1,5 +1,7 @@
 # TRY CATCH
 
+---
+
 ``` sql
 BEGIN TRAN
 BEGIN TRY
