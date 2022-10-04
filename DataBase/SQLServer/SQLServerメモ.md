@@ -47,47 +47,6 @@ END
 
 ---
 
-## FOR XML PATH の TYPE .valueとは何か？
-
-for xml pathは、なんかインテリセンスが働かないけど、`,TYPE).value(,)`なるオプション？が使える模様。  
-結論からいうと、型を変換するための命令っぽい。  
-別にそこまで厳密に型指定しなくても動く。  
-しかし、型の変換が必要な場合もあるのだろう。  
-
-``` SQL
--- このSQLを実行しても上でやったSQLの結果と違うことはない。
--- ABC202007250541,ABC202007250541,ABC202007250541
-SELECT STUFF(
-    (SELECT TOP 3 ',' + TestID FROM TestTable FOR xml path(''),TYPE).value('.', 'NVARCHAR(MAX)'),
-    1,
-    1,
-    ''
-)
-```
-
-[Please explain what does "for xml path(''), TYPE) .value('.', 'NVARCHAR(MAX)')" do in this code](https://dba.stackexchange.com/questions/207371/please-explain-what-does-for-xml-path-type-value-nvarcharmax)  
-
-私は人々が時々`, TYPE).value('.', 'NVARCHAR(MAX)')`のテクニックを使うのを省略しているのを見ます。  
-これに伴う問題は、一部の文字をXMLエンティティ参照（引用符など）でエスケープする必要があるため、その場合、結果の文字列が期待どおりにならないことです。  
-→  
-まぁ、やっておいて損はないということだな。  
-省略せず書くべし!!  
-
-[SQLServerで複数レコードの文字列を結合](http://icoctech.icoc.co.jp/blog/?p=998)  
-FOR XML句で出力した値はXML形式で出力されるため、他のフィールドとは扱いが異なりますので、value()メソッドを使い、通常のSQL型に変換します。  
-サブクエリを表す()の後に「.value(‘.’, ‘VARCHAR(MAX)’)」と記述しております。  
-value()メソッドの第一引数はXQuery式で、第二引数はSQL型となります。  
-第一引数の「'.'」はXQuery式「self::node()」の省略形、  
-第二引数では、ユーザー名を扱い、出力文字数の制限をしたくないので、VARCHAR(MAX)としており、  
-出力されたXML形式のデータからvalue値を取得するため、  
-属性が指定されていようが関係なく、「・アイチャン・ワークン」といったvalue値を取得し、  
-第二引数で指定されたVARCHARとして、SQL型の結果を返します。  
-
-[value() メソッド (xml データ型)](https://docs.microsoft.com/ja-jp/sql/t-sql/xml/value-method-xml-data-type?redirectedfrom=MSDN&view=sql-server-ver15)  
-意外と奥が深かった。  
-
----
-
 ## FLOOR関数とCEILING関数
 
 Y君から、「これ何したいかわかります？」って質問されたが、そもそも関数が何やるかわからなかったのでまとめる。  
@@ -238,7 +197,6 @@ FROM sys.partitions
 INNER JOIN sys.objects ON sys.partitions.object_id = sys.objects.object_id
 WHERE data_compression > 0 AND SCHEMA_NAME(sys.objects.schema_id) != 'SYS'
 ORDER BY SchemaName, ObjectName
-
 ```
 
 データ圧縮オプションを「なし」にしてインデックスを再構築し、圧縮を無効にするクエリ。  
@@ -314,3 +272,18 @@ FORMAT関数が使えるのは2012から。
 2008R2では分析ツール用のクエリでは使えるが、組み込み関数としては使えない。  
 
 [SQLServerのFORMAT関数にハマったのでメモ (2008 R2では使えない)](https://devlights.hatenablog.com/entry/2015/03/09/143355)  
+
+---
+
+## テーブルを複製する方法
+
+``` sql
+SELECT * INTO コピー先テーブル名 FROM コピー元テーブル名
+```
+
+`コピー元テーブル名`は名前の指定だけあればよい。  
+あらかじめテーブルを作成する必要は無し。  
+実行するとテーブルもSQLServerが自動でテーブルも作成してくれます。  
+※注：ただし、テーブルは規定の領域（なにも設定してなければPrimary）に作られるので、ファイルグループ管理は要注意。  
+
+[[SQLServer]テーブルをまるっとコピーする方法](https://ameblo.jp/nature3298type-s/entry-10313449987.html)
