@@ -79,15 +79,15 @@ SELECT
 
 ``` sql
 WITH employee_with AS (
-  SELECT 1 As id ,"りんご" as name,"フルーツ" as category ,10 as kosuu
+  SELECT 1 AS [id] ,'りんご' AS [name],'フルーツ' AS [category] ,10 AS [kosuu]
   UNION
-  SELECT 2,"みかん","フルーツ",20
+  SELECT 2,'みかん','フルーツ',20
   UNION
-  SELECT 3,"にんじん","野菜",30
+  SELECT 3,'にんじん','野菜',30
   UNION
-  SELECT 4,"大根","野菜",40
+  SELECT 4,'大根','野菜',40
 )
-select id,name 
-from employee_with a
-where kosuu = (select max(kosuu) from employee_with b where a.category = b.category);
+select [id],[name] 
+from [employee_with] AS [a]
+where [kosuu] = (select max(kosuu) from [employee_with] AS [b] where [a].[category] = [b].[category]);
 ```

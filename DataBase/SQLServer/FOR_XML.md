@@ -18,38 +18,28 @@ SELECT
 FROM TestTable2 t2
 GROUP BY TestID
 
--- SlipID                      PlayerNo
+-- TestID                      PlayerNo
 -- ABC20200725001000009001434  ABC2020072500655,ABC2020072500655,ABC2020072500655,ABC2020072500655,
 -- ABC20200725001000011000942  ABC202007250384,ABC202007250384,ABC202007250384,ABC202007250384,
 -- ABC20200725001000012000176  ABC2020072500069,ABC2020072500069,ABC2020072500069,ABC2020072500069,ABC2020072500069,
 -- ABC20200725001000018001431  ABC2020072500654,ABC2020072500654,ABC2020072500654,ABC2020072500654,ABC2020072500654,
 ```
 
-なので仮に`SELECT TOP 3 PlayerNo + ',' FROM SlipTable FOR xml path('a')`と書いた場合、  
+仮に`SELECT PlayerNo + ',' FROM SlipTable FOR xml path('a')`と書いた場合、  
 `<a>ABC202007250541,</a><a>ABC202007250541,</a><a>ABC202007250541,</a>`となる。  
+
 PATH('')とするのは、空白のタグで前後を囲う動作というわけだ。  
 
-ちなみにmariaDVではGROUP_CONCAT関数で
-mysql系独自の関数見たいなので、他では使えない。  
-GROUP_CONCAT関数 : group byしたときに任意の列の値を連結させる関数。  
-[【MySQL】GROUP_CONCAT()を使ってみる](https://www.softel.co.jp/blogs/tech/archives/3154)  
-
-``` SQL:mariaDBの場合
-SELECT
-    SlipID,
-    GROUP_CONCAT(PlayerNo,',') as PlayerNo
-FROM SlipTable
-GROUP BY SlipID
-```
-
+[[SQL Server] 縦に並んだデータを横にカンマ区切りの列データで取得する方法](https://webbibouroku.com/Blog/Article/forxmlpath)  
 [SQLのGroupで、文字列を集計](https://qiita.com/nuller/items/01813da7f7d60b65c220)  
 
 ---
 
 ## TYPE .valueとは何か？
 
-FOR XML は、インテリセンスが働かないが、`,TYPE).value(,)`なるオプション？が使える模様。  
-結論からいうと、型を変換するための命令っぽい。  
+インテリセンスが働かないが、`,TYPE).value(,)`なるオプション？が使える模様。  
+
+型を変換するための命令っぽい。  
 別にそこまで厳密に型指定しなくても動く。  
 しかし、型の変換が必要な場合もあるのだろう。  
 
@@ -57,10 +47,8 @@ FOR XML は、インテリセンスが働かないが、`,TYPE).value(,)`なる�
 -- このSQLを実行しても上でやったSQLの結果と違うことはない。
 -- ABC202007250541,ABC202007250541,ABC202007250541
 SELECT STUFF(
-    (SELECT TOP 3 ',' + TestID FROM TestTable FOR xml path(''),TYPE).value('.', 'NVARCHAR(MAX)'),
-    1,
-    1,
-    ''
+    (SELECT ',' + TestID FROM TestTable FOR xml path(''),TYPE).value('.', 'NVARCHAR(MAX)'),
+    1, 1, ''
 )
 ```
 
@@ -83,5 +71,3 @@ value()メソッドの第一引数はXQuery式で、第二引数はSQL型とな�
 [SQLServerで複数レコードの文字列を結合](http://icoctech.icoc.co.jp/blog/?p=998)  
 
 [value() メソッド (xml データ型)](https://docs.microsoft.com/ja-jp/sql/t-sql/xml/value-method-xml-data-type?redirectedfrom=MSDN&view=sql-server-ver15)  
-
----

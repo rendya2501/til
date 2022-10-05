@@ -46,34 +46,34 @@ OPEN CUR_FragmentationList
 
 -- カーソルフェッチ
 FETCH NEXT FROM CUR_FragmentationList 
-    INTO @INDEX_NAME, @TABLE_NAME, @PER
+INTO @INDEX_NAME, @TABLE_NAME, @PER
 
-    -- ループ開始
-    WHILE @@FETCH_STATUS = 0
+-- ループ開始
+WHILE @@FETCH_STATUS = 0
+BEGIN
+    PRINT @INDEX_NAME + '/' + @TABLE_NAME + '/' + CONVERT(NVARCHAR,@PER)
+
+    SET @Sql = ''
+    -- 断片化率が30%より小さい場合
+    IF @PER < 30.0
         BEGIN
-            PRINT @INDEX_NAME + '/' + @TABLE_NAME + '/' + CONVERT(NVARCHAR,@PER)
-
-            SET @Sql = ''
-            -- 断片化率が30%より小さい場合
-            IF @PER < 30.0
-                BEGIN
-                    SET @Sql = N'ALTER INDEX ' + @INDEX_NAME + N' ON ' + @TABLE_NAME + N' REORGANIZE';
-                END
-            ELSE
-                BEGIN
-                    SET @Sql = N'ALTER INDEX ' + @INDEX_NAME + N' ON ' + @TABLE_NAME + N' REBUILD';
-                END
-            
-            PRINT @Sql
-            
-            EXEC(@Sql)
-            
-            PRINT '実行しました。'
-            
-            -- 次をフェッチ
-            FETCH NEXT FROM CUR_FragmentationList 
-                INTO @INDEX_NAME, @TABLE_NAME, @PER
+            SET @Sql = N'ALTER INDEX ' + @INDEX_NAME + N' ON ' + @TABLE_NAME + N' REORGANIZE';
         END
+    ELSE
+        BEGIN
+            SET @Sql = N'ALTER INDEX ' + @INDEX_NAME + N' ON ' + @TABLE_NAME + N' REBUILD';
+        END
+    
+    PRINT @Sql
+    
+    EXEC(@Sql)
+    
+    PRINT '実行しました。'
+    
+    -- 次をフェッチ
+    FETCH NEXT FROM CUR_FragmentationList 
+        INTO @INDEX_NAME, @TABLE_NAME, @PER
+END
 
 -- カーソル閉じる&解放
 CLOSE CUR_FragmentationList
