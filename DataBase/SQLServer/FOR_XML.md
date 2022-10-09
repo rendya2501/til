@@ -139,6 +139,11 @@ GROUP BY [ID],[BusinessDate]
 
 ## for xml order by
 
+FOR XMLで文字列を結合する時に、ORDER BYで順番を指定したい。  
+ORDER BYによる結合の順番は指定可能。  
+ORDER BYはFOR XMLと同じ階層で記述しなければならない。  
+FOR XMLの内部でORDER BYを使おうとするとエラーになってしまう。  
+
 ``` sql
 WITH TmpTable AS (
     SELECT 1 AS ID, 1 AS RowNum, 'and seventy nine' AS [Data]
@@ -149,14 +154,13 @@ WITH TmpTable AS (
 )
 select
     ID,
-    Data = (
+    [Data] = (
         Select
-            ' ' + cast(Data as varchar(max))
+            ' ' + [Data]
         from
             tblRecord t2
         where
-            t2.RowNum = t1.RowNum
-            and t2.ID = t1.ID
+            t2.ID = t1.ID
         order by
             t1.RowNum for xml path('')
     )
