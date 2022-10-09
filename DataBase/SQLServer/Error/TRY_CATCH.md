@@ -127,6 +127,80 @@ END CATCH
 
 ---
 
+## Best Practice
+
+``` sql : OptionA
+BEGIN TRY
+    BEGIN TRANSACTION
+    INSERT sometable(a, b) VALUES (@a, @b)
+    INSERT sometable(a, b) VALUES (@b, @a)
+    COMMIT TRANSACTION
+END TRY
+BEGIN CATCH
+    IF @@trancount > 0 ROLLBACK TRANSACTION
+    DECLARE @msg nvarchar(2048) = error_message()  
+    RAISERROR (@msg, 16, 1)
+    RETURN 55555
+END CATCH
+```
+
+``` sql : OptionB
+BEGIN TRY
+    BEGIN TRANSACTION
+    INSERT sometable(a, b) VALUES (@a, @b)
+    INSERT sometable(a, b) VALUES (@b, @a)
+END TRY
+BEGIN CATCH
+    IF @@trancount > 0 ROLLBACK TRANSACTION
+    DECLARE @msg nvarchar(2048) = error_message()  
+    RAISERROR (@msg, 16, 1)
+    RETURN 55555
+END CATCH
+IF @@trancount > 0  COMMIT TRANSACTION
+```
+
+``` sql : best
+SET XACT_ABORT ON;
+
+BEGIN TRY
+    BEGIN TRANSACTION
+
+    /*
+        Code goes here
+    */
+
+    COMMIT TRANSACTION
+END TRY
+
+BEGIN CATCH
+    DECLARE @ErrorMessage NVARCHAR(4000);
+    DECLARE @ErrorSeverity INT;
+    DECLARE @ErrorState INT;
+
+    SELECT 
+        @ErrorMessage = ERROR_MESSAGE(),
+        @ErrorSeverity = ERROR_SEVERITY(),
+        @ErrorState = ERROR_STATE();
+
+    RAISERROR (@ErrorMessage, -- Message text.
+               @ErrorSeverity, -- Severity.
+               @ErrorState -- State.
+               );
+
+    -- If >= SQL 2012 replace all code in catch block above with
+    -- THROW;
+
+    WHILE @@TRANCOUNT > 0
+    BEGIN
+        ROLLBACK TRANSACTION;
+    END
+END CATCH
+```
+
+[Best practices for committing a transaction in SQL Server where TRY CATCH is used](https://dba.stackexchange.com/questions/233079/best-practices-for-committing-a-transaction-in-sql-server-where-try-catch-is-use)  
+
+---
+
 ## カーソル処理に置けるTryCatch
 
 基本的にTRY CATCHで囲って、

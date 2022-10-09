@@ -563,3 +563,9 @@ ON s1.category = s2.category
 AND (s1.price < s2.price OR (s1.price = s2.price AND s1.id > s2.id))
 WHERE s2.id IS NULL
 ```
+
+---
+
+## 重複レコードの対処
+
+[重複データの抽出／削除をウィンドウ関数で](https://kenpg.bitbucket.io/blog/201607/06.html)  
