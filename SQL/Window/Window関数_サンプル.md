@@ -167,9 +167,9 @@ ORDER BY [Role] DESC,[Name] DESC,[date]
 SQLServerは確実に無理。  
 他は知らないが、ほとんど無理らしい。  
 
-[Count distinct over partition by](https://stackoverflow.com/questions/66348498/count-distinct-over-partition-by)  
 >Unfortunately, COUNT(DISTINCT is not available as a window aggregate.
 >COUNT(DISTINCT)残念ながら、SQL Server (および他のデータベースも) はウィンドウ関数としてサポートされていません。
+[Count distinct over partition by](https://stackoverflow.com/questions/66348498/count-distinct-over-partition-by)  
 
 ``` sql
 SELECT
