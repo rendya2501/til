@@ -1,8 +1,8 @@
 -- 断片化確認クエリ
--- https://www.fenet.jp/dotnet/column/database/sql-server/4365/
+-- https://techblog.zozo.com/entry/sqlserver-index-reorganize-vs-rebuild
 
-declare @DB_ID int = DB_ID('DB_TEST');
-declare @OBJECT_ID int = OBJECT_ID('USER');
+declare @DB_ID int = DB_ID('DB名');
+declare @OBJECT_ID int = OBJECT_ID('テーブル名');
 
 select *
 from sys.dm_db_index_physical_stats(@DB_ID, @Object_ID, null, null, 'DETAILED') as A

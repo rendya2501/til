@@ -7,11 +7,11 @@ DECLARE @DBID SMALLINT = DB_ID()
 -- カーソル定義 テーブルに対する断片化率の一覧を取得クエリ
 DECLARE CUR_FragmentationList CURSOR FOR 
     SELECT
-        CONVERT(NVARCHAR,SYSINDEXES.NAME) AS INDEX_NAME
-        ,CONVERT(NVARCHAR,SYSOBJECTS.name) AS [TABLE_NAME]
+        CONVERT(NVARCHAR,SYSINDEXES.name) AS [Index_Name]
+        ,CONVERT(NVARCHAR,SYSOBJECTS.name) AS [Table_Name]
     --    ,IPS.INDEX_TYPE_DESC AS INDEX_TYPE
     --    ,IPS.ALLOC_UNIT_TYPE_DESC AS UNIT_TYPE
-        ,CONVERT(numeric,IPS.AVG_FRAGMENTATION_IN_PERCENT) AS [断片化率]
+        ,CONVERT(numeric,IPS.AVG_FRAGMENTATION_IN_PERCENT) AS [Fragmentation_Rate]
     --    ,SYSINDEXES.ROWS AS 件数
     --    ,IPS.*
     FROM
@@ -30,15 +30,15 @@ DECLARE CUR_FragmentationList CURSOR FOR
         AND IPS.INDEX_ID = SYSINDEXES.INDID
     WHERE
         SYSOBJECTS.XTYPE = 'U'
-        AND SYSINDEXES.NAME <> 'PK_DTPROPERTIES'
+        AND SYSINDEXES.name <> 'PK_DTPROPERTIES'
         AND IPS.AVG_FRAGMENTATION_IN_PERCENT > 10
     ORDER BY
-        SYSINDEXES.NAME
+        SYSINDEXES.name
 
 -- 変数定義
-DECLARE @INDEX_NAME AS NVARCHAR(100)
-DECLARE @TABLE_NAME AS NVARCHAR(100)
-DECLARE @PER AS numeric
+DECLARE @Index_Name AS NVARCHAR(100)
+DECLARE @Table_Name AS NVARCHAR(100)
+DECLARE @Fragmentation_Rate AS numeric
 DECLARE @Sql AS NVARCHAR(4000)
 
 -- カーソルオープン
@@ -46,22 +46,22 @@ OPEN CUR_FragmentationList
 
 -- カーソルフェッチ
 FETCH NEXT FROM CUR_FragmentationList 
-INTO @INDEX_NAME, @TABLE_NAME, @PER
+INTO @Index_Name, @Table_Name, @Fragmentation_Rate
 
 -- ループ開始
 WHILE @@FETCH_STATUS = 0
 BEGIN
-    PRINT @INDEX_NAME + '/' + @TABLE_NAME + '/' + CONVERT(NVARCHAR,@PER)
+    PRINT @Index_Name + '/' + @Table_Name + '/' + CONVERT(NVARCHAR,@Fragmentation_Rate)
 
     SET @Sql = ''
     -- 断片化率が30%より小さい場合
-    IF @PER < 30.0
+    IF @Fragmentation_Rate < 30.0
         BEGIN
-            SET @Sql = N'ALTER INDEX ' + @INDEX_NAME + N' ON ' + @TABLE_NAME + N' REORGANIZE';
+            SET @Sql = N'ALTER INDEX ' + @Index_Name + N' ON ' + @Table_Name + N' REORGANIZE';
         END
     ELSE
         BEGIN
-            SET @Sql = N'ALTER INDEX ' + @INDEX_NAME + N' ON ' + @TABLE_NAME + N' REBUILD';
+            SET @Sql = N'ALTER INDEX ' + @Index_Name + N' ON ' + @Table_Name + N' REBUILD';
         END
     
     PRINT @Sql
@@ -72,7 +72,7 @@ BEGIN
     
     -- 次をフェッチ
     FETCH NEXT FROM CUR_FragmentationList 
-        INTO @INDEX_NAME, @TABLE_NAME, @PER
+        INTO @Index_Name, @Table_Name, @Fragmentation_Rate
 END
 
 -- カーソル閉じる&解放

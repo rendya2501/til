@@ -78,7 +78,7 @@ SELECT
 いい感じのWITH句と相関副問い合わせのサンプルが出来たのでまとめておく。
 
 ``` sql
-WITH employee_with AS (
+WITH [with_product] AS (
   SELECT 1 AS [id] ,'りんご' AS [name],'フルーツ' AS [category] ,10 AS [kosuu]
   UNION
   SELECT 2,'みかん','フルーツ',20
@@ -88,6 +88,32 @@ WITH employee_with AS (
   SELECT 4,'大根','野菜',40
 )
 select [id],[name] 
-from [employee_with] AS [a]
-where [kosuu] = (select max(kosuu) from [employee_with] AS [b] where [a].[category] = [b].[category]);
+from [with_product] AS [a]
+where [kosuu] = (select max(kosuu) from [with_product] AS [b] where [a].[category] = [b].[category]);
 ```
+
+---
+
+## WITHから一時テーブルを生成する
+
+WITHはちょっとしたデータを用意する分には便利なのだが、サブクエリの中で動作を確認したい時等、WITHも含めてSELECTしないとエラーとなってしまうためストレスを感じる事が多かった。  
+WITHから型定義なしでとりあえず一時テーブルを作る方法はないか考えた。  
+`SELECT * INTO dst FROM src`構文が使えるのでは？と思ってやってみたらいけた。  
+
+``` sql
+WITH WithTemp AS (
+    SELECT 'ABC20200725001000009001434' AS ID
+    UNION
+    SELECT 'ABC20200725001000011000942'
+    UNION
+    SELECT 'ABC20200725001000012000176'
+    UNION
+    SELECT 'ABC20200725001000018001431'
+)
+SELECT * INTO #TempTable FROM WithTemp
+
+DROP TABLE IF EXISTS #TempTable
+```
+
+ただ、テーブルを作るのが面倒くさいと思っていたが、DECLAREと同じ要領でやればいいだけ、と考えれば、CREATETABLEから一時テーブルを作る事なんて大したことではないのかもしれないと思ったり。  
+WITHから生成と言いつつ、単純にサブクエリから作っていることに変わりはないけど、こういうこともできるよって、ことだけ残しておく。  

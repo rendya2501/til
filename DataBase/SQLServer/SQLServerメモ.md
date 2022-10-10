@@ -292,11 +292,19 @@ SELECT * INTO コピー先テーブル名 FROM コピー元テーブル名
 
 ## SQLServerのバージョンを確認する
 
+単純に出力するクエリ
+
 ``` sql
--- SQLServerのバージョンを確認する
 PRINT @@VERSION;
 
--- https://www.mssqltips.com/sqlservertip/1140/how-to-tell-what-sql-server-version-you-are-running/
+-- 出力結果
+-- Microsoft SQL Server 2016 (RTM) - 13.0.1601.5 (X64) 
+--    Apr 29 2016 23:23:58 
+--    Copyright (c) Microsoft Corporation
+--    Standard Edition (64-bit) on Windows Server 2016 Standard 6.3 <X64> (Build 14393: ) (Hypervisor)
+```
+
+``` sql
 SELECT
     CASE 
         WHEN CONVERT(VARCHAR(128), SERVERPROPERTY ('productversion')) like '8%' THEN 'SQL2000'
@@ -305,7 +313,7 @@ SELECT
         WHEN CONVERT(VARCHAR(128), SERVERPROPERTY ('productversion')) like '10.5%' THEN 'SQL2008 R2'
         WHEN CONVERT(VARCHAR(128), SERVERPROPERTY ('productversion')) like '11%' THEN 'SQL2012'
         WHEN CONVERT(VARCHAR(128), SERVERPROPERTY ('productversion')) like '12%' THEN 'SQL2014'
-        WHEN CONVERT(VARCHAR(128), SERVERPROPERTY ('productversion')) like '13%' THEN 'SQL2016'     
+        WHEN CONVERT(VARCHAR(128), SERVERPROPERTY ('productversion')) like '13%' THEN 'SQL2016'
         WHEN CONVERT(VARCHAR(128), SERVERPROPERTY ('productversion')) like '14%' THEN 'SQL2017' 
         WHEN CONVERT(VARCHAR(128), SERVERPROPERTY ('productversion')) like '15%' THEN 'SQL2019' 
         WHEN CONVERT(VARCHAR(128), SERVERPROPERTY ('productversion')) like '16%' THEN 'SQL2022' 
@@ -325,3 +333,38 @@ ELSE
         PRINT 10;
     END
 ```
+
+[How to tell what SQL Server versions you are running](https://www.mssqltips.com/sqlservertip/1140/how-to-tell-what-sql-server-version-you-are-running/)
+
+---
+
+## パフォーマンス改善
+
+パフォーマンスによる影響  
+・クエリの応答速度低下→コマンドタイムアウトの発生  
+・CPU負荷の情報  
+
+[統計情報を更新してクエリのパフォーマンスを改善する](https://www.projectgroup.info/tips/SQLServer/MSSQL_00000027.htm)  
+
+---
+
+## 統計情報
+
+[SQL Serverで統計情報を更新する。UPDATE STATISTICSの使い方](https://www.fenet.jp/dotnet/column/database/sql/5389/)  
+
+---
+
+## sp_updatestats
+
+統計情報を更新するストアドプロシージャ。  
+
+このストアドは、あるデータベース上で実行することで、そのデータベースに存在する全てのインデックス、列 の統計情報を更新する。  
+
+特定のクエリではなく全体的にクエリ パフォーマンスが低下している場合やどのテーブルのインデックス、列 の統計情報を更新すべきか明確に特定できていない場合に使用する。  
+
+``` sql
+EXEC sp_updatestats
+GO
+```
+
+[【保存版】クエリ パフォーマンスが著しく低下した場合の一時的な対処方法 (SQL Server/Azure SQL Database)](https://www.nobtak.com/entry/sqlp01)  

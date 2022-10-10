@@ -4,6 +4,9 @@
 
 ## 概要
 
+GOコマンドはSQLServerにおける処理の区切り的な意味らしい。  
+T-SQLではない模様。  
+
 公式曰く  
 
 - sqlcmd ユーティリティ、osql ユーティリティ、および SQL Server Management Studio のコード エディターによって認識されるコマンド。  
@@ -21,7 +24,6 @@
 
 変数を使うときは注意が必要。  
 変数を事前に定義していても、GOコマンドを実行すると、それ以降の行ではその変数は有効でなくなってしまう。  
-GOコマンドは何かしらの区切り的な意味らしい。  
 
 ``` sql
 DECLARE @test varchar(10) = 'hogehoge'
@@ -31,6 +33,27 @@ GO
 
 -- スカラー変数 "@test" を宣言してください。
 SELECT @test
+```
+
+後、GOの最後にコロンをつけてはいけない。  
+場合によってエラーになる。  
+
+これはOK
+
+```sql
+DECLARE @test varchar(10) = 'hogehoge';
+SELECT @test;
+GO
+```
+
+これはダメ。  
+
+```sql
+DECLARE @test varchar(10) = 'hogehoge';
+SELECT @test;
+GO;
+-- メッセージ 102、レベル 15、状態 1、行 7
+-- 'GO' 付近に不適切な構文があります。
 ```
 
 [SQL ServerのGOコマンドとは？](https://sql-oracle.com/sqlserver/?p=708)  
