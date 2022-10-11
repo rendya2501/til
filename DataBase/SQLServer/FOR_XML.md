@@ -5,73 +5,125 @@
 ## FOR XML概要
 
 `FOR XML`は指定したフィールドの要素をXMLタグで囲う命令句。  
+たいていはGROUP BY した時に文字列を連結する時に使われる。
 
-``` SQL
-SELECT
-    TestID,
-    (
-        SELECT PlayerNo + ','
-        FROM TestTable1 AS t1
-        WHERE t1.TestID = t2.TestID 
-        FOR xml path('')
-    )
-FROM TestTable2 t2
-GROUP BY TestID
-
--- TestID                      PlayerNo
--- ABC20200725001000009001434  ABC2020072500655,ABC2020072500655,ABC2020072500655,ABC2020072500655,
--- ABC20200725001000011000942  ABC202007250384,ABC202007250384,ABC202007250384,ABC202007250384,
--- ABC20200725001000012000176  ABC2020072500069,ABC2020072500069,ABC2020072500069,ABC2020072500069,ABC2020072500069,
--- ABC20200725001000018001431  ABC2020072500654,ABC2020072500654,ABC2020072500654,ABC2020072500654,ABC2020072500654,
+``` txt
+NO | TEAM | MEMBER
+---+------+---------
+1  | 紅組 | 佐藤
+2  | 紅組 | 鈴木
+3  | 紅組 | 高橋
+4  | 青組 | 田中
+5  | 黄組 | 伊藤
+6  | 黄組 | 渡辺
 ```
 
-仮に`SELECT PlayerNo + ',' FROM SlipTable FOR xml path('a')`と書いた場合、  
-`<a>ABC202007250541,</a><a>ABC202007250541,</a><a>ABC202007250541,</a>`となる。  
+``` sql
+WITH Temp AS (
+    SELECT 1 AS NO , '紅組' AS TEAM ,'佐藤' AS MEMBER
+    UNION 
+    SELECT 2,'紅組','鈴木'
+    UNION 
+    SELECT 3,'紅組','高橋'
+    UNION 
+    SELECT 4,'青組','田中'
+    UNION 
+    SELECT 5,'黄組','伊藤'
+    UNION 
+    SELECT 6,'黄組','渡辺'
+)
+SELECT * FROM Temp FOR XML PATH('a')
+```
 
-PATH('')とするのは、空白のタグで前後を囲う動作というわけだ。  
+``` xml : 結果
+<a>
+  <NO>1</NO>
+  <TEAM>紅組</TEAM>
+  <MEMBER>佐藤</MEMBER>
+</a>
+<a>
+  <NO>2</NO>
+  <TEAM>紅組</TEAM>
+  <MEMBER>鈴木</MEMBER>
+</a>
+...
+```
+
+上記例のように`FOR XML PATH('a')`と書いた場合、`<a></a>`タグによって各結果を囲う形になる。
+
+`PATH('')`とした場合、空白のタグで前後を囲うことになり、XMLの形式は崩壊する。  
+`<a>タグ`が消失していることが分かる。  
+
+``` XML
+<NO>1</NO>
+<TEAM>紅組</TEAM>
+<MEMBER>佐藤</MEMBER>
+<NO>2</NO>
+<TEAM>紅組</TEAM>
+<MEMBER>鈴木</MEMBER>
+・・・
+```
+
+さらに、列名を失くすことで、要素のタグを消失させることができる。  
+列名がないので空白のタグで前後を囲うことになるからだと思われる。  
+
+``` sql
+SELECT
+    NO + '',
+    TEAM + '',
+    MEMBER + ''
+FROM
+    Table1
+FOR XML PATH('')
+
+-- 1紅組佐藤2紅組鈴木3紅組高橋4青組田中5黄組伊藤6黄組渡辺
+```
+
+この時点で文字列の結合はできているが、このままでは出力形式がXML形式であるのと、XML形式故、意図しない文字列が出力される可能性があるので、TYPEディレクティブの話になっていく。  
 
 [[SQL Server] 縦に並んだデータを横にカンマ区切りの列データで取得する方法](https://webbibouroku.com/Blog/Article/forxmlpath)  
 [SQLのGroupで、文字列を集計](https://qiita.com/nuller/items/01813da7f7d60b65c220)  
+[SQL Serverで取得結果行を1列に連結するSQL(FOR XML PATH)](https://fumokmm.github.io/it/sqlserver/for_xml_path)  
 
 ---
 
-## TYPE .valueとは何か？
+## TYPE ディレクティブ
 
-インテリセンスが働かないが、`,TYPE).value(,)`なるオプション？が使える模様。  
+FOR XMLで出力した結果はXML型であり、完全な文字列型ではない。  
+SSMSで出力結果を確認すれば分かるが、XMLエディターで開けるようになっている。  
+また、この後に紹介するが、XMLタグの解釈の違いによる結果への影響もある。  
 
-型を変換するための命令っぽい。  
-別にそこまで厳密に型指定しなくても動く。  
-しかし、型の変換が必要な場合もあるのだろう。  
+XML型の出力結果の型を明示的に指定する命令がTYPEディレクティブとなる。  
+無くても結果に影響しないことはあるが、後述の例もあるので、出来れば書いておいたほうがよい。  
 
-``` SQL
--- このSQLを実行しても上でやったSQLの結果と違うことはない。
--- ABC202007250541,ABC202007250541,ABC202007250541
-SELECT STUFF(
-    (SELECT ',' + TestID FROM TestTable FOR xml path(''),TYPE).value('.', 'NVARCHAR(MAX)'),
-    1, 1, ''
-)
+TYPEディレクティブは.value()メソッドとペアで使う。  
+また形式上、FOR XML部分は必ずサブクエリとしなければならない。  
+
+`SELECT ~~ FOR XML PATH('') , TYPE`までをサブクエリとして、それに対して`().value()`メソッドの形とする。  
+
+``` sql
+SELECT
+    (SELECT
+         NO + '',
+         TEAM + '',
+         MEMBER + ''
+     FROM
+         Table1
+     FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)')
+
+-- (列名なし)
+-- 1紅組佐藤2紅組鈴木3紅組高橋4青組田中5黄組伊藤6黄組渡辺
+
+-- →
+-- XMLエディターで開けないようになっている。
 ```
 
->私は人々が時々`, TYPE).value('.', 'NVARCHAR(MAX)')`のテクニックを使うのを省略しているのを見ます。  
-これに伴う問題は、一部の文字をXMLエンティティ参照（引用符など）でエスケープする必要があるため、その場合、結果の文字列が期待どおりにならないことです。  
-[Please explain what does "for xml path(''), TYPE) .value('.', 'NVARCHAR(MAX)')" do in this code](https://dba.stackexchange.com/questions/207371/please-explain-what-does-for-xml-path-type-value-nvarcharmax)  
-
-<!--  -->
->FOR XML句で出力した値はXML形式で出力されるため、他のフィールドとは扱いが異なりますので、value()メソッドを使い、通常のSQL型に変換します。  
-サブクエリを表す()の後に「.value(‘.’, ‘VARCHAR(MAX)’)」と記述しております。  
-value()メソッドの第一引数はXQuery式で、第二引数はSQL型となります。  
-第一引数の「'.'」はXQuery式「self::node()」の省略形、  
-第二引数では、ユーザー名を扱い、出力文字数の制限をしたくないので、VARCHAR(MAX)としており、  
-出力されたXML形式のデータからvalue値を取得するため、  
-属性が指定されていようが関係なく、「・アイチャン・ワークン」といったvalue値を取得し、  
-第二引数で指定されたVARCHARとして、SQL型の結果を返します。  
-[SQLServerで複数レコードの文字列を結合](http://icoctech.icoc.co.jp/blog/?p=998)  
-
-[value() メソッド (xml データ型)](https://docs.microsoft.com/ja-jp/sql/t-sql/xml/value-method-xml-data-type?redirectedfrom=MSDN&view=sql-server-ver15)  
-
 ---
 
-## ,type).value('.', 'NVARCHAR(MAX)')の有り無しの違い
+## TYPEディレクティブ有無の差が明確に出るパターン
+
+TYPEディレクティブの有無によって最も影響が出るパターンとして空白同士の結合を行った場合があげられる。  
+以下、当時まとめた内容。  
 
 空白同士のFOR XMLで`&#x20;`こんな表示がされてしまうので調べた。  
 `&#x20; sql`で検索。  
@@ -137,14 +189,56 @@ GROUP BY [ID],[BusinessDate]
 
 ---
 
+## TYPE .valueとは何か？
+
+これはTYPEディレクティブの意味がさっぱり分からなかったときにまとめた内容だが、いい思い出なので備忘録として残しておく。  
+以下、当時まとめた内容。  
+
+インテリセンスが働かないが、`,TYPE).value(,)`なるオプション？が使える模様。  
+
+型を変換するための命令っぽい。  
+別にそこまで厳密に型指定しなくても動く。  
+しかし、型の変換が必要な場合もあるのだろう。  
+
+``` SQL
+-- このSQLを実行しても上でやったSQLの結果と違うことはない。
+-- ABC202007250541,ABC202007250541,ABC202007250541
+SELECT STUFF(
+    (SELECT ',' + TestID FROM TestTable FOR xml path(''),TYPE).value('.', 'NVARCHAR(MAX)'),
+    1, 1, ''
+)
+```
+
+>私は人々が時々`, TYPE).value('.', 'NVARCHAR(MAX)')`のテクニックを使うのを省略しているのを見ます。  
+これに伴う問題は、一部の文字をXMLエンティティ参照（引用符など）でエスケープする必要があるため、その場合、結果の文字列が期待どおりにならないことです。  
+[Please explain what does "for xml path(''), TYPE) .value('.', 'NVARCHAR(MAX)')" do in this code](https://dba.stackexchange.com/questions/207371/please-explain-what-does-for-xml-path-type-value-nvarcharmax)  
+
+<!--  -->
+>FOR XML句で出力した値はXML形式で出力されるため、他のフィールドとは扱いが異なりますので、value()メソッドを使い、通常のSQL型に変換します。  
+サブクエリを表す()の後に「.value(‘.’, ‘VARCHAR(MAX)’)」と記述しております。  
+value()メソッドの第一引数はXQuery式で、第二引数はSQL型となります。  
+第一引数の「'.'」はXQuery式「self::node()」の省略形、  
+第二引数では、ユーザー名を扱い、出力文字数の制限をしたくないので、VARCHAR(MAX)としており、  
+出力されたXML形式のデータからvalue値を取得するため、  
+属性が指定されていようが関係なく、「・アイチャン・ワークン」といったvalue値を取得し、  
+第二引数で指定されたVARCHARとして、SQL型の結果を返します。  
+[SQLServerで複数レコードの文字列を結合](http://icoctech.icoc.co.jp/blog/?p=998)  
+
+[value() メソッド (xml データ型)](https://docs.microsoft.com/ja-jp/sql/t-sql/xml/value-method-xml-data-type?redirectedfrom=MSDN&view=sql-server-ver15)  
+
+---
+
 ## for xml order by
 
 FOR XMLで文字列を結合する時に、ORDER BYで順番を指定したい。  
 ORDER BYによる結合の順番は指定可能。  
-ORDER BYはFOR XMLと同じ階層で記述しなければならない。  
-FOR XMLの内部でORDER BYを使おうとするとエラーになってしまう。  
 
-``` sql
+ORDER BYはFOR XMLと同じ階層で記述しなければならない。  
+GROUP BYを用いる場合、ORDER BYに使うキーはGROUP BYに含まれていなければエラーとなってしまう。  
+必要に応じてDISTINCTを使うべし。  
+話は変わるが、重複を排除するならGROUP BYではなくDISTINCTを用いることもできる。  
+
+``` sql : エラーになる例
 WITH TmpTable AS (
     SELECT 1 AS ID, 1 AS RowNum, 'and seventy nine' AS [Data]
     UNION
@@ -158,14 +252,14 @@ select
         Select
             ' ' + [Data]
         from
-            tblRecord t2
+            TmpTable t2
         where
             t2.ID = t1.ID
         order by
             t1.RowNum for xml path('')
     )
 from
-    tblRecord t1
+    TmpTable t1
 group by
     t1.ID
 
@@ -173,7 +267,7 @@ group by
 -- 列 'TmpTable.RowNum' は選択リスト内では無効です。この列は集計関数または GROUP BY 句に含まれていません。
 ```
 
-``` sql
+``` sql : 正しい例
 WITH TmpTable AS (
     SELECT 1 AS ID, 1 AS RowNum, 'and seventy nine' AS [Data]
     UNION
