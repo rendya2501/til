@@ -92,3 +92,23 @@ WebAPIに渡すパラメーターでタプルを使ったのはいいけれど�
         return _HogeModel_.GetHogeClass(key.code, key.businessDate);
     }
 ```
+
+---
+
+## Tupleのnull判定
+
+ValueTupleは構造体なのでnullにならない。  
+初期化状態はメンバーの初期値が入る。  
+例えば``とあった
+
+``` C#
+    var (int item1,string item2) TestTuple;
+    // item1 = 0
+    // item2 = null
+
+    if (estTuple.Default(ValurTuple(int,string))) {
+        
+    }
+```
+
+[](https://www.web-dev-qa-db-ja.com/ja/c%23/linq%E3%82%AF%E3%82%A8%E3%83%AA%E3%81%A7c%EF%BC%837%E3%82%BF%E3%83%97%E3%83%AB%E3%82%92null%E3%83%81%E3%82%A7%E3%83%83%E3%82%AF%E3%81%99%E3%82%8B%E6%96%B9%E6%B3%95%E3%81%AF%EF%BC%9F/832034277/)  
