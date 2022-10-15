@@ -95,20 +95,62 @@ WebAPIに渡すパラメーターでタプルを使ったのはいいけれど�
 
 ---
 
-## Tupleのnull判定
+## ValueTupleのnull判定
 
 ValueTupleは構造体なのでnullにならない。  
-初期化状態はメンバーの初期値が入る。  
-例えば``とあった
+この状態においてnullを判定するためにはdefault句を使う。  
+ValueTupleはnull許容型にできるので、その場合はnullとして判定できるが、要素にアクセスするために毎回`tuple.value.要素`としなければならない。  
+
+因みにValueTupleの初期状態は各メンバーの初期値が入る。  
+int,stringなら0とnullがdefaultとなるので、それをdefault句で判定する感じだろか。  
 
 ``` C#
-    var (int item1,string item2) TestTuple;
-    // item1 = 0
-    // item2 = null
+    var tupleList = new List<(int a, int b, int c)>()
+    {
+        (1, 1, 2),
+        (1, 2, 3),
+        (2, 2, 4)
+    };
+    var result = tupleList.FirstOrDefault(f => f.a == 4);
 
-    if (estTuple.Default(ValurTuple(int,string))) {
-        
+    // タプルのnull判定は Equalsメソッド + default
+    if (result.Equals(default(ValueTuple<int,int,int>)))
+    {
+        Console.WriteLine("Missing!"); 
+    }
+
+    // default構文は省略可能(.NetFramework4.8でも可能であることを確認)
+    if (result.Equals(default()))
+    {
+        Console.WriteLine("Missing!"); 
     }
 ```
 
-[](https://www.web-dev-qa-db-ja.com/ja/c%23/linq%E3%82%AF%E3%82%A8%E3%83%AA%E3%81%A7c%EF%BC%837%E3%82%BF%E3%83%97%E3%83%AB%E3%82%92null%E3%83%81%E3%82%A7%E3%83%83%E3%82%AF%E3%81%99%E3%82%8B%E6%96%B9%E6%B3%95%E3%81%AF%EF%BC%9F/832034277/)  
+``` C# : null許容型
+    // null許容型が可能
+    var tupleList = new List<(int a, int b, int c)?>()
+    {
+        (1, 1, 2),
+        (1, 2, 3),
+        (2, 2, 4)
+    };
+    // null許容型にした場合 ?. のnull合体演算子でなければエラーになる
+    // この時の結果はnullとなる。
+    var result = tupleList.FirstOrDefault(f => f?.a == 4);
+
+    // nullなので、普通に判定可能
+    if (result == null)
+    {
+        Console.WriteLine("Missing!");
+    }
+    // こちらでも判定可能。null.Equalsに相当するものだと思われるがエラーにならない。謎。
+    if (result.Equals(default))
+    {
+        Console.WriteLine("Missing!");
+    }
+
+    ただし、null許容型にした場合、要素にアクセスするときは
+```
+
+<https://twitter.com/kyubuns/status/1379265780240457729>  
+[How to null check c# 7 tuple in LINQ query?](https://stackoverflow.com/questions/44307657/how-to-null-check-c-sharp-7-tuple-in-linq-query)  

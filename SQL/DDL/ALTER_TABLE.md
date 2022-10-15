@@ -16,8 +16,6 @@
 ALTER TABLE [TableName] RENAME COLUMN [Falg] TO [Flag]
 ```
 
-[sp_rename](https://docs.microsoft.com/ja-jp/sql/relational-databases/system-stored-procedures/sp-rename-transact-sql?view=sql-server-ver15)  
-
 ``` sql : SQLServer
 EXEC sp_rename 'スキーマ名.テーブル名.現在のカラム名', '新しいカラム名', 'COLUMN';
 
@@ -27,6 +25,8 @@ GO
 EXEC sp_rename 'dbo.TestTable.Falg','Flag','COLUMN';
 GO
 ```
+
+[sp_rename](https://docs.microsoft.com/ja-jp/sql/relational-databases/system-stored-procedures/sp-rename-transact-sql?view=sql-server-ver15)  
 
 ---
 

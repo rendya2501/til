@@ -62,6 +62,14 @@ Usingはビルド時にそのクラスの一番上で定義されていなけれ
 
 ---
 
+## ASP.Netでデバッグメッセージを出力する
+
+`System.Diagnostics.Debug.WriteLine(“hogehoge”);`  
+
+[[C#] ASP.NET（C＃）でデバッグメッセージをConsole.WriteLineみたいに出力する。](https://hokatsu.sakura.ne.jp/c-sharp/output-in-aspnet-like-console-writeline/)  
+
+---
+
 ## C#でURLを既定のブラウザで開く
 
 [C#でURLを既定のブラウザで開く](https://qiita.com/tsukasa_labz/items/80a94d202f5e88f1ddc0)  
