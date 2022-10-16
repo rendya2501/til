@@ -46,6 +46,8 @@ private void DataPropertyChanged(object sender, PropertyChangedEventArgs e)
     }
 
     // 本命。文法上は怒られないけど実行するとエラーになる。
+    // System.Runtime.CompilerServices.SwitchExpressionException: 'Non-exhaustive switch expression failed to match its input.'
+
     // 実行するのではなく,Actionデリゲートとして受け取り、最後に実行する。
     Action result = e.PropertyName switch
     {

@@ -254,3 +254,78 @@ var aa = new Func<IEnumerable<int>>(() =>
     {
     }
 ```
+
+---
+
+## デリゲートのターゲット推論
+
+三項演算子でActionの内容を切り替えたい場合、宣言で明確にActionを定義していても、エラーとなってしまう。  
+9.0では解決されているらしいが、8.0以下でも一応書ける事を発見したので残しておく。  
+
+愚直にやるならこうなる。
+
+``` C#
+    bool flag = true;
+    Action<int, string> modeAction = null;
+    if (flag)
+    {
+        modeAction = (id, name) => Console.WriteLine($"{id} {name} 様");
+    }
+    else
+    {
+        modeAction = (id, name) => Console.WriteLine($"{id} {name} さん");
+    }
+```
+
+三項演算子で分岐させるとエラーになる。
+
+``` C#
+    // 型定義
+    Action<int, string> modeAction = flag
+        ? (id, name) => Console.WriteLine($"{id} {name} 様")
+        : (id, name) => Console.WriteLine($"{id} {name} さん");
+
+    // キャスト
+    Action<int, string> modeAction = (Action<int, string>)(flag
+        ? (id, name) => Console.WriteLine($"{id} {name} 様")
+        : (id, name) => Console.WriteLine($"{id} {name} さん"));
+
+// CS8957:ラムダ式とラムダ式の間に共通の型が見つからないため、言語バージョン8.0で条件式が無効です。
+// ターゲットにより型指定された変換を使用するには、言語バージョン9.0以上にアップグレードしてください。
+```
+
+片方で良いので、`new Action`するかActionでキャストするといける。  
+不格好ではあるが、出来なくはないのでお好みでって感じではある。  
+
+``` C#
+    // new Action案
+    Action<int, string> modeAction = flag
+        ? new Action<int, string>((id, name) => Console.WriteLine($"{id} {name} 様"))
+        : (id, name) => Console.WriteLine($"{id} {name} さん");
+
+    // Actionキャスト案
+    Action<int, string> modeAction = flag
+        ? (Action<int, string>)((id, name) => Console.WriteLine($"{id} {name} 様"))
+        : (id, name) => Console.WriteLine($"{id} {name} さん");
+
+    // 上記2点ならvarでも問題ない
+    var modeAction = flag
+        ? new Action<int, string>((id, name) => Console.WriteLine($"{id} {name} 様"))
+        : (id, name) => Console.WriteLine($"{id} {name} さん");
+    var modeAction = flag
+        ? (Action<int, string>)((id, name) => Console.WriteLine($"{id} {name} 様"))
+        : (id, name) => Console.WriteLine($"{id} {name} さん");
+```
+
+即時実行も出来たりする。  
+条件分岐して即時実行するサンプルはswitch式の方でもやってたのでそちらも参考にされたし。  
+
+``` C#
+    // こういうこともできるよ
+    new Action<int, string>(flag
+        ? (Action<int, string>)((id, name) => Console.WriteLine($"{id} {name} 様"))
+        : (id, name) => Console.WriteLine($"{id} {name} さん")).Invoke(1,"2");
+    (flag
+        ? (Action<int, string>)((id, name) => Console.WriteLine($"{id} {name} 様"))
+        : (id, name) => Console.WriteLine($"{id} {name} さん")).Invoke(1,"2");
+```

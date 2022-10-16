@@ -241,3 +241,34 @@ Taskを単体で実行させる場合は、単純にTask.Runさせるだけで�
     //task1終了
     //task2終了
 ```
+
+---
+
+## Task.WaitAll and Exceptions
+
+実務において発生。  
+ASP.Net側のTask.WaitAllで実行しているタスクの中でエラーが発生した場合、エラーが`AggregateException`にラッピングされ、単純なメッセージだけが表示されない現象が発生した。  
+
+下記例であれば`Oops`とエラーダイアログで表示されるのだが、`●●EXCEPTION(Oops)`みたいな感じで表示されてしまう。  
+単純にTRY CATCHしてInnerExceptionをThrowしなおせば解決はした。  
+
+``` C#
+    Task t1 = Task.Factory.StartNew(() => Task.Delay(1000));
+    Task t2 = Task.Factory.StartNew(() => {
+        Task.Delay(500);
+        throw new Exception("Oops");
+    });
+
+    try
+    {
+        Task.WaitAll(t1, t2);
+        System.Diagnostics.Debug.WriteLine("All done");
+    }
+    catch (AggregateException e)
+    {
+        System.Diagnostics.Debug.WriteLine("Something went wrong");
+        throw e.InnerException;
+    }
+```
+
+[Task.WaitAll and Exceptions](https://stackoverflow.com/questions/4217643/task-waitall-and-exceptions)  
