@@ -2,36 +2,73 @@
 
 ---
 
-## DROP TABLEはロールバック可能か？
+## DROP TABLEやTRUNCATE TABLEはロールバック可能か？
 
-不可能。  
-SQLServerはDDLをロールバック可能ということで、いけるかと思ったが、調べてみたら普通に駄目だった。  
-SQLServerで無理なのだから他のDBでも基本的に無理なのだろう。  
-
-ただ、SQLSERVER truncateまではロールバックできるので、なんか色々ある模様。  
+SQLServerではロールバック可能であることを確認した。  
+他はDBによる模様。  
+ロールバック不可能なDBに関してはdrop tableやtruncate等のDDL(テーブル構造)命令は、RollBackが利かないらしい。  
 
 ``` sql
-Begin Tran
-Select * From A --- 1
-drop Table A
-Select * From A --- 2
+drop table if exists employees;
+create table employees(dept_id int,name varchar(32));
+insert into employees(dept_id,name) values(1,'田中');
+insert into employees(dept_id,name) values(2,'玉木');
+insert into employees(dept_id,name) values(3,'鈴木');
+GO
 
-Rollback Tran
-Select * From A --- 3
+BEGIN TRY
+    BEGIN TRANSACTION;
+
+    DROP TABLE employees;
+    -- TRUNCATE TABLE employees;
+    SELECT 1/0
+
+    COMMIT TRANSACTION;
+END TRY
+
+BEGIN CATCH
+    ROLLBACK TRANSACTION;
+    SELECT
+        ERROR_NUMBER() AS ErrorNumber,
+        ERROR_SEVERITY() AS ErrorSeverity,
+        ERROR_STATE() AS ErrorState,
+        ERROR_PROCEDURE() AS ErrorProcedure,
+        ERROR_LINE() AS ErrorLine,
+        ERROR_MESSAGE() AS ErrorMessage;
+END CATCH
+GO
+
+select * from employees
 ```
 
-SQLServerではロールバック可能。  
-他はDBによる。  
+---
 
-「クエリを2回流したらデータが消えた」みたいなトラブルがあったので、自分がいつも作る列追加のクエリは大丈夫なのか調べたのがきっかけ。  
-そもそもDROP TABLEはロールバックが可能なのかと。  
+## DDLのトランザクション
 
-DBによることが判明した。  
-SQLServerではロールバック可能。
-ロールバック不可能なDBに関してはdrop tableやtruncate等のDDL(テーブル構造)命令は、RollBackが利かない模様。  
-なので、自分がいつも作るクエリは大丈夫なことが分かった。  
+■**PostgreSQL**  
 
-[DELETE文 TRUNCATE文 DROP文の違い(SQL構文)](https://www.earthlink.co.jp/engineerblog/technology-engineerblog/2680/)  
+CREATE TABLEやALTER TABLEなどのDDL命令もCOMMIT、ROLLBACKの対象になる。  
+
+PostgreSQLでは、CREATE TABLE や DROP TABLE などの DDL もトランザクションの一部となるため、トランザクションの途中でDROP TABLE を実行した場合でも、最後に ROLLBACK すれば、DROP したテーブルが元に戻ります。  
+
+■**Oracle**
+
+DDLはトランザクション対象にはならない。暗黙コミットされる。
+
+■**MySQL**
+
+DDLはトランザクション対象にはならない。暗黙コミットされる。
+
+■**SqlServer**
+
+DDL(create文等)はロールバックすることが出来る。  
+SQL Server ではTransaction 管理下ではRollback が可能なようです。
+
+[DDLのトランザクション(PostgresSQL,Oracle,MySQL)](https://tamata78.hatenablog.com/entry/2017/02/20/112026)  
+[SqlServerではDDL(create文等)をロールバックすることが出来る](https://culage.hatenablog.com/entry/20110129/p6)  
+[SQL Server でDDLがRollbackできる？](https://www.ilovex.co.jp/Division/ITD/archives/2005/05/sql_server_ddlr.html)  
+
+---
 
 ### DELETE文
 
@@ -67,32 +104,7 @@ SQLServerではロールバック可能。
 - 完全に削除するのでロールバックができません。表構造も残りません。  
 - DROP文はオブジェクトに対するSQL文なのでTABLEを変えてあげれば索引なども削除できる。  
 
----
-
-## DDLのトランザクション
-
-[DDLのトランザクション(PostgresSQL,Oracle,MySQL)](https://tamata78.hatenablog.com/entry/2017/02/20/112026)  
-[SqlServerではDDL(create文等)をロールバックすることが出来る](https://culage.hatenablog.com/entry/20110129/p6)  
-[SQL Server でDDLがRollbackできる？](https://www.ilovex.co.jp/Division/ITD/archives/2005/05/sql_server_ddlr.html)  
-
-### PostgreSQL
-
-CREATE TABLEやALTER TABLEなどのDDL命令もCOMMIT、ROLLBACKの対象になる。  
-
-PostgreSQLでは、CREATE TABLE や DROP TABLE などの DDL もトランザクションの一部となるため、トランザクションの途中でDROP TABLE を実行した場合でも、最後に ROLLBACK すれば、DROP したテーブルが元に戻ります。  
-
-### Oracle
-
-DDLはトランザクション対象にはならない。暗黙コミットされる。
-
-### MySQL
-
-DDLはトランザクション対象にはならない。暗黙コミットされる。
-
-### SqlServer
-
-DDL(create文等)はロールバックすることが出来る。  
-SQL Server ではTransaction 管理下ではRollback が可能なようです。
+[DELETE文 TRUNCATE文 DROP文の違い(SQL構文)](https://www.earthlink.co.jp/engineerblog/technology-engineerblog/2680/)  
 
 ---
 
@@ -208,75 +220,6 @@ FROM TestTable
 -- AAA
 -- DDD
 ```
-
----
-
-## MAX関数 + CASE式
-
-単純にMAXを取りたいけど、極端に大きな値が混ざってしまっているために、意図しないMAXを取得してしまう。  
-これを解決するためにアレコレ考えたが、MAXでCASE文を使えることを知り、極端な値以下でMAXを取得できないかやってみたら出来たのでまとめる。  
-
-``` sql : テストデータ準備
-DROP TABLE IF EXISTS TestTable
-CREATE TABLE TestTable(BusinessDate DATETIME,HogeNumber INT)
-INSERT INTO TestTable
-VALUES
-    ('2022-07-19',1),
-    ('2022-07-19',2),
-    ('2022-07-20',1),
-    ('2022-07-20',2),
-    ('2022-07-20',3),
-    ('2022-07-20',4),
-    ('2022-07-20',99998),
-    ('2022-07-21',1),
-    ('2022-07-21',2),
-    ('2022-07-21',3),
-    ('2022-07-21',99998),
-    ('2022-07-22',99998)
-```
-
-``` sql
-SELECT 
-    BusinessDate,
-    MAX(HogeNumber),
-    MAX(CASE WHEN HogeNumber < 99998 THEN HogeNumber ELSE 0 END)
-FROM TestTable
-GROUP BY BusinessDate
-ORDER BY BusinessDate DESC
-
--- BusinessDate             単純MAX    CASE WHEN MAX
--- 2022-07-22 00:00:00.000    99998    0
--- 2022-07-21 00:00:00.000    99998    3
--- 2022-07-20 00:00:00.000    99998    4
--- 2022-07-19 00:00:00.000        2    2
-```
-
-因みにこれが分からなかったときに愚直にやった方法は以下の通り。  
-単純にWHEREで99998以下にしてしまうと、その日付のレコードが出力されないので、自分自身の日付をDISTINCTして、それに対してLEFT JOINして、サブクエリでWHEREしてMAXして、ないものに関しては0にするという方法。  
-
-``` sql
-SELECT 
-    [A].[BusinessDate],
-    ISNULL([B].[HogeNumber],0)
-FROM
-    (SELECT DISTINCT [BusinessDate] FROM [TestTable]) AS [A]
-    LEFT JOIN (
-        SELECT [BusinessDate], MAX([HogeNumber]) AS [HogeNumber] 
-        FROM [TestTable] 
-        WHERE [HogeNumber] < 99998
-        GROUP BY [BusinessDate]
-    ) AS [B]
-    ON [A].[BusinessDate] = [B].[BusinessDate]
-ORDER BY BusinessDate DESC
-
--- BusinessDate
--- 2022-07-22 00:00:00.000    0
--- 2022-07-21 00:00:00.000    3
--- 2022-07-20 00:00:00.000    4
--- 2022-07-19 00:00:00.000    2
-```
-
-[集約関数にCASE式で条件をつける](https://qiita.com/yatto5/items/8c9b8ca6b01d83bd95bc)  
 
 ---
 
