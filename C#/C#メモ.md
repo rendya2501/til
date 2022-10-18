@@ -242,10 +242,20 @@ public class Print
 
 ---
 
-## アノテーション
+## アノテーションとアトリビュート
 
-Annotation:注釈  
+Javaではアノテーションと呼び、C#,.Netではアトリビュートと呼ぶらしい。  
+
+調べた感じ、C#ではどちらもヒットするので意味的には同じっぽい。  
+しかし、実装としてはAttributeClassとして定義されているので、C#ならアトリビュートのほうが強いかも。  
+
+・Annotation : 注釈  
+・Attribute : 属性  
+
 <https://elf-mission.net/programming/wpf/episode09/>  
+[アノテーション](http://wisdom.sakura.ne.jp/programming/java/java5_9.html)  
+
+■**よくわかっていなかったときの認識**  
 
 恐らくではあるが、属性やバリデーションの為にクラスやフィールドの宣言の上に[]で囲うやつの事全般をこう読んでいるのではないか?  
 調べてもそういうのしか出てこなかった。  
