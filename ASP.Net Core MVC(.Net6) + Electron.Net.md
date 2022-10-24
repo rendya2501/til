@@ -2,6 +2,14 @@
 
 ---
 
+## やり方
+
+[このサイト(Asp.Net Core 6.0 MVC CRUD Operations with EF Core)](https://www.youtube.com/watch?v=VYmsoCWjvM4)で紹介されていASP.NET Core MVCのサンプルがgithubで公開されているので、それをクローンして、nugetからElectrionNET.APIをインストールして、パッケージマネージャーコンソールから[このサイト(【Electron】続・HTML+JS+C#=クライアントアプリケーション!? Electron.Netで開発・デプロイしてみる)](https://qiita.com/nqdior/items/3280de6737f925b89726)で紹介されているコマンドを叩いたらexe化出来た。  
+
+以外とあっけなかった。  
+
+---
+
 ## 所感
 
 意外とすんなりできた。  
@@ -13,11 +21,20 @@ NodeJSとか色々な機能をごちゃ混ぜにした仕組みだから仕方�
 
 ホットリロードは効かない。  
 Electron自体、コンパイルして出力する仕組みだから仕方ないかも。  
-でも、最終的にexe化できればいいだけなので、普段はASP.Net Coreでデバッグして、出力をElectronでexeに出来れば問題ないのかも？  
+でも、最終的にexe化できればいいだけなので、普段はASP.Netアプリとしてデバッグして、出力をElectronでexeに出来れば問題ないのかも？  
 
 exe化できることも確認した。  
 ただ、インストーラーからexeをインストールする形になるので、ダブルクリックでお手軽実行みたいな感じではない。  
 と、思ったが隣にあるフォルダにexeがあったので、普通にいけた。  
+
+今回はASP.Net Core MVCをElectronを使ってexe化したわけだが、Blazorなる技術もあるらしく、これとElectronを合わせている記事も散見される。  
+Blazorはrazorを使ったフレームワークということなので、こっちが最新技術っぽいので、MVCのrazorテンプレートをElectronするのはちょっと古いのかも？  
+今更感があるってやつかな。  
+でもって、この流れはマイクロソフトも気がついているのか、.Net7ではWebアプリケーションをデスクトップアプリケーションにもモバイルアプリケーションにも展開できる技術が来るっぽい？  
+それがMAUIなのか新しいBlazorなのか定かではないけど、そうなればもうわざわざElectronを通してデスクトップアプリケーション化する必要もなくなるんだよなぁと思った。  
+技術の進化が早すぎる。  
+
+---
 
 [TRANSFORMING YOUR ASP.NET CORE MVC APP TO NATIVE WITH ELECTRON](https://blogs.msmvps.com/bsonnino/2022/01/01/transforming-your-asp-net-core-mvc-app-to-native-with-electron/)  
 [Asp.Net Core 6.0 MVC CRUD Operations with EF Core](https://www.youtube.com/watch?v=VYmsoCWjvM4)  
