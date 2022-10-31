@@ -441,3 +441,18 @@ GO
 
 [【保存版】クエリ パフォーマンスが著しく低下した場合の一時的な対処方法 (SQL Server/Azure SQL Database)](https://www.nobtak.com/entry/sqlp01)  
 [統計情報を更新してクエリのパフォーマンスを改善する](https://www.projectgroup.info/tips/SQLServer/MSSQL_00000027.htm)  
+
+---
+
+## CONSTRAINT PRIMARY KEY CLUSTERED
+
+CONSTRAINT句でPRIMARY KEYを設定する時、今までCLUSTERED句を書いて来なかったのだが、databaseProjectから自動生成されるクエリにはCLUSTERD句が書いてあった。  
+CLUSTERD句がなくても動くことは知っていたのだが、この場合の動作はどのようになるのか調べた。  
+
+公式でも、大抵の文献でも、CLUSTERED句はセットで記述されており、デフォルトの動作がどうなのかどこにも書いていなかったのだが、ようやくそれについて言及している記事を見つけた。  
+書かなくても自動的にクラスター化インデックスになる模様。  
+まぁ、書いておいて損はないだろう。  
+
+>主キーは自動的にクラスタ化インデックスになるので、例示のCLUSTEREDはなくても動きます。  
+>
+>[SQL Serverチートシート](https://qiita.com/esflat/items/7885e53737163eb955fe)  
