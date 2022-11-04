@@ -86,3 +86,11 @@ Process.Start(
     }
 );
 ```
+
+---
+
+## IL(中間言語の確認)
+
+<https://sharplab.io/>
+
+[C#で手軽にILや内部を確認するなら「SharpLab」！](https://qiita.com/RyotaMurohoshi/items/a6a252915f11f7559efe)  

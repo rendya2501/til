@@ -1,10 +1,8 @@
 # MVP(Model View Presenter) パターン
 
+---
+
 ## 概要
-
-MVPはMVCの次。MVVMの前っぽい？
-
-[【Unity】Model-View-(Reactive)Presenterパターンとは何なのか](https://qiita.com/toRisouP/items/5365936fc14c7e7eabf9)  
 
 >Model-View-Presenter（MVP）パターンとは、GUIの設計パターンのうち「Presenter」という概念を用いたものです。  
 >
@@ -16,16 +14,19 @@ MVPはMVCの次。MVVMの前っぽい？
 >「Presenterが存在しなければ、ViewとModelは完全に独立した状態になる」という点です。  
 >ViewとModelをつなげる存在はPresenterのみであるため、Presenterを排除するとこの2つは完全に独立することになります。  
 >つまり「ViewはModelを完全に知らない」「ModelはViewを完全に知らない」ということになります。  
+>[【Unity】Model-View-(Reactive)Presenterパターンとは何なのか](https://qiita.com/toRisouP/items/5365936fc14c7e7eabf9)  
 
 →リアルタイム性を求めるなら `Model-View-(Reactive)Presenterパターン` らしい。  
 
-[MVP (Model View Presenter)パターン](http://csharper.blog57.fc2.com/blog-entry-245.html)  
->[MVP パターンとは]
->MVP (Model View Presenter) パターンは、MVC (Model View Controller) パターンの亜種です。
->大きな違いとして、MVC パターンでは Controller がユーザーからの入力イベントを受け取りますが、MVP パターンでは View がユーザーからの入力イベントを受け取り、処理を Presenter に委譲します。
+<!--  -->
+>[MVP パターンとは]  
+>MVP (Model View Presenter) パターンは、MVC (Model View Controller) パターンの亜種です。  
+>大きな違いとして、MVC パターンでは Controller がユーザーからの入力イベントを受け取りますが、MVP パターンでは View がユーザーからの入力イベントを受け取り、処理を Presenter に委譲します。  
+>[MVP (Model View Presenter)パターン](http://csharper.blog57.fc2.com/blog-entry-245.html)  
 
-[StackOverFlowの「MVPとMVCの違い」についての回答を読んでみた](https://qiita.com/takahirom/items/597c48ece57b4623cdee)  
+<!--  -->
 ![!](https://camo.qiitausercontent.com/120d9a4173c6a9037e0aa63b66ae0c9ce6c933ad/68747470733a2f2f71696974612d696d6167652d73746f72652e73332e616d617a6f6e6177732e636f6d2f302f32373338382f65366465633434362d383563352d656161662d653237662d3138383066363765313163662e706e67)  
+[StackOverFlowの「MVPとMVCの違い」についての回答を読んでみた](https://qiita.com/takahirom/items/597c48ece57b4623cdee)  
 
 →グラフの説明はここが一番わかりやすかった。  
 MVPにも Passive View と Supervising Controller なるバージョンの違いがあるらしい。  
