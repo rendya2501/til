@@ -2,12 +2,6 @@
 
 ---
 
-## LocalDB
-
-Visual Studioと一緒にインストールされる必要最低限の機能を備えたSQL Server。
-
----
-
 ## LocalDB 作成から接続までの最小サンプル
 
 [MicroSoft公式](https://docs.microsoft.com/ja-jp/visualstudio/data-tools/create-a-sql-database-by-using-a-designer?view=vs-2022)  
@@ -78,89 +72,9 @@ nugetからパッケージをインストールする必要があった。
 
 ---
 
-## SqlConnectionをUsingした場合、Disposeと同時にCloseされるのでFinallyで明示的にCloseする必要はない
+## LocalDB
 
-SqlConnection using close  
-
-[Microsoft公式_SqlConnection.Close メソッド](https://docs.microsoft.com/ja-jp/dotnet/api/system.data.sqlclient.sqlconnection.close?redirectedfrom=MSDN&view=netframework-4.7.2#System_Data_SqlClient_SqlConnection_Close)  
-
->次の例では、作成、 SqlConnection開き、そのプロパティの一部を表示します。  
->**接続はブロックの最後で自動的に using 閉じられます**。  
-
-``` C#
-private static void OpenSqlConnection(string connectionString)
-{
-    using (SqlConnection connection = new SqlConnection(connectionString))
-    {
-        connection.Open();
-        Console.WriteLine("ServerVersion: {0}", connection.ServerVersion);
-        Console.WriteLine("State: {0}", connection.State);
-    }
-}
-```
-
-[SqlConnectionとSqlDataReaderをusingで囲った場合Closeは必要？](https://social.msdn.microsoft.com/Forums/ja-JP/c2a0c8b2-7743-4cfa-869c-f26293b0250f/sqlconnection12392sqldatareader12434using123912225812387123832258021512close?forum=csharpgeneralja)  
-
->SqlConnection.Close()にはClose と Dispose は、機能的に同じです。  
->「DbDataReader.Dispose()にこのメソッドは Close を呼び出します。」と書かれています。  
-
-[using文で初期化したDbConnection、Closeを書くべき？書かなくていい？](https://qiita.com/momotaro98/items/c4fe0fff0c173e879f2d)  
->using文は、try {} finally {XXX.Dispose();}をわざわざ書かなくてすむようにする糖衣構文ということです。  
-→へぇ～そうだったんだ。  
->functionally equivalentとあるように、 DbConnectionクラスにとっては、機能的にはCloseもDisposeもどちらも変わらない ということです。  
->なので、using文ではDisposeメソッドを必ず呼ぶので、結果、Closeメソッドは基本的に不要ということです。  
->しかし、1つ異なる点があります。  
->Closeメソッドは再度そのインスタンスを再Openできるのに、対し、Disposeメソッドは一度実行されたら、そのインスタンスにはアクセスできない。  
-
-### ではなぜCloseを書くのか
-
-[Should I call Close() or Dispose() for stream objects?](https://stackoverflow.com/questions/7524903/should-i-call-close-or-dispose-for-stream-objects/7525134#7525134)  
->It doesn't affect the behaviour of the code, but it does aid readability.  
->つまり、 可読性のため。(既存のコードに影響を与えないし) とのこと。  
->複数のスコープがあるとどこでインスタンスがCloseされているのかがわかりにくくなるので、Closeを書くとよいということです。  
-
----
-
-## 接続文字列構築パターン
-
-``` C# : SQL Serverへの接続文字列の構築
-    SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder
-    {
-        // 接続先の SQL Server インスタンス
-        DataSource = "localhost",
-        // 接続ユーザー名
-        UserID = "sa",
-        // 接続パスワード
-        Password = "your_password",
-        // 接続するデータベース
-        InitialCatalog = "master",
-        // 接続タイムアウトの秒数(ms) デフォルトは 15 秒
-        ConnectTimeout = 60000
-    };
-    SqlConnection connection = new SqlConnection(builder.ConnectionString);
-```
-
-``` C# : ローカルDBへの接続文字列の構築 SqlConnectionStringBuilderパターン
-    SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder
-    {
-        DataSource = @"(LocalDB)\MSSQLLocalDB",
-        AttachDBFilename = System.IO.Path.GetFullPath(@"..\..\..\SampleDatabase.mdf"),
-        IntegratedSecurity = true,
-    };
-    SqlConnection connection = new SqlConnection(builder.ConnectionString);
-```
-
-``` C# : ローカルDBへの接続文字列の構築 直接指定パターン1
-    //Data Source=(SQL Server のホスト名またはIPアドレス);Initial Catalog=(接続先データベース名);Connect Timeout=60;Persist Security Info=True;User ID=(SQL Serverに接続するユーザーID);Password=(ユーザーのパスワード)
-    string constr = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\~~~~~\LocalDB\SampleDatabase.mdf;Integrated Security=True";
-    SqlConnection con = new SqlConnection(constr);
-```
-
-``` C# : ローカルDBへの接続文字列の構築 直接指定パターン2
-    // 相対パスで指定するのもあり
-    string constr = $@"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename={System.IO.Path.GetFullPath(@"..\..\SampleDatabase.mdf")};Integrated Security=True";
-    SqlConnection con = new SqlConnection(constr);
-```
+Visual Studioと一緒にインストールされる必要最低限の機能を備えたSQL Server。
 
 ---
 

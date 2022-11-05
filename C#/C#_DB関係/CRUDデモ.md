@@ -1,6 +1,6 @@
-# 一連のCRUDデモ
+# CRUDデモ
 
-[Windows上でSQL Serverを使用してC#アプリを作成する](https://qiita.com/ymasaoka/items/944e8a5f1987cc9e0d37#c-%E3%82%A2%E3%83%97%E3%83%AA%E3%82%92-100-%E5%80%8D%E9%80%9F%E3%81%AB%E3%81%99%E3%82%8B)  
+---
 
 ``` C#
 private void Execute()
@@ -188,3 +188,7 @@ private void Execute()
     Console.WriteLine("全て完了しました");
 }
 ```
+
+---
+
+[Windows上でSQL Serverを使用してC#アプリを作成する](https://qiita.com/ymasaoka/items/944e8a5f1987cc9e0d37#c-%E3%82%A2%E3%83%97%E3%83%AA%E3%82%92-100-%E5%80%8D%E9%80%9F%E3%81%AB%E3%81%99%E3%82%8B)  

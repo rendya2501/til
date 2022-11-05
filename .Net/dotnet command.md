@@ -14,6 +14,18 @@
 
 ---
 
+## ソリューション
+
+`dotnet new sln`  
+→  
+フォルダ名でソリューションが生成される。  
+
+`dotnet new -o <SolutionName>`  
+→  
+[<SolutionNameで>]でフォルダを作りつつソリューションを作成する  
+
+---
+
 ## パッケージ
 
 `dotnet add package Unity.Configuration`
