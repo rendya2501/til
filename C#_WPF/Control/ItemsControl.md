@@ -1,23 +1,9 @@
-# ItemsControlまとめ
+# ItemsControl
+
+---
 
 ItemsControlとは、複数のオブジェクトを指定された表示方法で並べるためのコントロールです。  
 コントロールを並べるためのコントロールとでも言えばいいか。  
-
-[ItemsControl 攻略 ～ 外観のカスタマイズ](http://grabacr.net/archives/1240)  
-[WPF Reference ScrollContentPresenter of ScrollViewer Template](https://stackoverflow.com/questions/945542/wpf-reference-scrollcontentpresenter-of-scrollviewer-template)  
-[How to place a ScrollViewer on top of the content it should scroll](https://stackoverflow.com/questions/490784/how-to-place-a-scrollviewer-on-top-of-the-content-it-should-scroll)  
-
-[A Custom WPF ScrollViewer](https://www.codeproject.com/Tips/1271095/A-Custom-WPF-ScrollViewer)  
-[WPF Header/Multi-Column ListBox Control](http://epsg27700.blogspot.com/2010/01/wpf-headeredmulti-column-listbox_21.html)  
-[Wpf – Grid/ScrollViewer- Freeze grid header row vertical scrolling, but not horizontal scrolling](https://itecnote.com/tecnote/wpf-grid-scrollviewer-freeze-grid-header-row-vertical-scrolling-but-not-horizontal-scrolling/)  
-[How to freeze grid column in ScrollViewer or achieve something similar to that?](https://docs.microsoft.com/en-us/answers/questions/537119/how-to-freeze-grid-column-in-scrollviewer-or-achie.html)  
-[グループ化したコレクションのヘッダーをスクロール時に常に表示する](https://qiita.com/ambleside138/items/a25ab909cdbf6f307f54)  
-[Show WPF ScrollViewer Vertical scroll bar on right always](https://stackoverflow.com/questions/31511009/show-wpf-scrollviewer-vertical-scroll-bar-on-right-always)  
-[WPF の ListBox でスクロールバーの下に隙間ができる](http://var.blog.jp/archives/67425961.html)
-[【WPF】ScrollViewerを入れ子にした時の挙動をいい感じにする](https://threeshark3.com/scrcoll-viewer-wheel/)  
-
-[How to implement WPF custom grid with scrolling support](https://stackoverflow.com/questions/42552869/how-to-implement-wpf-custom-grid-with-scrolling-support)  
-[WPF - ScrollViewer with fixed header/row](https://stackoverflow.com/questions/10505875/wpf-scrollviewer-with-fixed-header-row)  
 
 ---
 
@@ -120,7 +106,9 @@ ContentPresenterには、ItemTemplateの内容が入る。
 </ItemsControl.ItemTemplate>
 ```
 
-### サンプル集
+---
+
+## サンプル集
 
 ``` XML
     <ListBox ItemsSource="{Binding Mall}">
@@ -215,6 +203,10 @@ ContentPresenterには、ItemTemplateの内容が入る。
 ```
 
 [ItemsControl クラス](https://docs.microsoft.com/ja-jp/dotnet/api/system.windows.controls.itemscontrol?view=windowsdesktop-6.0)  
+
+---
+
+## マイクロソフト公式のサンプル
 
 ``` XML : マイクロソフト公式のサンプル
     <Grid>
@@ -324,6 +316,13 @@ ContentPresenterには、ItemTemplateの内容が入る。
 
 ## ItemsControlをDataGridみたいに使う
 
+このサンプルを作るだけでも結構な量の発見があった。  
+簡単な一覧だけならこのサンプルを適応するだけで色々解決するのではないかと思った。  
+最小のMVVMサンプルはかなりいいサンプルなので、これはこれで別にまとめる。  
+まだ全体として完成したわけではないし、まだ全然ItemsControlを理解できていないので、今後も習得していく。  
+
+チェックアウトで作ったやつと何か違うと思ったら、参考にしたサンプルはヘッダー部分はGridをそのまま使ってるのか。  
+
 [WPF ItemsControlをDataGridみたいに使う](https://nomoredeathmarch.hatenablog.com/entry/2019/01/21/003825)  
 [ItemsControl with row and column headers WPF](https://stackoverflow.com/questions/51396486/itemscontrol-with-row-and-column-headers-wpf)  
 
@@ -331,13 +330,6 @@ ContentPresenterには、ItemTemplateの内容が入る。
 [世界で一番短いサンプルで覚えるMVVM入門](https://resanaplaza.com/%E4%B8%96%E7%95%8C%E3%81%A7%E4%B8%80%E7%95%AA%E7%9F%AD%E3%81%84%E3%82%B5%E3%83%B3%E3%83%97%E3%83%AB%E3%81%A7%E8%A6%9A%E3%81%88%E3%82%8Bmvvm%E5%85%A5%E9%96%80/)  
 
 [WPF: How to prevent scrollbar from overlaying headers in list type views](https://stackoverflow.com/questions/52725066/wpf-how-to-prevent-scrollbar-from-overlaying-headers-in-list-type-views)  
-
-このサンプルを作るだけでも結構な量の発見があった。  
-簡単な一覧だけならこのサンプルを適応するだけで色々解決するのではないかと思った。  
-最小のMVVMサンプルはかなりいいサンプルなので、これはこれで別にまとめる。  
-まだ全体として完成したわけではないし、まだ全然ItemsControlを理解できていないので、今後も習得していく。  
-
-チェックアウトで作ったやつと何か違うと思ったら、参考にしたサンプルはヘッダー部分はGridをそのまま使ってるのか。  
 
 ``` XML : サンプルの写経
 <Window 略>
@@ -520,7 +512,9 @@ ContentPresenterには、ItemTemplateの内容が入る。
     }
 ```
 
-### チェックアウトのItemsControl
+---
+
+## チェックアウトのItemsControl
 
 比較参考としてチェックアウトにおいてあったItemsControlも載せておく
 
@@ -1031,7 +1025,9 @@ ContentPresenterには、ItemTemplateの内容が入る。
     }
 ```
 
-### 試行錯誤の跡
+---
+
+## 試行錯誤の跡
 
 全体の形はできているが、スクロールが甘い状態。  
 
@@ -1468,3 +1464,21 @@ namespace ItemsControl2
     }
 }
 ```
+
+---
+
+[ItemsControl 攻略 ～ 外観のカスタマイズ](http://grabacr.net/archives/1240)  
+[WPF Reference ScrollContentPresenter of ScrollViewer Template](https://stackoverflow.com/questions/945542/wpf-reference-scrollcontentpresenter-of-scrollviewer-template)  
+[How to place a ScrollViewer on top of the content it should scroll](https://stackoverflow.com/questions/490784/how-to-place-a-scrollviewer-on-top-of-the-content-it-should-scroll)  
+
+[A Custom WPF ScrollViewer](https://www.codeproject.com/Tips/1271095/A-Custom-WPF-ScrollViewer)  
+[WPF Header/Multi-Column ListBox Control](http://epsg27700.blogspot.com/2010/01/wpf-headeredmulti-column-listbox_21.html)  
+[Wpf – Grid/ScrollViewer- Freeze grid header row vertical scrolling, but not horizontal scrolling](https://itecnote.com/tecnote/wpf-grid-scrollviewer-freeze-grid-header-row-vertical-scrolling-but-not-horizontal-scrolling/)  
+[How to freeze grid column in ScrollViewer or achieve something similar to that?](https://docs.microsoft.com/en-us/answers/questions/537119/how-to-freeze-grid-column-in-scrollviewer-or-achie.html)  
+[グループ化したコレクションのヘッダーをスクロール時に常に表示する](https://qiita.com/ambleside138/items/a25ab909cdbf6f307f54)  
+[Show WPF ScrollViewer Vertical scroll bar on right always](https://stackoverflow.com/questions/31511009/show-wpf-scrollviewer-vertical-scroll-bar-on-right-always)  
+[WPF の ListBox でスクロールバーの下に隙間ができる](http://var.blog.jp/archives/67425961.html)
+[【WPF】ScrollViewerを入れ子にした時の挙動をいい感じにする](https://threeshark3.com/scrcoll-viewer-wheel/)  
+
+[How to implement WPF custom grid with scrolling support](https://stackoverflow.com/questions/42552869/how-to-implement-wpf-custom-grid-with-scrolling-support)  
+[WPF - ScrollViewer with fixed header/row](https://stackoverflow.com/questions/10505875/wpf-scrollviewer-with-fixed-header-row)  
