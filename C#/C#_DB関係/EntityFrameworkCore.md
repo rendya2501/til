@@ -195,3 +195,22 @@ Unrecognized command or argument 'bundle'.
 [Handling Entity Framework Core database migrations in production – Part 2](https://www.thereformedprogrammer.net/handling-entity-framework-core-database-migrations-in-production-part-2/)
 [Introduction to Migration Bundles - What can they do the migration scripts don't?](https://www.youtube.com/watch?v=mBxSONeKbPk)
 [EF Core 6  - Apresentando Migration Bundles](https://macoratti.net/21/09/efc6_migbndl1.htm)  
+
+---
+
+## Add-Migration InitialCreate --IgnoreChanges
+
+EF6にある命令。  
+`--IgnoreChanges`は何もせず、バージョンだけを適応する。  
+EFCoreで同じ事をやろうとした場合、Upメソッドの中身を全て削除して実行する必要がある模様。  
+
+---
+
+## Trusted_Connection
+
+>Trusted_Connection=Trueは、Windows 認証を指定します。  
+>つまり、Windows 資格情報を使用して SQL Server に接続します。  
+>ライブ サーバーでは、SQL Server のユーザー名とパスワードを持つSQL Server 認証を使用します。  
+><https://www.yogihosting.com/database-first-approach-entity-framework-core/>  
+
+YouTubeで見るサンプルでは、たいていこの命令を書いていた。  

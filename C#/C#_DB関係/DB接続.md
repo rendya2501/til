@@ -4,11 +4,6 @@
 
 ## LocalDB 作成から接続までの最小サンプル
 
-[MicroSoft公式](https://docs.microsoft.com/ja-jp/visualstudio/data-tools/create-a-sql-database-by-using-a-designer?view=vs-2022)  
-[C#からDB接続でSQLServerに接続してSELECT文を実行する方法](https://rainbow-engine.com/csharp-dbconnection-sqlserver/)
-[SQL Server LocalDB へ接続してSQLを実行する](https://www.ipentec.com/document/csharp-sql-server-localdb-connect-exec-sql)  
-[SQL Serverに接続してSQLを実行する (C#プログラミング)](https://www.ipentec.com/document/csharp-sql-server-connect-exec-sql)  
-
 1. コンソールアプリプロジェクトを作成する  
 2. プロジェクト右クリック→新しい項目の追加→サービスベースのデータベース  
 3. [System.Data.SqlClient]はnugetから取得  
@@ -61,6 +56,11 @@ using System.Data.SqlClient;
         Console.WriteLine(Ex.ToString());
     }
 ```
+
+[MicroSoft公式](https://docs.microsoft.com/ja-jp/visualstudio/data-tools/create-a-sql-database-by-using-a-designer?view=vs-2022)  
+[C#からDB接続でSQLServerに接続してSELECT文を実行する方法](https://rainbow-engine.com/csharp-dbconnection-sqlserver/)
+[SQL Server LocalDB へ接続してSQLを実行する](https://www.ipentec.com/document/csharp-sql-server-localdb-connect-exec-sql)  
+[SQL Serverに接続してSQLを実行する (C#プログラミング)](https://www.ipentec.com/document/csharp-sql-server-connect-exec-sql)  
 
 ### 微妙に嵌った事
 
