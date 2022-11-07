@@ -35,17 +35,23 @@ EFCoreの移行プロジェクト
 
 ---
 
-## モデル以外の管理
+## ストアド等のマイグレーションは可能か？
 
 EF6ではストアドは行けそうだが、Coreでは無理。  
 
 ・ストアド、シノニムのリバースエンジニアリングはできないことを確認。  
+・テーブル以外の情報(view,index,ストアド,シノニム)はマイグレーションファイルのUpメソッドに生クエリで直接記述する。  
+・同時にDownメソッドに`DROP VIEW view_hoge"`等の命令を記述すること
+
 ・マイグレーションの時に生クエリをMigrationクラスの中に記述すれば行ける模様。  
 ・view,indexの作成はコードファーストでは無理。マイグレーションファイルに直接記述する必要がある模様。  
 
+>viewが作れない  
+>indexが貼れない  
 [[C#]EntityFramework(dotnet ef)マイグレーションまとめ](https://codelikes.com/csharp-dotnet-ef-migrations/)  
 [[C#]EntityFrameworkでViewをMigration時に作る](https://codelikes.com/entityframework-view-migration/)  
 
+<!--  -->
 >戴いた記事のリンク読みましたが、code firstでのきめ細かい実装は無理と思わざるを得ませんでした。なかなかこれといった解決策はなさそうです。  
 [Entity Frameworkは、ストアドプロシージャを自動生成できますか？](https://teratail.com/questions/250125)  
 [EF6_Code First での挿入、更新、削除にストアド プロシージャを使用する](https://learn.microsoft.com/ja-jp/ef/ef6/modeling/code-first/fluent/cud-stored-procedures?redirectedfrom=MSDN)  
@@ -134,16 +140,16 @@ EF6では`add-migration <MigrationName> -ignoreChanges`というコマンドが�
 >EF Core Code First は優れていますが、ツールはまだ荒削りです。  
 >そこにないものや、機能が完全でないものがあります。  
 >
->したがって、この例での問題は、既存のデータベースとモデルに対する移行を行うことでした。
+>したがって、この例での問題は、既存のデータベースとモデルに対する移行を行うことでした。  
 >古い EF6x の世界では、次のコマンドを使用できました。  
 >
 >`add-migration MyMigrationName -ignoreChanges`
 >
->既存のデータベースとデータに対して最初の移行スクリプトをセットアップします。
->これは、移行を通じてさらにスキーマの変更を適用できるようにするための開始点です。
->残念ながら、これは欠けている EF Core 機能の 1 つです。
->-ignoreChangesパラメータが利用できません。
->以下に、回避策を説明します。同じ問題に直面している場合に、これが役立つことを願っています。
+>既存のデータベースとデータに対して最初の移行スクリプトをセットアップします。  
+>これは、移行を通じてさらにスキーマの変更を適用できるようにするための開始点です。  
+>残念ながら、これは欠けている EF Core 機能の 1 つです。  
+>-ignoreChangesパラメータが利用できません。  
+>以下に、回避策を説明します。同じ問題に直面している場合に、これが役立つことを願っています。  
 [EF Core migrations with existing database schema and data](https://cmatskas.com/ef-core-migrations-with-existing-database-schema-and-data/)  
 
 <!--  -->
@@ -151,34 +157,23 @@ EF6では`add-migration <MigrationName> -ignoreChanges`というコマンドが�
 >しかし、それを顧客に展開するのに苦労しています。  
 >データベースの更新が必要なため、これを手動で行います。  
 >DB ファースト アプローチをコード ファースト アプローチに切り替えるソリューションはありますか?  
->→　　
->おそらく次のことができます。　　
->・生成されたモデル クラスから通常のモデル クラスを作成する　　
->・DbFirst アプローチに関連する他のすべてを削除します　　
->・上記のモデル クラスに基づいてコード ファーストの移行を作成する　　
->・上記で作成した移行の名前を使用して、(使用するすべてのデータベースで) テーブルに手動で行を挿入し__efmigrationshistoryます　　
->db スキーマが既に作成されているため、最初に生成された移行が再度実行されません。
+>→  
+>おそらく次のことができます。  
+>・生成されたモデル クラスから通常のモデル クラスを作成する  
+>・DbFirst アプローチに関連する他のすべてを削除します  
+>・上記のモデル クラスに基づいてコード ファーストの移行を作成する  
+>・上記で作成した移行の名前を使用して、(使用するすべてのデータベースで) テーブルに手動で行を挿入し__efmigrationshistoryます  
+>db スキーマが既に作成されているため、最初に生成された移行が再度実行されません。  
 >[EF Migration / How to change DB First approach to the Code First Approach for the existing project](https://stackoverflow.com/questions/69399606/ef-migration-how-to-change-db-first-approach-to-the-code-first-approach-for-th)  
+
+<!--  -->
+>ただし、データベースファーストのアプローチはもう使われていないということだけは覚えておいてください。  
+>マイクロソフトがコードファーストを重視しているように、私たちもコードファーストでいきます。  
+>[Database-First approach in Entity Framework Core](https://www.yogihosting.com/database-first-approach-entity-framework-core/)  
 
 検索キーワード :  
 efcore Database First Approach change to code first approach
 efcore Add-Migration InitialCreate –IgnoreChanges
-
----
-
-## dotnet ef migrations bundle のエラー
-
-バンドルはEF Core 6.0からの機能。  
-5.0では当然エラーになるというわけです。  
-
-``` txt
-Build started...
-Build succeeded.
-Specify --help for a list of available options and commands.
-Unrecognized command or argument 'bundle'.
-```
-
-[Unrecognized command or argument 'optimize' on Entity Framework Core .NET Command-line Tools 5.0.7](https://github.com/dotnet/efcore/issues/25135)  
 
 ---
 
@@ -211,6 +206,33 @@ EFCoreで同じ事をやろうとした場合、Upメソッドの中身を全て
 >Trusted_Connection=Trueは、Windows 認証を指定します。  
 >つまり、Windows 資格情報を使用して SQL Server に接続します。  
 >ライブ サーバーでは、SQL Server のユーザー名とパスワードを持つSQL Server 認証を使用します。  
-><https://www.yogihosting.com/database-first-approach-entity-framework-core/>  
+>[Database-First approach in Entity Framework Core](https://www.yogihosting.com/database-first-approach-entity-framework-core/)  
 
 YouTubeで見るサンプルでは、たいていこの命令を書いていた。  
+
+---
+
+## EFCore + Console
+
+[EntityFrameworkCoreを.NET Core コンソールアプリでCodeFirstに使う](https://qiita.com/namoshika/items/7d1bf911bc03ed03e17d)  
+
+---
+
+## EFCore + bundle
+
+[Introduction to Migration Bundles - What can they do the migration scripts don't?](https://www.youtube.com/watch?v=mBxSONeKbPk)  
+[EF Core 6  - Apresentando Migration Bundles](https://macoratti.net/21/09/efc6_migbndl1.htm)  
+
+## dotnet ef migrations bundle のエラー
+
+バンドルはEF Core 6.0からの機能。  
+5.0では当然エラーになるというわけです。  
+
+``` txt
+Build started...
+Build succeeded.
+Specify --help for a list of available options and commands.
+Unrecognized command or argument 'bundle'.
+```
+
+[Unrecognized command or argument 'optimize' on Entity Framework Core .NET Command-line Tools 5.0.7](https://github.com/dotnet/efcore/issues/25135)  
