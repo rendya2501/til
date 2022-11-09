@@ -2,13 +2,78 @@
 
 ---
 
+## ConnectionString
+
+①サーバを「DataSource」指定する場合  
+
+【SQLSERVER認証】  
+`Data Source=.\\SQLEXPRESS;Initial Catalog=[db_name];User ID=[userName];Password=[passwd]`  
+
+【Windows認証】  
+`Data Source=.\\SQLEXPRESS;Initial Catalog=[db_name];Integrated Security=True`  
+
+②サーバを「Server」指定する場合  
+
+【SQLSERVER認証】  
+`Server=.\SQLEXPRESS;Database=[db_name];User ID=[userName];Password=[passwd]`
+
+【Windows認証】  
+`Server=.\SQLEXPRESS;Database=[db_name];Trusted_Connection=True`  
+
+ローカルの指定は`.`以外にもあるがここでは`.`を使う。  
+
+[【Sql Server2016】接続文字列が２種類ある件について](https://www.topse.work/entry/2019/05/29/120000)  
+
+---
+
+## コマンドプロンプトでの接続
+
+コマンドプロンプトで接続情報を記述する場合、`\`は１つだけで良い。  
+2つ書くとエラーになる。  
+割と嵌った。  
+
+○  
+`.\efbundle.exe --connection "Data Source=.\SQLEXPRESS;Initial Catalog=BundleDB2;Integrated Security=True"`
+
+×
+`.\efbundle.exe --connection "Data Source=.\\SQLEXPRESS;Initial Catalog=BundleDB2;Integrated Security=True"`
+
+○  
+`.\efbundle.exe --connection "Server=.\SQLEXPRESS;Database=BundleDB2;Integrated Security=True"`
+
+×  
+`.\efbundle.exe --connection "Server=.;Database=BundleDB2;Integrated Security=True"`
+
+---
+
 ## appsettings.json
 
+`dotnet add package Microsoft.Extensions.Configuration --version 6.*`  
+
 ``` json
-ConnectionStrings
-DefaultConnection "Server=localhost\\SQLEXPRESS;Database=[db_name];Trusted_Connection=true;"
-// or DefaultConnection "Server=(local)\\SQLEXPRESS;Database=[db_name];Trusted_Connection=true;"
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Data Source=.;Initial Catalog=[db_name];Integrated Security=True"
+  }
+}
 ```
+
+``` cs
+using Microsoft.Extensions.Configuration;
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        var configuration = new ConfigurationBuilder()
+           .AddJsonFile("appsettings.json")
+           .Build();
+        string connectionString = configuration.GetConnectionString("DefaultConnection");
+    }
+}
+```
+
+[.NETのコンソールアプリでappsettings.jsonを使う (.NET6)](https://zenn.dev/higmasu/articles/b3dab3c7bea6db)  
 
 ``` cs
 {
@@ -24,11 +89,13 @@ DefaultConnection "Server=localhost\\SQLEXPRESS;Database=[db_name];Trusted_Conne
 }
 ```
 
+---
+
 ## App.config
 
 ``` xml
 <connectionStrings>
-  <add name="DB1" 
+  <add name="connectionStringName" 
        providerName="System.Data.SqlClient"
        connectionString="Server=.\MSSQLSERVER2017;Database=Test;Integrated Security=SSPI;"/>
 </connectionStrings>
@@ -37,8 +104,8 @@ DefaultConnection "Server=localhost\\SQLEXPRESS;Database=[db_name];Trusted_Conne
 ``` xml
 <connectionStrings>
     <add name="connectionStringName"
-         connectionString="Data Source=(※データソース指定);Initial Catalog=(データベース名);User ID=(ユーザーID);Password=(パスワード)"
-         providerName="System.Data.SqlClient"/>
+         providerName="System.Data.SqlClient"
+         connectionString="Data Source=(※データソース指定);Initial Catalog=(データベース名);User ID=(ユーザーID);Password=(パスワード)" />
 </connectionStrings>
 ```
 
@@ -104,3 +171,65 @@ App.Configは.NetFramework時代の産物
     string constr = $@"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename={System.IO.Path.GetFullPath(@"..\..\SampleDatabase.mdf")};Integrated Security=True";
     SqlConnection con = new SqlConnection(constr);
 ```
+
+---
+
+【Persist Security Info】
+規定はFalse
+true または yes に設定すると、ユーザー ID やパスワードなどのセキュリティ関連情報を、接続を開いた後にその接続から取得できる
+
+【Integrated Security または Trusted_Connection】
+Windows 認証 (統合セキュリティ) を使用する
+
+【Server または Data Source】
+接続先DB名
+
+【Database または Initial Catalog】
+規定のDB
+
+【User ID または UID】
+アカウント名
+
+【Password または PWD】
+アカウントのパスワード
+
+[SQLServer接続文字列](https://blog.goo.ne.jp/turukit/e/697074faf2ada034c446994e70f49637)  
+
+---
+
+## Integrated Security・Trusted_Connection
+
+Windows認証モードで接続する。  
+
+>Windows 認証は、接続文字列に `Integrated Security` キーワードまたは `Trusted_Connection` キーワードを使用することによって指定できます。こうすることで、ユーザー ID とパスワードを使う必要がなくなります。  
+>[接続情報の保護](https://learn.microsoft.com/ja-jp/dotnet/framework/data/adonet/protecting-connection-information)  
+
+---
+
+## Persist Security Info
+
+>`Persist Security Info` の既定値は false です。  
+>すべての接続文字列には、この既定値を使用することをお勧めします。  
+>`Persist Security Info` を true または yes に設定すると、ユーザー ID やパスワードなどのセキュリティ関連情報を、接続を開いた後にその接続から取得できます。
+>`Persist Security Info` を false または no に設定した場合、その情報を使って接続を開いた後で、セキュリティ情報が破棄されるため、信頼できないソースによってセキュリティ関連情報がアクセスされることを確実に防ぐことができます。  
+>[接続情報の保護](https://learn.microsoft.com/ja-jp/dotnet/framework/data/adonet/protecting-connection-information)  
+
+---
+
+## Windows認証のすゝめ
+
+>ユーザー情報の漏洩を防ぐためにも、できるだけ Windows 認証 ("統合セキュリティ" とも呼ばれます) を使用することをお勧めします。  
+>[接続情報の保護](https://learn.microsoft.com/ja-jp/dotnet/framework/data/adonet/protecting-connection-information)  
+
+---
+
+## ローカルの指定の仕方
+
+sqlserver connection string dot  
+
+>.と(local)とYourMachineNameはすべて同等であり、自分のマシンを参照しています。  
+>ローカル マシンにすべてのデフォルト オプションでインストールされた「通常の」SQL Server の場合は、  
+>`.    or   (local)     or          YourMachineName`  
+>すべてのデフォルト設定でインストールされたSQL Server Expressの場合は、次を使用します。  
+>`.\SQLEXPRESS    or   (local)\SQLEXPRESS     or          YourMachineName\SQLEXPRESS`  
+>[SQL Server Connection Strings - dot(".") or "(local)" or "(localdb)"](https://stackoverflow.com/questions/20217518/sql-server-connection-strings-dot-or-local-or-localdb)  

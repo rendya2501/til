@@ -28,12 +28,19 @@
 
 ## パッケージ
 
-`dotnet add package Unity.Configuration`
-`dotnet nuget --help`
+`dotnet add package <PackageName>`  
 
-nugetサイトで検索した結果を使うべし。  
-`dotnet nuget`コマンドもあるが、これを解説しているサイトがない。  
-nugetサイトでは`dotnet add package`をメインに紹介しているので、素直にそちらでよろしいかと思われる。  
+バージョンを指定しない場合、常に最新をインストールする。  
+バージョンを指定した場合、addコマンドであるが、指定したバージョンになってくれるので、実質的にアップデートもダウングレードも兼ねる。  
+全てはバージョン指定次第。  
+
+バージョン指定例:  
+`dotnet add package Microsoft.EntityFrameworkCore -v 6.*`  
+
+主にnugetサイトでパッケージ名を検索して使うことになるので、コマンドに迷く事はないと思われる。  
+nugetサイトを見ればわかるが、提示されているコマンドは`dotnet add package`である。  
+`dotnet nuget`コマンドもあるらしいが、これを解説しているサイトが全然ないので、特にこだわりがなければ
+nugetサイトでは``をメインに紹介しているので、素直にそちらでよろしいかと思われる。  
 
 ---
 

@@ -335,3 +335,33 @@ exeにファイルを埋め込むこと。
 >[Visual Studioの埋め込みリソースについて](https://freestyle.nvo.jp/archives/59)  
 
 ---
+
+## C#のコンソールアプリのコマンドライン引数
+
+文字列のまとまりはダブルコーテーション。  
+スプリットはスペース。  
+
+``` C#
+Console.WriteLine("Hello, World!");
+foreach (var arg in args)
+    Console.WriteLine(arg);
+```
+
+``` txt
+TestConsole "tetst  aaa" "aaa wwww"
+
+Hello, World!
+tetst  aaa
+aaa wwww
+```
+
+``` txt
+TestConsole 'tetst  aaa' "aaa wwww"
+
+Hello, World!
+'tetst
+aaa'
+aaa wwww
+```
+
+---
