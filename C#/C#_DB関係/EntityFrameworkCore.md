@@ -85,7 +85,7 @@ EF6ではストアドは行けそうだが、Coreでは無理。
 ## リバースエンジニアリングコマンド
 
 ``` txt : dotnet cli
-Scaffold-DbContext 'Data Source=TestServer;Initial Catalog=TestDatabase;User ID=sa;Password=123456789' Microsoft.EntityFrameworkCore.SqlServer -OutputDir Model -ContextDir Context -Context DatContext –DataAnnotations –UseDatabaseNames –Force
+Scaffold-DbContext 'Data Source=TestServer;Initial Catalog=TestDatabase;User ID=sa;Password=123456789' Microsoft.EntityFrameworkCore.SqlServer -OutputDir Model -ContextDir Context -Context DatContext -DataAnnotations -UseDatabaseNames -Force
 ```
 
 ``` txt : dotnet ef
@@ -100,8 +100,8 @@ dotnet ef scaffold dbcontext 以下同じ
 モデルの出力先       : Model
 コンテキストの出力先 : Context
 コンテキスト名       : DatContext
-プロパティにアノテーションをつける : –DataAnnotations
-データベースのテーブル名に準拠する : –UseDatabaseNames
+プロパティにアノテーションをつける : -DataAnnotations
+データベースのテーブル名に準拠する : -UseDatabaseNames
 リバース結果を上書きする           : -force
 ```
 

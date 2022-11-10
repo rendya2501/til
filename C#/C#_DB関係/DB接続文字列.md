@@ -124,10 +124,14 @@ using System.Configuration;
 
 ## App.Configとappsettings.json
 
-[.NET Core の設定情報の仕組みをしっかり理解したい方向け基本のキ](https://blog.ecbeing.tech/entry/2020/03/16/114500)
+App.Configは.NetFramework時代の産物。  
+.NetCoreからappsetting.jsonになったっぽいので、特に理由やこだわりがなければappsettings.jsonだけでよい。  
 
-App.Configは.NetFramework時代の産物
-.NetCoreからappsetting.jsonになったっぽいので、特に理由やこだわりがなければappsettings.jsonだけでよい
+>コンソールアプリでも App.congig に代わる新しい定義ファイルの形式である appsettings.json を使用する場合の設定と実装方法の紹介です。  
+>ASP.NET Core および ASP.NET 5～6 であれば、IServiceCollection.Configure にセクション名を渡せば勝手に内容をオブジェクトにマッピングしてくれる機能が存在しますが、コンソールアプリで始めてしまうとそこらへんが存在しないので自分で読み書きする形になります。  
+>[【C#】appsetting.jsonをコンソールで扱う](https://takap-tech.com/entry/2021/10/09/182217)  
+
+[.NET Core の設定情報の仕組みをしっかり理解したい方向け基本のキ](https://blog.ecbeing.tech/entry/2020/03/16/114500)
 
 ---
 

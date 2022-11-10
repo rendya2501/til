@@ -388,3 +388,14 @@ index.lockファイルがあるとpullやcommitができなくなる模様。
 `git rm -r --cached .`
 
 [.gitignoreに記載したのに反映されない件](https://qiita.com/fuwamaki/items/3ed021163e50beab7154)
+
+---
+
+## ローカルのGit
+
+Gitって別にGithubじゃないといけないってわけじゃないんだよな。  
+
+考えてみれば、ソースコードってどこかのコンピューターに保存されているだけで、そのコンピューターにそういう仕組みが備わっているだけなんだよな。  
+その仕組みをローカルに再現して、向き先をそこにすれば、Githubと同じことができるわけだよな。  
+
+[[VS Code 2022年版]GitHub いらず。ローカルだけで Git を使う](https://www.create-forever.games/vs-code-2022-githubless/)
