@@ -1,4 +1,4 @@
-# .Net
+# フレームワーク
 
 ---
 
@@ -21,7 +21,7 @@ Xamarinの全てのサポート終了は2024年5月1日。
 
 ---
 
-## .NET Framework  
+## .NET Framework
 
 Windows用のフレームワーク。  
 Windows 向けの .NET Core 以前のクラシックなランタイムと API。  

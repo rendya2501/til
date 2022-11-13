@@ -64,18 +64,3 @@ treeコマンド
 explorer.exeを右クリック管理者権限で実行すれば普通にいける。  
 
 explorerのexeはここにあります。→`C:\Windows`  
-
----
-
-## Windowsデスクトップ向け業務アプリ開発には何を採用すべきか？
-
-- UWPで要件を満たせるのであれば[UWP]  
-- Webに慣れた開発者が多ければ[Electron]か[React Native]  
-- iOS/Android向けアプリも一緒に開発するなら[Xamarin]か[React Native]  
-- そうでなければ[WPF]一択  
-
-WPFを選択した場合、.NET Framework 4.7/4.8にするか、.NET Core 3にするのかも選ばなければいけません。  
-将来的なサポートやテストしやすさを考えれば、.NET Core 3から.NET 5へと続く道へ。  
-リリースが間近か、現在ある資産をどうしても手放せないのであれば、.NET Framework 4.7/4.8でしょうか。  
-
-[Windowsデスクトップ向け業務アプリ開発には何を採用すべきか？](https://qiita.com/sengoku/items/fb4948e0d2746e3cc26f)  
