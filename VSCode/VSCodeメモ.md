@@ -40,6 +40,14 @@ Could not establish connection to "<サーバーのホスト名>"
 [VS Code Remote Development SSHセットアップ中にハマったこと](https://qiita.com/igrep/items/3a3ba8e9089885c3c9f6)  
 
 設定→Remoteで検索→「Remote - SSH」を選択→Remote.SSH: Config Fileに以下の文言を設定  
-`C:\Users\s.ito\.ssh\config`  
+`C:\Users\<user_name>\.ssh\config`  
 
 自分はここまででつながった。  
+
+---
+
+## 除外するファイル 複数指定
+
+複数の条件は カンマ ( , ) 区切り  
+
+[[vscode] 複数ファイルからの検索方法](https://www.chihayafuru.jp/tech/index.php/archives/2294)  
