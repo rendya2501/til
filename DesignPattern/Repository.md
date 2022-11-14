@@ -59,6 +59,30 @@ MVCにおける「Model」「View」「Controller」「Service」「Repository�
 
 ---
 
+## Entity Framework を使うならRepository PatternやUnitOfWork Patternは必要ない
+
+>DbContextクラスはUnitOfWorkとRepositoryを混在させて提供しています。  
+>DbContext の `DbSet<Something>` プロパティに対するコンテナに過ぎないリポジトリクラスは必要ないのです。  
+>また、SaveChanges() の呼び出しをラップするための新しいクラスも必要ない。  
+>
+>[No need for repositories and unit of work with Entity Framework Core](https://gunnarpeipman.com/ef-core-repository-unit-of-work/)  
+
+世界一の企業が実装しているのだから、それくらいのアーキテクチャーは既に採用済み。  
+なので、EFCoreを使う場合、改めてRepository PatternやUnit Of Work Patternを実装する必要はない。  
+
+逆にRepository Patternを再実装してUPDATEやDELETEメソッドで`_dataContext.SaveChanges()`を実行した場合、それは他の全ての変更にも影響してしまうのでやめたほうがいいとのこと。  
+
+やるならDbContextで色々やるべし。  
+
+>さらに良いことに、カスタムデータベースコンテキストは私たちが書いたクラスです。  
+>EF CoreのDbContextを継承しているので、カスタムコンテキストを構築する上でかなり自由度が高いです。  
+>これはコンテキストの単位として働くこともできます。また、必要であれば、ワンショットレポジトリとしても機能します。  
+>
+>DbContextの機能をラップするだけで、新しい価値を追加しないのであれば、独自のユニットオブワークやリポジトリを実装する必要はありません。  
+>すでにあるものを使うというシンプルな考えです。  
+
+---
+
 マスター系等、1画面1テーブルに対応したプログラムならRepositoryパターンだけで事足りるかもしれないが、現実はそんな簡単に行かない。  
 実務に即して、予約を取得する処理があった場合、トランザクション+複数テーブルへの処理が絶対に必要となる。  
 Repositoryパターンだけではそれに対応できない。  
