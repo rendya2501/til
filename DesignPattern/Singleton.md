@@ -11,51 +11,6 @@
 
 ---
 
-## 実装
-
-``` C# : シングルトン実装例
-    /// <summary>
-    /// シングルトンクラス
-    /// 1.Singletonクラスがロードされた時点では、Singletonインスタンスは生成されない
-    /// 2.Singleton#getInstance()を最初に呼び出した時に、SingletonHolderクラスがロードされ、Singletonインスタンスが生成される
-    /// ギリギリまでSingletonインスタンスを生成しないような挙動になるようです。
-    /// </summary>
-    class Singleton
-    {
-        /// <summary>
-        /// コンストラクタ
-        /// </summary>
-        private Singleton() { }
-        /// <summary>
-        /// インスタンス
-        /// </summary>
-        /// <returns></returns>
-        public static Singleton Instace { get; } = SingletonHolder.INSTANCE;
-        /// <summary>
-        /// シングルトン生成クラス
-        /// </summary>
-        private static class SingletonHolder
-        {
-            public static readonly Singleton INSTANCE = new Singleton();
-        }
-    }
-```
-
-``` C# : Java版Singleton
-public class Singleton
-{
-    private static Singleton singleton = new Singleton();
-    private Singleton() {
-        Console.WriteLine("インスタンスを生成しました。");
-    }
-    public static Singleton GetInstance() {
-        return singleton;
-    }
-}
-```
-
----
-
 ## シングルトンがなぜ必要なのか
 
 インスタンスがなぜ一つじゃないといけないのか  
@@ -107,6 +62,53 @@ public class Singleton
 この不整合を防止するために、Singletonを用いるのは自然な事だと思います。  
 
 ---
+
+## 実装
+
+``` C#
+    /// <summary>
+    /// シングルトンクラス
+    /// 1.Singletonクラスがロードされた時点では、Singletonインスタンスは生成されない
+    /// 2.Singleton#getInstance()を最初に呼び出した時に、SingletonHolderクラスがロードされ、Singletonインスタンスが生成される
+    /// ギリギリまでSingletonインスタンスを生成しないような挙動になるようです。
+    /// </summary>
+    class Singleton
+    {
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        private Singleton() { }
+        /// <summary>
+        /// インスタンス
+        /// </summary>
+        /// <returns></returns>
+        public static Singleton Instace { get; } = SingletonHolder.INSTANCE;
+        /// <summary>
+        /// シングルトン生成クラス
+        /// </summary>
+        private static class SingletonHolder
+        {
+            public static readonly Singleton INSTANCE = new Singleton();
+        }
+    }
+```
+
+``` C# : Java版Singleton
+public class Singleton
+{
+    private static Singleton singleton = new Singleton();
+    private Singleton() {
+        Console.WriteLine("インスタンスを生成しました。");
+    }
+    public static Singleton GetInstance() {
+        return singleton;
+    }
+}
+```
+
+---
+
+## 参考
 
 [デザインパターン「Singleton」](https://qiita.com/shoheiyokoyama/items/c16fd547a77773c0ccc1)  
 [[Swift]Singleton(シングルトン)とは？メリット、実装方法、使い方](https://ticklecode.com/swiftsingleton/)  
