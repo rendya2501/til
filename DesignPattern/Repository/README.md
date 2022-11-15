@@ -137,6 +137,13 @@ public interface IServiceRepository : IRepository<TEntity>{}
 public class ServiceRepository : Repository<TEntity>, IServiceRepository{}
 ```
 
+- 実装参考
+  - [Implementing Unit Of Work Pattern](https://social.msdn.microsoft.com/Forums/en-US/b2c68f7e-3cbd-435a-a7bc-a71227f2d47e/implementing-unit-of-work-pattern?forum=csharpgeneral)  
+  - [How to use Dapper with ASP.NET Core and Repository Pattern](https://blog.christian-schou.dk/how-to-use-dapper-with-asp-net-core/)  
+  - [Dapper in ASP.NET Core with Repository Pattern – Detailed](https://codewithmukesh.com/blog/dapper-in-aspnet-core/)  
+  - [Repository Pattern in ASP.NET Core – Ultimate Guide](https://codewithmukesh.com/blog/repository-pattern-in-aspnet-core/)  
+  - [Generic repository pattern using Dapper](https://tacta.io/en/news/generic-repository-pattern-using-dapper/20)  
+
 ---
 
 ## Unit Of Work パターンのすゝめ
@@ -178,12 +185,6 @@ WindowFormと絡めた解説動画
 
 [Step by Step - Repository Pattern and Unit of Work with Asp.Net Core 5](https://www.youtube.com/watch?v=-jcf1Qq8A-4)  
 [Dapper And Repository Pattern In Web API](https://www.c-sharpcorner.com/article/dapper-and-repository-pattern-in-web-api/)  
-
-やたらとパートを区切って解説している動画。  
-手っ取り早く実装だけ確認したいならgithubを見ることを進める。  
-てか、後で消すかも。  
-[Dapper Unit Of Work Pattern With .Net Core Part-1](https://www.youtube.com/watch?v=4nQ00g4QEIw&list=PLHL2ZnB2RiY677SwX4FFGNhRk-M-1SRxd)  
-[graciaheys/DapperUnitOfWorkk](https://github.com/graciaheys/DapperUnitOfWorkk)  
 
 [Dapper とリポジトリ パターンを使用した ASP.Net Core Web Api CRUD](https://www.youtube.com/watch?v=3moKgzS7AWo)  
 
