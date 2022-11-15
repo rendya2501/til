@@ -108,18 +108,20 @@ class IRepository {
 class Repository{
     <<abstract>>
 }
-class IService{
+class IServiceRepository{
     <<interface>>
 }
-class ServiceClass{
+class ServiceRepository{
     
 }
 
-Repository ..|> IRepository
-ServiceClass ..|> IService
-ServiceClass --> Repository
-IService --> IRepository
+Repository ..|> IRepository : implemente
+ServiceRepository ..|> IServiceRepository : implemente
+ServiceRepository --> Repository : inheritance
+IServiceRepository --> IRepository : inheritance
 ```
+
+[Repository Pattern Implementation](https://www.dotnettricks.com/learn/mvc/implementing-repository-and-unit-of-work-patterns-with-mvc)  
 
 ---
 
@@ -130,9 +132,9 @@ public interface IRepository<TEntity> where TEntity : class{}
 
 public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity : class{}
 
-public interface ISuperHeroService : IRepository<SuperHero>{}
+public interface IServiceRepository : IRepository<TEntity>{}
 
-public class SuperHeroService : Repository<SuperHero>, ISuperHeroService{}
+public class ServiceRepository : Repository<TEntity>, IServiceRepository{}
 ```
 
 ---
@@ -182,3 +184,8 @@ WindowFormと絡めた解説動画
 てか、後で消すかも。  
 [Dapper Unit Of Work Pattern With .Net Core Part-1](https://www.youtube.com/watch?v=4nQ00g4QEIw&list=PLHL2ZnB2RiY677SwX4FFGNhRk-M-1SRxd)  
 [graciaheys/DapperUnitOfWorkk](https://github.com/graciaheys/DapperUnitOfWorkk)  
+
+[Dapper とリポジトリ パターンを使用した ASP.Net Core Web Api CRUD](https://www.youtube.com/watch?v=3moKgzS7AWo)  
+
+transaction scopeを使った例が乗っている  
+[Generic repository pattern using Dapper](https://tacta.io/en/news/generic-repository-pattern-using-dapper/20)  

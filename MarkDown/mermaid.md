@@ -39,6 +39,9 @@ $    | Static             | foo$, foo()$
 ~    | Package/Internal   | ~foo
 ```
 
+継承(inheritance) → 汎化(generalization)  
+実装(implemente) → 実現(realization)  
+
 頭に`classDiagram`をつける。  
 順序を逆にするなら`direction BT`をつける。  
 

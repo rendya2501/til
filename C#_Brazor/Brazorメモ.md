@@ -130,6 +130,72 @@ dropdownlist
 
 ---
 
+## Blazor_CRUD
+
+view ↔ viewmodel ↔ model ↔ unit of work ↔ repository ↔ db
+
+``` cs : service
+public class HogehogeDataService
+    {
+        // DbContext being injected by DI
+        HogehogeDbContext _Context { get; }
+
+        public HogehogeDataService(HogehogeDbContext context) =>
+            _Context = context;
+
+        /// <summary>
+        /// Gets the entire user list.
+        /// </summary>
+        /// <returns></returns>
+        public Task<List<User>> GetUsersAsync() =>
+            _Context.Users
+                .OrderBy(x => x.Id)
+                .ToListAsync();
+    }
+```
+
+``` cs
+    public class Startup
+    {
+        public Startup(IConfiguration configuration)
+        {
+            Configuration = configuration;
+        }
+
+        public IConfiguration Configuration { get; }
+
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services.AddDbContext<HogehogeDbContext>(options =>
+                options.UseSqlServer(
+                    Configuration.GetConnectionString("HogehogeConnection"),
+                    providerOptions => providerOptions.CommandTimeout(120)));
+            services.AddRazorPages();
+            services.AddServerSideBlazor();
+            services.AddScoped<HogehogeDataService>();
+        }
+
+        // ～略～
+    }
+```
+
+``` cs : razor
+@code {
+    List<User> users;
+
+    protected override async Task OnInitializedAsync()
+    {
+        users = await HogehogeData.GetUsersAsync();
+    }
+}
+```
+
+[[ASP.NET Core] Blazor Server 入門 (EF Core + SQL Server 編)](https://mseeeen.msen.jp/asp-dotnet-core-blazor-ef-core-sqlserver/)  
+
+[How to Build a Blazor CRUD Application with Dapper](https://www.syncfusion.com/blogs/post/build-blazor-crud-application-with-dapper.aspx)  
+
+---
+
 ## 参考サイト
 
 <https://qiita.com/tags/blazor>
