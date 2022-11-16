@@ -1,4 +1,4 @@
-# Repositor
+# Repository Pattern
 
 ---
 
@@ -138,11 +138,13 @@ public class ServiceRepository : Repository<TEntity>, IServiceRepository{}
 ```
 
 - 実装参考
+  - [Repository and Unit of work pattern in ASP.net core](https://pradeepl.com/blog/repository-and-unit-of-work-pattern-asp-net-core-3-1/)  
   - [Implementing Unit Of Work Pattern](https://social.msdn.microsoft.com/Forums/en-US/b2c68f7e-3cbd-435a-a7bc-a71227f2d47e/implementing-unit-of-work-pattern?forum=csharpgeneral)  
   - [How to use Dapper with ASP.NET Core and Repository Pattern](https://blog.christian-schou.dk/how-to-use-dapper-with-asp-net-core/)  
   - [Dapper in ASP.NET Core with Repository Pattern – Detailed](https://codewithmukesh.com/blog/dapper-in-aspnet-core/)  
   - [Repository Pattern in ASP.NET Core – Ultimate Guide](https://codewithmukesh.com/blog/repository-pattern-in-aspnet-core/)  
   - [Generic repository pattern using Dapper](https://tacta.io/en/news/generic-repository-pattern-using-dapper/20)  
+  - [Using Dapper with ASP.NET Core Web API](https://www.youtube.com/watch?v=C763K-VGkfc&t=147s)  
 
 ---
 
