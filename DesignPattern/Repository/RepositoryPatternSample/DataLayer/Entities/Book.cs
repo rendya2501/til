@@ -1,4 +1,4 @@
-﻿namespace RepositoryPatternSample.Entities;
+﻿namespace DataLayer.Entities;
 
 public class Book
 {

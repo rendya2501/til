@@ -246,18 +246,6 @@ DBContextクラスで直接、接続文字列を書くくらいなら、DIした
 
 結論から言うと、公式の方法の通りにやれば良い。  
 
-中途半端にDIするだけだとダメだった結果がこちら。  
-
-``` cs : × bundle作成出来ず
-var services = new ServiceCollection();
-services.AddDbContext<DatContext>(options => options.UseSqlServer(connectionString));
-ServiceProvider serviceProvider = services.BuildServiceProvider();
-_datContext = serviceProvider.GetService<DatContext>();
-```
-
-[Accessing dbContext in a C# console application](https://stackoverflow.com/questions/49972591/accessing-dbcontext-in-a-c-sharp-console-application)  
-[How to Add Entity Framework Core DBContext in .NET Core Console Application](http://www.techtutorhub.com/article/How-to-Add-Entity-Framework-Core-DBContext-in-Dot-NET-Core-Console-Application/86)  
-
 ASP.NET Core 2.2 アプリで dotnet ef コマンドを実行する場合は、 Program.cs に CreateWebHostBuilder メソッドが必要な模様。  
 
 ``` cs : ○ bundle作成できた
@@ -281,4 +269,99 @@ using IHost host = Host.CreateDefaultBuilder(args)
 [デザイン時 DbContext 作成](https://learn.microsoft.com/ja-jp/ef/core/cli/dbcontext-creation?tabs=dotnet-core-cli)  
 [dotnet ef migrations でエラーになった話](https://qiita.com/wukann/items/53462f4b21104ed75c31)  
 
+中途半端にDIするだけだとダメだった結果がこちら。  
+
+``` cs : × bundle作成出来ず
+var services = new ServiceCollection();
+services.AddDbContext<DatContext>(options => options.UseSqlServer(connectionString));
+ServiceProvider serviceProvider = services.BuildServiceProvider();
+_datContext = serviceProvider.GetService<DatContext>();
+```
+
+[Accessing dbContext in a C# console application](https://stackoverflow.com/questions/49972591/accessing-dbcontext-in-a-c-sharp-console-application)  
+[How to Add Entity Framework Core DBContext in .NET Core Console Application](http://www.techtutorhub.com/article/How-to-Add-Entity-Framework-Core-DBContext-in-Dot-NET-Core-Console-Application/86)  
+
 検索文字列 : dependency injection dbcontext console app  
+
+---
+
+## コンソールアプリからMigrationの実行
+
+DIするならこのような形になる。
+
+``` cs
+using System;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
+using EFCoreSample.Model;
+
+namespace EFCoreSample.Context;
+
+public partial class DatContext : DbContext
+{
+    public DatContext(){}
+    public DatContext(DbContextOptions<DatContext> options) : base(options) { }
+
+    public virtual DbSet<HogeEntity> HogeEntity { get; set; }
+}
+```
+
+``` cs
+using EFCoreSample.Context;
+using Microsoft.EntityFrameworkCore;
+using System;
+
+Console.WriteLine("開始");
+var ob = new DbContextOptionsBuilder<DbContext>();
+ob.UseSqlServer("Server=.\SQLEXPRESS;Database=[db_name];Integrated Security=true");
+using var dbContext = new DbContext(ob.Options);
+dbContext.Database.Migrate();
+```
+
+これでもいける。
+
+``` cs
+using IHost host = Host.CreateDefaultBuilder(args)
+    .ConfigureServices((hostContext, services) =>
+    {
+        services
+            .AddDbContext<DatContext>(options =>
+            {
+                var appsettings = hostContext.Configuration.GetConnectionString("DefaultConnection");
+                options.UseSqlServer(appsettings);
+            });
+    })
+    .Build();
+host.Services.GetService<DatContext>().Database.Migrate();
+```
+
+DIしないのであれば、OnConfigureメソッドに直接記述して実行する。
+
+``` cs
+using System;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
+using EFCoreSample.Model;
+
+namespace EFCoreSample.Context;
+
+public partial class DatContext : DbContext
+{
+    public DatContext(){}
+
+    // Contextクラスにおいて直接、接続情報を記述した場合
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        optionsBuilder.UseSqlServer(@"Data Source=.\SQLEXPRESS;Initial Catalog=[database_name];Integrated Security=True");
+    }
+
+    public virtual DbSet<HogeEntity> HogeEntity { get; set; }
+}
+```
+
+``` cs
+// Contextクラスにおいて直接、接続情報を記述した場合のMigrate実行
+Console.WriteLine("開始");
+using var datContext = new DatContext();
+datContext.Database.Migrate();
+```

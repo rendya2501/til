@@ -269,3 +269,69 @@ var stringList = _Dapper.Execute(
 実務のやつが地味に優秀だったのかなぁ。
 あとは、各種Selectの種類と簡単な接続ラップサンプルをやりたい。
 ```
+
+---
+
+## DapperAction
+
+リポジトリパターンを実装している時に、参考動画を元にDapperContextクラスを作った。  
+コネクションをオープンにして返すだけでDapperとついているが、DapperをUsingしていない。  
+そして使用するときはDapperのクエリを呼ぶだけ。  
+なら使用と同時にオープンして結果を返すようにしてしまったほうが良いのではないかと思った。  
+[Using a Dapper Base Repository in C# to Improve Readability](https://exceptionnotfound.net/using-a-dapper-base-repository-in-c-to-improve-readability/)  
+このリンクの通り、Dapperメソッドをラップして、エラー制御とコネクション制御までやってくれている。  
+使う側はDapperのラップクラスのメソッドを用途に応じて使用するだけ。  
+なんで、この方法を皆取らないのだろうかと不思議に思う。  
+
+リポジトリパターンのサンプルに書くと、少々複雑というか、余計なことになりそうなので、こちらのほうに退避させる。  
+
+``` cs : Program
+builder.Service.AddSingleton<DapperContext>();
+```
+
+``` cs : DapperContext
+using Microsoft.Data.SqlClient;
+using System.Data;
+
+public class DapperContext
+{
+    private readonly IConfiguration _configuration;
+    private readonly string _connectionString;
+
+    public DapperContext(IConfiguration configuration)
+    {
+        _configuration = configuration;
+        _connectionString = _configuration.GetConnectionString("DefaultConnection");
+    }
+
+    public IDbConnection CreateConnection() => new SqlConnection(_connectionString);
+}
+```
+
+``` cs
+public class BookRepository : IBookRepository
+{
+    private readonly DapperContext _context;
+
+    public BookRepository(DapperContext context)
+    {
+        _context = context;
+    }
+
+    public async Task<IReadOnlyList<Book>> GetAllAsync()
+    {
+        var sql = "SELECT * FROM Book";
+        using var connection = _context.CreateConnection();
+        var result = (await connection.QueryAsync<Book>(sql)).ToList();
+        return result;
+    }
+
+    public async Task<int> AddAsync(Book entity){}
+    public async Task<int> DeleteAsync(int id){}
+    public async Task<Book> GetByIdAsync(int id){}
+    public async Task<int> UpdateAsync(Book entity){}
+}
+```
+
+[Using Dapper with ASP.NET Core Web API](https://www.youtube.com/watch?v=C763K-VGkfc&t=147s)  
+[Using a Dapper Base Repository in C# to Improve Readability](https://exceptionnotfound.net/using-a-dapper-base-repository-in-c-to-improve-readability/)  

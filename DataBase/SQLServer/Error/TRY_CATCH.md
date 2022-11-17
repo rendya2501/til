@@ -210,6 +210,43 @@ END CATCH
 
 ---
 
+## TransactionはTryの前で行うべきか後に行うべきか
+
+昔、Tryの前にTransactionを実行してエラーとなり、トランザクションが開いたままになった記憶がある。  
+教科書やほとんどの例ではTry Catchの内部でBegin Tranしている。  
+では、Tryの前にBegin Tranする事は何がいけないのか調べた。  
+全然そんな文献に当たらない。  
+
+でもって実際に実行してみたが、特にトランザクションが開きっぱなしになるような事もない。  
+どちらでもいいのだろうか。  
+
+``` sql
+BEGIN TRANSACTION
+
+BEGIN TRY
+    SELECT 1/0
+    COMMIT TRANSACTION
+END TRY
+
+BEGIN CATCH
+    SELECT
+        ERROR_NUMBER() AS ErrorNumber,
+        ERROR_SEVERITY() AS ErrorSeverity,
+        ERROR_STATE() AS ErrorState,
+        ERROR_PROCEDURE() AS ErrorProcedure,
+        ERROR_LINE() AS ErrorLine,
+        ERROR_MESSAGE() AS ErrorMessage
+
+    ROLLBACK TRANSACTION
+    PRINT 'Error detected, all changes reversed.'
+END CATCH
+
+```
+
+[TSQL Try / Catch within Transaction or vice versa?](https://stackoverflow.com/questions/23056973/tsql-try-catch-within-transaction-or-vice-versa)  
+
+---
+
 ## 参考
 
 Sqlserver TRYCATCH ROLLBACK

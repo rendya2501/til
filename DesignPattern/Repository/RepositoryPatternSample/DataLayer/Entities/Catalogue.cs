@@ -1,5 +1,5 @@
-﻿namespace RepositoryPatternSample.Entities;
-public class BankBranch
+﻿namespace DataLayer.Entities;
+public class Catalogue
 {
     public int CatalogueId { get; set; }
     public string Name { get; set; }

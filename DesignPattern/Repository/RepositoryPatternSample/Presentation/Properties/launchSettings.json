@@ -9,7 +9,7 @@
     }
   },
   "profiles": {
-    "RepositoryPatternSample": {
+    "Presentation": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,

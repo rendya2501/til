@@ -46,7 +46,7 @@
 
 ---
 
-## appsettings.json
+## コンソールアプリからappsettings.jsonを使用する
 
 `dotnet add package Microsoft.Extensions.Configuration --version 6.*`  
 
@@ -75,17 +75,53 @@ class Program
 
 [.NETのコンソールアプリでappsettings.jsonを使う (.NET6)](https://zenn.dev/higmasu/articles/b3dab3c7bea6db)  
 
+---
+
+## DIでappsettings.jsonを使用する1
+
 ``` cs
+public class HogeClass
 {
     private readonly IConfiguration _config;
 
-    public constractor(IConfiguration config){
+    public HogeClass(IConfiguration config){
         _config = config;
     }
 
-    void Test (){
+    void Use (){
         using var connection = new SqlConnection(_config.GetConnectionString("DefaultConnection"));
     }
+}
+```
+
+---
+
+## DIでappsettings.jsonを使用する2
+
+EntityFrameworkでの使い方に近い。  
+
+``` cs
+using Microsoft.Extensions.Options;
+
+public class HogeClass
+{
+    private readonly ConnectionSetting _connection;
+
+    public HogeClass(IOptions<ConnectionSetting> connection)
+    {
+        _connection = connection.Value;
+    }
+}
+```
+
+``` cs
+builder.Services.Configure<ConnectionSetting>(builder.Configuration.GetSection("DefaultConnection"));
+```
+
+``` cs
+public class ConnectionSetting
+{
+    public string SQLString { get; set; }
 }
 ```
 
@@ -237,3 +273,12 @@ sqlserver connection string dot
 >すべてのデフォルト設定でインストールされたSQL Server Expressの場合は、次を使用します。  
 >`.\SQLEXPRESS    or   (local)\SQLEXPRESS     or          YourMachineName\SQLEXPRESS`  
 >[SQL Server Connection Strings - dot(".") or "(local)" or "(localdb)"](https://stackoverflow.com/questions/20217518/sql-server-connection-strings-dot-or-local-or-localdb)  
+
+---
+
+## 「信頼されていない機関によって証明書チェーンが発行されました」の解決法
+
+appsettings.jsonの接続文字列に追加  
+`Trust Server Certificate=true`  
+
+[SNAC アプリケーションのアップグレード後に"信頼されていない機関によって証明書チェーンが発行されました" というエラー](https://learn.microsoft.com/ja-jp/troubleshoot/sql/connect/certificate-chain-not-trusted?tabs=ole-db-driver-19)  

@@ -33,7 +33,6 @@
 
 <!--  -->
 >Repositoryパターンの目的は、「データアクセス処理」と「ビジネスロジック」を分離することです。  
-Mirosoft Docsでは、以下のように記載されています。  
 [Repositoryパターン × ノ × チョウサ](https://www.kinakomotitti.net/entry/2018/08/22/223309)  
 
 ---
@@ -47,7 +46,7 @@ Mirosoft Docsでは、以下のように記載されています。
 
 MVCにおける「Model」「View」「Controller」「Service」「Repository」をわかりやすく解説している。  
 詳しくはそちらを参照されたし。  
-たいていのアーキテクチャーは、階層の分離と階層の橋渡しで成り立っているので、それさえわかっていれば「スッ」と腑に落ちるだろう。  
+たいていのアーキテクチャーは、階層の分離と階層の橋渡しで成り立っているので、それさえわかっていれば腑に落ちるだろう。  
 
 ---
 
@@ -96,7 +95,10 @@ MVCにおける「Model」「View」「Controller」「Service」「Repository�
 
 ---
 
-## クラス図
+## 実装1
+
+EntityFrameworkなど、CRUDを共通化できるならこちらの方式を採用しても問題ない。  
+Dapper等は実装2のほうが楽かと思われる。  
 
 ``` mermaid
 classDiagram
@@ -121,11 +123,8 @@ ServiceRepository --> Repository : inheritance
 IServiceRepository --> IRepository : inheritance
 ```
 
-[Repository Pattern Implementation](https://www.dotnettricks.com/learn/mvc/implementing-repository-and-unit-of-work-patterns-with-mvc)  
-
----
-
-## 実装
+- クラス図参考  
+  - [Repository Pattern Implementation](https://www.dotnettricks.com/learn/mvc/implementing-repository-and-unit-of-work-patterns-with-mvc)  
 
 ``` cs
 public interface IRepository<TEntity> where TEntity : class{}
@@ -139,12 +138,52 @@ public class ServiceRepository : Repository<TEntity>, IServiceRepository{}
 
 - 実装参考
   - [Repository and Unit of work pattern in ASP.net core](https://pradeepl.com/blog/repository-and-unit-of-work-pattern-asp-net-core-3-1/)  
-  - [Implementing Unit Of Work Pattern](https://social.msdn.microsoft.com/Forums/en-US/b2c68f7e-3cbd-435a-a7bc-a71227f2d47e/implementing-unit-of-work-pattern?forum=csharpgeneral)  
   - [How to use Dapper with ASP.NET Core and Repository Pattern](https://blog.christian-schou.dk/how-to-use-dapper-with-asp-net-core/)  
   - [Dapper in ASP.NET Core with Repository Pattern – Detailed](https://codewithmukesh.com/blog/dapper-in-aspnet-core/)  
   - [Repository Pattern in ASP.NET Core – Ultimate Guide](https://codewithmukesh.com/blog/repository-pattern-in-aspnet-core/)  
   - [Generic repository pattern using Dapper](https://tacta.io/en/news/generic-repository-pattern-using-dapper/20)  
   - [Using Dapper with ASP.NET Core Web API](https://www.youtube.com/watch?v=C763K-VGkfc&t=147s)  
+
+- フォルダ構成  
+  - [ASP.NET MVC Architecture: Repository Pattern](https://code.sweetmustard.be/dotnet/asp-mvc-repository-pattern/)  
+  - [ASP.NET Core 6 Three Tier Architecture](https://www.youtube.com/watch?v=j2AYkOSzTUw)  
+  - [自分が現状気に入っているアプリケーションのパッケージ構成をさらす](https://qiita.com/os1ma/items/286eeec028e30e27587d)  
+
+---
+
+## 実装2
+
+EntityFrameworkなど、CRUDを共通化できるならabstractのRepositoryClassとして定義できるかもしれないが、Dapper等、生でクエリを書く場合、CRUDを共通化するのは難易度が高くなる。  
+調べた感じ、SELECTのテーブル名の指定をどうするか？とか、全てのテーブルに対して1つINSERT文で事足りるのか？とか色々ありそうではあった。  
+そういう時は、共通処理をInterfaceで定義して、各RepositoryInterfaceで共通Interfaceを実装する形もありなのかもしれないと思った。  
+
+``` mermaid
+classDiagram
+direction BT
+
+class IRepository {
+    <<interface>>
+}
+class IServiceRepository{
+    <<interface>>
+}
+class ServiceRepository{
+    
+}
+
+IServiceRepository --> IRepository : implemente
+ServiceRepository ..|> IServiceRepository : implemente
+```
+
+``` cs
+public interface IRepository<TEntity> where TEntity : class{}
+
+public interface IServiceRepository : IRepository<TEntity>{}
+
+public class ServiceRepository : IServiceRepository{}
+```
+
+[Generic repository pattern using Dapper](https://tacta.io/en/news/generic-repository-pattern-using-dapper/20)  
 
 ---
 
@@ -183,12 +222,17 @@ WindowFormと絡めた解説動画
 [Repositoryパターンにおける、MVC + Service + Repositoryの役割をもう一回整理してみる](https://zenn.dev/naoki_oshiumi/articles/0467a0ecf4d56a)  
 [Repositoryパターン × ノ × チョウサ](https://www.kinakomotitti.net/entry/2018/08/22/223309)  
 
+時間があれば公式のドキュメントを読み漁りたい。
 [microsoft公式_インフラストラクチャの永続レイヤーの設計](https://learn.microsoft.com/ja-jp/dotnet/architecture/microservices/microservice-ddd-cqrs-patterns/infrastructure-persistence-layer-design?view=aspnetcore-2.1#the-repository-pattern)  
 
+実装動画
 [Step by Step - Repository Pattern and Unit of Work with Asp.Net Core 5](https://www.youtube.com/watch?v=-jcf1Qq8A-4)  
-[Dapper And Repository Pattern In Web API](https://www.c-sharpcorner.com/article/dapper-and-repository-pattern-in-web-api/)  
 
-[Dapper とリポジトリ パターンを使用した ASP.Net Core Web Api CRUD](https://www.youtube.com/watch?v=3moKgzS7AWo)  
+[Dapper And Repository Pattern In Web API](https://www.c-sharpcorner.com/article/dapper-and-repository-pattern-in-web-api/)  
 
 transaction scopeを使った例が乗っている  
 [Generic repository pattern using Dapper](https://tacta.io/en/news/generic-repository-pattern-using-dapper/20)  
+
+Dapper以前のADOでやっている動画だが、割と参考になる。  
+何よりスキャフォールドで一瞬でrazorのページを作っている。  
+[ASP.NET Core 6 with ADO.Net + Repository Pattern](https://www.youtube.com/watch?v=N22gKbrLgK0&t=441s)  
