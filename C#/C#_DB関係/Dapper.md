@@ -335,3 +335,19 @@ public class BookRepository : IBookRepository
 
 [Using Dapper with ASP.NET Core Web API](https://www.youtube.com/watch?v=C763K-VGkfc&t=147s)  
 [Using a Dapper Base Repository in C# to Improve Readability](https://exceptionnotfound.net/using-a-dapper-base-repository-in-c-to-improve-readability/)  
+
+---
+
+## コンソールアプリでサクッとDapperを使うテンプレート
+
+``` cs
+using Dapper;
+using System.Data.SqlClient;
+
+string constr = @"Server=.\SQLEXPRESS;Database=<db_name>;Trusted_Connection=True";
+using SqlConnection connection = new SqlConnection(constr);
+var query = "SELECT * FROM <table>";
+var result = connection.Query<dynamic>(query);
+foreach (var item in result)
+    Console.WriteLine(item.<field_name>);
+```

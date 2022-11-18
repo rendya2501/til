@@ -1,14 +1,5 @@
 # SignalR
 
-[Microsoft_ASP.NET Core 用 SignalR でハブを使用する](https://docs.microsoft.com/ja-jp/aspnet/core/signalr/hubs?view=aspnetcore-6.0)  
-[Microsoft_チュートリアル: ASP.NET Core SignalR の概要](https://docs.microsoft.com/ja-jp/aspnet/core/tutorials/signalr?view=aspnetcore-6.0&tabs=visual-studio)  
-[Microsoft_ASP.NET Core SignalR .NET クライアント](https://docs.microsoft.com/ja-jp/aspnet/core/signalr/dotnet-client?view=aspnetcore-6.0&tabs=visual-studio)  
-
-[SignalR でChat アプリを作ってみた](https://qiita.com/TsuyoshiUshio@github/items/65ea4e2669afa19f6a31)  
-[ASP.NET Core SignalR でルーム付きチャットアプリを作ってみた](https://www.tetsis.com/blog/asp-net-core-signalr-group-chat/)  
-→
-このサンプルはあまり参考にならなかったが、個別に送信する機能を有しているので、そういうのを実装する時になったらやくに立つのでは。  
-
 ## SignalR 概要
 
 [SignalR を Windows Mixed Reality で使いたい](https://blog.okazuki.jp/entry/2018/04/26/125929)  
@@ -246,3 +237,16 @@ SignalRのClientとつくものを全てインストールしていればこん�
 現実問題、大規模になれば間にRedis等を挟むことになるはず。  
 そうなった時にSignalRは動くのか、また性能を確保できるのかという問題が発生してくる。  
 備忘録として残す。  
+
+---
+
+## 参考
+
+[Microsoft_ASP.NET Core 用 SignalR でハブを使用する](https://docs.microsoft.com/ja-jp/aspnet/core/signalr/hubs?view=aspnetcore-6.0)  
+[Microsoft_チュートリアル: ASP.NET Core SignalR の概要](https://docs.microsoft.com/ja-jp/aspnet/core/tutorials/signalr?view=aspnetcore-6.0&tabs=visual-studio)  
+[Microsoft_ASP.NET Core SignalR .NET クライアント](https://docs.microsoft.com/ja-jp/aspnet/core/signalr/dotnet-client?view=aspnetcore-6.0&tabs=visual-studio)  
+
+[SignalR でChat アプリを作ってみた](https://qiita.com/TsuyoshiUshio@github/items/65ea4e2669afa19f6a31)  
+[ASP.NET Core SignalR でルーム付きチャットアプリを作ってみた](https://www.tetsis.com/blog/asp-net-core-signalr-group-chat/)  
+→
+このサンプルはあまり参考にならなかったが、個別に送信する機能を有しているので、そういうのを実装する時になったらやくに立つのでは。  
