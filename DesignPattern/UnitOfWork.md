@@ -16,3 +16,5 @@
 
 リポジトリパターンの時も参考にしたものだが、Unit Of Workまでカバーしている  
 [Repository Pattern with C# and Entity Framework, Done Right | Mosh](https://www.youtube.com/watch?v=rtXpYpZdOzM)  
+
+[C# — UnitOfWork And Repository Pattern](https://medium.com/@utterbbq/c-unitofwork-and-repository-pattern-305cd8ecfa7a)  
