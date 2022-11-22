@@ -1,8 +1,73 @@
 # bundle
 
-## EFCore + Console
+## bundle概要
 
-[EntityFrameworkCoreを.NET Core コンソールアプリでCodeFirstに使う](https://qiita.com/namoshika/items/7d1bf911bc03ed03e17d)  
+Microsoft公式をそのまま引用  
+バンドルは移行情報を内包した実行ファイル。  
+移行先において環境に左右されず、それ単体で移行を実行することができる。  
+
+移行を実行するだけの機能なので、細かい制御はできない。  
+実質的にdotnet ef database updateと同等の動作を提供する。  
+
+>移行バンドルは、データベースに移行を適用するために使用できる単一ファイルの実行可能ファイルです。  
+>これらは、次のような SQL スクリプトとコマンドライン ツールの欠点の一部に対処します。  
+>
+>- SQL スクリプトを実行するには、追加のツールが必要です。  
+>- これらのツールによるトランザクション処理とエラー時の続行動作には一貫性がなく、予期できない場合もあります。  
+>  そのため、移行の適用時にエラーが発生した場合に、データベースが未定義の状態になる可能性があります。  
+>- バンドルは、CI プロセスの一部として生成することができ、後で配置プロセスの一部として簡単に実行することができます。  
+>- バンドルは、.NET SDK または EF ツールを (または、自己完結型の場合は .NET ランタイムさえも) インストールせずに実行でき、プロジェクトのソース コードは必要ありません。  
+>
+>[移行の適用](https://learn.microsoft.com/ja-jp/ef/core/managing-schemas/migrations/applying?tabs=dotnet-core-cli#bundles)  
+
+<!--  -->
+>生成される実行可能ファイルは、既定では efbundle という名前になります。  
+>これは、データベースを最新の移行に更新するために使用できます。  
+>これは、dotnet ef database update または Update-Database を実行するのと同等です。  
+>[移行の適用](https://learn.microsoft.com/ja-jp/ef/core/managing-schemas/migrations/applying?tabs=dotnet-core-cli#efbundle)
+
+---
+
+## bundle作成手順
+
+1. dotnet-efのインストール  
+2. コンソールプロジェクトでマイグレーションファイルを作成  
+3. `dotnet ef migrations bundle --configuration Bundle`コマンドを実行  
+
+バンドル作成時はVSCodeおよび、VisualStudioを閉じて実行すること。  
+dllへの参照がある状態ではバンドルは作成できない模様。  
+
+[Entity Framework Core ツールのリファレンス - .NET Core CLI](https://learn.microsoft.com/ja-jp/ef/core/cli/dotnet)  
+
+---
+
+## bundleの使い方
+
+ダブルクリックで直接実行 or CUIからオプションを指定して実行  
+
+直接実行で接続情報内部埋め込み式ではない場合、appsetting.jsonの接続情報を元に移行だけを実行。  
+appsettings.jsonが存在しない場合はエラーとなり、移行は実行されない。  
+
+接続情報内部埋め込み式の場合、そのまま移行が実行される。  
+
+CUIからの場合はオプションの指定が可能。  
+
+`efbundle --connection "Data Source=.\SQLEXPRESS;Initial Catalog=<db_name>;User ID=<user_id>;Password=<passwd>;`  
+
+ヘルプ :  
+`efbandle --help`  
+
+[移行の適用](https://learn.microsoft.com/ja-jp/ef/core/managing-schemas/migrations/applying?tabs=dotnet-core-cli)  
+
+---
+
+## bundleでロールバック
+
+実質的なDownコマンドは存在しない。  
+マイグレーションファイルを指定することで、その時点そこまで戻すことができる。  
+
+例:  
+`efbandle 20221110062826_Second`
 
 ---
 
@@ -10,20 +75,6 @@
 
 [Introduction to Migration Bundles - What can they do the migration scripts don't?](https://www.youtube.com/watch?v=mBxSONeKbPk)  
 [EF Core 6  - Apresentando Migration Bundles](https://macoratti.net/21/09/efc6_migbndl1.htm)  
-
-## dotnet ef migrations bundle のエラー
-
-バンドルはEF Core 6.0からの機能。  
-5.0では当然エラーになるというわけです。  
-
-``` txt
-Build started...
-Build succeeded.
-Specify --help for a list of available options and commands.
-Unrecognized command or argument 'bundle'.
-```
-
-[Unrecognized command or argument 'optimize' on Entity Framework Core .NET Command-line Tools 5.0.7](https://github.com/dotnet/efcore/issues/25135)  
 
 ---
 
@@ -70,3 +121,22 @@ _datContext = serviceProvider.GetService<DatContext>();
 [How to Add Entity Framework Core DBContext in .NET Core Console Application](http://www.techtutorhub.com/article/How-to-Add-Entity-Framework-Core-DBContext-in-Dot-NET-Core-Console-Application/86)  
 
 検索文字列 : dependency injection dbcontext console app  
+
+---
+
+## トラブルシューティング
+
+### dotnet ef migrations bundle のエラー
+
+バンドルを作成しようとした時にエラーが発生。  
+バンドルはEF Core 6.0からの機能。  
+5.0では当然エラーになるというわけです。  
+
+``` txt
+Build started...
+Build succeeded.
+Specify --help for a list of available options and commands.
+Unrecognized command or argument 'bundle'.
+```
+
+[Unrecognized command or argument 'optimize' on Entity Framework Core .NET Command-line Tools 5.0.7](https://github.com/dotnet/efcore/issues/25135)  

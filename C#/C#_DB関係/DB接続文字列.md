@@ -241,8 +241,18 @@ Windows 認証 (統合セキュリティ) を使用する
 
 Windows認証モードで接続する。  
 
->Windows 認証は、接続文字列に `Integrated Security` キーワードまたは `Trusted_Connection` キーワードを使用することによって指定できます。こうすることで、ユーザー ID とパスワードを使う必要がなくなります。  
+>Windows 認証は、接続文字列に `Integrated Security` キーワードまたは `Trusted_Connection` キーワードを使用することによって指定できます。  
+>こうすることで、ユーザー ID とパスワードを使う必要がなくなります。  
 >[接続情報の保護](https://learn.microsoft.com/ja-jp/dotnet/framework/data/adonet/protecting-connection-information)  
+
+---
+
+## Trusted_Connection
+
+>Trusted_Connection=Trueは、Windows 認証を指定します。  
+>つまり、Windows 資格情報を使用して SQL Server に接続します。  
+>ライブ サーバーでは、SQL Server のユーザー名とパスワードを持つSQL Server 認証を使用します。  
+>[Database-First approach in Entity Framework Core](https://www.yogihosting.com/database-first-approach-entity-framework-core/)  
 
 ---
 
