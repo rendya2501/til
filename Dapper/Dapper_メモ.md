@@ -141,3 +141,40 @@ foreach (var item in result)
 ```
 
 ---
+
+## join dynamic
+
+Joinした結果を受け取るPOCOがない。  
+もしくは定義するのに値しない。  
+サクッと受け取りたい場合どのようにすればよいのか。  
+
+**dynamic**で受けるべし。  
+
+それか素直にTuple作って受け取ればいい。  
+
+``` cs
+const string sql = @"
+    select 
+        Products.ProductId, 
+        Products.ProductName, 
+        Products.ProductCategory, 
+        ProductPrice.Amount, 
+        ProductPrice.Currency
+    from Products join ProductPrice 
+    on Products.ProductId = ProductPrice.ProductId";
+
+// get dynamic
+IEnumerable<dynamic> products = sqlConnection.Query(sql);
+
+// get tuple
+(int ProductId, string ProductName, byte ProductCategory, int Amount, decimal Currency) tupleProduts = sqlConnection.Query(sql);
+```
+
+>最初の例では、テーブルの各行を1つではなく、2つのオブジェクト（商品と仕入先）にマッピングするマルチマッピングを行っていますが、これは商品が返される前に参照によってリンクされます。  
+動的なオブジェクトでは、このようなことはできないと思います。  
+なぜなら、Dapperは、列をどのように分割すればよいのか、わからないからです。  
+一般的なパラメータ`<Product, Supplier, Product>`を`<dynamic, dynamic, dynamic>`に置き換えて、テストで確認することができます。  
+[Using dynamic list of objects in dapper join queries](https://stackoverflow.com/questions/35254330/using-dynamic-list-of-objects-in-dapper-join-queries)  
+
+公式でもそうしろって言ってる。  
+[github_dapper](https://github.com/DapperLib/Dapper#execute-a-query-and-map-it-to-a-list-of-dynamic-objects)  

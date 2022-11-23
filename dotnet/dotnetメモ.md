@@ -16,8 +16,8 @@
 コマンドの場合はこのようにするらしい。  
 
 ``` txt
-\$ dotnet add reference ../OPMLCoredotNET/src/OPMLCore.NET/OPMLCore.NET.csproj
-\$ dotnet restore
+dotnet add reference ../OPMLCoredotNET/src/OPMLCore.NET/OPMLCore.NET.csproj
+dotnet restore
 ```
 
 [.NET Core, Visual Studio Codeでプロジェクト参照を追加する](https://www.aruse.net/entry/2018/09/09/203402)  
@@ -26,7 +26,8 @@
 
 ## .NetFrameworkから.NetCoreへの移行
 
-.NetCoreはプロジェクトファイルとその内容が.NetCoreの内容であれば良いので、Framework依存のフォルダ等は全て削除して、プロジェクトの内容を.NetCoreのモノに書き換えるだけで移行できる。  
+.NetCoreのプロジェクトは基本的にプロジェクトファイルだけがあればよい。  
+後はプロジェクトファイルの内容が.NetCoreの書式になっていればよいので、.NetFrameworkから移行する場合は、Framework依存のフォルダ等を全て削除して、プロジェクトファイルの内容を.NetCoreの書式に書き換えるだけで移行できる。  
 
 これを知らないとプロジェクトから作り直して、フォルダを移動してという面倒な作業が必要になる。(1敗)  
 

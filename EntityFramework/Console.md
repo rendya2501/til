@@ -2,9 +2,43 @@
 
 コンソールアプリからMigrationの実行、及びバンドルの作成に関してまとめ
 
-## DIあり 1
+---
 
-DIするならこのような形になる。  
+## DIパターン 1
+
+中々面倒な書き方だが、こうしないと`dotnet ef`コマンドによるマイグレーションファイルやバンドルの作成ができない。  
+参考リンクの話によるとEF Core CLI は ASP.NET Core アプリケーションの Program クラスに定義されている (であろう) CreateWebHostBuilder メソッドを必要とするらしいので、ASP.Net CoreのStartupみたいな書き方でないといけないらしい。  
+
+``` cs : Program.cs
+using IHost host = Host.CreateDefaultBuilder(args)
+    .ConfigureServices((hostContext, services) =>
+    {
+        services
+            .AddDbContext<DatContext>(options =>
+            {
+                var appsettings = hostContext.Configuration.GetConnectionString("DefaultConnection");
+                options.UseSqlServer(appsettings);
+            });
+    })
+    .Build();
+host.Services.GetService<DatContext>().Database.Migrate();
+```
+
+[dotnet ef migrations でエラーになった話](https://qiita.com/wukann/items/53462f4b21104ed75c31)  
+[デザイン時 DbContext 作成](https://learn.microsoft.com/ja-jp/ef/core/cli/dbcontext-creation?tabs=dotnet-core-cli)  
+
+---
+
+## DIパターン 2
+
+こちらのパターンの場合は`Migration`メソッドを実行することはできるが、`dotnet ef`コマンドによるマイグレーションファイルの生成などはできない。  
+以下のようなエラーが発生してしまう。  
+
+``` txt
+Unable to create an object of type '○○DbContext'. For the different patterns supported at design time, see https://go.microsoft.com/fwlink/?linkid=851728
+```
+
+わざわざこの形にしてまでDIする必要もないので、これは備忘録として残しておく。  
 
 ``` cs
 using System;
@@ -24,41 +58,32 @@ public partial class DatContext : DbContext
 ```
 
 ``` cs : Program.cs
-using EFCoreSample.Context;
 using Microsoft.EntityFrameworkCore;
 using System;
 
-Console.WriteLine("開始");
-
 var ob = new DbContextOptionsBuilder<DbContext>();
-ob.UseSqlServer("Server=.\SQLEXPRESS;Database=<db_name>;Integrated Security=true");
+ob.UseSqlServer(@"Server=.\SQLEXPRESS;Database=<db_name>;Integrated Security=true");
 
 using var dbContext = new DbContext(ob.Options);
 dbContext.Database.Migrate();
 ```
 
----
+jsonから取得するならこうなる。
 
-## DIあり 2
+``` cs
+using System.IO;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
-Program.csはこれでもMigration可能。  
-
-``` cs : Program.cs
-using IHost host = Host.CreateDefaultBuilder(args)
-    .ConfigureServices((hostContext, services) =>
-    {
-        services
-            .AddDbContext<DatContext>(options =>
-            {
-                var appsettings = hostContext.Configuration.GetConnectionString("DefaultConnection");
-                options.UseSqlServer(appsettings);
-            });
-    })
+var configuration = new ConfigurationBuilder()
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
     .Build();
-host.Services.GetService<DatContext>().Database.Migrate();
-```
 
-[dotnet ef migrations でエラーになった話](https://qiita.com/wukann/items/53462f4b21104ed75c31)  
+var ob = new DbContextOptionsBuilder<DbContext>();
+ob.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
+dbContext.Database.Migrate();
+```
 
 ---
 
@@ -82,7 +107,7 @@ public partial class DatContext : DbContext
     // Contextクラスにおいて直接、接続情報を記述した場合
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseSqlServer(@"Data Source=.\SQLEXPRESS;Initial Catalog=[database_name];Integrated Security=True");
+        optionsBuilder.UseSqlServer(@"Server=.\SQLEXPRESS;Database=<db_name>;Integrated Security=True");
     }
 
     public virtual DbSet<HogeEntity> HogeEntity { get; set; }
@@ -112,6 +137,9 @@ Bundleで実行した場合、途中でエラーになっても、エラー直�
 既に1が適応されているデータベースに対して、TransactionありのMigrationを実行した結果、1のままであった。  
 Transactionを外して実行したら、3でエラーとなって、2まで適応されることを確認した。  
 なのでTransactionは有効である。  
+
+しかし、この状態でバンドルを生成して同じように移行してみたが、その場合はRollbaskされなかった。  
+割と残念。  
 
 ``` cs
 using Microsoft.EntityFrameworkCore;

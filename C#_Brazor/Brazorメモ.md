@@ -196,6 +196,45 @@ public class HogehogeDataService
 
 ---
 
+## blazor multi select bind
+
+[.NET6 Blazor selectタグ multiple @bind](https://sumomo.ohwaki.jp/wordpress/?p=406)  
+
+---
+
+RazorでのDapperサンプル（dynamicで受け取る場合）
+dapper-smple1.cshtml
+
+``` cs
+@using Dapper;
+@{
+    dynamic users;
+    using( var cn = new System.Data.SqlServerCe.SqlCeConnection("接続文字列"))
+    {
+       cn.open();
+       users　= cn.Query("SELECT * FROM users");
+    }
+}
+<!DOCTYPE html>
+<html lang="en">
+    <head >
+        <meta charset="utf-8" />
+        <title></ title>
+    </head>
+    <body>
+        <ul>
+        @foreach( var d in users){
+            <li> @d.Name : @ d.Email : @d.Age</li>
+        }
+        </ul>
+    </body>
+</html>
+```
+
+[kiyokura/dapper-smple1.cshtml](https://gist.github.com/kiyokura/7185300)  
+
+---
+
 ## 参考サイト
 
 <https://qiita.com/tags/blazor>

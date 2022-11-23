@@ -70,6 +70,12 @@ nugetサイトでは``をメインに紹介しているので、素直にそち�
 [git_dotnet](https://github.com/dotnet/docs/blob/main/docs/core/tutorials/top-level-templates.md)  
 [開発メモ その286 最上位ステートメント (top-level statements) を無効にする](https://taktak.jp/2022/07/09/4445/)  
 
+### 2022/11/23 Wed 追記
+
+`dotnet new console --help`で確認してみたら`--use-program-main`というトップレベルステートメントを無効化するオプションが追加されていたので、それを使えばよい。  
+
+因みにこの状態から`Console.WriteLine("Hello, World!");`意外を全て削除しても動くので、そこのところもちゃんと考えられているっぽい。  
+
 ---
 
 >庭に小さな穴を掘るのにショベルカーを使うような感じである。  

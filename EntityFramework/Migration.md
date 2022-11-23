@@ -57,7 +57,7 @@ EF6ではストアドは行けそうだが、Coreでは無理。
 そうなった場合、最初にリバースエンジニアリングを行い、テーブル構造を取り込んでからバージョン情報だけを記載して、運用を開始するという流れになると予想し、方法を調査した。  
 
 EF6では`add-migration <MigrationName> -ignoreChanges`というコマンドがあり、これにより、リバースエンジニアリングした後、テーブルの変更を無視してバージョン情報だけを追記することができる模様。  
-しかし、EFCoreはまだ荒削りでそのような機能がないので、対処法としてUpメソッドの中身を全て消去してからマイグレーションを実行するといける模様。  
+しかし、EFCoreはまだ荒削りでそのような機能がないので、対処法としてUpメソッドの中身を全て消去してからマイグレーションを実行する必要がある。  
 
 >EF Core Code First は優れていますが、ツールはまだ荒削りです。  
 >そこにないものや、機能が完全でないものがあります。  
@@ -123,11 +123,21 @@ EFCoreバンドルの作成について一番参考になる動画
 コンソールアプリでバンドルを作成する方法とコードを紹介しているところ  
 [EF Core 6  - Apresentando Migration Bundles](https://macoratti.net/21/09/efc6_migbndl1.htm)  
 
-M1,M2,M3という移行が必要でM2まで
+M1,M2,M3という移行が必要でM2まで適応させたい場合の方法についての解説  
 [Entity Framework Core + Code Style で、指定名のマイグレーションまでに留めてマイグレーションする](https://devadjust.exblog.jp/28746582/)  
 
 `dotnet ef database update <Migration Name>`で戻したい時点のMigrationを指定します。  
 こうすることでDBの状態が指定したMigration時点に戻ります。  
 [EntityFramework CoreでDBの状態を過去のマイグレーションに戻す。](https://kitigai.hatenablog.com/entry/2019/03/05/163622)  
 
+プロジェクトの中でMigrationプロジェクトをクラスライブラリとして運用したい場合の対処法  
 [Entity Framework CoreのMigrationをクラスライブラリに対して実施したい](https://qiita.com/gushwell/items/4c1e54ab3281670db0b9)  
+
+公式でも別のプロジェクトを使う方法を解説してくれている。  
+[別の移行プロジェクトを使用する](https://learn.microsoft.com/ja-jp/ef/core/managing-schemas/migrations/projects?tabs=dotnet-core-cli)  
+
+Microsoft公式によるバンドルの紹介  
+[Introducing DevOps-friendly EF Core Migration Bundles](https://devblogs.microsoft.com/dotnet/introducing-devops-friendly-ef-core-migration-bundles/)
+
+一連の流れを説明してくれている。  
+[Entity Framework のマイグレーションを基礎から理解する](https://qiita.com/yutotakakura/items/31ab539321502deacd88)  
