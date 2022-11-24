@@ -7,6 +7,8 @@ string sql = "SELECT * FROM SomeTable WHERE id IN @ids"
 var results = conn.Query(sql, new { ids = new[] { 1, 2, 3, 4, 5 }});
 ```
 
+Dapperが括弧で括ってくれる模様。  
+
 [SELECT * FROM X WHERE id IN (...) with Dapper ORM](https://stackoverflow.com/questions/8388093/select-from-x-where-id-in-with-dapper-orm)  
 
 ---
@@ -35,7 +37,7 @@ SQLServerはもっぱら`CONCAT`か`+`演算子になる模様。
 
 ## Dapper boolの受け取り
 
-SELECTで `1 AS [Flag]` とか `0 AS [Flag]` と定義して、タプルとかでboolのつもりで受けようとしても取得できない。  
+SELECTで `1 AS [Flag]` とか `0 AS [Flag]` と定義して、boolで受けようとしても取得できない。  
 intとして解釈されるため、型の関係で取得できない模様。  
 
 `CONVERT(BIT,'TRUE') AS [Flag]` のように、ちゃんとコンバートしないと取得できない模様。  
@@ -66,14 +68,13 @@ intとして解釈されるため、型の関係で取得できない模様。
 コネクションをオープンにして返すだけでDapperとついているが、DapperをUsingしていない。  
 そして使用するときはDapperのクエリを呼ぶだけ。  
 なら使用と同時にオープンして結果を返すようにしてしまったほうが良いのではないかと思った。  
+
 [Using a Dapper Base Repository in C# to Improve Readability](https://exceptionnotfound.net/using-a-dapper-base-repository-in-c-to-improve-readability/)  
 このリンクの通り、Dapperメソッドをラップして、エラー制御とコネクション制御までやってくれている。  
 使う側はDapperのラップクラスのメソッドを用途に応じて使用するだけ。  
 なんで、この方法を皆取らないのだろうかと不思議に思う。  
 
-リポジトリパターンのサンプルに書くと、少々複雑というか、余計なことになりそうなので、こちらのほうに退避させる。  
-
-``` cs : Program
+``` cs : Program.cs
 builder.Service.AddSingleton<DapperContext>();
 ```
 
@@ -122,11 +123,10 @@ public class BookRepository : IBookRepository
 ```
 
 [Using Dapper with ASP.NET Core Web API](https://www.youtube.com/watch?v=C763K-VGkfc&t=147s)  
-[Using a Dapper Base Repository in C# to Improve Readability](https://exceptionnotfound.net/using-a-dapper-base-repository-in-c-to-improve-readability/)  
 
 ---
 
-## コンソールアプリでサクッとDapperを使うテンプレート
+## サクッとDapperを使うテンプレート
 
 ``` cs
 using Dapper;
@@ -154,14 +154,15 @@ Joinした結果を受け取るPOCOがない。
 
 ``` cs
 const string sql = @"
-    select 
-        Products.ProductId, 
-        Products.ProductName, 
-        Products.ProductCategory, 
-        ProductPrice.Amount, 
-        ProductPrice.Currency
-    from Products join ProductPrice 
-    on Products.ProductId = ProductPrice.ProductId";
+select 
+    Products.ProductId, 
+    Products.ProductName, 
+    Products.ProductCategory, 
+    ProductPrice.Amount, 
+    ProductPrice.Currency
+from Products join ProductPrice 
+on Products.ProductId = ProductPrice.ProductId
+";
 
 // get dynamic
 IEnumerable<dynamic> products = sqlConnection.Query(sql);
@@ -178,3 +179,26 @@ IEnumerable<dynamic> products = sqlConnection.Query(sql);
 
 公式でもそうしろって言ってる。  
 [github_dapper](https://github.com/DapperLib/Dapper#execute-a-query-and-map-it-to-a-list-of-dynamic-objects)  
+
+---
+
+## 動的に条件文を組み立てる
+
+``` cs
+var sql = "select * from customers" + (gender != null ? " where gender = @Gender" : "");
+```
+
+上記、動的生成は下記のように書き換え可能。  
+割と盲点だった。  
+インデックスは不明な模様。  
+
+``` cs
+const string sql = @"
+select * 
+from customers
+where (gender = @Gender or @Gender is null)
+";
+var customers = _connection.Query(sql, new {Gender = (object) null});
+```
+
+[Dapper のクエリ](https://qiita.com/masakura/items/3409a766e46580a5ad99)  

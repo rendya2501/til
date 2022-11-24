@@ -456,3 +456,13 @@ CLUSTERD句がなくても動くことは知っていたのだが、この場合
 >主キーは自動的にクラスタ化インデックスになるので、例示のCLUSTEREDはなくても動きます。  
 >
 >[SQL Serverチートシート](https://qiita.com/esflat/items/7885e53737163eb955fe)  
+
+---
+
+## MSDTC (Microsoft Distributed Transaction Cordinator)
+
+>分散トランザクション (Distributed Transaction) は、複数サーバーにまたがったトランザクションのことで、この調整 (Coordinate) を行うための機能がMSDTCサービスです。  
+>[SQLServer2016の教科書]  
+
+TransactionScopeを使うとこの仕組みを使う模様。  
+Linuxでは対応していないので、SQLServerをLinuxにもっていって、TransactionScopeを使うと死ぬ模様。  

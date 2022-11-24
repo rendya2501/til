@@ -7,6 +7,14 @@
 ビジネスロジックとデータベース処理を分離するパターン。  
 データベースへのアクセスを担当する中間層を設けるパターン。  
 
+データベースへのアクセス処理等をまとめる。  
+ロジック層はデータベースへのアクセスを気にする必要がなくなる。  
+煩雑なDBアクセスのロジックを書く必要がなくなる。  
+本来の業務ロジックに集中する事ができる。  
+
+リポジトリパターンはドメイン駆動開発(DDD)やUnitOfWork,CQRSなど複数の概念と密接に関係しているパターン。  
+このパターン単体ではなく、他のパターンや概念を理解した上で使っていくのがベスト。  
+
 >リポジトリパターンとはビジネスロジックとデータ操作のロジックを分離し、データ操作を抽象化したレイヤに任せるデザインパターンのことです。  
 >リポジトリパターンでは、DBの操作や外部APIによるデータ取得等のデータソースへのアクセス部分は Repository インターフェースから完全に隠蔽されます。  
 >[リポジトリパターンと Laravel アプリケーションでのディレクトリ構造](https://qiita.com/karayok/items/d7740ab2bd0adbab2e06#:~:text=%E3%83%AA%E3%83%9D%E3%82%B8%E3%83%88%E3%83%AA%E3%83%91%E3%82%BF%E3%83%BC%E3%83%B3%E3%81%A8%E3%81%AF%E3%83%93%E3%82%B8%E3%83%8D%E3%82%B9,%E5%AE%8C%E5%85%A8%E3%81%AB%E9%9A%A0%E8%94%BD%E3%81%95%E3%82%8C%E3%81%BE%E3%81%99%E3%80%82)  
@@ -64,7 +72,7 @@ MVCにおける「Model」「View」「Controller」「Service」「Repository�
 
 ---
 
-## Entity Framework を使うならRepository PatternやUnitOfWork Patternは必要ない
+## Entity Framework を使うならRepository PatternやUnitOfWork Patternは必要ない?
 
 >DbContextクラスはUnitOfWorkとRepositoryを混在させて提供しています。  
 >DbContext の `DbSet<Something>` プロパティに対するコンテナに過ぎないリポジトリクラスは必要ないのです。  
@@ -187,6 +195,19 @@ public class ServiceRepository : IServiceRepository{}
 
 ---
 
+## 汎用インターフェース
+
+>汎用 Repoitory インタフェースを定義したい気持ちは理解できますが、管理人的にはイマイチ納得できません。  
+>納得できない理由として Delete や Update はトランザクション系のデータには不要な場合も多々ありますし、キーを指定してデータを取得する GetById メソッドは文字列のキーにしか対応できない、複合キーにも対応できない等…インタフェースとしてして定義するには不完全だと思うからです。  
+>
+>但し、汎用 Repoitory インタフェースを全否定している訳ではなくマスタ系データのように汎用 Repoitory インタフェースを定義した方が良い場合もあるので、その辺りは臨機応変にすべきだと思っています。  
+>[ようこそ Dapper 至上主義の DataAccess へ【#5 WPF MVVM L@bo】](https://elf-mission.net/programming/wpf/mvvm-labo/phase05/#DataAccess_Repository)  
+
+ログテーブルの操作とか、INSERTしかないパターンもあるので、汎用的なインターフェースを実装しないパターンもあり得るのかもしれない。  
+その場合は、汎用インターフェースを実装せず、個別でインターフェースを定義するのもありだろうか。  
+
+---
+
 ## Unit Of Work パターンのすゝめ
 
 マスター系等、1画面1テーブルに対応したプログラムならRepositoryパターンだけで事足りるかもしれないが、現実はそんな簡単に行かない。  
@@ -204,6 +225,15 @@ CRUDプログラムに置けるデータベースへのアクセス及び、ト�
 奥が深い。  
 
 [How can I implement a transaction for my repositories with Entity Framework?](https://stackoverflow.com/questions/39906474/how-can-i-implement-a-transaction-for-my-repositories-with-entity-framework)  
+
+---
+
+## アンチパターン
+
+- 機能やロールでRepositoryを分ける  
+- 子テーブルに対して沢山Repositoryを作る  
+- 複雑なクエリをRepositoryで頑張って発行する  
+
 [Repositoryパターンのアンチパターン](https://qiita.com/mikesorae/items/ff8192fb9cf106262dbf)  
 
 ---
