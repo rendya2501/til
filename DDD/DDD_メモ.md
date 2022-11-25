@@ -8,3 +8,6 @@
 [DDD の練習してみた（C# 編）](https://qiita.com/TakashiOnawa/items/19258d9a006240a48ec7)  
 
 [Domain Layer Structure & Skeleton | Clean Architecture & DDD From Scratch Tutorial | Part 13](https://www.youtube.com/watch?v=jnutb5Z4wyg)  
+
+DDDの形で作れるテンプレート  
+[EduardoPires/EquinoxProject](https://github.com/EduardoPires/EquinoxProject)  

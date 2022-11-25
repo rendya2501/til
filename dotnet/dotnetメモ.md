@@ -45,3 +45,7 @@ WPFを選択した場合、.NET Framework 4.7/4.8にするか、.NET Core 3に�
 リリースが間近か、現在ある資産をどうしても手放せないのであれば、.NET Framework 4.7/4.8でしょうか。  
 
 [Windowsデスクトップ向け業務アプリ開発には何を採用すべきか？](https://qiita.com/sengoku/items/fb4948e0d2746e3cc26f)  
+
+---
+
+## dotnet cli

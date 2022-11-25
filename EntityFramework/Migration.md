@@ -1,13 +1,68 @@
-# EFCore + Migration
+# Migration
 
 EntityFrameworkCore(以下EFCore)を使ったデータベース管理およびマイグレーション管理(CREATE,ALTER等の情報)の方法をまとめていく。  
 
-メモ
+EF Coreを使用する大きな利点は、マイグレーションと呼ばれるメカニズムを通じてスキーマの変更を管理できることです。  
 
-EFCoreの移行プロジェクト
-○・コンソールアプリ
-×・クラスライブラリ
-？・WebAPI
+---
+
+## 移行のアプローチの種類
+
+マイクロソフトが提示する移行のアプローチとして5種類の方法が提示されている。  
+
+- SQL スクリプト  
+- べき等 SQL スクリプト  
+- コマンド ライン ツール  
+- 実行時に移行を適用する  
+- バンドル  
+
+[microsoft_移行の適用](https://learn.microsoft.com/ja-jp/ef/core/managing-schemas/migrations/applying?tabs=dotnet-core-cli)  
+
+伝統的な3つの方法としては「SQLスクリプト」「べき等スクリプト」「CLI」が挙げられる。  
+実行と同時に移行を適応する方法はリスクがあるため推奨されていない。  
+EFCore 6から新しい方法としてバンドルが提供された。  
+
+---
+
+## 各移行のアプローチ全文
+
+>スクリプト作成  
+>EF Core ツールを使用して移行から SQL スクリプトを生成する方法があります。  
+>この利点は、展開前にスクリプトを検査し、必要に応じて修正することができることです。  
+>スクリプトは純粋なSQLであり、自動化プロセスまたはデータベース管理者（DBA）の手動介入を問わず、EF Coreとは独立して管理および展開することが可能です。  
+>デフォルトでは、スクリプトは生成元の移行に固有のものであり、以前の変更が適用されていることを前提としています。  
+>スクリプトを順番に実行しないと、スクリプトが失敗して予期しない副作用が発生する可能性があります。  
+>
+>べき等スクリプト  
+>2つ目のオプションは、べき等スクリプトを生成することです。  
+>これは、既存のバージョンをチェックし、データベースを最新の状態にするために必要に応じて複数のマイグレーションを適用するスクリプトです。  
+>どちらのアプローチにもトレードオフがありますが、idempotentオプションは、1つのサイズのスクリプトを持つ最も安全なアプローチです。  
+>
+>コマンドラインインターフェース (CLI)  
+>コマンドラインツールを使って直接アップデートを展開することが可能です。  
+>これは、生成されたマイグレーションを検査する機会を与えずに変更を即座にデプロイしてしまうというリスクを伴います。  
+>また、ツールの依存関係（.NET SDK、モデルをコンパイルするためのソースコード、ツール自体）が本番サーバーにインストールされている必要があります。  
+>
+>アプリケーションの起動  
+>Database.Migrate() メソッドを呼び出すことにより、アプリケーションの一部として移行を実行することができます。  
+>これはうまくいくかもしれませんが、この方法には問題があります。  
+>分散システムでは、複数のノードが同時に起動すると、互いに衝突して同時にアップグレードしようとしたり、部分的に更新されたデータベースに対して移行しようとしたりすることがあります。  
+>スキーマを変更するには、アプリケーションに昇格した権限が必要ですが、その権限を付与することはセキュリティリスクとなります。  
+>CLI のアプローチと同様に、SQL を適用する前に確認する機会がありません。  
+>
+>移行バンドルの導入  
+>スクリプトは依然として移行に有効な選択肢の一つです。  
+>コードアプローチを選択する人のために、そしてコマンドラインとアプリケーション起動アプローチに関連するいくつかのリスクを軽減するために、EF CoreチームはEF Core 6.0 Preview 7での移行バンドルのプレビュー利用を発表します。  
+>移行バンドルはコマンドラインインターフェースと同じアクションを実行します。  
+>
+>移行バンドルは、移行を実行するために必要なすべてのものを含む自己充足的な実行ファイルです。  
+>パラメータとして接続文字列を受け取ります。これは、すべての主要なツール (Docker、SSH、PowerShell など) で動作する、継続的な展開で使用される成果物を意図しています。  
+>ソースコードのコピーや.NET SDKのインストールは必要なく（ランタイムのみ）、DevOpsパイプラインのデプロイメントステップとして統合することができます。  
+>また、マイグレーション活動をメインアプリケーションから切り離すため、レースコンディションの心配がなく、メインアプリケーションのパーミッションを上げる必要もありません。  
+>将来的には、Visual StudioやGitHub ActionsのようなDevOpsツールセットで、マイグレーションバンドルを使用するファーストクラスのビルディングブロックを利用できるようにすることを目指しています。  
+>今のところ、私たちはバンドルを提供し、あなたはそれを実行する責任を負います。
+>
+>[Introducing DevOps-friendly EF Core Migration Bundles](https://devblogs.microsoft.com/dotnet/introducing-devops-friendly-ef-core-migration-bundles/)  
 
 ---
 
@@ -54,9 +109,9 @@ EF6ではストアドは行けそうだが、Coreでは無理。
 一番最初に移行を行う時の問題。  
 
 途中からEFCoreによるマイグレーション管理を行うということはデータベースファーストからコードファーストへの移行を意味する。  
-そうなった場合、最初にリバースエンジニアリングを行い、テーブル構造を取り込んでからバージョン情報だけを記載して、運用を開始するという流れになると予想し、方法を調査した。  
+その場合、最初にリバースエンジニアリングを行い、テーブル構造を取り込んでからバージョン情報だけを記載して、運用を開始するという流れになると予想し、方法を調査した。  
 
-EF6では`add-migration <MigrationName> -ignoreChanges`というコマンドがあり、これにより、リバースエンジニアリングした後、テーブルの変更を無視してバージョン情報だけを追記することができる模様。  
+EF6では`add-migration <MigrationName> -ignoreChanges`というコマンドがあり、これにより、リバースエンジニアリングした後、テーブルの変更を無視してバージョン情報だけを記載することができる模様。  
 しかし、EFCoreはまだ荒削りでそのような機能がないので、対処法としてUpメソッドの中身を全て消去してからマイグレーションを実行する必要がある。  
 
 >EF Core Code First は優れていますが、ツールはまだ荒削りです。  
@@ -98,15 +153,71 @@ efcore Add-Migration InitialCreate –IgnoreChanges
 
 ---
 
-## 移行の適用
+## WebプロジェクトがMigrationプロジェクトと親和性が高い理由
 
-- SQL スクリプト  
-- べき等 SQL スクリプト  
-- コマンド ライン ツール  
-- バンドル  
-- 実行時に移行を適用する  
+コンソールアプリからバンドル等を作成しようとした時、うまくいかなかった。  
 
-[移行の適用](https://learn.microsoft.com/ja-jp/ef/core/managing-schemas/migrations/applying?tabs=dotnet-core-cli)  
+参考リンク先の文献をそのまま引用する。  
+
+>どうやら、EF Core CLI は ASP.NET Core アプリケーションの Program クラスに定義されている (であろう) CreateWebHostBuilder メソッドを必要とする模様。  
+
+- コンソールアプリではHostをBuildする必要がある。  
+  - 最初からHostingが前提のWebアプリのほうが手っ取り早い。  
+- コンソールアプリでappsettings.jsonを使う場合、パッケージをインストールする必要がある。  
+  - Webアプリでは最初からjsonがサポートされているので手っ取り早い。  
+- コンソールアプリではユーザーシークレットの機能が使えない。(たぶん頑張ればいけるけど、調べた感じパッと出てこなかった)  
+  - Webアプリは問題なく使える。  
+
+というわけで、webアプリで構築したほうがいろいろ都合がよい。  
+
+[dotnet ef migrations でエラーになった話](https://qiita.com/wukann/items/53462f4b21104ed75c31)  
+
+---
+
+## Migrationプロジェクトをクラスライブラリとして使う方法
+
+まだ検証段階だが、この通りにやれば行けるかも。  
+
+``` txt
+sln
+├─Sample.Web  Webアプリケーション。Sample.Dbを参照
+├─Sample.API  Web APIプロジェクト。Sample.Dbを参照
+└─Sample.Db   DBのEntityクラスを定義したクラスライブラリ
+```
+
+`dotnet ef migrations add NewMigration --startup-project ..//Sample.API`  
+
+[Entity Framework CoreのMigrationをクラスライブラリに対して実施したい](https://qiita.com/gushwell/items/4c1e54ab3281670db0b9)  
+[別の移行プロジェクトを使用する](https://learn.microsoft.com/ja-jp/ef/core/managing-schemas/migrations/projects?tabs=dotnet-core-cli)  
+
+---
+
+## MigrationメソッドでDownを実現する
+
+dotnet-efコマンドやDbContextクラス等でも、直接的なDownコマンドは存在しない。  
+Downしたい場合は、マイグレーションファイル名を直接指定する。  
+そうすることで指定したマイグレーションまで戻ることができ、その時Downメソッドが実行される。  
+DbContextクラスのMigrationメソッドを普通に使う場合、引数を受け付けるようにはできていないので、ファイル名を指定したDownを実行することができないが、参考リンク先の方法を使えばそれができるようになる。  
+
+>まず知っておくべき事として、実は、dbContext.Database オブジェクトは、`IInfrastructure<IServiceProvider>` インターフェースを実装している。  
+>このインターフェース経由で dbContext.Database オブジェクトに問い合わせすると、dbContext.Database オブジェクトが隠し持っている (?) 各種サービスの参照を手に入れることができる。  
+>
+>そして、それらサービスのひとつとして、EFCore におけるマイグレーションの諸々を司る IMigrator インターフェースのサービスがある。  
+>
+>この IMigrator インターフェースには、指定の名前のマイグレーション定義にまでマイグレーションを進める、引数に対象マイグレーション定義名を持つ、`MigrateAsync(string)` 又はその同期バージョンである `Migrate(string)`メソッドが用意されているのだ。  
+>
+>``` cs
+>var services = dbContext.Database as IInfrastructure<IServiceProvider>;
+>var migrator = services.GetService<IMigrator>();
+>await migrator.MigrateAsync("M2");
+>```
+>
+>これで指定したマイグレーション定義、上記例だと "M2" までのマイグレーション適用が可能とな>る。
+>[Entity Framework Core + Code Style で、指定名のマイグレーションまでに留めてマイグレーションする]
+
+因みにリンク先の内容はM1,M2,M3という移行が必要でM2まで適応させたい場合の方法についての解説しているところである。
+
+[Entity Framework Core + Code Style で、指定名のマイグレーションまでに留めてマイグレーションする](https://devadjust.exblog.jp/28746582/)  
 
 ---
 
@@ -123,21 +234,22 @@ EFCoreバンドルの作成について一番参考になる動画
 コンソールアプリでバンドルを作成する方法とコードを紹介しているところ  
 [EF Core 6  - Apresentando Migration Bundles](https://macoratti.net/21/09/efc6_migbndl1.htm)  
 
-M1,M2,M3という移行が必要でM2まで適応させたい場合の方法についての解説  
-[Entity Framework Core + Code Style で、指定名のマイグレーションまでに留めてマイグレーションする](https://devadjust.exblog.jp/28746582/)  
-
 `dotnet ef database update <Migration Name>`で戻したい時点のMigrationを指定します。  
 こうすることでDBの状態が指定したMigration時点に戻ります。  
 [EntityFramework CoreでDBの状態を過去のマイグレーションに戻す。](https://kitigai.hatenablog.com/entry/2019/03/05/163622)  
-
-プロジェクトの中でMigrationプロジェクトをクラスライブラリとして運用したい場合の対処法  
-[Entity Framework CoreのMigrationをクラスライブラリに対して実施したい](https://qiita.com/gushwell/items/4c1e54ab3281670db0b9)  
-
-公式でも別のプロジェクトを使う方法を解説してくれている。  
-[別の移行プロジェクトを使用する](https://learn.microsoft.com/ja-jp/ef/core/managing-schemas/migrations/projects?tabs=dotnet-core-cli)  
 
 Microsoft公式によるバンドルの紹介  
 [Introducing DevOps-friendly EF Core Migration Bundles](https://devblogs.microsoft.com/dotnet/introducing-devops-friendly-ef-core-migration-bundles/)
 
 一連の流れを説明してくれている。  
 [Entity Framework のマイグレーションを基礎から理解する](https://qiita.com/yutotakakura/items/31ab539321502deacd88)  
+
+EF Coreのmigrate機能を使わずにデータベースのスキーマを更新する方法  
+DbUpいいんじゃないって紹介  
+[How to update a database’s schema without using EF Core’s migrate feature](https://www.thereformedprogrammer.net/how-to-update-a-databases-schema-without-using-ef-cores-migrate-feature/)  
+
+EFによる移行をグラフィカルに確認できるっぽいツール  
+バンドルだけではできない移行を確認をある程度行える模様。  
+まぁ、面白そうだなというか、ある程度グラフィカルに確認したいという欲求はどこの誰しも考えることなんだなと思ったのでリンクしておく。  
+.NetFrameworkで作られているので、できれば作り直したい。  
+[fatihgurdal/EntityFrameworkMigrationEditor](https://github.com/fatihgurdal/EntityFrameworkMigrationEditor)  
