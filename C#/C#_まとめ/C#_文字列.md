@@ -28,15 +28,13 @@
 基本は`{インデックス}`で置き換え場所を指定する事。  
 中かっこ自体を表示する方法も地味にわからなかったが、それは`{{`でエスケープすればよかった。  
 
-<https://buralog.jp/csharp-string-interpolation/>  
-
 ``` C# 5.0以前
 string stationaries = "Pen";
 string fruits = "Pineapple Apple";
 // 表示するインデックスが多すぎると、わけわからなくなる。
 MessageBox.Show(string.Format("PPAPとは{0} {1} {2}の略である。", stationaries, fruits, stationaries));
 // string.Formatを噛まさなくても、Console.Write直でいける。
-Console.Write("PPAPとは{0} {1} {2}の略である。", stationaries, fruits, stationaries));
+Console.Write("PPAPとは{0} {1} {2}の略である。", stationaries, fruits, stationaries);
 ```
 
 ``` C# 6.0以降
@@ -55,6 +53,8 @@ MessageBox.Show($"{{{ppap}}}");
 // 結果は{Pen Pineapple Apple Pen}と表示されます。
 ```
 
+[【C#】特殊文字「${ }」は文字列補間](https://buralog.jp/csharp-string-interpolation/)  
+
 ---
 
 ## プレースホルダー中におけるToStringFormatの指定
@@ -70,6 +70,22 @@ C#Ver6からの機能みたい。結構実装されてから経っているの�
 ``` C#
 // SettlementAmount.ToString("N0") → SettlementAmount:N0
 $"支払額{SettlementAmount:N0}円を人数{TargetPlayerCount}人で均等に割り付けます。{Environment.NewLine}よろしいですか？"
+```
+
+---
+
+## プレースホルダーな文字列を渡さなくても問題ない
+
+Format関数の第2引数以降の文字列補完があっても、プレースホルダーなしの文字列を渡してもエラーにはならない。  
+
+``` cs
+var str = "{0}『{1}』のデータは存在しません。";
+System.Console.WriteLine(string.Format(str,"1","2"));
+// 1『2』のデータは存在しません。
+
+str = "aaaaa";
+System.Console.WriteLine(string.Format(str,"1","2"));
+// aaaa
 ```
 
 ---
