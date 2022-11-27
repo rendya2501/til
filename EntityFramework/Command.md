@@ -58,3 +58,26 @@ EFCoreにはない。
 
 `--IgnoreChanges`はデータベースに対して何もしないことを表すオプション。  
 EFCoreで同じ事をやろうとした場合、Upメソッドの中身を全て削除して実行する必要がある模様。  
+
+---
+
+## `--configurations Bundle`の意味
+
+[Introduction to Migration Bundles - What can they do the migration scripts don't?](https://www.youtube.com/watch?v=mBxSONeKbPk)  
+この動画で紹介されているバンドルの作成コマンドは`dotnet ef migrations bundle --configurations Bundle`で紹介されている。  
+別にこれで普通にできるのだが、`--configurations Bundle`の意味は何なのか気になったので調べて見た。  
+
+>`--configuration`はビルドの設定（例：Release、Debug）に対して行うモノであり、appsettings.jsonの設定を使いたい場合は`--environment`を指定すれば良いとのこと。  
+それか、コマンドを実行する前に`ASPNETCORE_ENVIRONMENT`環境変数を設定してから`dotnet ef databese update`を実行すべしとの事。  
+[dotnet ef does not respect configuration](https://stackoverflow.com/questions/52665058/dotnet-ef-does-not-respect-configuration)  
+
+<!--  -->
+>ありがたいことに、この問題はBundle-Migration errors with "cannot access file...being used by another process" #25555で報告されており、将来的には修正されるはずです。  
+回避策として、コマンドにパラメータ --configuration Bundle を追加すると、このエラーはなくなります。  
+[GitLab CI/CD Series: Building .NET API Application and EF Core Migration Bundle](https://maciejz.dev/gitlab-ci-cd-series-building-net-api-application-and-ef-core-migration-bundle/)  
+
+どうやらエラー回避のためのオプションとして有効な模様。  
+それ以外はわからないが、バンドル生成の時につけておいて損はないのかもしれない。  
+
+あー、`--configurations`でdebug,release以外の文言で生成しないとdllを参照しているからブロックされてエラーになってしまうのか。
+それを回避するのがこのコマンドということかな？  
