@@ -81,3 +81,5 @@ EFCoreで同じ事をやろうとした場合、Upメソッドの中身を全て
 
 あー、`--configurations`でdebug,release以外の文言で生成しないとdllを参照しているからブロックされてエラーになってしまうのか。
 それを回避するのがこのコマンドということかな？  
+
+[EF Core 6 new features and changes for .NET 6](https://www.roundthecode.com/dotnet/entity-framework/ef-core-6-new-features-and-changes-for-net-6)  
