@@ -67,8 +67,8 @@ EFCoreで同じ事をやろうとした場合、Upメソッドの中身を全て
 この動画で紹介されているバンドルの作成コマンドは`dotnet ef migrations bundle --configurations Bundle`で紹介されている。  
 別にこれで普通にできるのだが、`--configurations Bundle`の意味は何なのか気になったので調べて見た。  
 
->`--configuration`はビルドの設定（例：Release、Debug）に対して行うモノであり、appsettings.jsonの設定を使いたい場合は`--environment`を指定すれば良いとのこと。  
-それか、コマンドを実行する前に`ASPNETCORE_ENVIRONMENT`環境変数を設定してから`dotnet ef databese update`を実行すべしとの事。  
+>`--configuration`はビルドの設定（例：Release、Debug）に対して行うモノであり、appsettings.jsonの設定を使いたい場合は`--environment`を指定すれば良い。  
+それか、コマンドを実行する前に`ASPNETCORE_ENVIRONMENT`環境変数を設定してから`dotnet ef databese update`を実行すべし。  
 [dotnet ef does not respect configuration](https://stackoverflow.com/questions/52665058/dotnet-ef-does-not-respect-configuration)  
 
 <!--  -->
@@ -76,10 +76,37 @@ EFCoreで同じ事をやろうとした場合、Upメソッドの中身を全て
 回避策として、コマンドにパラメータ --configuration Bundle を追加すると、このエラーはなくなります。  
 [GitLab CI/CD Series: Building .NET API Application and EF Core Migration Bundle](https://maciejz.dev/gitlab-ci-cd-series-building-net-api-application-and-ef-core-migration-bundle/)  
 
+<!--  -->
+>ここでも、上記と同じエラーが表示されました。  
+この問題を回避する方法は、dotnetコマンドラインスクリプトに-configurationパラメータを追加し、そのパラメータにdebugやrelease以外のものが含まれていることを確認することでした。  
+`dotnet ef migrations bundle --verbose --configuration abc`  
+これでうまくいき、efbundles.exe ファイルが生成されました。  
+[EF Core 6 new features and changes for .NET 6](https://www.roundthecode.com/dotnet/entity-framework/ef-core-6-new-features-and-changes-for-net-6)  
+
 どうやらエラー回避のためのオプションとして有効な模様。  
 それ以外はわからないが、バンドル生成の時につけておいて損はないのかもしれない。  
 
-あー、`--configurations`でdebug,release以外の文言で生成しないとdllを参照しているからブロックされてエラーになってしまうのか。
-それを回避するのがこのコマンドということかな？  
+2つある海外の記事では
 
-[EF Core 6 new features and changes for .NET 6](https://www.roundthecode.com/dotnet/entity-framework/ef-core-6-new-features-and-changes-for-net-6)  
+■**予想**  
+
+`--configurations`でdebug,release以外の文言で生成しないとdllを参照しているからブロックされてエラーになってしまう。  
+それをこのコマンドで回避できる可能性。  
+
+■**検証結果**  
+
+実際に検証してみたが、効果はなかった。  
+VisualStudioからPMCコマンドで`Migration-Bundle`を実行した場合、普通にエラーとなった。  
+dotnet-efコマンドで`dotnet ef migrations bundle`を実行して、同じくエラー。  
+dotnet-efコマンドで`dotnet ef migrations bundle --configurations Bundle` or `--configurations abc`を実行してみたが、エラーとなった。  
+コンフィグレーションの指定は関係ない模様。  
+`--verbose`結果の中で`--runtime' を使用する場合は、'--self-contained' または '--no-self-contained' オプションのいずれかが必要です。`とあったので、試しに`--self-contained`を入れて見たらコンフィグレーション関係なくバンドルが作成できてしまった。  
+
+検証結果的には、`--configuration Bundle`ではなく`--self-contained`が重要であることが分かった結果となった。  
+結果として、`--configuration Bundle`はバンドル生成時のエラー回避のためのおまじない程度でしかないということで決着だろうか。  
+
+検証が終わった後に#25555のスレッドを見てみたが、`--configuration Bundle`は常にうまくいくとは限らない模様。  
+うまくいったり行かなかったりで、やはりおまじないの域は出ないのかもしれない。  
+2022/11/25 Friの書き込みでは`dotnet ef migrations bundle --no-build --force --configuration Production`で回避できるらしい。  
+`appsetting.[EnvironmentName].json`を用意して、`EnvironmentName`をConfigurationに指定するといいっぽい。  
+[「ファイルにアクセスできません...別のプロセスで使用されています」というバンドル移行エラー #25555](https://github.com/dotnet/efcore/issues/25555)  
