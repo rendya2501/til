@@ -7,7 +7,7 @@ using MigrationBundleConsoleAppExample.Context;
 class Program
 {
     private static DatContext? _datContext;
-    private const string connectionString = @"Data Source=.\SQLEXPRESS;Initial Catalog=BundleDB2;Integrated Security=True";
+    private const string connectionString = @"Server=.\SQLEXPRESS;Database=BundleDB2;Integrated Security=True";
 
     static void Main(string[] args)
     {

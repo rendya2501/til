@@ -14,7 +14,7 @@ namespace MigrationBundleConsoleAppExample.Context
         // Contextクラスにおいて直接、接続情報を記述した場合
         //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         //{
-        //    optionsBuilder.UseSqlServer(@"Data Source=.\SQLEXPRESS;Initial Catalog=BundleDB2;Integrated Security=True");
+        //    optionsBuilder.UseSqlServer(@"Server=.\SQLEXPRESS;Database=BundleDB2;Integrated Security=True");
         //}
 
         // DIする場合

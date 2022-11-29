@@ -17,11 +17,11 @@ PowerShell用コマンド
 ## リバースエンジニアリングコマンド
 
 ``` txt : PMC
-Scaffold-DbContext 'Data Source=TestServer;Initial Catalog=TestDatabase;User ID=sa;Password=123456789' Microsoft.EntityFrameworkCore.SqlServer -OutputDir Model -ContextDir Context -Context DatContext -DataAnnotations -UseDatabaseNames -Force
+Scaffold-DbContext 'Server=TestServer;Database=TestDatabase;User ID=sa;Password=123456789' Microsoft.EntityFrameworkCore.SqlServer -OutputDir Model -ContextDir Context -Context DatContext -DataAnnotations -UseDatabaseNames -Force
 ```
 
 ``` txt : dotnet-ef
-dotnet ef scaffold dbcontext 'Data Source=TestServer;Initial Catalog=TestDatabase;User ID=sa;Password=123456789' Microsoft.EntityFrameworkCore.SqlServer -OutputDir Model -ContextDir Context -Context DatContext -DataAnnotations -UseDatabaseNames -Force
+dotnet ef scaffold dbcontext 'Server=TestServer;Database=TestDatabase;User ID=sa;Password=123456789' Microsoft.EntityFrameworkCore.SqlServer -OutputDir Model -ContextDir Context -Context DatContext -DataAnnotations -UseDatabaseNames -Force
 ```
 
 ``` txt : コマンドの意味
@@ -110,3 +110,11 @@ dotnet-efコマンドで`dotnet ef migrations bundle --configurations Bundle` or
 2022/11/25 Friの書き込みでは`dotnet ef migrations bundle --no-build --force --configuration Production`で回避できるらしい。  
 `appsetting.[EnvironmentName].json`を用意して、`EnvironmentName`をConfigurationに指定するといいっぽい。  
 [「ファイルにアクセスできません...別のプロセスで使用されています」というバンドル移行エラー #25555](https://github.com/dotnet/efcore/issues/25555)  
+
+---
+
+## バンドル発行
+
+`dotnet ef migrations bundle --self-contained -r win-x64`  
+`dotnet ef migrations bundle --self-contained -r win-x86`  
+`dotnet ef migrations bundle --self-contained -r linux-x64`  

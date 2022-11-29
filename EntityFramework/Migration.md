@@ -180,11 +180,13 @@ efcore Add-Migration InitialCreate –IgnoreChanges
 
 ## WebプロジェクトがMigrationプロジェクトと親和性が高い理由
 
-コンソールアプリからバンドル等を作成しようとした時、うまくいかなかった。  
+コンソールアプリからbundleを作成しようとした時、うまくいかなかった。  
+スタートアップの書き方はWebをHostするような形でないと駄目らしい。  
 
 参考リンク先の文献をそのまま引用する。  
 
 >どうやら、EF Core CLI は ASP.NET Core アプリケーションの Program クラスに定義されている (であろう) CreateWebHostBuilder メソッドを必要とする模様。  
+[dotnet ef migrations でエラーになった話](https://qiita.com/wukann/items/53462f4b21104ed75c31)  
 
 - コンソールアプリではHostをBuildする必要がある。  
   - 最初からHostingが前提のWebアプリのほうが手っ取り早い。  
@@ -194,8 +196,6 @@ efcore Add-Migration InitialCreate –IgnoreChanges
   - Webアプリは問題なく使える。  
 
 というわけで、webアプリで構築したほうがいろいろ都合がよい。  
-
-[dotnet ef migrations でエラーになった話](https://qiita.com/wukann/items/53462f4b21104ed75c31)  
 
 ---
 
@@ -243,6 +243,51 @@ DbContextクラスのMigrationメソッドを普通に使う場合、引数を�
 
 ---
 
+## 複合主キー
+
+複合主キーはEntityの`Key`アノテーションの指定だけでは無理。  
+DbContextクラスのOnModelCreatingメソッドの中でHasKeyメソッドによる複合主キーの設定が必要。  
+そうしなければ、マイグレーションファイル作成時にエラーとなり、移行処理を先に進めることができなくなる。  
+
+`Category`エンティティに`Key`アノテーションで複合主キーを設定する。  
+
+``` cs : Category.cs
+public class Category
+{
+    [Key]
+    public int Id { get; set; }
+    [Key]
+    public string Name { get; set; }
+    public ICollection<Product> Products { get; set; }
+}
+```
+
+マイグレーションファイル追加コマンド実行  
+`dotnet ef migrations add Third`  
+
+以下のエラーが発生する。  
+
+``` txt
+The entity type 'Category' has multiple properties with the [Key] attribute. Composite primary keys can only be set using 'HasKey' in 'OnModelCreating'.
+```
+
+DbContextでOnModelCreatingメソッドをoverrideし、Linq中でHasKeyで複合主キーを設定しなければならない。  
+
+``` cs : DbContext
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Category>(entity =>
+        {
+            entity.HasKey(e => new { e.Id, e.Name })
+                .HasName("Category_PKC");
+
+            // 省略
+        }
+    }
+```
+
+---
+
 ## コードからのEFCoreのマイグレーションを実行する
 
 バンドルやCLI以外でも、管理画面から移行を実行したいという要望は結構ある模様。  
@@ -261,10 +306,6 @@ DbContextクラスのMigrationメソッドを普通に使う場合、引数を�
 [IMigrator インターフェイス](https://learn.microsoft.com/ja-jp/dotnet/api/microsoft.entityframeworkcore.migrations.imigrator?view=efcore-6.0)  
 
 こいつを掌握できればコマンドからしかアクセスできない処理でも実行できるかもしれない。
-
-## efcoreソースコード  
-
-[github_dotnet/efcore](https://github.com/dotnet/efcore/blob/main/src/EFCore.Relational/Migrations/IMigrator.cs)  
 
 ---
 
@@ -300,3 +341,12 @@ EFによる移行をグラフィカルに確認できるっぽいツール
 まぁ、面白そうだなというか、ある程度グラフィカルに確認したいという欲求はどこの誰しも考えることなんだなと思ったのでリンクしておく。  
 .NetFrameworkで作られているので、できれば作り直したい。  
 [fatihgurdal/EntityFrameworkMigrationEditor](https://github.com/fatihgurdal/EntityFrameworkMigrationEditor)  
+
+efcoreソースコード  
+[github_dotnet/efcore](https://github.com/dotnet/efcore/blob/main/src/EFCore.Relational/Migrations/IMigrator.cs)  
+
+プログラムでマイグレーションを実行するための命令について紹介してくれている。  
+[EF Core – Apply migrations programmatically](https://makolyte.com/ef-core-apply-migrations-programmatically/)  
+
+WebAPI + EF6 の構築サンプル  
+[Ways To Run Entity Framework Migrations in ASP.NET Core 6](https://medium.com/geekculture/ways-to-run-entity-framework-migrations-in-asp-net-core-6-37719993ddcb#2be2)  

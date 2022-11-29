@@ -54,7 +54,7 @@ appsettings.jsonが存在しない場合はエラーとなり、移行は実行�
 
 CUIからの場合はオプションの指定が可能。  
 
-`efbundle --connection "Data Source=.\SQLEXPRESS;Initial Catalog=<db_name>;User ID=<user_id>;Password=<passwd>;`  
+`efbundle --connection "Server=.\SQLEXPRESS;Database=<db_name>;User ID=<user_id>;Password=<passwd>;`  
 
 ヘルプ :  
 `efbandle --help`  
@@ -91,7 +91,7 @@ DBContextクラスで直接、接続文字列を書くくらいなら、DIした
 ASP.NET Core 2.2 アプリで dotnet ef コマンドを実行する場合は、 Program.cs に CreateWebHostBuilder メソッドが必要な模様。  
 
 ``` cs : ○ bundle作成できた
-string connectionString = @"Data Source=.\SQLEXPRESS;Initial Catalog=BundleDB2;Integrated Security=True";
+string connectionString = @"Server=.\SQLEXPRESS;Database=BundleDB2;Integrated Security=True";
 
 using IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((hostContext, services) =>

@@ -11,16 +11,6 @@ NuGetから`Microsoft.EntityFrameworkCore.Tools`をインストールするこ�
 
 [Entity Framework Core ツールのリファレンス - Visual Studio のパッケージ マネージャー コンソール](https://learn.microsoft.com/ja-jp/ef/core/cli/powershell)  
 
-■インストール手順  
-
-`Install-Package Microsoft.EntityFrameworkCore.Tools`  
-
-Version指定する場合  
-`Install-Package Microsoft.EntityFrameworkCore.Tools -Version 5`  
-
-インストールの確認  
-`Get-Help about_EntityFrameworkCore`  
-
 ---
 
 ## dotnet-ef
@@ -39,12 +29,21 @@ Entity Framework Core 用のコマンドライン インターフェイス ツ�
 ## Entity Framework Core tools
 
 EFCoreのパッケージ マネージャー コンソール コマンドを実行できるようにするためのツール。  
-
-NuGetからインストールして使用する。  
+NuGetから取得して使用する。  
 
 >Entity Framework Core ツールは、設計時の開発タスクに役立ちます。  
 主に移行の管理と、DbContext およびエンティティ型のスキャフォールディング (データベースのスキーマをリバース エンジニアリングする) に使用されます。  
 [Entity Framework Core tools reference](https://learn.microsoft.com/ja-jp/ef/core/cli/)  
+
+■インストール手順  
+
+`Install-Package Microsoft.EntityFrameworkCore.Tools`  
+
+Version指定する場合  
+`Install-Package Microsoft.EntityFrameworkCore.Tools -Version 5`  
+
+インストールの確認  
+`Get-Help about_EntityFrameworkCore`  
 
 ---
 
@@ -52,8 +51,10 @@ NuGetからインストールして使用する。
 
 対象プロジェクトの階層で下記コマンドを実行  
 
-`dotnet new tool-manifest`  
-`dotnet tool install dotnet-ef --version 6.*`  
+``` txt
+dotnet new tool-manifest
+dotnet tool install dotnet-ef --version 6.*
+```
 
 アップデートする場合  
 `dotnet tool update --version 6.* dotnet-ef`  
