@@ -1,13 +1,5 @@
 # DB接続文字列
 
-これを使え  
-
-``` txt
-Server=<sv_name>;Database=<db_name>;User ID=<userName>;Password=<passwd>;Trust Server Certificate=true
-```
-
----
-
 ## ConnectionString
 
 ①サーバを「DataSource」指定する場合  
