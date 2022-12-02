@@ -1,8 +1,6 @@
 # Command
 
-## PMC
-
-PowerShell用コマンド  
+## パッケージ マネージャー コンソール (PMC)
 
 [Entity Framework Core ツールのリファレンス - Visual Studio のパッケージ マネージャー コンソール](https://learn.microsoft.com/ja-jp/ef/core/cli/powershell)  
 
@@ -113,8 +111,26 @@ dotnet-efコマンドで`dotnet ef migrations bundle --configurations Bundle` or
 
 ---
 
-## バンドル発行
+## バンドル発行コマンド
 
-`dotnet ef migrations bundle --self-contained -r win-x64`  
-`dotnet ef migrations bundle --self-contained -r win-x86`  
-`dotnet ef migrations bundle --self-contained -r linux-x64`  
+`dotnet ef migrations bundle`
+
+``` batch : BuildBundle.bat
+@echo off
+rem 自己完結型でバンドルを発行する
+
+@echo --- win-x64_Start ---
+dotnet ef migrations bundle --self-contained -r win-x64 --output efbundle_win-x64.exe --force
+@echo --- win-x64_Finished ---
+
+@echo --- win-x86_Start ---
+dotnet ef migrations bundle --self-contained -r win-x86 --output efbundle_win-x86.exe --force
+@echo --- win-x86_Finished ---
+
+@echo --- linux-x64_Start ---
+dotnet ef migrations bundle --self-contained -r linux-x64 --output efbundle_linux-x64 --force
+@echo --- linux-x64_Finished ---
+
+@echo --- AllFinished ---
+pause > nul
+```

@@ -2,11 +2,9 @@
 
 EntityFrameworkCore(以下EFCore)を使ったデータベース管理およびマイグレーション管理(CREATE,ALTER等の情報)の方法をまとめていく。  
 
-EF Coreを使用する大きな利点は、マイグレーションと呼ばれるメカニズムを通じてスキーマの変更を管理できることです。  
-
 ---
 
-## 移行のアプローチの種類
+## 移行アプローチの種類
 
 マイクロソフトが提示する移行のアプローチとして5種類の方法が提示されている。  
 
@@ -24,7 +22,7 @@ EFCore 6から新しい方法としてバンドルが提供された。
 
 ---
 
-## 各移行のアプローチ全文
+## 各移行アプローチにおける説明_from_Microsoft
 
 >スクリプト作成  
 >EF Core ツールを使用して移行から SQL スクリプトを生成する方法があります。  
@@ -66,7 +64,7 @@ EFCore 6から新しい方法としてバンドルが提供された。
 
 ---
 
-## 各移行のアプローチ全文2
+## 各移行アプローチにおける説明2
 
 >従来のマイグレーション方法  
 >
@@ -88,6 +86,14 @@ EFCore 6から新しい方法としてバンドルが提供された。
 >- 移行をアプリケーションコードから切り離し、分散セットアップでの競合状態を防止します。  
 >
 >[GitLab CI/CD Series: Building .NET API Application and EF Core Migration Bundle](https://maciejz.dev/gitlab-ci-cd-series-building-net-api-application-and-ef-core-migration-bundle/)  
+
+---
+
+## MigrationにおいてEFCoreを利用するメリット
+
+EF Coreを使用する大きな利点は、マイグレーションと呼ばれるメカニズムを通じてスキーマの変更を管理できることです。  
+
+[Introducing DevOps-friendly EF Core Migration Bundles](https://devblogs.microsoft.com/dotnet/introducing-devops-friendly-ef-core-migration-bundles/)  
 
 ---
 
@@ -197,7 +203,7 @@ efcore Add-Migration InitialCreate –IgnoreChanges
 - コンソールアプリではユーザーシークレットの機能が使えない。(たぶん頑張ればいけるけど、調べた感じパッと出てこなかった)  
   - Webアプリは問題なく使える。  
 
-というわけで、webアプリで構築したほうがいろいろ都合がよい。  
+というわけで、webプロジェクトとして構築したほうがいろいろ都合がよい。  
 
 ---
 
@@ -250,7 +256,7 @@ DbContextクラスのMigrationメソッドを普通に使う場合、引数を�
 DbContextクラスのOnModelCreatingメソッドの中でHasKeyメソッドによる複合主キーの設定が必要。  
 そうしなければ、マイグレーションファイル作成時にエラーとなり、移行処理を先に進めることができなくなる。  
 
-`Category`エンティティに`Key`アノテーションで複合主キーを設定する。  
+■`Category`エンティティに`Key`アノテーションで複合主キーを設定する。  
 
 ``` cs : Category.cs
 public class Category
@@ -263,10 +269,11 @@ public class Category
 }
 ```
 
-マイグレーションファイル追加コマンド実行  
-`dotnet ef migrations add Third`  
+■マイグレーションファイル追加コマンド実行  
 
-以下のエラーが発生する。  
+`dotnet ef migrations add <name>`  
+
+すると、以下のエラーが発生する。  
 
 ``` txt
 The entity type 'Category' has multiple properties with the [Key] attribute. Composite primary keys can only be set using 'HasKey' in 'OnModelCreating'.
@@ -289,7 +296,32 @@ DbContextでOnModelCreatingメソッドをoverrideし、Linq中でHasKeyで複�
 
 ---
 
-## コードからEFCoreのマイグレーションを実行する
+## 列を途中に追加する場合、順序は維持されない
+
+単純にAddColumnされるだけである。  
+なので、エンティティのプロパティの順序とデータベースのカラムの順序がずれることになる。  
+順番を維持したければ、自前でクエリを書く必要がある。  
+(tempテーブルを用意しつつ、新しいテーブルを作って、INSERT SELECTしてTEMPをDROPするやつ)  
+
+---
+
+## 列の変更
+
+列の変更は、Alterではない。
+→
+drop columnした後、add columnする。
+Alter Columnではない。
+`EXEC sp_rename 'テーブル名.現在の列名','変更する列名','COLUMN'`  
+
+列定義の変更も同様
+alter tableされず、
+`ALTER TABLE テーブル名 ALTER COLUMN 変更する列名 データ型`
+
+[EntityFramework Core のエンティティを名前変更したら、テーブル削除/新しい名前でテーブル新規作成のマイグレーションコードが生成されてしまった](https://devadjust.exblog.jp/28190433/)  
+
+---
+
+## 管理画面からEFCoreのマイグレーションを実行する
 
 バンドルやCLI以外でも、管理画面から移行を実行したいという要望は結構ある模様。  
 
