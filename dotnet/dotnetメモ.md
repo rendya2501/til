@@ -49,4 +49,27 @@ WPFを選択した場合、.NET Framework 4.7/4.8にするか、.NET Core 3に�
 
 ---
 
+## 自己完結型で発行しつつ、zipで圧縮するバッチ
+
+``` batch
+@echo off
+rem 自己完結型でwin-x86とlinux-x64向けに発行し、GitHubにアップロードするためにzip圧縮するバッチファイル
+
+dotnet publish （１） -o （２） -c Release --self-contained=true -r linux-x64 -p:PublishSingleFile=true -p:PublishTrimmed=true
+powershell Compress-Archive -Path （２） -DestinationPath （２）.zip -Force
+
+dotnet publish （１） -o （３） -c Release --self-contained=true -r win-x86 -p:PublishSingleFile=true -p:PublishTrimmed=true
+powershell Compress-Archive -Path （３） -DestinationPath （３）.zip -Force
+
+dotnet publish （１） -o （３） -c Release --self-contained=true -r win-x64 -p:PublishSingleFile=true -p:PublishTrimmed=true
+powershell Compress-Archive -Path （３） -DestinationPath （３）.zip -Force
+
+@echo --- Finished ---
+pause > nul
+```
+
+[.Net Coreのコントロールアプリを自己完結型で発行する際に参考にした情報](https://qiita.com/yusuke-sasaki/items/80bb84c4b3534d1481fc)  
+
+---
+
 ## dotnet cli

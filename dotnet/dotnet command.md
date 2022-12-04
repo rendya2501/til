@@ -74,7 +74,7 @@ nugetサイトでは``をメインに紹介しているので、素直にそち�
 
 `dotnet new console --help`で確認してみたら`--use-program-main`というトップレベルステートメントを無効化するオプションが追加されていたので、それを使えばよい。  
 
-因みにこの状態から`Console.WriteLine("Hello, World!");`意外を全て削除しても動くので、そこのところもちゃんと考えられているっぽい。  
+因みにこの状態から`Console.WriteLine("Hello, World!");`以外を全て削除しても動くので、そこのところもちゃんと考えられているっぽい。  
 
 ---
 
@@ -93,6 +93,26 @@ web api dotnet run iis express vscode
 [VS CodeでWebコーディング環境を作ろう（IIS向け）](https://machdesign.net/blog/article/vscode-iis-windows)  
 
 [Run Dotnet Core App With Code Examples](https://www.folkstalk.com/tech/run-dotnet-core-app-with-code-examples/)  
+
+---
+
+## dotnet watch run
+
+`dotnet run` のリロードに相当する機能は `dotnet watch run`で行える。  
+
+.net6からの機能。  
+
+[[.NET 6 新機能] dotnet watch によるホットリロード](https://watermargin.net/programming/net-6-dotnet-watch-hot-reload/)  
+
+---
+
+## カレントディレクトリにフォルダ名とは別にプロジェクトを作成する
+
+- -o でカレントディレクトリ(`./`)を指定  
+- -n でプロジェクト名を指定  
+
+例 : 現在の場所にtestという名前でコンソールプロジェクトを作成するコマンド  
+`dotnet new console -o ./ -n test`  
 
 ---
 

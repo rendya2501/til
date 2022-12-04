@@ -238,6 +238,207 @@ CRUDプログラムに置けるデータベースへのアクセス及び、ト�
 
 ---
 
+## AIに実装させたやつ
+
+EntityはBookとCatalogueとして、リポジトリパターンのサンプルを記述してください。
+C#10,Dapperを使用してください。
+BookとCatalogueにはIRepositoryを実装したIBookRepositoryとICatalogueRepositoryを実装してください。
+IRepositoryの実装もしてください。
+WebAPIとして実装してください。
+
+``` cs
+// IRepository インターフェイス
+public interface IRepository<T>
+{
+    IEnumerable<T> GetAll();
+    T GetById(int id);
+    void Insert(T entity);
+    void Update(T entity);
+    void Delete(T entity);
+}
+
+// IBookRepository
+public interface IBookRepository : IRepository<Book>
+{
+    // ここにBook固有のメソッドを記述
+}
+
+// ICatalogueRepository
+public interface ICatalogueRepository : IRepository<Catalogue>
+{
+    // ここにCatalogue固有のメソッドを記述
+}
+```
+
+``` cs
+// IBookRepository の実装
+public class BookRepository : IBookRepository
+{
+    private readonly IDbConnection _connection;
+
+    public BookRepository(IDbConnection connection)
+    {
+        _connection = connection;
+    }
+
+    public IEnumerable<Book> GetAll()
+    {
+        return _connection.Query<Book>("SELECT * FROM Books");
+    }
+
+    public Book GetById(int id)
+    {
+        return _connection.QueryFirstOrDefault<Book>("SELECT * FROM Books WHERE Id = @id", new {id});
+    }
+
+    public void Insert(Book entity)
+    {
+        _connection.Execute("INSERT INTO Books (Name, Author) VALUES(@Name, @Author)", new { entity.Name, entity.Author });
+    }
+
+    public void Update(Book entity)
+    {
+        _connection.Execute(
+          "UPDATE Books SET Name = @Name, Author = @Author WHERE Id = @Id",
+          new { entity.Name, entity.Author, entity.Id }
+        );
+    }
+
+    public void Delete(Book entity)
+    {
+        _connection.Execute("DELETE FROM Books WHERE Id = @Id", new { entity.Id });
+    }
+}
+
+// ICatalogueRepository の実装
+public class CatalogueRepository : ICatalogueRepository
+{
+    private readonly IDbConnection _connection;
+
+    public CatalogueRepository(IDbConnection connection)
+    {
+        _connection = connection;
+    }
+
+    public IEnumerable<Catalogue> GetAll()
+    {
+        return _connection.Query<Catalogue>("SELECT * FROM Catalogues");
+    }
+
+    public Catalogue GetById(int id)
+    {
+        return _connection.QueryFirstOrDefault<Catalogue>("SELECT * FROM Catalogues WHERE Id = @id", new {id});
+    }
+
+    public void Insert(Catalogue entity)
+    {
+        _connection.Execute(
+          "INSERT INTO Catalogues (Name, Description) VALUES(@Name, @Description)", 
+          new { entity.Name, entity.Description }
+        );
+    }
+
+    public void Update(Catalogue entity)
+    {
+        _connection.Execute(
+          "UPDATE Catalogues SET Name = @Name, Description = @Description WHERE Id = @Id", 
+          new { entity.Name, entity.Description, entity.Id }
+        );
+    }
+
+    public void Delete(Catalogue entity)
+    {
+        _connection.Execute("DELETE FROM Catalogues WHERE Id = @Id", new { entity.Id });
+    }
+}
+```
+
+``` cs : WebAPI
+public class BooksController : ApiController
+{
+    private readonly IBookRepository _bookRepository;
+
+    public BooksController(IBookRepository bookRepository)
+    {
+        _bookRepository = bookRepository;
+    }
+
+    // GET api/books
+    public IEnumerable<Book> Get()
+    {
+        return _bookRepository.GetAll();
+    }
+
+    // GET api/books/1
+    public Book Get(int id)
+    {
+        return _bookRepository.GetById(id);
+    }
+
+    // POST api/books
+    public void Post([FromBody]Book book)
+    {
+        _bookRepository.Insert(book);
+    }
+
+    // PUT api/books/1
+    public void Put(int id, [FromBody]Book book)
+    {
+        book.Id = id;
+        _bookRepository.Update(book);
+    }
+
+    // DELETE api/books/1
+    public void Delete(int id)
+    {
+        _bookRepository.Delete(_bookRepository.GetById(id));
+    }
+}
+
+public class CataloguesController : ApiController
+{
+    private readonly ICatalogueRepository _catalogueRepository;
+
+    public CataloguesController(ICatalogueRepository catalogueRepository)
+    {
+        _catalogueRepository = catalogueRepository;
+    }
+
+    // GET api/catalogues
+    public IEnumerable<Catalogue> Get()
+    {
+        return _catalogueRepository.GetAll();
+    }
+
+    // GET api/catalogues/1
+    public Catalogue Get(int id)
+    {
+        return _catalogueRepository.GetById(id);
+    }
+
+    // POST api/catalogues
+    public void Post([FromBody]Catalogue catalogue)
+    {
+        _catalogueRepository.Insert(catalogue);
+    }
+
+    // PUT api/catalogues/1
+    public void Put(int id, [FromBody]Catalogue catalogue)
+    {
+        catalogue.Id = id;
+        _catalogueRepository.Update(catalogue);
+    }
+
+    // DELETE api/catalogues/1
+    public void Delete(int id)
+    {
+        _catalogueRepository.Delete(_catalogueRepository.GetById(id));
+    }
+}
+```
+
+---
+
 ## 参考
 
 一番わかりやすい動画1  
