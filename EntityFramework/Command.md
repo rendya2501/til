@@ -14,15 +14,21 @@
 
 ## リバースエンジニアリングコマンド
 
-``` txt : PMC
+PMC
+
+``` txt
 Scaffold-DbContext 'Server=TestServer;Database=TestDatabase;User ID=sa;Password=123456789' Microsoft.EntityFrameworkCore.SqlServer -OutputDir Model -ContextDir Context -Context DatContext -DataAnnotations -UseDatabaseNames -Force
 ```
 
-``` txt : dotnet-ef
-dotnet ef scaffold dbcontext 'Server=TestServer;Database=TestDatabase;User ID=sa;Password=123456789' Microsoft.EntityFrameworkCore.SqlServer -OutputDir Model -ContextDir Context -Context DatContext -DataAnnotations -UseDatabaseNames -Force
+dotnet-ef
+
+``` txt
+dotnet ef dbcontext scaffold 'Server=TestServer;Database=TestDatabase;User ID=sa;Password=123456789' Microsoft.EntityFrameworkCore.SqlServer -o Model --context-dir Context --context DatContext --data-annotations --use-database-names --force
 ```
 
-``` txt : コマンドの意味
+コマンドの意味
+
+``` txt
 サーバー             : TestServer
 データベース         : TestDatabase
 ユーザー             : sa
@@ -35,7 +41,9 @@ dotnet ef scaffold dbcontext 'Server=TestServer;Database=TestDatabase;User ID=sa
 リバース結果を上書きする           : -force
 ```
 
-``` txt : コマンド実行後のフォルダ構成
+コマンド実行後のフォルダ構成
+
+``` txt
 Project
 ├─Context
 ├─Model
