@@ -78,29 +78,49 @@ nugetサイトでは``をメインに紹介しているので、素直にそち�
 
 ---
 
-## dotnet コマンドでSwaggerを起動する
+## dotnet runからSwaggerを起動する
 
 これで行けた。  
 `dotnet watch run`  
 
-プロファイルを指定した起動
+プロファイルを指定した起動  
 `dotnet run --launch-profile "IIS Express"`  
 
-上記のように、プロファイルを指定した起動も本来であれば、可能であるが、IIS Expressは対応していなかった。  
+上記のように、プロファイルを指定した起動も可能らしいが、以下のようなエラーとなってしまう。  
+dotnet run からIISのプロファイル起動はデフォルトの状態では無理な模様。  
+
+``` txt
+起動プロファイル "IIS Express" を適用できませんでした。       
+起動プロファイルの種類 'IISExpress' はサポートされていません。
+```
+
 CLIからの起動はkestrelだけがサポートされているためだと思われる。  
 同じようなことを考えている人はいた。  
 →[Launching from CLI with IIS Express profile fails #18925](https://github.com/dotnet/AspNetCore.Docs/issues/18925)  
 
-web api dotnet run iis express vscode  
+少々話が逸れるが、デフォルトルートにリダイレクト命令をかませることでも実現可能。  
+`dotnet run`を実行した時に表示されるURLを開くことで、swaggerのページに飛んでくれる。  
 
-[VS CodeでWebコーディング環境を作ろう（IIS向け）](https://machdesign.net/blog/article/vscode-iis-windows)  
-[Run Dotnet Core App With Code Examples](https://www.folkstalk.com/tech/run-dotnet-core-app-with-code-examples/)  
+``` cs
+app.MapGet("/", async context =>
+{
+    context.Response.Redirect("/swagger/index.html");
+    await context.Response.CompleteAsync();
+});
+
+app.Run();
+```
+
+- 参考  
+  - [VS CodeでWebコーディング環境を作ろう（IIS向け）](https://machdesign.net/blog/article/vscode-iis-windows)  
+  - [Run Dotnet Core App With Code Examples](https://www.folkstalk.com/tech/run-dotnet-core-app-with-code-examples/)  
+- 検索文字列 : web api dotnet run iis express vscode  
 
 ---
 
 ## dotnet watch run
 
-`dotnet run` のリロードに相当する機能は `dotnet watch run`で行える。  
+`dotnet run` のリロードに相当する機能は `dotnet watch run` で行える。  
 
 .net6からの機能。  
 

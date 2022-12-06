@@ -54,8 +54,6 @@ alter tableされず、
 
 ---
 
----
-
 ## 初期データの投入
 
 マイグレーションファイルに直接記述することで投入可能。  
@@ -186,3 +184,161 @@ DbContextでOnModelCreatingメソッドをoverrideし、Linq中でHasKeyで複�
 [IMigrator インターフェイス](https://learn.microsoft.com/ja-jp/dotnet/api/microsoft.entityframeworkcore.migrations.imigrator?view=efcore-6.0)  
 
 こいつを掌握できればコマンドからしかアクセスできない処理でも実行できるかもしれない。
+
+---
+
+この方式でバンドルを発行すると、絶対にappsettings.jsonが隣にないと動かない。  
+
+``` cs
+var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddDbContext<DatContext>(options =>options.UseSqlServer("name=ConnectionStrings:DefaultConnection"));
+var app = builder.Build();
+
+app.MapGet("/", () => "Hello World!");
+
+app.Run();
+```
+
+接続情報を空白にすることで問題なくappsettings.jsonがない場合に--connectionで設定可能。  
+
+``` cs
+var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddDbContext<DatContext>(options =>options.UseSqlServer());
+var app = builder.Build();
+
+app.MapGet("/", () => "Hello World!");
+
+app.Run();
+```
+
+コンソールアプリで以下のようにappsettings.jsonを参照するように記述するとappsettings.jsonがなくても、--connectionオプションを指定することで動く。  
+
+``` cs
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+
+using IHost host = Host.CreateDefaultBuilder(args)
+    .ConfigureServices((hostContext, services) =>
+    {
+        services
+            .AddDbContext<AppDbContext>(options =>
+            {
+                options.UseSqlServer(hostContext.Configuration.GetConnectionString("DefaultConnection"));
+            });
+    })
+    .Build();
+```
+
+■バンドル + web方式
+
+この方式でバンドルを発行すると、絶対にappsettings.jsonが隣にないと動かない。  
+
+``` cs
+var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddDbContext<DatContext>(options =>options.UseSqlServer("name=ConnectionStrings:DefaultConnection"));
+var app = builder.Build();
+
+app.MapGet("/", () => "Hello World!");
+
+app.Run();
+```
+
+●linux
+jsonあり ない状態で直接実行 ×→もちろんだめ
+jsonあり ある状態で直接実行 ○→もちろん普通に実行される
+jsonあり ない状態でコネクション指定 ×　→これだ。これのせいで混乱したんだ。windowsではこれは許可される。
+linux jsonあり ある状態でコネクション指定 ○ →コネクションの設定もちゃんと反映される
+linux 内包 直接実行 → ○いけた
+linux 内包 + connectionstring →○オプションの設定が優先して使用されることを確認した。
+
+●win
+win jsonあり ない状態で直接実行 ×→もちろんだめ
+win jsonあり ない状態でコネクション指定 ×→あれ？windowsはOKな気がしたけど、駄目みたい。。となれば、バンドルの動作はwinもlinuxも同じか？
+
+●バンドル + console方式 + linux
+linux jsonあり ない状態で直接実行 ×→もちろんだめ
+linux jsonあり ある状態で直接実行 ○→もちろん普通に実行される
+linux jsonあり ない状態でコネクション指定 ○→行けた。
+linux jsonあり ある状態でコネクション指定 ○ →オプションの設定が優先して使用される事を確認した。
+linux 内包 ○→動く
+linux 内包 + connectionstring →○オプションの設定が優先して使用される事を確認した。
+
+●バンドル + console方式 + win
+win json ない状態でコネクション指定 →○動いた。web方式では動かないやつはこちらでは動く。
+他もおそらくLinuxと同じはず。
+win 内包 ○→動く
+win 内包 + connectionstring →○オプションの設定が優先して使用される事を確認した。
+
+---
+
+## Consoleアプリで単一実行可能ファイルとして出力した時の
+
+target linux-x64で出力しただけだと動く。  
+だけどsingleにまとめると動かない。  
+ということは、うまいことまとめられていないということでは？  
+
+-p:PublishTrimmed=trueが悪さしてた。  
+これを消したらうまくいった。  
+
+- 発行元環境  
+  - Windons10  
+  - .Net 7.0.100  
+  - efcore 6  
+- 検証先環境  
+  - AlmaLinux relase 8.7 (Stone Smilodon)
+  - .Net 3.1.424
+
+○  
+`dotnet publish -o Output -c Release -r linux-x64 -p:PublishSingleFile=true`  
+
+○  
+`dotnet publish -o Output -c Release --self-contained true -r linux-x64 -p:PublishSingleFile=true`  
+
+×  
+`dotnet publish -o Output -c Release --self-contained=true -r linux-x64 -p:PublishSingleFile=true -p:PublishTrimmed=true`  
+→  
+PublishTrimmedオプションが有効だとEFCoreのdllが消される？っぽい  
+
+×  
+`dotnet publish -o Output -c Release --self-contained false -r linux-x64 -p:PublishSingleFile=true`  
+→  
+単一exeファイルにはなるが、必要なsdkを内包していないため、そもそも実行できない。  
+--self-containedはデフォルトではtrueであることも確認出来た。  
+
+[単一ファイルの配置と実行可能ファイル](https://learn.microsoft.com/ja-jp/dotnet/core/deploying/single-file/overview?tabs=cli)
+
+○  
+`dotnet publish -o Output-win-non -c Release --self-contained true -r win-x64 -p:PublishSingleFile=true`  
+
+×  
+`dotnet publish -o Output-win-trimmed -c Release --self-contained true -r win-x64 -p:PublishSingleFile=true -p:PublishTrimmed=true`  
+
+trimmedするとwindowsでもエラーになる。  
+でもってwindowsの場合、Microsoft.Data.SqlClient.SNI.dllは絶対についてくる模様。  
+もちろんこのdllがないとエラーになる。  
+
+>.NET Core に完全に移行されています。  
+ただし、Windows (win-x64) では、一部のネイティブ コンポーネントに依存します。これは、Linux では当てはまりません。  
+[Why does Microsoft.Data.SqlClient.SNI.dll get published under runtimes?](https://github.com/dotnet/efcore/issues/26175)  
+
+なるほど。  
+だからLinuxで発行するとできないのか。  
+
+`IncludeNativeLibrariesForSelfExtract=true`  
+これをつけるとこのdllも必要なくなる。  
+
+`IncludeNativeLibrariesForSelfExtract`はcsprojのタグなので`-p:`で指定する  
+
+`dotnet publish -o Output-win-non -c Release --self-contained true -r win-x64 -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true`  
+
+- 単一ファイル出力に必要なオプション  
+  - `PublishSingleFile`  
+  - `--self-contained`  
+  - `IncludeNativeLibrariesForSelfExtract`  
+
+[How do I get rid of SNI.dll when publishing as a "single file" in Visual Studio 2019?](https://stackoverflow.com/questions/65045224/how-do-i-get-rid-of-sni-dll-when-publishing-as-a-single-file-in-visual-studio)
+[.NET6の「単一ファイル」](https://qiita.com/up-hash/items/39fa0671bf390147eca9)  
+[単一ファイルの配置と実行可能ファイル](https://learn.microsoft.com/ja-jp/dotnet/core/deploying/single-file/overview?tabs=cli#output-differences-from-net-3x)
+[.NET 6 で単一ファイルの出力](https://blog.goo.ne.jp/pianyi/e/0a7482af785a4e46c8e04c1c8b28424f)

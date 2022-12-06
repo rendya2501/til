@@ -23,7 +23,7 @@ Scaffold-DbContext 'Server=TestServer;Database=TestDatabase;User ID=sa;Password=
 dotnet-ef
 
 ``` txt
-dotnet ef dbcontext scaffold 'Server=TestServer;Database=TestDatabase;User ID=sa;Password=123456789' Microsoft.EntityFrameworkCore.SqlServer -o Model --context-dir Context --context DatContext --data-annotations --use-database-names --force
+dotnet ef dbcontext scaffold 'Server=TestServer;Database=TestDatabase;User ID=sa;Password=123456789' Microsoft.EntityFrameworkCore.SqlServer -o Entity --context-dir Context --context DatContext --data-annotations --use-database-names --force
 ```
 
 コマンドの意味
@@ -116,29 +116,3 @@ dotnet-efコマンドで`dotnet ef migrations bundle --configurations Bundle` or
 2022/11/25 Friの書き込みでは`dotnet ef migrations bundle --no-build --force --configuration Production`で回避できるらしい。  
 `appsetting.[EnvironmentName].json`を用意して、`EnvironmentName`をConfigurationに指定するといいっぽい。  
 [「ファイルにアクセスできません...別のプロセスで使用されています」というバンドル移行エラー #25555](https://github.com/dotnet/efcore/issues/25555)  
-
----
-
-## バンドル発行コマンド
-
-`dotnet ef migrations bundle`
-
-``` batch : BuildBundle.bat
-@echo off
-rem 自己完結型でバンドルを発行する
-
-@echo --- win-x64_Start ---
-dotnet ef migrations bundle --self-contained -r win-x64 --output efbundle_win-x64.exe --force
-@echo --- win-x64_Finished ---
-
-@echo --- win-x86_Start ---
-dotnet ef migrations bundle --self-contained -r win-x86 --output efbundle_win-x86.exe --force
-@echo --- win-x86_Finished ---
-
-@echo --- linux-x64_Start ---
-dotnet ef migrations bundle --self-contained -r linux-x64 --output efbundle_linux-x64 --force
-@echo --- linux-x64_Finished ---
-
-@echo --- AllFinished ---
-pause > nul
-```

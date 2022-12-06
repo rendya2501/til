@@ -279,6 +279,32 @@ Unrecognized command or argument 'bundle'.
 
 ---
 
+## バンドル発行バッチ
+
+`dotnet ef migrations bundle`
+
+``` batch : BuildBundle.bat
+@echo off
+rem 自己完結型でバンドルを発行する
+
+@echo --- win-x64_Start ---
+dotnet ef migrations bundle --self-contained -r win-x64 --output efbundle_win-x64.exe --force
+@echo --- win-x64_Finished ---
+
+@echo --- win-x86_Start ---
+dotnet ef migrations bundle --self-contained -r win-x86 --output efbundle_win-x86.exe --force
+@echo --- win-x86_Finished ---
+
+@echo --- linux-x64_Start ---
+dotnet ef migrations bundle --self-contained -r linux-x64 --output efbundle_linux-x64 --force
+@echo --- linux-x64_Finished ---
+
+@echo --- AllFinished ---
+pause > nul
+```
+
+---
+
 ## 参考
 
 [Introduction to Migration Bundles - What can they do the migration scripts don't?](https://www.youtube.com/watch?v=mBxSONeKbPk)  
