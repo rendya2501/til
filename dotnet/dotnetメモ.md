@@ -2,6 +2,16 @@
 
 ---
 
+## dotnet cli
+
+>.NET Core コマンドライン インターフェイス（CLI）は、.NET Core アプリケーションの開発、デプロイ、および管理を行うためのツールチェーンです。  
+コンソールで操作するためのコマンドラインツールおよびスクリプトを提供します。  
+CLIを使用すると、.NET Core アプリケーションをプロジェクト作成、パッケージ化、およびデプロイすることができます。  
+さらに、.NET Core アプリケーションを実行し、デバッグすることもできます。  
+[openai]
+
+---
+
 ## VSCode開発における他プロジェクトの参照
 
 .csprojに以下のように直接記述するかコマンドを叩く。  
@@ -72,4 +82,13 @@ pause > nul
 
 ---
 
-## dotnet cli
+## 単一exeとして発行するためのオプション設定
+
+``` bat
+dotnet publish -o Output-win -c Release --self-contained true -r win-x64 -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
+
+dotnet publish -o Output-linux -c Release --self-contained true -r linux-x64 -p:PublishSingleFile=true
+```
+
+windowsでsqlserverへの接続処理があると、`PublishSingleFile`をつけていても、○○.dllが絶対に生成されてしまう。  
+それすらも内包させるオプションが`IncludeNativeLibrariesForSelfExtract`。  

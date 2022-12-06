@@ -80,18 +80,20 @@ nugetサイトでは``をメインに紹介しているので、素直にそち�
 
 ## dotnet コマンドでSwaggerを起動する
 
-`dotnet watch run`  
 これで行けた。  
+`dotnet watch run`  
 
+プロファイルを指定した起動
 `dotnet run --launch-profile "IIS Express"`  
-CLIからの起動はkestrelだけがサポートされている模様。  
+
+上記のように、プロファイルを指定した起動も本来であれば、可能であるが、IIS Expressは対応していなかった。  
+CLIからの起動はkestrelだけがサポートされているためだと思われる。  
 同じようなことを考えている人はいた。  
-[Launching from CLI with IIS Express profile fails #18925](https://github.com/dotnet/AspNetCore.Docs/issues/18925)  
+→[Launching from CLI with IIS Express profile fails #18925](https://github.com/dotnet/AspNetCore.Docs/issues/18925)  
 
 web api dotnet run iis express vscode  
 
 [VS CodeでWebコーディング環境を作ろう（IIS向け）](https://machdesign.net/blog/article/vscode-iis-windows)  
-
 [Run Dotnet Core App With Code Examples](https://www.folkstalk.com/tech/run-dotnet-core-app-with-code-examples/)  
 
 ---

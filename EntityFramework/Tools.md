@@ -7,7 +7,11 @@ EntityFrameworkCoreを使用した開発において必要となるツールの�
 >.NET プロジェクトにライブラリーやツールを追加するためのパッケージ管理ツール。  
 [.NET 用パッケージマネージャー NuGet のインストールと使い方](http://yohshiy.blog.fc2.com/blog-entry-236.html)  
 
-PowerShell チックなコマンドを入力する。  
+<!--  -->
+>パッケージ マネージャー コンソール（PMC）とは、.NET Core SDKを使用して.NET Coreとその他のアプリケーション開発ツールをインストール、管理、更新するためのコンソール ベースのツールです。  
+PMCは、アプリケーションの開発に必要なすべてのツールを保持し、簡単かつ一貫した方法でアップグレードすることができます。  
+[openai]
+
 EntityFrameworkにおいては、NuGetから`Microsoft.EntityFrameworkCore.Tools`をインストールすることでEFCoreに関するコマンドを実行することができる。  
 
 VisualStudioでは下記手順を踏むことでコンソールを開くことができる。  
@@ -61,7 +65,8 @@ dotnet tool install dotnet-ef --version 6.*
 
 ## Entity Framework Core tools
 
-EFCoreのパッケージ マネージャー コンソール コマンドを実行できるようにするためのツール。  
+Entity Framework Coreを使用して開発するためのコマンドラインツール。  
+これらのツールを使用すると、Entity Framework Coreモデルを作成したり、データベースを管理したりできる。  
 NuGetから取得して使用する。  
 
 >Entity Framework Core ツールは、設計時の開発タスクに役立ちます。  
