@@ -8,8 +8,14 @@ MigrationにおけるEntityFrameworkCoreの仕様をまとめる
 
 単純にAddColumnされるだけである。  
 なので、エンティティのプロパティの順序とデータベースのカラムの順序がずれることになる。  
+
 順番を維持したければ、自前でクエリを書く必要がある。  
 (tempテーブルを用意しつつ、新しいテーブルを作って、INSERT SELECTしてTEMPをDROPするやつ)  
+
+無印のEntityFrameworkでは出来た模様。  
+EFCoreはテーブル生成の最初だけ有効だが、変更の段階では無効となる模様。  
+
+[Entity Framework コードファーストで複合キーを使ってみる](https://blog.shibayan.jp/entry/20110217/1297872610)  
 
 ---
 
@@ -26,6 +32,17 @@ alter tableされず、
 `ALTER TABLE テーブル名 ALTER COLUMN 変更する列名 データ型`
 
 [EntityFramework Core のエンティティを名前変更したら、テーブル削除/新しい名前でテーブル新規作成のマイグレーションコードが生成されてしまった](https://devadjust.exblog.jp/28190433/)  
+
+---
+
+## 履歴テーブルのカスタマイズ
+
+このサイトの通りにやれば行けるかもしれない。  
+
+[Customize Entity Framework Core Migration History Table](https://www.codeproject.com/Articles/5338891/Customize-Entity-Framework-Core-Migration-History)  
+[How to Customize Migration History Table with Entity Framework Core](https://stackoverflow.com/questions/55342435/how-to-customize-migration-history-table-with-entity-framework-core)  
+
+検索文字列 : efcore history customize  
 
 ---
 
@@ -107,32 +124,11 @@ sln
 
 ---
 
-## MigrationメソッドでDownを実行する
+## 複合主キーの設定
 
-dotnet-efコマンドやDbContextクラス等でも、直接的なDownコマンドは存在しない。  
-Downしたい場合は、マイグレーションファイル名を直接指定する必要がある。  
-そうすることで指定したマイグレーションまで戻ることができ、その時Downメソッドが実行される。  
-DbContextクラスのMigrationメソッドを普通に使う場合、引数を受け付けるようにはできていないので、ファイル名を指定したDownを実行することができないが、参考リンク先の方法を使えばそれができるようになる。  
-
->まず知っておくべき事として、実は、dbContext.Database オブジェクトは、`IInfrastructure<IServiceProvider>` インターフェースを実装している。  
->このインターフェース経由で dbContext.Database オブジェクトに問い合わせすると、dbContext.Database オブジェクトが隠し持っている (?) 各種サービスの参照を手に入れることができる。  
->そして、それらサービスのひとつとして、EFCore におけるマイグレーションの諸々を司る IMigrator インターフェースのサービスがある。  
->この IMigrator インターフェースには、指定の名前のマイグレーション定義にまでマイグレーションを進める、引数に対象マイグレーション定義名を持つ、`MigrateAsync(string)` 又はその同期バージョンである `Migrate(string)`メソッドが用意されているのだ。  
->
->``` cs
->var services = dbContext.Database as IInfrastructure<IServiceProvider>;
->var migrator = services.GetService<IMigrator>();
->await migrator.MigrateAsync("M2");
->```
->
->これで指定したマイグレーション定義、上記例だと "M2" までのマイグレーション適用が可能とな>る。
->[Entity Framework Core + Code Style で、指定名のマイグレーションまでに留めてマイグレーションする](https://devadjust.exblog.jp/28746582/)  
-
-因みにリンク先の内容はM1,M2,M3という移行が必要でM2まで適応させたい場合の方法についての解説しているところである。
-
----
-
-## 複合主キー
+※2022/12/06 Tue  
+EF7では複合主キーの問題に対応されていることが分かった。  
+EF6以前まではアノテーションだけの解決は無理。  
 
 複合主キーはEntityの`Key`アノテーションの指定だけでは無理。  
 DbContextクラスのOnModelCreatingメソッドの中でHasKeyメソッドによる複合主キーの設定が必要。  
@@ -161,7 +157,7 @@ public class Category
 The entity type 'Category' has multiple properties with the [Key] attribute. Composite primary keys can only be set using 'HasKey' in 'OnModelCreating'.
 ```
 
-DbContextでOnModelCreatingメソッドをoverrideし、Linq中でHasKeyで複合主キーを設定しなければならない。  
+DbContextクラスを継承したContextクラスでOnModelCreatingメソッドをoverrideし、Linq中でHasKeyで複合主キーを設定しなければならない。  
 
 ``` cs : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -176,6 +172,50 @@ DbContextでOnModelCreatingメソッドをoverrideし、Linq中でHasKeyで複�
     }
 ```
 
+■EF7  
+
+EF7の新機能として、`PrimaryKey`アノテーションが追加された。  
+OnModelCreatingメソッドのHasKeyメソッドによる複合主キーの設定は必要なくなった。  
+
+しかし、注意点として、主キー名は設定できないので、Upメソッドで書き直す必要がある。  
+
+``` cs
+[PrimaryKey(nameof(PostId), nameof(CommentId))]
+public class Comment
+{
+    public int PostId { get; set; }
+    public int CommentId { get; set; }
+    public string CommentText { get; set; } = null!;
+}
+```
+
+[Microsoft_複合キーのマッピング属性](https://learn.microsoft.com/ja-jp/ef/core/what-is-new/ef-core-7.0/whatsnew#mapping-attribute-for-composite-keys)  
+
+---
+
+## MigrationメソッドでDownを実行する
+
+dotnet-efコマンドやDbContextクラス等でも、直接的なDownコマンドは存在しない。  
+Downしたい場合は、マイグレーションファイル名を直接指定する必要がある。  
+そうすることで指定したマイグレーションまで戻ることができ、その時Downメソッドが実行される。  
+DbContextクラスのMigrationメソッドを普通に使う場合、引数を受け付けるようにはできていないので、ファイル名を指定したDownを実行することができないが、参考リンク先の方法を使えばそれができるようになる。  
+
+>まず知っておくべき事として、実は、dbContext.Database オブジェクトは、`IInfrastructure<IServiceProvider>` インターフェースを実装している。  
+>このインターフェース経由で dbContext.Database オブジェクトに問い合わせすると、dbContext.Database オブジェクトが隠し持っている (?) 各種サービスの参照を手に入れることができる。  
+>そして、それらサービスのひとつとして、EFCore におけるマイグレーションの諸々を司る IMigrator インターフェースのサービスがある。  
+>この IMigrator インターフェースには、指定の名前のマイグレーション定義にまでマイグレーションを進める、引数に対象マイグレーション定義名を持つ、`MigrateAsync(string)` 又はその同期バージョンである `Migrate(string)`メソッドが用意されているのだ。  
+>
+>``` cs
+>var services = dbContext.Database as IInfrastructure<IServiceProvider>;
+>var migrator = services.GetService<IMigrator>();
+>await migrator.MigrateAsync("M2");
+>```
+>
+>これで指定したマイグレーション定義、上記例だと "M2" までのマイグレーション適用が可能とな>る。
+>[Entity Framework Core + Code Style で、指定名のマイグレーションまでに留めてマイグレーションする](https://devadjust.exblog.jp/28746582/)  
+
+因みにリンク先の内容はM1,M2,M3という移行が必要でM2まで適応させたい場合の方法についての解説しているところである。
+
 ---
 
 ## IMigrator インターフェイス
@@ -184,161 +224,3 @@ DbContextでOnModelCreatingメソッドをoverrideし、Linq中でHasKeyで複�
 [IMigrator インターフェイス](https://learn.microsoft.com/ja-jp/dotnet/api/microsoft.entityframeworkcore.migrations.imigrator?view=efcore-6.0)  
 
 こいつを掌握できればコマンドからしかアクセスできない処理でも実行できるかもしれない。
-
----
-
-この方式でバンドルを発行すると、絶対にappsettings.jsonが隣にないと動かない。  
-
-``` cs
-var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddDbContext<DatContext>(options =>options.UseSqlServer("name=ConnectionStrings:DefaultConnection"));
-var app = builder.Build();
-
-app.MapGet("/", () => "Hello World!");
-
-app.Run();
-```
-
-接続情報を空白にすることで問題なくappsettings.jsonがない場合に--connectionで設定可能。  
-
-``` cs
-var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddDbContext<DatContext>(options =>options.UseSqlServer());
-var app = builder.Build();
-
-app.MapGet("/", () => "Hello World!");
-
-app.Run();
-```
-
-コンソールアプリで以下のようにappsettings.jsonを参照するように記述するとappsettings.jsonがなくても、--connectionオプションを指定することで動く。  
-
-``` cs
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-
-using IHost host = Host.CreateDefaultBuilder(args)
-    .ConfigureServices((hostContext, services) =>
-    {
-        services
-            .AddDbContext<AppDbContext>(options =>
-            {
-                options.UseSqlServer(hostContext.Configuration.GetConnectionString("DefaultConnection"));
-            });
-    })
-    .Build();
-```
-
-■バンドル + web方式
-
-この方式でバンドルを発行すると、絶対にappsettings.jsonが隣にないと動かない。  
-
-``` cs
-var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddDbContext<DatContext>(options =>options.UseSqlServer("name=ConnectionStrings:DefaultConnection"));
-var app = builder.Build();
-
-app.MapGet("/", () => "Hello World!");
-
-app.Run();
-```
-
-●linux
-jsonあり ない状態で直接実行 ×→もちろんだめ
-jsonあり ある状態で直接実行 ○→もちろん普通に実行される
-jsonあり ない状態でコネクション指定 ×　→これだ。これのせいで混乱したんだ。windowsではこれは許可される。
-linux jsonあり ある状態でコネクション指定 ○ →コネクションの設定もちゃんと反映される
-linux 内包 直接実行 → ○いけた
-linux 内包 + connectionstring →○オプションの設定が優先して使用されることを確認した。
-
-●win
-win jsonあり ない状態で直接実行 ×→もちろんだめ
-win jsonあり ない状態でコネクション指定 ×→あれ？windowsはOKな気がしたけど、駄目みたい。。となれば、バンドルの動作はwinもlinuxも同じか？
-
-●バンドル + console方式 + linux
-linux jsonあり ない状態で直接実行 ×→もちろんだめ
-linux jsonあり ある状態で直接実行 ○→もちろん普通に実行される
-linux jsonあり ない状態でコネクション指定 ○→行けた。
-linux jsonあり ある状態でコネクション指定 ○ →オプションの設定が優先して使用される事を確認した。
-linux 内包 ○→動く
-linux 内包 + connectionstring →○オプションの設定が優先して使用される事を確認した。
-
-●バンドル + console方式 + win
-win json ない状態でコネクション指定 →○動いた。web方式では動かないやつはこちらでは動く。
-他もおそらくLinuxと同じはず。
-win 内包 ○→動く
-win 内包 + connectionstring →○オプションの設定が優先して使用される事を確認した。
-
----
-
-## Consoleアプリで単一実行可能ファイルとして出力した時の
-
-target linux-x64で出力しただけだと動く。  
-だけどsingleにまとめると動かない。  
-ということは、うまいことまとめられていないということでは？  
-
--p:PublishTrimmed=trueが悪さしてた。  
-これを消したらうまくいった。  
-
-- 発行元環境  
-  - Windons10  
-  - .Net 7.0.100  
-  - efcore 6  
-- 検証先環境  
-  - AlmaLinux relase 8.7 (Stone Smilodon)
-  - .Net 3.1.424
-
-○  
-`dotnet publish -o Output -c Release -r linux-x64 -p:PublishSingleFile=true`  
-
-○  
-`dotnet publish -o Output -c Release --self-contained true -r linux-x64 -p:PublishSingleFile=true`  
-
-×  
-`dotnet publish -o Output -c Release --self-contained=true -r linux-x64 -p:PublishSingleFile=true -p:PublishTrimmed=true`  
-→  
-PublishTrimmedオプションが有効だとEFCoreのdllが消される？っぽい  
-
-×  
-`dotnet publish -o Output -c Release --self-contained false -r linux-x64 -p:PublishSingleFile=true`  
-→  
-単一exeファイルにはなるが、必要なsdkを内包していないため、そもそも実行できない。  
---self-containedはデフォルトではtrueであることも確認出来た。  
-
-[単一ファイルの配置と実行可能ファイル](https://learn.microsoft.com/ja-jp/dotnet/core/deploying/single-file/overview?tabs=cli)
-
-○  
-`dotnet publish -o Output-win-non -c Release --self-contained true -r win-x64 -p:PublishSingleFile=true`  
-
-×  
-`dotnet publish -o Output-win-trimmed -c Release --self-contained true -r win-x64 -p:PublishSingleFile=true -p:PublishTrimmed=true`  
-
-trimmedするとwindowsでもエラーになる。  
-でもってwindowsの場合、Microsoft.Data.SqlClient.SNI.dllは絶対についてくる模様。  
-もちろんこのdllがないとエラーになる。  
-
->.NET Core に完全に移行されています。  
-ただし、Windows (win-x64) では、一部のネイティブ コンポーネントに依存します。これは、Linux では当てはまりません。  
-[Why does Microsoft.Data.SqlClient.SNI.dll get published under runtimes?](https://github.com/dotnet/efcore/issues/26175)  
-
-なるほど。  
-だからLinuxで発行するとできないのか。  
-
-`IncludeNativeLibrariesForSelfExtract=true`  
-これをつけるとこのdllも必要なくなる。  
-
-`IncludeNativeLibrariesForSelfExtract`はcsprojのタグなので`-p:`で指定する  
-
-`dotnet publish -o Output-win-non -c Release --self-contained true -r win-x64 -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true`  
-
-- 単一ファイル出力に必要なオプション  
-  - `PublishSingleFile`  
-  - `--self-contained`  
-  - `IncludeNativeLibrariesForSelfExtract`  
-
-[How do I get rid of SNI.dll when publishing as a "single file" in Visual Studio 2019?](https://stackoverflow.com/questions/65045224/how-do-i-get-rid-of-sni-dll-when-publishing-as-a-single-file-in-visual-studio)
-[.NET6の「単一ファイル」](https://qiita.com/up-hash/items/39fa0671bf390147eca9)  
-[単一ファイルの配置と実行可能ファイル](https://learn.microsoft.com/ja-jp/dotnet/core/deploying/single-file/overview?tabs=cli#output-differences-from-net-3x)
-[.NET 6 で単一ファイルの出力](https://blog.goo.ne.jp/pianyi/e/0a7482af785a4e46c8e04c1c8b28424f)

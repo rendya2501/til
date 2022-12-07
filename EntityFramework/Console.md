@@ -181,4 +181,76 @@ class Program
 
 ---
 
+## Consoleアプリで単一実行可能ファイルとして出力した時の
+
+target linux-x64で出力しただけだと動く。  
+だけどsingleにまとめると動かない。  
+ということは、うまいことまとめられていないということでは？  
+
+-p:PublishTrimmed=trueが悪さしてた。  
+これを消したらうまくいった。  
+
+- 発行元環境  
+  - Windons10  
+  - .Net 7.0.100  
+  - efcore 6  
+- 検証先環境  
+  - AlmaLinux relase 8.7 (Stone Smilodon)
+  - .Net 3.1.424
+
+○  
+`dotnet publish -o Output -c Release -r linux-x64 -p:PublishSingleFile=true`  
+
+○  
+`dotnet publish -o Output -c Release --self-contained true -r linux-x64 -p:PublishSingleFile=true`  
+
+×  
+`dotnet publish -o Output -c Release --self-contained=true -r linux-x64 -p:PublishSingleFile=true -p:PublishTrimmed=true`  
+→  
+PublishTrimmedオプションが有効だとEFCoreのdllが消される？っぽい  
+
+×  
+`dotnet publish -o Output -c Release --self-contained false -r linux-x64 -p:PublishSingleFile=true`  
+→  
+単一exeファイルにはなるが、必要なsdkを内包していないため、そもそも実行できない。  
+--self-containedはデフォルトではtrueであることも確認出来た。  
+
+[単一ファイルの配置と実行可能ファイル](https://learn.microsoft.com/ja-jp/dotnet/core/deploying/single-file/overview?tabs=cli)
+
+○  
+`dotnet publish -o Output-win-non -c Release --self-contained true -r win-x64 -p:PublishSingleFile=true`  
+
+×  
+`dotnet publish -o Output-win-trimmed -c Release --self-contained true -r win-x64 -p:PublishSingleFile=true -p:PublishTrimmed=true`  
+
+trimmedするとwindowsでもエラーになる。  
+でもってwindowsの場合、Microsoft.Data.SqlClient.SNI.dllは絶対についてくる模様。  
+もちろんこのdllがないとエラーになる。  
+
+>.NET Core に完全に移行されています。  
+ただし、Windows (win-x64) では、一部のネイティブ コンポーネントに依存します。これは、Linux では当てはまりません。  
+[Why does Microsoft.Data.SqlClient.SNI.dll get published under runtimes?](https://github.com/dotnet/efcore/issues/26175)  
+
+なるほど。  
+だからLinuxで発行するとできないのか。  
+
+`IncludeNativeLibrariesForSelfExtract=true`  
+これをつけるとこのdllも必要なくなる。  
+
+`IncludeNativeLibrariesForSelfExtract`はcsprojのタグなので`-p:`で指定する  
+
+`dotnet publish -o Output-win-non -c Release --self-contained true -r win-x64 -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true`  
+
+- 単一ファイル出力に必要なオプション  
+  - `PublishSingleFile`  
+  - `--self-contained`  
+  - `IncludeNativeLibrariesForSelfExtract`  
+
+[How do I get rid of SNI.dll when publishing as a "single file" in Visual Studio 2019?](https://stackoverflow.com/questions/65045224/how-do-i-get-rid-of-sni-dll-when-publishing-as-a-single-file-in-visual-studio)
+[.NET6の「単一ファイル」](https://qiita.com/up-hash/items/39fa0671bf390147eca9)  
+[単一ファイルの配置と実行可能ファイル](https://learn.microsoft.com/ja-jp/dotnet/core/deploying/single-file/overview?tabs=cli#output-differences-from-net-3x)
+[.NET 6 で単一ファイルの出力](https://blog.goo.ne.jp/pianyi/e/0a7482af785a4e46c8e04c1c8b28424f)
+
+---
+
 [EntityFrameworkCoreを.NET Core コンソールアプリでCodeFirstに使う](https://qiita.com/namoshika/items/7d1bf911bc03ed03e17d)  

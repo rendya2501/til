@@ -1,6 +1,6 @@
-# bundle
+# Bundle
 
-## bundle概要
+## バンドル概要
 
 バンドルは移行を実行するために必要な全ての情報を内包した実行ファイル。
 CLI等のツールは依存関係（.NET SDK、プログラム、移行ファイル、ツール自体等）を整える必要があるが、バンドルはそれらを内包しているので、環境に左右されず、単体で移行を行うことができる。
@@ -14,7 +14,6 @@ CLI等のツールは依存関係（.NET SDK、プログラム、移行ファイ
 
 - 主要なツール (Docker、SSH、PowerShell 等) で動作する。  
 - EFCore6.0(.Net6)からの機能  
-
 - 移行を実行するだけの機能なので、細かい制御はできない。  
 
 >移行バンドルは、データベースに移行を適用するために使用できる単一ファイルの実行可能ファイルです。  
@@ -37,117 +36,57 @@ CLI等のツールは依存関係（.NET SDK、プログラム、移行ファイ
 
 ## バンドルの作成
 
-`dotnet ef migrations bundle`コマンドを実行することでバンドルを作成することができる。  
+コンソール(コマンドプロンプトやgitbash)で以下のBundle作成コマンドを実行する。  
 
-しかし、色々と前提条件がある。  
+`dotnet ef migrations bundle`  
 
-基本的にバンドルはコンソールアプリやWebアプリ等、単独実行可能なプロジェクトであれば作成可能。  
-クラスライブラリからでも発行可能らしいが、そこまで検証していない。  
-
-bundle生成において重要なのはスタートアッププログラムにおいてHostingを行う事。  
-Webプロジェクトは最初からHostingを行う構成になっているので、必要なパッケージは少なく済む。  
-コンソールアプリでも可能だが、Webプロジェクト以上に必要な操作が多い。  
-
->ASP.NET Core 2.2 アプリで dotnet ef コマンドを実行する場合は、 Program.cs に CreateWebHostBuilder メソッドが必要な模様。  
-[dotnet ef migrations でエラーになった話](https://qiita.com/wukann/items/53462f4b21104ed75c31)  
-
-上記サイトで紹介されている通り、Hosting関係のメソッドを使って作成している様なので、Hostingが必要であ る。  
-
-### 作成できた例  
-
-コンソールアプリの場合は`Microsoft.Extensions.Hosting`パッケージをnugetからインストールする必要がある。  
-
-appsettings.jsonを読み取る場合は次のようになる。
-
-``` cs
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-
-using IHost host = Host.CreateDefaultBuilder(args)
-    .ConfigureServices((hostContext, services) =>
-    {
-        services
-            .AddDbContext<DbContext>(options =>
-            {
-                var appsettings = hostContext.Configuration.GetConnectionString("DefaultConnection");
-                options.UseSqlServer(appsettings);
-            });
-    })
-    .Build();
-// Runまでせずともbundleを作成する事ができた。  
-// host.Run();
-```
-
-作成するだけなら接続文字列も必要ないので以下のように記述することができる。  
-
-``` cs
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-
-using IHost host = Host.CreateDefaultBuilder(args)
-    .ConfigureServices(services => services.AddDbContext<DbContext>(options => options.UseSqlServer()))
-    .Build();
-```
-
-Webアプリではサービスに登録することで作成可能となる。  
-今回の例では、空のWebアプリとするが、基本的にどのWebアプリであってもスタートアップでサービスを登録すればよい。  
-Webアプリでは最初からホスティングが保証されているらしいので、`Microsoft.Extensions.Hosting`は必要ない。  
-
-``` cs
-using Microsoft.EntityFrameworkCore;
-
-var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddDbContext<DbContext>(options =>options.UseSqlServer());
-var app = builder.Build();
-
-app.MapGet("/", () => "Hello World!");
-
-app.Run();
-```
-
-作成だけのサンプルなので、ジェネリックはDbContextとしているが、本来であればDbContextを継承した対象のContextとする事。  
-
-### 作成できなかった例  
-
-コンソールアプリでの検証。  
-ContextクラスにDIするだけではダメだった。  
-
-``` cs
-var services = new ServiceCollection();
-services.AddDbContext<DatContext>(options => options.UseSqlServer(connectionString));
-ServiceProvider serviceProvider = services.BuildServiceProvider();
-_datContext = serviceProvider.GetService<DatContext>();
-```
-
-バンドルは作成できないが、`_datContext.Database.Migration();`とすればマイグレーション可能ではある。  
-
-- 参考  
-  - [デザイン時 DbContext 作成](https://learn.microsoft.com/ja-jp/ef/core/cli/dbcontext-creation?tabs=dotnet-core-cli)  
-  - [Accessing dbContext in a C# console application](https://stackoverflow.com/questions/49972591/accessing-dbcontext-in-a-c-sharp-console-application)  
-  - [How to Add Entity Framework Core DBContext in .NET Core Console Application](http://www.techtutorhub.com/article/How-to-Add-Entity-Framework-Core-DBContext-in-Dot-NET-Core-Console-Application/86)  
-
-- 検索文字列 : dependency injection dbcontext console app  
+デフォルトではwin-x64のexeが生成される。  
 
 ---
 
-## bundleの使い方
+## バンドル発行バッチ
 
-ダブルクリックで直接実行 or コンソールから実行  
+``` batch : BuildBundle.bat
+@echo off
+chcp 65001
 
-コンソールの場合はオプションの指定が可能  
+@echo;
+@echo --- AllStart ---
+@echo;
+@echo --- win-x64_Start ---
+dotnet ef migrations bundle --self-contained -r win-x64 --output efbundle_win-x64.exe --force
+@echo --- win-x64_Finished ---
+@echo;
+@echo --- win-x86_Start ---
+dotnet ef migrations bundle --self-contained -r win-x86 --output efbundle_win-x86.exe --force
+@echo --- win-x86_Finished ---
+@echo;
+@echo --- linux-x64_Start ---
+dotnet ef migrations bundle --self-contained -r linux-x64 --output efbundle_linux-x64 --force
+@echo --- linux-x64_Finished ---
+@echo;
+@echo --- AllFinished ---
+@echo;
+
+pause > nul
+```
+
+---
+
+## バンドルの使い方
+
+コンソールから接続情報を入力して実行  
+
 `efbundle --connection "Server=<sv_name>;Database=<db_name>;User ID=<user_id>;Password=<passwd>;`  
 
-ヘルプコマンド  
-`efbandle --help`  
+windowsの場合はexeなので、ダブルクリックで直接実行もできるが、即移行が実行され、結果を確認できないので、おすすめはしない。  
+そもそも、ダブルクリックで必ずエラーとなるようにバンドルを発行する。  
 
 [移行の適用](https://learn.microsoft.com/ja-jp/ef/core/managing-schemas/migrations/applying?tabs=dotnet-core-cli)  
 
 ---
 
-## bundleでdownを実行
+## バンドルでdownを実行
 
 bundleにDownコマンドは存在しないが、Downは可能。  
 マイグレーションファイルを指定することで、その時点そこまで戻すことができる。  
@@ -156,32 +95,6 @@ bundleにDownコマンドは存在しないが、Downは可能。
 
 例:  
 `efbandle 20221110062826_Second`
-
----
-
-## バンドル発行バッチ
-
-`dotnet ef migrations bundle`
-
-``` batch : BuildBundle.bat
-@echo off
-rem 自己完結型でバンドルを発行する
-
-@echo --- win-x64_Start ---
-dotnet ef migrations bundle --self-contained -r win-x64 --output efbundle_win-x64.exe --force
-@echo --- win-x64_Finished ---
-
-@echo --- win-x86_Start ---
-dotnet ef migrations bundle --self-contained -r win-x86 --output efbundle_win-x86.exe --force
-@echo --- win-x86_Finished ---
-
-@echo --- linux-x64_Start ---
-dotnet ef migrations bundle --self-contained -r linux-x64 --output efbundle_linux-x64 --force
-@echo --- linux-x64_Finished ---
-
-@echo --- AllFinished ---
-pause > nul
-```
 
 ---
 

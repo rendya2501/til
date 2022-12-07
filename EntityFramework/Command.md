@@ -23,7 +23,7 @@ Scaffold-DbContext 'Server=TestServer;Database=TestDatabase;User ID=sa;Password=
 dotnet-ef
 
 ``` txt
-dotnet ef dbcontext scaffold 'Server=TestServer;Database=TestDatabase;User ID=sa;Password=123456789' Microsoft.EntityFrameworkCore.SqlServer -o Entity --context-dir Context --context DatContext --data-annotations --use-database-names --force
+dotnet ef dbcontext scaffold 'Server=TestServer;Database=TestDatabase;User ID=sa;Password=123456789' Microsoft.EntityFrameworkCore.SqlServer -o Entity --context-dir Context --context DatContext --data-annotations --use-database-names --no-onconfiguring --force
 ```
 
 コマンドの意味
@@ -36,9 +36,9 @@ dotnet ef dbcontext scaffold 'Server=TestServer;Database=TestDatabase;User ID=sa
 モデルの出力先       : Model
 コンテキストの出力先 : Context
 コンテキスト名       : DatContext
-プロパティにアノテーションをつける : -DataAnnotations
-データベースのテーブル名に準拠する : -UseDatabaseNames
-リバース結果を上書きする           : -force
+プロパティにアノテーションをつける : -DataAnnotations  --data-annotations
+データベースのテーブル名に準拠する : -UseDatabaseNames --use-database-names
+リバース結果を上書きする           : -Force  --force
 ```
 
 コマンド実行後のフォルダ構成
