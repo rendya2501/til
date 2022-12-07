@@ -133,81 +133,6 @@ _datContext = serviceProvider.GetService<DatContext>();
 
 ---
 
-## bundle作成の最小実装
-
-とりあえず、バンドルを生成するためだけの一連の流れ。  
-実行しても何もしないバンドルが生成される。  
-
-- 開発環境  
-  - Windows10  
-  - .Net 6  
-  - gitbash or CommandPrompt  
-  - vscode or gitbash_vim  
-
-### webプロジェクトで作成する場合
-
-プロジェクト作成  
-`dotnet new web`  
-
-dotnet-efツールのローカルインストール  
-`dotnet new tool-manifest`  
-`dotnet tool install dotnet-ef`  
-
-NuGetパッケージのインストール  
-`dotnet add package Microsoft.EntityFrameworkCore`  
-
-Program.csを以下のように書き換える  
-
-- `using Microsoft.EntityFrameworkCore;`の追加
-- `builder.Services.AddDbContext<DbContext>(options =>options.UseSqlServer());`を追加
-
-``` cs
-using Microsoft.EntityFrameworkCore;
-
-var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddDbContext<DbContext>(options =>options.UseSqlServer());
-var app = builder.Build();
-
-app.MapGet("/", () => "Hello World!");
-
-app.Run();
-```
-
-バンドル発行  
-`dotnet ef migrations bundle`
-
-### consoleプロジェクトで作成する場合
-
-プロジェクト作成  
-`dotnet new console`  
-
-dotnet-efツールのローカルインストール  
-`dotnet new tool-manifest`  
-`dotnet tool install dotnet-ef`  
-
-NuGetパッケージのインストール  
-`dotnet add package Microsoft.EntityFrameworkCore`  
-`dotnet add package Microsoft.EntityFrameworkCore.Design`  
-`dotnet add package Microsoft.EntityFrameworkCore.SqlServer`  
-`dotnet add package Microsoft.Extensions.Hosting`  
-
-Program.csを以下のように書き換える  
-
-```cs
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-
-using IHost host = Host.CreateDefaultBuilder(args)
-    .ConfigureServices(services => services.AddDbContext<DbContext>(options => options.UseSqlServer()))
-    .Build();
-```
-
-バンドル発行  
-`dotnet ef migrations bundle`  
-
----
-
 ## bundleの使い方
 
 ダブルクリックで直接実行 or コンソールから実行  
@@ -222,16 +147,6 @@ using IHost host = Host.CreateDefaultBuilder(args)
 
 ---
 
-## 接続文字列の有無による挙動の違い
-
-コーディングの段階において、接続情報をプログラム内に埋め込んでいる場合、そのまま移行が実行される。  
-コーディングの段階において、接続情報をappsettings.jsonから参照するようにしている場合、appsettings.jsonがないとエラーとなる。  
-接続情報を一切記述しない状態でバンドルを発行した場合、実行すると接続エラーとなる。  
-
-ダブルクリックによる誤動作防止対策として、接続文字列は記述せず、`--connection`コマンドによる、接続先の指定をするのがよいかと思われる。  
-
----
-
 ## bundleでdownを実行
 
 bundleにDownコマンドは存在しないが、Downは可能。  
@@ -241,41 +156,6 @@ bundleにDownコマンドは存在しないが、Downは可能。
 
 例:  
 `efbandle 20221110062826_Second`
-
----
-
-## トラブルシューティング
-
-### dotnet ef migrations bundle のエラー
-
-バンドルを作成しようとした時にエラーが発生。  
-
-``` txt
-Build started...
-Build succeeded.
-Specify --help for a list of available options and commands.
-Unrecognized command or argument 'bundle'.
-```
-
-この時の.Netバージョンは5。  
-バンドルはEF Core 6.0からの機能なので、バージョンによるエラーとなる。  
-
-[Unrecognized command or argument 'optimize' on Entity Framework Core .NET Command-line Tools 5.0.7](https://github.com/dotnet/efcore/issues/25135)  
-
-### -oによる出力
-
-`-o`で出力先を指定する場合、ファイル名まで指定しないといけない。  
-フォルダも事前に作っておかなければならない。  
-フォルダだけ指定して、後はefbundleで発行してもらえればと思ったが、駄目だった。  
-
-`dotnet ef migrations bundle --self-contained -r linux-x64 -o linux-x64/efbundle -f`  
-
-### /pオプションの指定
-
-プロジェクトファイルに対して指定するオプションを入れて発行してみたが、エラーになった。  
-使わなくてよい。  
-
-`dotnet ef migrations bundle --self-contained -r linux-x64 -o linux-x64/efbundle -f /p:PublishProtocol=FileSystem`
 
 ---
 
