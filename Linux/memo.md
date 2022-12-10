@@ -40,22 +40,23 @@ rm : remove
 
 ## Linuxディストリビューション
 
-・Red Hat系
- ・Fedora
- ・Red Hat Enterprise Linux
- ・CentOS
+- Red Hat系  
+  - Fedora  
+  - Red Hat Enterprise Linux  
+  - CentOS  
+  - AlmaLinux  
 
-・Debian系
- ・Ubuntu
- ・Linux Mint
- ・Raspbian
+- Debian系  
+  - Ubuntu  
+  - Linux Mint  
+  - Raspbian  
 
-・Slackware系
- ・Slackware
- ・openSUSE
+- Slackware系  
+  - Slackware  
+  - openSUSE  
 
-・独立系
- ・Arck Linux
+- 独立系  
+  - Arch Linux  
 
 ---
 
@@ -90,3 +91,28 @@ rm : remove
 >パスの通ったディレクトリにあるプログラムと同名のファイルがカレントディレクトリにあった場合、パスの順番によってはカレントディレクトリのプログラムが実行されてしまい、ユーザーの意図に反した結果になってしまう。  
 >
 >[カレントディレクトリのプログラムを実行するには](https://atmarkit.itmedia.co.jp/flinux/rensai/linuxtips/040execcaprog.html)  
+
+---
+
+## 自分自身の公開されているIPアドレスを確認する方法
+
+とりあえず全部出力  
+`ip a`  
+
+設定されているIPアドレスを全て出力する。(ループバックは含まれない)  
+`hostname -I`  
+
+[【初心者向け】Linux PCのIPアドレスを確認する方法まとめ](https://linuxfan.info/ip-address)  
+
+---
+
+## ShellScriptでTryCatch
+
+[shellでtry-catchをする](https://xmadoka.hatenablog.com/entry/2020/03/20/113233)  
+
+---
+
+## bash フォルダにある全てのファイルの文字コードを確認する
+
+対象ディレクトリで以下のコマンドを実行
+`file ./*`  

@@ -1,3 +1,0 @@
-# EFcoreMigration
-
-EntityFrameworkCoreを用いたデータベースマイグレーションの検証を行うリポジトリです。

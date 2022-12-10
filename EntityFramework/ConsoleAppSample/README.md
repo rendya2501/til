@@ -1,33 +1,35 @@
 # コンソールプロジェクトでバンドルを作成するまでの一連の流れ
 
-## 開発環境
+## 環境構築
+
+- DotNetSDK .Net6以上  
+- VisualStudioCode or VisualStudio
+  - VSCodeを使う場合、C#関連の拡張がインストールされていること  
+- EntityFrameworkCore 7
 
 ---
 
 ## プロジェクト作成
 
 コンソールプロジェクトを作成する。  
-
 `dotnet new console -n ConsoleAppSample`  
 
 ---
 
-## EFcoreツール(dotnet-ef)をインストールする  
+## dotnet-ef(EFcoreツール)をインストールする  
 
-グローバルインストール
-
-``` .NET CLI
-dotnet tool install --global dotnet-ef
-```
-
-ローカルインストール
+環境の汚染を考慮してローカルインストールとする。  
 
 ``` .NET CLI
 dotnet new tool-manifest
 dotnet tool install dotnet-ef
 ```
 
-環境を汚染したくない場合はローカルインストールする。  
+グローバルインストールの場合は以下のコマンドを実行。
+
+``` .NET CLI
+dotnet tool install --global dotnet-ef
+```
 
 ---
 
@@ -37,7 +39,6 @@ dotnet tool install dotnet-ef
 
 - `Microsoft.EntityFrameworkCore`  
 - `Microsoft.EntityFrameworkCore.Design`  
-- `Microsoft.EntityFrameworkCore.Tools`  
 - `Microsoft.EntityFrameworkCore.SqlServer`  
 - `Microsoft.Extensions.Hosting`  
 
@@ -45,11 +46,10 @@ PowerShellやCommandPromptからCLIで実行する場合は下記コマンドを
 NuGet公式サイトから検索した場合のコマンド。  
 
 ``` txt
-dotnet add package Microsoft.EntityFrameworkCore --version 6.*
-dotnet add package Microsoft.EntityFrameworkCore.Design --version 6.*
-dotnet add package Microsoft.EntityFrameworkCore.Tools --version 6.*
-dotnet add package Microsoft.EntityFrameworkCore.SqlServer --version 6.*
-dotnet add package Microsoft.Extensions.Hosting --version 6.*
+dotnet add package Microsoft.EntityFrameworkCore --version 7.*
+dotnet add package Microsoft.EntityFrameworkCore.Design --version 7.*
+dotnet add package Microsoft.EntityFrameworkCore.SqlServer --version 7.*
+dotnet add package Microsoft.Extensions.Hosting --version 7.*
 ```
 
 ---

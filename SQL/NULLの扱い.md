@@ -34,6 +34,12 @@ Oracleは最大値扱いだが、SQLServerは最小値扱い見たい。
 
 ---
 
+## NULLとの比較
+
+全てFalseになる。  
+
+---
+
 ## NULLのSUM
 
 SUMはNULLが1件でも含まれると結果がNULLになる。

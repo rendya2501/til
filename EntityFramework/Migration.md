@@ -204,3 +204,7 @@ efcoreソースコード
 
 WebAPI + EF6 の構築サンプル  
 [Ways To Run Entity Framework Migrations in ASP.NET Core 6](https://medium.com/geekculture/ways-to-run-entity-framework-migrations-in-asp-net-core-6-37719993ddcb#2be2)  
+
+EntityFrameworkCoreでは無いほうのドキュメント  
+既にデータベースが存在する場合の対応について書かれている。  
+[dotnet/EntityFramework.Docs](https://github.com/dotnet/EntityFramework.Docs/blob/main/entity-framework/ef6/modeling/code-first/migrations/existing-database.md)  

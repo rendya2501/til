@@ -266,7 +266,9 @@ ServiceFabricBackup/
 
 # SQL Server files
 *.mdf
+!/TekitouCRUD/Shared/Database/Database1.mdf
 *.ldf
+!/TekitouCRUD/Shared/Database/Database1_log.ldf
 *.ndf
 
 # Business Intelligence projects
