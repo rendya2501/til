@@ -1,0 +1,112 @@
+@page "/fetchuserdetails"
+@using TekitouCRUD.Shared.Entities;
+@inject HttpClient Http
+
+
+<h1>User Data</h1>
+<p>Blazor CRUD operation</p>
+<div class="row">
+    <div class="col-md-6">
+        <a href='/user/add' class="btn btn-primary" role="button">
+            <i class="fas fa-user-plus"></i>
+            Add User
+        </a>
+    </div>
+    <div class="input-group col">
+        <input type="text" class="form-control" placeholder="Search user by name"
+               @bind="SearchString" @bind:event="oninput" @onkeyup="FilterUser" />
+        @if (SearchString.Length > 0)
+        {
+            <div class="input-group-append">
+                <button class="btn btn-danger" @onclick="ResetSearch">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        }
+    </div>
+</div>
+<br />
+@if (userList == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table table-striped align-middle table-bordered">
+        <thead class="table-success">
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Address</th>
+                <th>Department</th>
+                <th>Cell No</th>
+                <th>E-mail</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in userList)
+            {
+                <tr>
+                    <td>@user.UserId</td>
+                    <td>@user.UserName</td>
+                    <td>@user.Address</td>
+                    <td>@user.CellNumber</td>
+                    <td>@user.EmailId</td>
+                    <td>
+                        <a href='/user/edit/@user.UserId' class="btn btn-outline-dark" role="button">
+                            Edit
+                        </a>
+                        <a href='/user/delete/@user.UserId' class="btn btn-outline-danger" role="button">
+                            Delete
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+
+    </table>
+}
+
+
+@code {
+    protected List<User> userList = new();
+    protected List<User> searchUserData = new();
+    protected User user = new();
+    protected string SearchString { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetUser();
+    }
+
+    protected async Task GetUser()
+    {
+        userList = await Http.GetFromJsonAsync<List<User>>("api/User");
+        searchUserData = userList;
+    }
+
+    protected void FilterUser()
+    {
+        if (!string.IsNullOrEmpty(SearchString))
+        {
+            userList = searchUserData
+                .Where(x => x.UserName.IndexOf(SearchString, StringComparison.OrdinalIgnoreCase) != -1)
+                .ToList();
+        }
+        else
+        {
+            userList = searchUserData;
+        }
+    }
+
+    protected void DeleteConfirm(int userID)
+    {
+        user = userList.FirstOrDefault(x => x.UserId == userID);
+    }
+
+    public void ResetSearch()
+    {
+        SearchString = string.Empty;
+        userList = searchUserData;
+    }
+}
