@@ -71,14 +71,7 @@ dapper-smple1.cshtml
 
 ``` cs
 @using Dapper;
-@{
-    dynamic users;
-    using( var cn = new System.Data.SqlServerCe.SqlCeConnection("接続文字列"))
-    {
-       cn.open();
-       users　= cn.Query("SELECT * FROM users");
-    }
-}
+
 <!DOCTYPE html>
 <html lang="en">
     <head >
@@ -93,13 +86,76 @@ dapper-smple1.cshtml
         </ul>
     </body>
 </html>
+
+@{
+    dynamic users;
+    using( var cn = new System.Data.SqlServerCe.SqlCeConnection("接続文字列"))
+    {
+       cn.open();
+       users　= cn.Query("SELECT * FROM users");
+    }
+}
 ```
 
 [kiyokura/dapper-smple1.cshtml](https://gist.github.com/kiyokura/7185300)  
 
 ---
 
+## 一覧テンプレート
+
+``` html
+<table class="table table-striped align-middle table-bordered">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var Item in List)
+        {
+            <tr>
+                <td>@Item.ID</td>
+                <td>@Item.Name</td>
+                <td>
+                    <a href='/api/edit/@Item.ID' class="btn btn-secondary" role="button">
+                        Edit
+                    </a>
+                    <a href='/api/delete/@Item.ID' class="btn btn-danger" role="button">
+                        Delete
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+```
+
+---
+
+## aa
+
+引数がない場合はnew Actionする必要はない。  
+どちらの書き方でもいいが、長く書く必要はないだろう。  
+
+``` html
+@onclick="() => Cancel()"
+@onclick="Cancel"
+```
+
+引数がある場合はnew Actionしなければエラーとなる。  
+
+``` html
+@onclick="() => Cancel(user.UserId)"
+
+void Cancel(int i)
+{
+    _ = i;
+}
+```
+
+---
+
 ## 参考サイト
 
-<https://qiita.com/tags/blazor>
 [.NET 6 と Entity Framework Core InMemory を使用した Blazor Server CRUD](https://www.youtube.com/watch?v=ii6QzWudZ6E)  

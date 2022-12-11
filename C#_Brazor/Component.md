@@ -84,10 +84,6 @@
 
 ## ComboBox
 
-InputSelect  
-dropdown selection  
-dropdownlist  
-
 とりあえず、純正のコンポーネントで作ってみたが、Blazorは良質なUIフレームワークがたくさんあるので、特にこだわりがなければそちらを使ったほうがいいかもね。  
 
 ``` html
@@ -142,3 +138,47 @@ dropdownlist
 
 [radzen](https://blazor.radzen.com/)  
 [Blazor の InputSelect コンポーネントについて学ぶ](https://www.gunshi.info/entry/2021/11/19/020708)  
+
+- 検索文字列
+  - InputSelect  
+  - dropdown selection  
+  - dropdownlist  
+
+---
+
+## aタグとボタン
+
+`a`タグはButtonとしての役割を与える事もできるらしい。  
+下記2つの書き方で同じ動作を実現できる。  
+
+``` html
+    <a href='/user/delete/@user.UserId' class="btn btn-outline-danger" role="button">
+        Delete
+    </a>
+```
+
+``` md
+    ``` html
+        <button class="btn btn-outline-danger " @onclick="(() => ShowDeletePage(user.UserId))">
+            Delete
+        </button>
+    ```
+
+    ``` cs
+    @code {
+        void ShowDeletePage(int userID)
+        {
+            NavigationManager.NavigateTo($"/user/delete/{userID}");
+        }
+    }
+    ```
+```
+
+■**番外編**  
+
+これでもボタンと同じ役割ができる。  
+inputタグでもtypeの指定で色々変化指せる事ができる。  
+
+``` html
+<input type="submit" value="Cancel" class="btn btn-warning" />
+```

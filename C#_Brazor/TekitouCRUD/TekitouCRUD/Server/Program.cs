@@ -8,14 +8,10 @@ using TekitouCRUD.Server.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-//string path = Path.Combine(Directory.GetCurrentDirectory(), @"\Shared\Database");
-string path = Directory.GetCurrentDirectory();
-path = path.Replace(@"\TekitouCRUD\Server", @"\TekitouCRUD\Shared\Database");
-
+var path = string.Concat(new DirectoryInfo(Directory.GetCurrentDirectory()).FullName, @"\Database");
 builder.Services.AddDbContext<DataContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection").Replace("|DataDirectory|", path)));
-//builder.Services.AddDbContext<DataContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddTransient<IUser, UserManager>();
 
 builder.Services.AddControllersWithViews();

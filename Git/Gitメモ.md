@@ -1,10 +1,5 @@
 # Gitメモ
 
-[Git 基本の用語集](https://qiita.com/toshi_um/items/72c9d929a600323b2e77)  
-[Git で「追跡ブランチ」って言うのやめましょう](https://qiita.com/uasi/items/69368c17c79e99aaddbf)
-
----
-
 ## pushまでの一連のコマンド
 
 ``` bash
@@ -32,20 +27,6 @@ git remote add origin https://github.com/rendya2501/SignalRSample.git
 git branch -M main
 git push -u origin main
 ```
-
----
-
-## Notepad++からGitBashを起動する方法
-
-1.gitを開いたときデフォルトの作業ディレクトリを開くようにする  
-<https://www.granfairs.com/blog/staff/gitbash-setting-shortcut>  
-git-bash.exeの本体からショートカットを作成する。  
-そのショートカットの作業フォルダーの項目に目的の作業ディレクトリのパスを設定する。  
-
-2.そのショートカットをNotepad++に登録する  
-メニューバーから「実行」を選択する。  
-「ファイル名を指定して実行」を選択して、①の作業で作成したショートカットを指定して「実行」して問題がなかったら「登録」する。  
-任意のショートカットキーを指定する。  
 
 ---
 
@@ -181,38 +162,6 @@ VisualStudioでの作業なら右下のブランチ一覧からブランチを�
 
 ---
 
-## gitignoreでディレクトリを除外する方法
-
-[[Git] .gitignoreの仕様詳解](https://qiita.com/anqooqie/items/110957797b3d5280c44f)  
-
-`*/ディレクトリ名`  
-
-例  
-以下のようなフォルダ構成があった時にassetsディレクトリ以下を除外したい場合。  
-
-``` txt : フォルダ構成
-src
-├─assets ← このディレクトリの中身を対象とさせない
-├─components
-├─constants
-├─router
-├─scripts
-│  ├─api
-│  ├─services
-│  └─storage
-├─types
-│  └─api
-└─views
-```
-
-### 特定のディレクトリを無視する場合は先頭と末尾に/を付ける
-
-``` txt : gitignore
-/assets/
-```
-
----
-
 ## error: failed to push some refs to "URL"のエラー対処法
 
 [【git】error: failed to push some refs to "URL"のエラー対処法](https://qiita.com/chiaki-kjwr/items/118a5b3237c78d720582)
@@ -245,60 +194,6 @@ git fetch,git mergeを実行したらいけたので備忘録として残して�
 
 [【Git】ローカルからリモートリポジトリに push できない問題を解決するまでの記録！](https://oki2a24.com/2016/01/28/resolve-error-to-push-from-local-to-remote-in-git/)  
 いつぞやこれが発生してこのページ見なかったっけか。  
-
----
-
-## VisualStudioでの対処色々
-
-[元に戻す]は指定したコミットを打ち消すコミットを作る処理。  
-[リセット]は指定したコミットより上をなかったことにする処理。  
-
-[リセット_変更を保持(--mixed)]はそこまでに変更したコードを保持するので、reset後、変更履歴が表示される。  
-[リセット_変更を削除(--hard)]はそこまでに変更したコードも削除するので、reset後、変更履歴に何も表示されない。  
-
-[変更を削除(--mixed)]に該当するコマンドは`git reset --mixed`  
-[変更を削除(--hard)]に該当するコマンドは`git reset --hard`  
-
-間違えたところを右クリックして[リセット]は意味ない。罠。  
-[リセット]は右クリックしたところまで戻す処理なので、間違えたところではなく、間違えたところより下のコミットを右クリックして[リセット]すべし。  
-
-gitは別のブランチをマージした場合、そのブランチでやったコミットが全て履歴に表示される。  
-大き目の修正を行った別のブランチをマージした場合、直近のコミットを取り消すのではなく、その根本から取り消したほうがよい。  
-元に戻す場合、大量のコミットに対して1つ1つしてしないといけないし、打消しコミットの競合の可能性も出てしまう。  
-日付とコメントを見て、どこがマージ前だったのかを確認して、そこまでresetすべし。  
-
-VSから右クリックの時とgit bashを使った時で動作が違う？  
-なんか明らかに履歴が一致しなかった。  
-そうしないと明らかに整合性が取れていない状態でしか戻せない状態になってしまう。  
-
-git 特定のコミット 取り消し  
-<https://rurukblog.com/post/git-merge-delete/>  
-git 別のブランチ reset  
-<https://nanayaku.com/git-delete-reset/>  
-
-<https://qiita.com/rch1223/items/9377446c3d010d91399b>  
-<https://qiita.com/aki4000/items/bec93ba631a83b687fb4>  
-<https://naomi-homma.hatenablog.com/entry/2020/08/11/170039>  
-<https://qiita.com/shuntaro_tamura/items/06281261d893acf049ed>  
-<https://blog.shibayu36.org/entry/20100517/1274099459>  
-<https://qiita.com/MitsukiYamauchi/items/8229cd55d4cf58b0db89>  
-<https://qiita.com/S42100254h/items/db435c98c2fc9d4a68c2>  
-
----
-
-## VisualStudioのターミナルにGit Bashを追加する方法
-
-[git-bashをVisual Studio 2019 のTerminalに追加する手順](https://qiita.com/murasuke/items/45bce6bf40f0d701d595)  
-
-メニュー「表示」→ターミナル→歯車マーク→追加→下記の設定を行う→適応
-
-``` txt
-名前         :: git-bash
-シェルの場所 :: C:\Program Files\Git\bin\sh.exe
-引数         :: -l -i
-
-※要: シェルの場所はボタンでダイアログを開いて選択すべし
-```
 
 ---
 
@@ -381,16 +276,6 @@ index.lockファイルがあるとpullやcommitができなくなる模様。
 
 ---
 
-## .gitignoreが反映されない
-
-キャッシュを消すべし  
-
-`git rm -r --cached .`
-
-[.gitignoreに記載したのに反映されない件](https://qiita.com/fuwamaki/items/3ed021163e50beab7154)
-
----
-
 ## ローカルのGit
 
 Gitって別にGithubじゃないといけないってわけじゃないんだよな。  
@@ -399,3 +284,10 @@ Gitって別にGithubじゃないといけないってわけじゃないんだ�
 その仕組みをローカルに再現して、向き先をそこにすれば、Githubと同じことができるわけだよな。  
 
 [[VS Code 2022年版]GitHub いらず。ローカルだけで Git を使う](https://www.create-forever.games/vs-code-2022-githubless/)
+
+---
+
+[git workflow](https://twitter.com/bibryam/status/1601499207977693184/photo/1)  
+
+[Git 基本の用語集](https://qiita.com/toshi_um/items/72c9d929a600323b2e77)  
+[Git で「追跡ブランチ」って言うのやめましょう](https://qiita.com/uasi/items/69368c17c79e99aaddbf)

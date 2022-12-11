@@ -4,6 +4,12 @@ MigrationにおけるEntityFrameworkCoreの仕様をまとめる
 
 ---
 
+## エンティティのプロパティ
+
+[エンティティのプロパティ](https://learn.microsoft.com/ja-jp/ef/core/modeling/entity-properties?tabs=data-annotations%2Cwithout-nrt)  
+
+---
+
 ## 列を途中に追加する場合、順序は維持されない
 
 単純にAddColumnされるだけである。  

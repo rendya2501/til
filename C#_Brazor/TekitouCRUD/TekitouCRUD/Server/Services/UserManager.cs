@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using TekitouCRUD.Server.Interfaces;
 using TekitouCRUD.Server.Models;
-using TekitouCRUD.Server.Services;
 using TekitouCRUD.Shared.Entities;
 
 namespace TekitouCRUD.Server.Services;
