@@ -10,6 +10,11 @@ MigrationにおけるEntityFrameworkCoreの仕様をまとめる
 
 ---
 
+>EF7 は .NET 6 を対象としているため、.NET 6 (LTS) または .NET 7 で使用できます。  
+[EF Core 7.0 の新機能](https://learn.microsoft.com/ja-jp/ef/core/what-is-new/ef-core-7.0/whatsnew)  
+
+---
+
 ## 列を途中に追加する場合、順序は維持されない
 
 単純にAddColumnされるだけである。  

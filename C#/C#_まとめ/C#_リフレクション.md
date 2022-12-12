@@ -43,10 +43,10 @@ private static readonly int CodeLength = (Attribute.GetCustomAttribute(typeof(Te
     public Child(Parent parent)
     {
         // 親クラスのプロパティ情報を一気に取得して使用する。
-        var props = instance
+        var props = parent
             .GetType()
             .GetProperties(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public)
-            .Select(s => (key: s.Name ,value: s.GetValue(instance)))
+            .Select(s => (key: s.Name ,value: s.GetValue(parent)))
             .ToList();
         foreach (var (key,value) in props)
         {

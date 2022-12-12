@@ -49,7 +49,7 @@ src
 `!`マークで否定する。  
 
 例：  
-全てのdmfファイルを追跡対象としないが、`.gitignore`ファイルがあるディレクトリから辿って、`/TekitouCRUD/Shared/Database`ディレクトリにある`Database1.mdf`と`Database1_log.ldf`は追跡対象とする場合の書き方。  
+全てのdmfファイルを追跡対象としないが、`.gitignore`ファイルがあるディレクトリから辿って、`/TekitouCRUD/Shared/Database`ディレクトリにある`Database1.mdf`と`Database1_log.ldf`は追跡対象とする。  
 
 ``` bash
 # SQL Server files
@@ -70,5 +70,4 @@ TekitouCRUD
 └.gitignore
 ```
 
-特定のファイルだけ追跡する
-[.gitignore の書き方。ファイル/ディレクトリの除外](https://www-creators.com/archives/1662)  
+[.gitignoreで無視フォルダの中の特定のファイルを除外「!（否定文）」を使う場合の注意点](https://blog.s-giken.net/393.html)  
