@@ -182,3 +182,37 @@ inputタグでもtypeの指定で色々変化指せる事ができる。
 ``` html
 <input type="submit" value="Cancel" class="btn btn-warning" />
 ```
+
+---
+
+## ボタンのonClickでNavigationする方法
+
+`@inject NavigationManager NavigationManager;`  
+`@onclick="@(() => NavigationManager.NavigateTo($"/hoge/huga/{@obj.prop}"))"`  
+
+`$`必要。  
+`{}`で囲む。
+`@`必要。  
+全ての要素が必要。  
+
+``` html
+    <!-- aタグでの実装 -->
+    <a href='/user/edit/@user.UserId' class="btn btn-secondary" role="button"> Edit </a>
+
+    <!-- buttonでの実装 直接 -->
+    <button type="button" class="btn btn-secondary"
+        @onclick="@(() => NavigationManager.NavigateTo($"/user/edit/{@user.UserId}"))"> Edit </button>
+
+    <!-- buttonでの実装 間接 -->
+    <button type="button" class="btn btn-secondary"
+         @onclick="(() => ShowEditPage(user.UserId))"> Edit </button>
+@code {
+    void ShowEditPage(int userID)
+    {
+        NavigationManager.NavigateTo($"/user/edit/{userID}");
+    }
+}
+```
+
+>\<NavLink class="nav-link" href="@($"editproduct/{product.Id}")">  
+[Navigating pages in Blazor](https://stackoverflow.com/questions/68347033/navigating-pages-in-blazor)  

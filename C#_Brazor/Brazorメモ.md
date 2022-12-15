@@ -91,8 +91,7 @@ dapper-smple1.cshtml
     dynamic users;
     using( var cn = new System.Data.SqlServerCe.SqlCeConnection("接続文字列"))
     {
-       cn.open();
-       users　= cn.Query("SELECT * FROM users");
+       users = cn.Query("SELECT * FROM users");
     }
 }
 ```

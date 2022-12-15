@@ -17,12 +17,10 @@
 ## ソリューション
 
 `dotnet new sln`  
-→  
-フォルダ名でソリューションが生成される。  
+デフォルトではフォルダ名がソリューション名となる。  
 
+例 : [\<SolutionName>]でフォルダを作りつつソリューションを作成する  
 `dotnet new -o <SolutionName>`  
-→  
-[<SolutionNameで>]でフォルダを作りつつソリューションを作成する  
 
 ---
 
@@ -90,7 +88,7 @@ nugetサイトでは``をメインに紹介しているので、素直にそち�
 dotnet run からIISのプロファイル起動はデフォルトの状態では無理な模様。  
 
 ``` txt
-起動プロファイル "IIS Express" を適用できませんでした。       
+起動プロファイル "IIS Express" を適用できませんでした。
 起動プロファイルの種類 'IISExpress' はサポートされていません。
 ```
 
@@ -125,6 +123,41 @@ app.Run();
 .net6からの機能。  
 
 [[.NET 6 新機能] dotnet watch によるホットリロード](https://watermargin.net/programming/net-6-dotnet-watch-hot-reload/)  
+
+---
+
+## 色々
+
+dotnet watch runだけではだめ  
+dotnet watch run --profile profilename  
+
+■**dotnet run**  
+
+| 成否 | TH | コマンド |
+| :--- | :--- | :--- |
+| ○ | 手動 | `dotnet run --profile IIS Express` |
+| ○ | 手動 | `dotnet run --profile "IIS Express"` |
+| ○ | 手動 | `dotnet run --profile WebAPISample` |
+| ○ | 手動 | `dotnet run --profile "WebAPISample"` |
+| × | ---- | `dotnet run --launch-profile IIS Express` |
+| × | ---- | `dotnet run --launch-profile "IIS Express"` |
+| ○ | 手動 | `dotnet run --launch-profile WebAPISample` |
+| ○ | 手動 | `dotnet run --launch-profile "WebAPISample"` |
+
+■**dotnet watch run**  
+
+| 成否 | TH | コマンド |
+| :--- | :--- | :--- |
+| ○ | 自動 | `dotnet watch run --profile IIS Express` |
+| ○ | 自動 | `dotnet watch run --profile "IIS Express"` |
+| ○ | 自動 | `dotnet watch run --profile WebAPISample` |
+| ○ | 自動 | `dotnet watch run --profile "WebAPISample"` |
+| ○ | 自動 | `dotnet watch run --launch-profile IIS Express` |
+| × | ---- | `dotnet watch run --launch-profile "IIS Express"` |
+| × | ---- | `dotnet watch run --launch-profile WebAPISample` |
+| × | ---- | `dotnet watch run --launch-profile "WebAPISample"` |
+
+launchSettings.jsonのプロファイル名を指定して上げないと立ち上がらない。  
 
 ---
 
