@@ -660,6 +660,20 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
 
 ---
 
+## The ConnectionString property has not been initialized  
+
+`dotnet ef migrations remove` した時に発生する。  
+
+なぜか知らないが接続文字列を要求される。  
+`migrations add` は接続文字列必要無いのに、そのまま`remove`しようとしたらエラーになるのは意味が分からない。  
+
+consoleアプリで発生する模様。  
+空のWebアプリでスキャフォールドしたプロジェクトだと発生しない。  
+consoleアプリのほうで、コンストラクタを増やしたりdummy文字列を入れたりしたが駄目。  
+やっぱり、Webアプリで作らないとだめなのだろうか。  
+
+---
+
 ## MigrationメソッドでDownを実行する
 
 dotnet-efコマンドやDbContextクラス等でも、直接的なDownコマンドは存在しない。  
