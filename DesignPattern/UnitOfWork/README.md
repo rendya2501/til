@@ -649,3 +649,5 @@ WebAPIとして実装するならかなり参考になる記事かと思われ�
 ここも解説がすごい。DDDの階層を意識した実装をするなら参考になるかもしれない。  
 [How to implement Repository & Unit of Work design patterns in .NET Core with practical examples [Part 1]](https://enlabsoftware.com/development/how-to-implement-repository-unit-of-work-design-patterns-in-dot-net-core-practical-examples-part-one.html)  
 [Implement Repository & Unit of Work patterns in .NET Core with practical examples [Part 2]](https://enlabsoftware.com/development/how-to-implement-repository-unit-of-work-design-patterns-in-dot-net-core-practical-examples-part-two.html)  
+
+[Using Unit of Work Pattern](https://www.youtube.com/watch?v=W6H4kZkyS6U&t=8s)  

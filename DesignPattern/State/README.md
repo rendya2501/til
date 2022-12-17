@@ -209,10 +209,10 @@ class Program
             {"r",state =>state.Func_r() }
         };
 
-        // dictionaryなどで予め定義しておけば分岐がなくなる。
         var states = STATE_ENUM.STATE_PLAY;
         var command = "q";
-        // STATE_PLAY_q
+        // dictionaryなどで予め定義しておけば分岐がなくなる。
+        // 可読性はひどく悪いが、こんな芸当も可能。
         commandDic[command]?.Invoke(stateDic[states]);
     }
 }
@@ -231,33 +231,6 @@ public interface IState
     void Func_w();
     void Func_e();
     void Func_r();
-}
-
-public class Context
-{
-    private readonly IState state = null;
-
-    public Context(IState state)
-    {
-        this.state = state;
-    }
-
-    public void Request_q()
-    {
-        this.state.Func_q();
-    }
-    public void Request_w()
-    {
-        this.state.Func_w();
-    }
-    public void Request_e()
-    {
-        this.state.Func_e();
-    }
-    public void Request_r()
-    {
-        this.state.Func_r();
-    }
 }
 
 public class PlayState : IState
@@ -318,5 +291,132 @@ public class PauseState : IState
     {
         Console.WriteLine("STATE_PAUSE:e");
     }
+}
+```
+
+---
+
+## サンプル3
+
+``` cs
+public class Executer
+{
+    Dictionary<STATE_ENUM, IState> dictionary = new Dictionary<STATE_ENUM, IState>()
+    {
+        {STATE_ENUM.NormalCurrent,NormalCurrentState.Instance },
+        {STATE_ENUM.NormalPast,NormalPastState.Instance }
+    };
+    private STATE_ENUM _state;
+
+    public void Execute()
+    {
+        // 拡張条件設定
+        this._state = STATE_ENUM.NormalCurrent;
+
+        // データ生成
+        CreateArea();
+
+        // return 印刷データ
+    }
+
+
+    #region 地区
+    /// <summary>
+    /// 地区データを生成します。
+    /// </summary>
+    private void CreateArea()
+    {
+        // 地区ごとの来場者一覧を取得
+        var area = Enumerable
+            .Range(1, 7)
+            .GroupJoin(
+                dictionary[_state].GetAreaAttendance().GroupBy(g => new { g.AreaClsCD, g.AreaClsName }),
+                i => i,
+                groupedArea => groupedArea?.Key.AreaClsCD,
+                (i, groupedArea) => groupedArea.FirstOrDefault()
+            )
+            .Select(s => new AreaAttendanceItem()
+            {
+                AreaClsName = s?.Key?.AreaClsName ?? string.Empty,
+                TodayAreaCount = s?.Sum(sum => sum.TodayAreaCount) ?? 0,
+                MonthAreaCount = s?.Sum(sum => sum.MonthAreaCount) ?? 0,
+                YearAreaCount = s?.Sum(sum => sum.YearAreaCount) ?? 0
+            })
+            .ToList();
+
+        SetAreaAttendance(area);
+    }
+
+    private void SetAreaAttendance(List<AreaAttendanceItem> item)
+    {
+        // データセット
+    }
+    #endregion
+
+    #region State
+    private class NormalCurrentState : IState
+    {
+        private static readonly IState _NormalCurrentState = new NormalCurrentState();
+        public static IState Instance => _NormalCurrentState;
+
+        public IEnumerable<AreaAttendanceItem> GetAreaAttendance()
+        {
+            return new List<AreaAttendanceItem>();
+        }
+    }
+
+    private class NormalPastState : IState
+    {
+        private static readonly IState _NormalPastState = new NormalPastState();
+        public static IState Instance => _NormalPastState;
+
+        public IEnumerable<AreaAttendanceItem> GetAreaAttendance()
+        {
+            return new List<AreaAttendanceItem>();
+        }
+    }
+
+    private enum STATE_ENUM
+    {
+        NormalCurrent,
+        NormalPast,
+        ClubCurrent,
+        CrubPast
+    }
+
+    private interface IState
+    {
+        IEnumerable<AreaAttendanceItem> GetAreaAttendance();
+    }
+    #endregion
+
+    #region 受け取りクラス
+    /// <summary>
+    /// 地区来場データ生成において使用する項目
+    /// </summary>
+    private class AreaAttendanceItem
+    {
+        /// <summary>
+        /// 地区分類コード
+        /// </summary>
+        public int AreaClsCD { get; set; }
+        /// <summary>
+        /// 地区分類名
+        /// </summary>
+        public string? AreaClsName { get; set; }
+        /// <summary>
+        /// 本日来場者数
+        /// </summary>
+        public int TodayAreaCount { get; set; }
+        /// <summary>
+        /// 本月来場者数
+        /// </summary>
+        public int MonthAreaCount { get; set; }
+        /// <summary>
+        /// 本年来場者数
+        /// </summary>
+        public int YearAreaCount { get; set; }
+    }
+    #endregion
 }
 ```

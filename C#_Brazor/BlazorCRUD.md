@@ -14,6 +14,8 @@ Blazor.Shared : クライアントとサーバーの両方からアクセス可�
 [CRUD Operations Using Blazor, .Net 6.0, Entity Framework Core](https://www.c-sharpcorner.com/article/crud-operations-using-blazor-net-6-0-entity-framework-core/)  
 [Blazor .NET 7 CRUD using ADO.NET & Stored Procedures | Blazor CRUD Operations | C# Blazor CRUD](https://www.youtube.com/watch?v=TCLLVz8Wk3A)  
 
+[ASP.NET Core 7 MVC Full Crud Operation Using ADO.NET](https://www.youtube.com/watch?v=YNcF53YvAwE)  
+
 ---
 
 ## 躓いたところ

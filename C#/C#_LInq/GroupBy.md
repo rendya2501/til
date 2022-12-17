@@ -2,6 +2,79 @@
 
 ---
 
+## GroupByの基本的な動作
+
+``` cs
+var tupleList = new List<(int ClsCode, string ClsName, int Score, string StudentCode, string StudentName)>
+{
+    (1, "国語", 90,"0010","田中 一郎"),
+    (2, "数学", 80,"0010","田中 一郎"),
+    (3, "英語", 70,"0010","田中 一郎"),
+    (1, "国語", 60,"0011","鈴木 二郎"),
+    (2, "数学", 50,"0011","鈴木 二郎"),
+    (3, "英語", 80,"0011","鈴木 二郎"),
+    (1, "国語", 70,"0012","佐藤 三郎"),
+    (2, "数学", 80,"0012","佐藤 三郎"),
+    (3, "英語", 90,"0012","佐藤 三郎"),
+};
+```
+
+パターン1
+
+``` cs
+var pattern1 = tupleList
+    .GroupBy(
+        g => new { g.ClsCode, g.ClsName },
+        (k, v) => new
+        {
+            k.ClsCode,
+            k.ClsName,
+            TotalScore = v.Sum(s => s.Score)
+        }
+    )
+    .ToList();
+```
+
+パターン2
+
+``` cs
+var pattern2 = tupleList
+    .GroupBy(g => new { g.ClsCode, g.ClsName })
+    .Select(s => new
+    {
+        s.Key.ClsCode,
+        s.Key.ClsName,
+        TotalScore = s.Sum(sum => sum.Score)
+    })
+    .ToList();
+```
+
+pattern1とpattern2の結果は同じになる。  
+
+``` txt
+[0]: { ClsCode = 1, ClsName = "国語", TotalScore = 220 }
+[1]: { ClsCode = 2, ClsName = "数学", TotalScore = 210 }
+[2]: { ClsCode = 3, ClsName = "英語", TotalScore = 240 }
+```
+
+---
+
+## GroupByして単純に足したい場合
+
+``` C#
+ConsumptionTaxList = aac
+    .GroupBy(g => (g.TaxationType, g.TaxRate))
+    .Select(s =>
+    {
+        var taxSlip = s.FirstOrDefault();
+        taxSlip.Price = s.Sum(sum => sum.Price);
+        taxSlip.Tax = s.Sum(sum => sum.Tax);
+        return taxSlip;
+    }).ToList();
+```
+
+---
+
 ## GroupByした要素の内、先頭のものだけ取得する
 
 やりたいこと  
@@ -144,22 +217,6 @@ if (dutchTreatSlipIDList.Count() >= 2)
     MessageDialogUtil.ShowWarning(Messenger, msg);
     return;
 }
-```
-
----
-
-## GroupByして単純に足したい場合
-
-``` C#
-ConsumptionTaxList = aac
-    .GroupBy(g => (g.TaxationType, g.TaxRate))
-    .Select(s =>
-    {
-        var taxSlip = s.FirstOrDefault();
-        taxSlip.Price = s.Sum(sum => sum.Price);
-        taxSlip.Tax = s.Sum(sum => sum.Tax);
-        return taxSlip;
-    }).ToList();
 ```
 
 ---

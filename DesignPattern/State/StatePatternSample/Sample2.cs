@@ -49,33 +49,6 @@ public interface IState
     void Func_r();
 }
 
-public class Context
-{
-    private readonly IState state = null;
-
-    public Context(IState state)
-    {
-        this.state = state;
-    }
-
-    public void Request_q()
-    {
-        this.state.Func_q();
-    }
-    public void Request_w()
-    {
-        this.state.Func_w();
-    }
-    public void Request_e()
-    {
-        this.state.Func_e();
-    }
-    public void Request_r()
-    {
-        this.state.Func_r();
-    }
-}
-
 public class PlayState : IState
 {
     public void Func_q()
