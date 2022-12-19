@@ -95,7 +95,7 @@ export default class Hoge extends HogeBase {
       .then(
         resolve => {
           this.setMenu(resolve);
-          return Promise.resolve(reject.data);
+          return Promise.resolve(resolve.data);
         },
         reject => {
           console.error(reject);

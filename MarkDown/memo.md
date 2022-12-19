@@ -55,3 +55,52 @@ markdownlint
 `ctrl + k + c`で簡単に挿入できるのでとりあえずはこれで行くことにする。  
 
 [Markdownで連続したblockquoteを分割して表示する方法](https://www.umurausu.info/blog/archives/blockquotes-in-markdown.html)  
+
+---
+
+## マークダウンでコードブロックを2つ並べる
+
+○  
+
+``` html
+<table><tr><td>
+
+    ``` CPP
+    int left = 0.0;
+    ```
+s
+</td><td>
+
+    ``` CPP
+    double right = 0.0;
+    ```
+
+</td>
+</tr>
+</table>
+```
+
+×  
+
+``` html
+<table>
+  <tr>
+    <td>
+      
+      ``` CPP
+      int left = 0.0;
+      ```
+
+    </td>
+    <td>
+
+      ``` CPP
+      double right = 0.0;
+      ```
+
+    </td>
+  </tr>
+</table>
+```
+
+[markdownで2つのコードを横並びにして表示することはでき...](https://detail.chiebukuro.yahoo.co.jp/qa/question_detail/q14258031544)  

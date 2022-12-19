@@ -49,13 +49,15 @@ var pattern2 = tupleList
     .ToList();
 ```
 
-pattern1とpattern2の結果は同じになる。  
+結果  
 
 ``` txt
 [0]: { ClsCode = 1, ClsName = "国語", TotalScore = 220 }
 [1]: { ClsCode = 2, ClsName = "数学", TotalScore = 210 }
 [2]: { ClsCode = 3, ClsName = "英語", TotalScore = 240 }
 ```
+
+pattern1とpattern2の結果は同じになる。
 
 ---
 
