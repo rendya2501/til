@@ -74,6 +74,28 @@ return $type_instance->getInfo();
 
 ---
 
+## 各クラスの役割
+
+>1. State(状態)  
+>状態を表すクラスです。  
+>状態毎に振舞いが異なるメソッドのインタフェースを定義します。  
+>
+>2. ConcreteStateA・B(具体的な状態)  
+>「State」のインタフェースを実装し、具体的な状態を、「1クラス」 = 「1状態」 で定義します。  
+>1つ状態を表すのに複数のオブジェクトは必要ないため、「Singleton」パターンを適用します。  
+>
+>3. Context(状況判断)  
+>現在の状態(「ConcreteStateA」か「ConcreteStateB」)を保持します。  
+>利用者へのインタフェースを定義します。  
+>状態を変更するメソッドを定義します。(状態の変更は、「ConcreteState」が次ぎの状態として相応しいものを判断し、この状態変更メソッドを呼出すことによって行います。)  
+>
+>4. Client(利用者)  
+>「State」パターンを適用したクラスを用い処理を行います。  
+>
+>[State パターン](http://www.itsenka.com/contents/development/designpattern/state.html)  
+
+---
+
 ## クラス図
 
 ``` mermaid : クラス図
@@ -297,6 +319,8 @@ public class PauseState : IState
 ---
 
 ## サンプル3
+
+Stateを内部クラスとして実装する場合、contextクラスは必要ないかもしれない。  
 
 ``` cs
 public class Executer

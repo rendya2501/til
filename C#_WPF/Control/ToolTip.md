@@ -1,24 +1,22 @@
 # ToolTip
 
+## ToolTipとは
+
+>ボタンなどのコントロールにマウスを載せた時、説明やヒントをポップアップ表示してくれる機能です。  
+[ボタンのツールチップ](https://araramistudio.jimdo.com/2019/11/01/c-%E3%81%AEwpf%E3%81%A7%E3%83%84%E3%83%BC%E3%83%AB%E3%83%81%E3%83%83%E3%83%97%E3%82%92%E8%A1%A8%E7%A4%BA%E3%81%99%E3%82%8B/)  
+
+「マウスオーバー」「ポップアップ」等が真っ先に思い浮かんだが、WPFでは「ツールチップ」な模様。  
+
 ---
 
-## ツールチップ開発の色々
+## IsEnableがFalseなコントロールでもツールチップを表示させる
 
-マウスオーバー
-プレースホルダー
-ポップアップ
-ToolTip
-
-[ボタンのツールチップ](https://araramistudio.jimdo.com/2019/11/01/c-%E3%81%AEwpf%E3%81%A7%E3%83%84%E3%83%BC%E3%83%AB%E3%83%81%E3%83%83%E3%83%97%E3%82%92%E8%A1%A8%E7%A4%BA%E3%81%99%E3%82%8B/)  
->ボタンなどのコントロールにマウスを載せた時、説明やヒントをポップアップ表示してくれる機能です。  
-
-[C#のWPFでツールチップを表示する](https://araramistudio.jimdo.com/2019/11/01/c-%E3%81%AEwpf%E3%81%A7%E3%83%84%E3%83%BC%E3%83%AB%E3%83%81%E3%83%83%E3%83%97%E3%82%92%E8%A1%A8%E7%A4%BA%E3%81%99%E3%82%8B/)  
-[wpf : ToolTipの幅](http://pieceofnostalgy.blogspot.com/2013/05/wpf-tooltip.html)
-[ToolTip Style ToolTipService.ShowDuration](https://stackoverflow.com/questions/32288529/tooltip-style-tooltipservice-showduration)
-[キーを指定したスタイルの使い方参考](https://qiita.com/tera1707/items/cb8ad4c40107ae25b565)
-
-[【WPF】無効なコントロールにツールチップを表示させる方法](https://threeshark3.com/show-on-disabled/)  
 >ToolTipService.ShowOnDisabledをTrueにする  
+[【WPF】無効なコントロールにツールチップを表示させる方法](https://threeshark3.com/show-on-disabled/)  
+
+---
+
+## 実装
 
 ``` XML
 <!-- キーを定義 -->
@@ -59,7 +57,13 @@ ToolTip
         </Grid>
     </DataTemplate>
 </c1:Column.CellTemplate>
+```
 
+---
+
+## 試行錯誤のあと
+
+``` xml
 <!-- 試行錯誤のあと -->
                             <Setter Property="LayoutTransform" TargetName="grid">
                                 <Setter.Value>
@@ -84,5 +88,11 @@ ToolTip
         </Setter>
     </Style>
 </Style.Resources>-->
-
 ```
+
+---
+
+[C#のWPFでツールチップを表示する](https://araramistudio.jimdo.com/2019/11/01/c-%E3%81%AEwpf%E3%81%A7%E3%83%84%E3%83%BC%E3%83%AB%E3%83%81%E3%83%83%E3%83%97%E3%82%92%E8%A1%A8%E7%A4%BA%E3%81%99%E3%82%8B/)  
+[wpf : ToolTipの幅](http://pieceofnostalgy.blogspot.com/2013/05/wpf-tooltip.html)
+[ToolTip Style ToolTipService.ShowDuration](https://stackoverflow.com/questions/32288529/tooltip-style-tooltipservice-showduration)
+[キーを指定したスタイルの使い方参考](https://qiita.com/tera1707/items/cb8ad4c40107ae25b565)
