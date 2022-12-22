@@ -18,6 +18,7 @@ PromiseでいうところのThenに相当するモノだと思われる。
 static void Main()
 {
     Console.WriteLine("Main : Begin");
+
     var task = new Task<int>(() =>
     {
         Console.WriteLine("Task1 : Begin");
@@ -25,6 +26,7 @@ static void Main()
         Console.WriteLine("Task1 : End");
         return sum;
     });
+
     task.Start();
     task.ContinueWith(task1 =>
     {
@@ -32,6 +34,7 @@ static void Main()
         Console.WriteLine("Sum = {0}", task1.Result);
         Console.WriteLine("Task2 : End");
     });
+
     Console.WriteLine("Main : End");
     Thread.Sleep(1000);
 }
@@ -57,33 +60,54 @@ Task2 : End
 それがもどかしい。  
 
 ``` C#
-    private async Task<bool> ConfirmAsync()
+private async Task<bool> ConfirmAsync()
+{
+    // 警告文を生成
+    string msg = CreateWarningMessage();
+    // 警告文があれば、ダイアログを表示する
+    if (!string.IsNullOrEmpty(msg))
     {
-        // 警告文を生成
-        string msg = CreateWarningMessage();
-        // 警告文があれば、ダイアログを表示する
-        if (!string.IsNullOrEmpty(msg))
-        {
-            // ダイアログを表示している間は処理を止める
-            await MessageDialogUtil.ShowWarningAsync(Messenger, msg);
-            // 警告なので常にfalse
-            return false;
-        }
-        // 警告文がなければ常にtrue
-        return true;
+        // ダイアログを表示している間は処理を止める
+        await MessageDialogUtil.ShowWarningAsync(Messenger, msg);
+        // 警告なので常にfalse
+        return false;
     }
+    // 警告文がなければ常にtrue
+    return true;
+}
 ```
 
 TaskのContinueWithを使うことでワンセンテンス化が可能になる。  
 ContinueWithにより、ダイアログを閉じたときに続けてfalseを返却するように記述することができる。  
 
 ``` C#
-    private async Task<bool> ConfirmAsync()
-    {
-        // 警告文を生成
-        string msg = CreateWarningMessage();
-        // 警告文があれば、ダイアログを表示しつつ、falseを返却する。
-        return string.IsNullOrEmpty(msg)
-            || await MessageDialogUtil.ShowWarningAsync(Messenger, msg).ContinueWith(f => false);
-    }
+private async Task<bool> ConfirmAsync()
+{
+    // 警告文を生成
+    string msg = CreateWarningMessage();
+    // 警告文がなければtrueでそのまま処理終了。
+    // 警告文があれば、ダイアログを表示しつつ、falseを返却する。
+    return string.IsNullOrEmpty(msg)
+        || await MessageDialogUtil.ShowWarningAsync(Messenger, msg).ContinueWith(_ => false);
+}
 ```
+
+---
+
+## ContinueWithのチェーン
+
+``` cs
+async Task aaa()
+{
+    await Task.Run(() => "First thing done")
+        .ContinueWith(async task => await Task.Run(() => $"{task.Result} _First thing done")).Unwrap()
+        .ContinueWith(async task => await Task.Run(() => $"{task.Result}_Third thing done"));
+}
+_ = aaa();
+
+```
+
+Unwrapメソッドは.NetFrameworkの4.0から対応している模様。  
+
+[TaskExtensions.Unwrap メソッド](https://learn.microsoft.com/ja-jp/dotnet/api/system.threading.tasks.taskextensions.unwrap?view=net-7.0)  
+[A basic use-case for Task Unwrap](https://pragmateek.com/a-basic-use-case-for-task-unwrap/)

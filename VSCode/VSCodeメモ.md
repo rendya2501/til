@@ -1,19 +1,15 @@
 # VSCodeメモ
 
----
-
 ## 除外するファイルの複数指定
-
-[VS Code の「検索」時に「含めるファイル」や「除外するファイル」を指定する際はカンマ区切りにする](https://obel.hatenablog.jp/entry/20200409/1586410881)  
 
 カンマで区切る。  
 `.xml , .xaml`  
 
+[VS Code の「検索」時に「含めるファイル」や「除外するファイル」を指定する際はカンマ区切りにする](https://obel.hatenablog.jp/entry/20200409/1586410881)  
+
 ---
 
 ## grepで複数行の検索の仕方
-
-[VS Codeで複数行に渡って正規表現を利用する](https://qiita.com/birdwatcher/items/dee34a11619b11e1fe81)  
 
 どちらかといえば、正規表現の記事にまとめるべきだが、VSCodeのことで困ったのでこっちに書く。  
 ログを調べる時に備考が長すぎて、arrayを折りたためなくて困ったので、複数行を検索して空白で置換できないかと思って調べた。  
@@ -24,6 +20,8 @@
 ``` regexp
 'remarks' => '[\s\S\n]*?',
 ```
+
+[VS Codeで複数行に渡って正規表現を利用する](https://qiita.com/birdwatcher/items/dee34a11619b11e1fe81)  
 
 ---
 
@@ -48,6 +46,15 @@ Could not establish connection to "<サーバーのホスト名>"
 
 ## 除外するファイル 複数指定
 
-複数の条件は カンマ ( , ) 区切り  
+複数の条件は カンマ「,」 区切り  
 
 [[vscode] 複数ファイルからの検索方法](https://www.chihayafuru.jp/tech/index.php/archives/2294)  
+
+---
+
+## `フォルダ右クリック→Codeで開く` のコマンド
+
+`code .`  
+
+コマンドプロンプトでもいけた。  
+ターミナルならなんでもいけると思われる。  

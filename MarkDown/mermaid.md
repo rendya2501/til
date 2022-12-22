@@ -20,23 +20,23 @@
 ## mermaid + クラス図
 
 ``` txt
-記号 | 意味               | サンプル
------+--------------------+----------------------
-<|-- | Inheritance(継承)  | ClassA <|-- ClassB
-<|.. | Realization(実現)  | ClassC <|.. ClassD
-<--  | Association(関連)  | ClassE <-- ClassF
-<..  | Dependency(依存)   | ClassG <.. ClassH
-*--  | Composition(委譲)  | ClassI *-- ClassJ
-o--  | Aggregation(集約)  | ClassK o-- ClassL
---   | Link(線)           | ClassM -- ClassN
-..   | Link(破線)         | ClassO .. ClassP
------+--------------------+-----------------------
-*    | Abstract           | foo*, foo()*
-$    | Static             | foo$, foo()$
-+    | Public             | +foo, +foo()
--    | Private            | -foo, -foo()
-#    | Protected          | #foo, #foo()
-~    | Package/Internal   | ~foo
+記号 | 意味                 | サンプル
+-----+----------------------+--------------------
+<|-- | Generalization(汎化) | ClassA <|-- ClassB
+<|.. | Realization(実現)    | ClassC <|.. ClassD
+<--  | Association(関連)    | ClassE <-- ClassF
+<..  | Dependency(依存)     | ClassG <.. ClassH
+*--  | Composition(合成)    | ClassI *-- ClassJ
+o--  | Aggregation(集約)    | ClassK o-- ClassL
+--   | Link(線)             | ClassM -- ClassN
+..   | Link(破線)           | ClassO .. ClassP
+-----+----------------------+--------------------
+*    | Abstract             | foo*, foo()*
+$    | Static               | foo$, foo()$
++    | Public               | +foo, +foo()
+-    | Private              | -foo, -foo()
+#    | Protected            | #foo, #foo()
+~    | Package/Internal     | ~foo
 ```
 
 継承(inheritance) → 汎化(generalization)  
@@ -120,3 +120,6 @@ graph TB
 3.リンクを張る  
 4.色を付ける  
 [ワンランク上のMermaid(mermaid.js)を書く](https://qiita.com/pitao/items/a860001bae6256dcef1a)  
+
+platumlのサイトだが、多重度の書き方等、mermaidにそのまま移植できるのである程度参考になる。  
+[plantuml](https://plantuml.com/ja/class-diagram)  

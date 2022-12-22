@@ -134,68 +134,66 @@ async void は終了を検知できないけど、 Task.Runは検知できる。
 だけど、破棄することであえて検知しない→投げっぱなしにすることも可能で、その状態はasync void を実行したのと同じような状態とみなせる。  
 
 ``` C#
-        // Start 0
-        // Start 1
-        // Start 2
-        // End 1
-        // End 0
-        // End 2
-        private async void Button_Click(object sender, RoutedEventArgs e)
-        {
-            for (int i = 0; i < 3; i++)
-            {
-                await Task.Run(() => DelayMethodByAsyncVoid(i));
-            }
-        }
-        async void DelayMethodByAsyncVoid(int id)
-        {
-            Console.WriteLine("Start " + id);
-            await Task.Delay(2000);
-            Console.WriteLine("End " + id);
-        }
+// Start 0
+// Start 1
+// Start 2
+// End 1
+// End 0
+// End 2
+private async void Button_Click(object sender, RoutedEventArgs e)
+{
+    for (int i = 0; i < 3; i++)
+    {
+        await Task.Run(() => DelayMethodByAsyncVoid(i));
+    }
+}
+async void DelayMethodByAsyncVoid(int id)
+{
+    Console.WriteLine("Start " + id);
+    await Task.Delay(2000);
+    Console.WriteLine("End " + id);
+}
 
-        // Start 0
-        // Start 1
-        // Start 2
-        // End 2
-        // End 1
-        // End 0
-        private void Button_Click_1(object sender, RoutedEventArgs e)
-        {
-            for (int i = 0; i < 3; i++)
-            {
-                _ = DelayMethodByAsyncTask(i);
-            }
-        }
+// Start 0
+// Start 1
+// Start 2
+// End 2
+// End 1
+// End 0
+private void Button_Click_1(object sender, RoutedEventArgs e)
+{
+    for (int i = 0; i < 3; i++)
+    {
+        _ = DelayMethodByAsyncTask(i);
+    }
+}
 
-        // こいつだけは明らかに動作が違うのでやるな
-        // Start 3
-        // Start 3
-        // Start 3
-        // End 3
-        // End 3
-        // End 3
-        private void Button_Click_2(object sender, RoutedEventArgs e)
-        {
-            for (int i = 0; i < 3; i++)
-            {
-                _ = Task.Run(() => DelayMethodByAsyncTask(i));
-            }
-        }
+// こいつだけは明らかに動作が違うのでやるな
+// Start 3
+// Start 3
+// Start 3
+// End 3
+// End 3
+// End 3
+private void Button_Click_2(object sender, RoutedEventArgs e)
+{
+    for (int i = 0; i < 3; i++)
+    {
+        _ = Task.Run(() => DelayMethodByAsyncTask(i));
+    }
+}
 
-        async Task DelayMethodByAsyncTask(int id)
-        {
-            Console.WriteLine("Start " + id);
-            await Task.Delay(2000);
-            Console.WriteLine("End " + id);
-        }
+async Task DelayMethodByAsyncTask(int id)
+{
+    Console.WriteLine("Start " + id);
+    await Task.Delay(2000);
+    Console.WriteLine("End " + id);
+}
 ```
 
 ---
 
 ## async voidのラムダ式
-
-<https://stackoverflow.com/questions/61827597/async-void-lambda-expressions>  
 
 async void ○○ await △△ みたいな非同期処理を1行で書けないか探したが、全然そんなこと書いてるところがない。  
 「async void lambda c#」で調べてようやくそれっぽいところにたどり着いたが、本当にあってるのかはわからない。  
@@ -212,19 +210,24 @@ async voidは仕事の完了を観測できない。
 そもそもTaskに対する理解が足りていなかった証拠だろう。  
 
 ``` C#
-    private async void Hoge()
-    {
-        await Task.Delay(1000);
-    }
-    private void Main()
-    {
-        // async void HogeはTask.Runのように書いても動くけど、厳密には少し違うみたい。
-        Hoge();
-        // これは正確にはWait1000みたいな意味合いらしい。
-        Task.Run(async () => await Task.Delay(1000));
-    }
-    private async Task Wait1000() {
-        await Task.Delay(1000);
-    }
-    Task.Run(Wait1000);
+private async void Hoge()
+{
+    await Task.Delay(1000);
+}
+
+private void Main()
+{
+    // async void HogeはTask.Runのように書いても動くけど、厳密には少し違うみたい。
+    Hoge();
+    // これは正確にはWait1000みたいな意味合いらしい。
+    Task.Run(async () => await Task.Delay(1000));
+}
+
+private async Task Wait1000() {
+    await Task.Delay(1000);
+}
+
+Task.Run(Wait1000);
 ```
+
+<https://stackoverflow.com/questions/61827597/async-void-lambda-expressions>  

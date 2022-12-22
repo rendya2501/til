@@ -99,8 +99,6 @@ A という処理と B という処理を同時に行える。( 並行処理 )
 
 ## Task.Run と Task.Factory.StartNew
 
-[Task.Run と Task.Factory.StartNew](http://outside6.wp.xdomain.jp/2016/08/04/post-205/)  
-
 いつもと同じ感覚でTask.Run()で処理を定義しようとしたらできなくて、何かないかと探したらTask.Factroy.StartNewなる構文だといけることが分かった。  
 それはいいのだが、そもそもこれは何なのか分からなかったのでまとめることにした。  
 
@@ -110,18 +108,18 @@ Task thread2 = Task.Factory.StartNew(() => fun2());
 ```
 
 ``` txt
-項目                 Task.Run      Task.Factory.StartNew  戻り値           備考
+項目                 Task.Run      StartNew  戻り値         備考
 
-CancellationToken    ○             ○                      -                キャンセルに使うTokenを指定
-TaskCreationOptions  ×             ○                      -                どのように作成するかを指定するオプション
-TaskScheduler        ×             ○                      -                同期コンテキストを指定
+CancellationToken    ○             ○       -              キャンセルに使うTokenを指定
+TaskCreationOptions  ×             ○       -              どのように作成するかを指定するオプション
+TaskScheduler        ×             ○       -              同期コンテキストを指定
 
-Action               ○             ○                      Task
-Func<TResult>        ○             ○                      Task<TReuslt>
-Action<object>       ×             ○                      Task             第2引数にOjbectが必須
-Func<Object,TResult> ×             ○                      Task<TReuslt>
-Func<Task>           ○             ×                      Task             入れ子のTaskの内側が戻る
-Func<Task<TResult>>  ○             ×                      Task<TReuslt>
+Action               ○             ○       Task
+Func<TResult>        ○             ○       Task<TReuslt>
+Action<object>       ×             ○       Task           第2引数にOjbectが必須
+Func<Object,TResult> ×             ○       Task<TReuslt>
+Func<Task>           ○             ×       Task           入れ子のTaskの内側が戻る
+Func<Task<TResult>>  ○             ×       Task<TReuslt>
 ```
 
 Task.Facotry.StartNewを一般的な用途でもっと手早く使うためにTask.Runが作られたようだ。  
@@ -129,6 +127,8 @@ Task.Facotry.StartNewを一般的な用途でもっと手早く使うためにTa
 ただ、Task.RunのTaskCreationOptionが「DenyChildAttach」なので、Task.Runの中でTask.Factory.StartNewを「AttachedToParent」で使っても無効になってしまうことには注意が必要。  
 また、Task.Runは手軽だけど細かい設定はできない。  
 Task.Factory.StartNewが不要になったわけではない。  
+
+[Task.Run と Task.Factory.StartNew](http://outside6.wp.xdomain.jp/2016/08/04/post-205/)  
 
 ---
 
@@ -246,7 +246,6 @@ Taskを単体で実行させる場合は、単純にTask.Runさせるだけで�
 
 ## Task.WaitAll and Exceptions
 
-実務において発生。  
 ASP.Net側のTask.WaitAllで実行しているタスクの中でエラーが発生した場合、エラーが`AggregateException`にラッピングされ、単純なメッセージだけが表示されない現象が発生した。  
 
 下記例であれば`Oops`とエラーダイアログで表示されるのだが、`●●EXCEPTION(Oops)`みたいな感じで表示されてしまう。  
