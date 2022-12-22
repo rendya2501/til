@@ -1,26 +1,5 @@
 # C#メモ
 
-## 三項演算子で同じインタフェースを実装したクラスがなぜ暗黙的変換といわれるのか
-
-java5以降改善されたらしい。その前までは同様の現象が起こっていた模様。  
-C#も今後改善されるのかな。  
-
-## 条件演算子のターゲット型推論の強化
-
-azmさんに三項演算子でnull許可のboolを受け取るとき、「片方を変換しないといけないのキモイね」って言われたので、「受け取り側をvarじゃなくてbool?にすれば行けますよ」って言ったけどエラーになった。  
-どうやらこれが有効なのはC#9からみたいで、Framework4.8のC#7.3では無理だった。  
-家でやるサンプルは基本的に最新版なので、バージョンを意識することがない。  
-それを意識するいい体験だったのでまとめた。  
-
-``` C#
-// この記述が許されるのはC#9から。
-// これはC#9の条件演算子のターゲット型推論の強化に当たるらしい。
-bool? aa = true ? false : null;
-
-// C#9以前はこのように書くしかない。
-var aa = true ? (bool?)false : null;
-```
-
 ---
 
 ## インスタンスの状態
@@ -163,45 +142,90 @@ int Sum(int x = 0 , int y = 0, int z = 0) => x + y + z;
 
 ---
 
-## 埋め込みリソース
+## Cysharp
 
-exeにファイルを埋め込むこと。  
+C#の可能性を切り開いていく専門会社が作ってるOSSライブラリ  
 
->Visual Studioで開発をおこなっていると、画像ファイルやテキストファイルなどを、プログラムと一緒に配布する必要が出てきたりします。  
->多くの場合、付属するファイルをある特定のパスに格納することで対応したりします。  
->ただし、画像ファイルをユーザが編集できないようにプログラムを配布する場合もあります。  
->こういった場合、画像ファイルを実行プログラムに埋め込むことで、安易に編集できないように配布することができます。  
->これにより実行ファイルのフォルダに画像ファイルを配置せずとも、ビルドファイル内に埋め込まれたリソースファイルを利用することで画像の表示が可能になります。  
->[Visual Studioの埋め込みリソースについて](https://freestyle.nvo.jp/archives/59)  
+コンソールアプリでCLIプログラムのひな形を紹介している。  
+[github_Cysharp](https://github.com/Cysharp/ConsoleAppFramework)  
 
 ---
 
-## C#のコンソールアプリのコマンドライン引数
+## Parallel.For, Parallel.ForEach
 
-文字列のまとまりはダブルコーテーション。  
-スプリットはスペース。  
+デフラグっぽいグラフィカルな表現で並列処理が確認できて面白い。  
+[(C#)Parallel.For, Parallel.ForEach並列処理の挙動確認](https://qiita.com/longlongago_k/items/8f19d84fce6dd677922e)  
+
+---
+
+## PLINQ(Parallel LINQ)
+
+LINQの並列実行版  
+
+---
+
+## メモリ
+
+・変数はメモリのアドレスに名前をつけている？値を入れることで始めてメモリが確保される？それとも変数名を定義した瞬間メモリが確保される？
+メモリに名前をつけただけで領域は確保されない？
+
+変数はメモリのアドレスと紐づける。
+C#で変数を宣言するだけで使わない場合、コンパイラが宣言しなかったときと同じ扱いにしてくれるのではなかろうか。
+だから、使うなら領域を確保するし、しないなら宣言していないのと同じ状態としてくれるのではなかろうか。
+そこらへんはコンパイラのさじ加減によるだろう。
+親切なコンパイラならわざわざ確保する事はないだろうし、そうでないならアドレスと紐づけはしつつ、内部には何も入れないみたいな感じになるのでは？
+
+いや、違うな。
+変数を宣言した場合、そのアドレスと紐づけはするけど、その中身は操作しないことになるのか？
+だからコンパイルの段階で紐づけをしないようにしてもらわないと、そのアドレスにアクセスできないことになる可能性があるのか。
+
+まぁ、使わない変数を定義したところで、使っていないのだから定義すべきではないし、それだけの話だった気がする。  
 
 ``` C#
-Console.WriteLine("Hello, World!");
-foreach (var arg in args)
-    Console.WriteLine(arg);
+    static void Main(string[] args)
+    {
+        System.Diagnostics.Process hProcess = System.Diagnostics.Process.GetCurrentProcess();
+
+        //Console.WriteLine("BaseAddress     :0x" + Convert.ToString(hProcess.MainModule.BaseAddress.ToInt64(), 16));
+        //Console.WriteLine("EntryPoint      :0x" + Convert.ToString(hProcess.MainModule.EntryPointAddress.ToInt64(), 16));
+        //Console.WriteLine("ModuleMemorySize:" + hProcess.MainModule.ModuleMemorySize);
+        //Console.WriteLine("WorkingSet      :" + hProcess.WorkingSet64);
+
+        //hProcess.Refresh();
+        //Console.WriteLine($"物理メモリ使用量: {hProcess.WorkingSet64}\r\n仮想メモリ使用量: {hProcess.VirtualMemorySize64}");
+        ////int a;
+        //hProcess.Refresh();
+        //Console.WriteLine($"物理メモリ使用量: {hProcess.WorkingSet64}\r\n仮想メモリ使用量: {hProcess.VirtualMemorySize64}");
+
+        Console.WriteLine($"現在のメモリ使用量は{Environment.WorkingSet:N0}byteです。");
+        Console.WriteLine($"現在のメモリ使用量は{Environment.WorkingSet:N0}byteです。");
+
+        Console.WriteLine($"現在のメモリ使用量は{Environment.WorkingSet:N0}byteです。");
+        int a = 0;
+        int j;
+        Console.WriteLine($"{a:N0}");
+        Console.WriteLine($"現在のメモリ使用量は{Environment.WorkingSet:N0}byteです。");
+
+        // aaaaa();
+    }
+
+    // unsafe句を使う場合はデバッグオプションでunsafeを許可する必要がある。
+    // まぁ、unsafeって書いて「ctrl + .」でヒント出てくるはずだからそれ使えばよろしい。
+    static unsafe void aaaaa()
+    {
+        int a = 100;
+        int* b = &a;
+
+        Console.WriteLine(Convert.ToString((int)&a, 16));
+        Console.WriteLine("0x" + Convert.ToString((int)b, 16));
+
+        Console.Read();
+    }
 ```
 
-``` txt
-TestConsole "tetst  aaa" "aaa wwww"
-
-Hello, World!
-tetst  aaa
-aaa wwww
-```
-
-``` txt
-TestConsole 'tetst  aaa' "aaa wwww"
-
-Hello, World!
-'tetst
-aaa'
-aaa wwww
-```
-
----
+[[変数] 変数とメモリ](https://zenn.dev/antez/books/568dd4d86562a1/viewer/09848c)  
+[プログラムがメモリをどう使うかを理解する(1)](https://zenn.dev/rita0222/articles/e6ff75245d79b5)  
+[プログラムがメモリをどう使うかを理解する(2)](https://zenn.dev/rita0222/articles/beda4311d9a6bf)  
+[プログラムがメモリをどう使うかを理解する(3)](https://zenn.dev/rita0222/articles/f59b79bab45a2a)  
+[プログラムがメモリをどう使うかを理解する(4)](https://zenn.dev/rita0222/articles/1f37a5bf910282)  
+<https://twitter.com/404death/status/968381431146778624/photo/1>  

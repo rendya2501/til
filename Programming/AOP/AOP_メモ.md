@@ -49,3 +49,55 @@ C#でもできなくはないが、メソッド単位は無理な模様。
 やるにしても結構ガリガリ書く必要がある。  
 
 [Why aspect-oriented programming in C# is pointless](https://www.youtube.com/watch?v=dLPKwEeqwgU)
+
+---
+
+## C# Transaction Attribute
+
+ASP.Net Core ではHTTP通信のミドルウェアでトランザクション制御ができる模様。  
+なので、この手法であればコントローラーの中でならTransaction Attributeをつける事ができる。  
+が、ビジネス層でやるわけではないので、融通は効かないだろう。  
+
+そもそも独自のAOPを実装する場合はAutofacとかCastle等のパッケージをインストールして開発していくことになる模様。  
+その場合、スタートアップにおいて色々やる必要があって、そこまでしてようやく使える用になるので、正直面倒くさい。  
+
+やりたいのはメソッドに`[Transaction]`ってつけたいだけなんだ。  
+
+まぁ、C#で実装されていないなら素直にTransactionScopeを使うべし。  
+実装できるかも？という可能性は感じたが、何が何でも実装してやっていきたいというほどではないし、苦労に見合わない。  
+
+ミドルウェアでトランザクション処理を定義する方法を紹介しているところ。  
+ざっくり見ると可能性を感じるが、どう頑張ってもControllerの中でしか生きられない。  
+[Transaction middleware in ASP.NET Core](https://dev.to/moesmp/transaction-middleware-in-aspnet-core-2608)  
+
+C#でもJavaのようなアトリビュートを！って考える人はやっぱりいるらしく、一番可能性のある記事だったが、やっぱりController限定である。  
+下の方にAutofacを使った場合の処理も紹介されているが何故かスルーされている。  
+[Transactional annotation attribute in .NET Core](https://stackoverflow.com/questions/57441301/transactional-annotation-attribute-in-net-core)  
+
+少し古いけどRealProxyを使ったTransaction Annotationの実装が紹介されている。  
+これを参考に色々やったらできるかもしれないね。  
+[透過プロキシでアスペクト指向プログラミング (2)](https://sakapon.wordpress.com/tag/%E9%80%8F%E9%81%8E%E3%83%97%E3%83%AD%E3%82%AD%E3%82%B7/)  
+
+Castle Coreを利用した基本的な実装方法が紹介されている。  
+AOPしたいなら基本的なところから入って参考にする分にはいいかもしれない。  
+[XamarinでもAOPしたい！　希望編](https://www.nuits.jp/entry/xamarin-fody-01)  
+
+.NetFrameworkでは「RealProxy」.NetCoreでは「DispatchProxy」でAOPを実装するらしい。  
+なるほど。  
+アスペクト指向的な処理はProxyパターンとしてデザインパターンがあるのか。  
+で、RealProxyはProxyパターンをさらに拡張したモノだとか。  
+[RealProxyクラスによるアスペクト指向プログラミングに入門してみた。](RealProxyクラスによるアスペクト指向プログラミングに入門してみた。)  
+
+---
+
+## C# AOPライブラリ
+
+代表的なものとして`PostSharp`と`Fody`なるものがあるらしい。  
+PostSharpは有料のライブラリだが、小規模なプログラム(1000行以下とか)なら無料で使える。  
+ただ、無料で使おうとした場合でも、メールアドレスの登録などは必要そうだったので断念した。  
+
+Fodyは完全無料。  
+手っ取り早くAOPしてみたいならこっちでいいんじゃないかな。  
+
+[C#のAOPライブラリ（PostSharp）](https://kouki-hoshi.hatenablog.com/entry/2017/06/21/023159)  
+[C#のAOPライブラリ（Fody）](https://kouki-hoshi.hatenablog.com/entry/2017/06/25/011038)  

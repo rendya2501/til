@@ -24,11 +24,11 @@ public class UserController : ControllerBase
     public IActionResult Get(int id)
     {
         User user = _IUser.GetUserData(id);
-        if (user != null)
+        if (user == null)
         {
-            return Ok(user);
+            return NotFound();
         }
-        return NotFound();
+        return Ok(user);
     }
 
     [HttpPost]

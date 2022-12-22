@@ -111,4 +111,12 @@ graph TB
 
 [NotionのMermaid記法](https://twitter.com/paranishian/status/1559657386125668352)  
 [【Mermaidの紹介】Qiitaでダイアグラム・チャートが簡単に書けるようになりました！](https://qiita.com/Qiita/items/c07f3262d8f3b25f06c9)  
+
 [公式](https://mermaid-js.github.io/mermaid/#/)  
+[公式2](https://mermaid.js.org/intro/)  
+
+1.コメントアウト  
+2.括弧を使う  
+3.リンクを張る  
+4.色を付ける  
+[ワンランク上のMermaid(mermaid.js)を書く](https://qiita.com/pitao/items/a860001bae6256dcef1a)  

@@ -102,6 +102,14 @@ ASP（Active Server Pages）の後継で、Active Service Pagesを.Net向けに�
 
 ---
 
+## ASP.NET Core MVC
+
+MVCフレームワークを実現する、Webフレームワークの.net coreバージョン。  
+
+[ASP.NET Core MVCを新人に説明してみよう](https://qiita.com/saxxos/items/f8bdf3a0a9d6b8e3cfef)  
+
+---
+
 ## Mono
 
 Linux や macOS などで動く .NET Framework / .NET ランタイム  
