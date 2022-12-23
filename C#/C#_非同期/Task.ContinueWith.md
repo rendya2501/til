@@ -97,6 +97,53 @@ private async Task<bool> ConfirmAsync()
 ## ContinueWithのチェーン
 
 ``` cs
+Console.WriteLine("処理開始");
+
+if (await ConfirmAsync())
+{
+    // trueの処理のつもり
+    Console.WriteLine("trueです");
+}
+else
+{
+    // falseの処理のつもり
+    Console.WriteLine("falseです");
+}
+
+// 確認処理のつもり
+async Task<bool> ConfirmAsync()
+{
+    var result = await ConfirmRequestAsync(new Object())
+        .ContinueWith(async response =>
+            // 警告文がなければtrueで処理終了。
+            // 警告文があればダイアログを表示して結果をboolで返却する。
+            string.IsNullOrEmpty(response.Result) || await ShowDialogAsync(response.Result)
+        );
+    return result.Result;
+}
+
+// RESTで確認処理を叩いた体
+async Task<string> ConfirmRequestAsync(object request)
+{
+    // リクエストを投げてレスポンスを受け取るまでの時間という体
+    await Task.Delay(1000);
+    // 確認処理の結果、アナウンスがあったという体
+    return "警告:○○です";
+}
+
+// OK,Cancelダイアログを表示し、ボタンの入力があるまで待機する処理の体
+async Task<bool> ShowDialogAsync(string msg)
+{
+    var result = await Task.Run(() =>
+    {
+        Console.WriteLine($"{msg}{Environment.NewLine}処理を続行しますか？{Environment.NewLine} y or n");
+        return Console.ReadLine() ?? string.Empty;
+    });
+    return result == "y";
+}
+```
+
+``` cs
 async Task aaa()
 {
     await Task.Run(() => "First thing done")

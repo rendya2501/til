@@ -287,6 +287,17 @@ Gitって別にGithubじゃないといけないってわけじゃないんだ�
 
 ---
 
+## git now
+
+>とりあえずコミットして、後からrebaseでまとめるCLIツール  
+>本当にとりあえずコミットだけでも便利  
+><https://azu.github.io/slide/toolstudy/git-tools.html#slide9>  
+
+[iwata/git-now](https://github.com/iwata/git-now)  
+[Git nowではじめるCommit駆動開発](https://qiita.com/k_tada/items/4b7ae126e6c5df2cb33c)  
+
+---
+
 [git workflow](https://twitter.com/bibryam/status/1601499207977693184/photo/1)  
 
 [Git 基本の用語集](https://qiita.com/toshi_um/items/72c9d929a600323b2e77)  
