@@ -314,3 +314,18 @@ dotnet publish -o Output-linux -c Release --self-contained true -r linux-x64 -p:
 
 windowsでsqlserverへの接続処理があると、`PublishSingleFile`をつけていても、○○.dllが絶対に生成されてしまう。  
 それすらも内包させるオプションが`IncludeNativeLibrariesForSelfExtract`。  
+
+---
+
+## git.bashでexeを実行する方法
+
+`./ <exe_name>`  
+
+例:カレントディレクトリのefbundle.exeを実行する  
+`./ efbundle`  
+
+- 気を付けること  
+  - exe名の直接指定では実行できない  
+  - `.\`ではなく`./`  
+
+[Windows git-bash.exeでバッチファイルを実行](https://teratail.com/questions/100039)  

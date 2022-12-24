@@ -56,3 +56,21 @@ WPFを選択した場合、.NET Framework 4.7/4.8にするか、.NET Core 3に�
 
 [Windowsデスクトップ向け業務アプリ開発には何を採用すべきか？](https://qiita.com/sengoku/items/fb4948e0d2746e3cc26f)  
 [WPF, Modern App (Metro App), UWP が低迷した理由 - iPentecのUIフレームワーク採用状況](https://www.ipentec.com/document/windows-development-new-ui-platforms-have-slumped)  
+
+---
+
+## .NetコンソールアプリをLinuxで実行する方法
+
+1. コンソールアプリを作成する  
+`dotnet new console`  
+
+2. 自己完結モードで発行  
+`dotnet publish -c Release -r linux-x64 --self-contained true`  
+
+3. Linuxにファイルを移動  
+
+4. 権限の変更 & 実行  
+`chmod 755 ./console`  
+`./console`  
+
+[Windowsで開発した .Net Coreを、frameworkがインストールされていないLinuxで実行](https://techlive.tokyo/archives/10145)  

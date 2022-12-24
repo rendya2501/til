@@ -293,8 +293,27 @@ Gitって別にGithubじゃないといけないってわけじゃないんだ�
 >本当にとりあえずコミットだけでも便利  
 ><https://azu.github.io/slide/toolstudy/git-tools.html#slide9>  
 
-[iwata/git-now](https://github.com/iwata/git-now)  
+<!--  -->
+>まぁ普通に`git commit -am "適当なメッセージ"`すりゃいいだけなんだけど、毎回コミットメッセージ書くのも面倒だし、タイプ数多いし。。。ってことでgit nowを使ってます。  
 [Git nowではじめるCommit駆動開発](https://qiita.com/k_tada/items/4b7ae126e6c5df2cb33c)  
+
+[iwata/git-now](https://github.com/iwata/git-now)  
+
+---
+
+## ER図 Git管理
+
+er図をmermaidで記述してgit管理でも行けるはず。  
+管理するだけなので、A5M2によるDDLの出力などはできない。  
+スキーマを変更したらそのままDDL出力してそれをGit管理でもいいのではなかろうか？  
+
+[tblsを使えば，ER図をgitで管理しやすい](https://zenn.dev/lightkun/articles/6caf17872b6521)  
+
+---
+
+## er diagram github
+
+[tblsとGitHub Actionsを使ってDBマイグレーションを含むPRには自動更新したER図を追加する](https://devblog.thebase.in/entry/auto_generated_er_graph_by_tbls_and_github_actions)  
 
 ---
 
