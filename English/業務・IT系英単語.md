@@ -555,9 +555,13 @@ configuration of the system
 
 命令
 
+---
+
 ## Dataは複数形
 
 単数形はdatumらしい。
+
+---
 
 ## Helper以上、Manager以下のちょうどいい英単語はあるか？
 
@@ -569,6 +573,39 @@ Helperをまとめつつ、判定等を返す程度のクラス。
 役職のランク的にはManagerの下がLeaderなので、そのまま当てはめるなら○○Leaderになるが、クラスとか機能って別に人じゃないし、これもなんか違う気がする。  
 
 [英語の肩書きから「ランク」を理解する](https://xtech.nikkei.com/it/article/Watcher/20070215/262079/)  
+
+---
+
+## 精算中
+
+settlingはsettleの現在分詞。  
+be動詞と組み合わせることで現在進行形となるが、単品の動名詞の意味は精算中とならない模様。  
+だけど、settledがあるなら自然にsettlingと解釈できるし、意味は違えどニュアンスが伝わればいいからこれでいいか。  
+
+``` txt
+精算   Settlement
+精算中 Settling
+精算済 Settled
+
+Settlement 決済
+Settling   和解
+Settled    解決済み
+```
+
+``` txt
+Settlement              決済
+
+Settling                和解
+Settlement In           和解
+Settlement In Progress  決済中
+
+Settled                 解決済み
+
+SettlementProgress      決済中
+Progress                進行中
+```
+
+[動詞settle「定住する・〜を解決する」の時制・人称変化と日本語の意味](https://engverb.com/settle/)  
 
 ---
 
@@ -626,11 +663,11 @@ Helperをまとめつつ、判定等を返す程度のクラス。
 
 ---
 
-## 横文字
-
 ## LGTM (Looks good to me)
 
-「良さそうだ」「問題ないと思う」という意味。
+「良さそうだ」「問題ないと思う」という意味。  
+
+---
 
 ## TL;DR (TLDR)
 
@@ -644,6 +681,8 @@ TL;DRもしくはTLDRとは、「Too Long, Didn’t Read」の略で、「文章
 「;(セミコロン)」は接続詞省略で、「だから」の意味を表す。  
 「tl;dr」など小文字表記も見られる。  
 
+---
+
 ## NaN (Not a Number)
 
 [1]  
@@ -652,6 +691,8 @@ TL;DRもしくはTLDRとは、「Too Long, Didn’t Read」の略で、「文章
 
 [2]  
 コンピュータにおいて、主に浮動小数点演算の結果として、不正なオペランドを与えられたために生じた結果を表す値またはシンボルである。  
+
+---
 
 ## タイポ
 
