@@ -229,3 +229,58 @@ C#で変数を宣言するだけで使わない場合、コンパイラが宣言
 [プログラムがメモリをどう使うかを理解する(3)](https://zenn.dev/rita0222/articles/f59b79bab45a2a)  
 [プログラムがメモリをどう使うかを理解する(4)](https://zenn.dev/rita0222/articles/1f37a5bf910282)  
 <https://twitter.com/404death/status/968381431146778624/photo/1>  
+
+---
+
+## 親クラスを実装した子クラスを親クラスの引数で渡しても全てのプロパティが入ってくる
+
+まぁ、それだけなんですけどね。  
+親クラスの部分だけでも自動代入出来ればと思ったが、結局リフレクション使ってループして入れるしかない。  
+
+``` cs
+using System.Reflection;
+
+var parent = new Child()
+{
+    Id = 1,
+    Name = "name",
+    ChildProp = "child1prop"
+};
+var excon = new ExtendChild(parent);
+
+
+public class Parent
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = null!;
+}
+
+public class Child : Parent
+{
+    public string ChildProp { get; set; }
+}
+
+public class ExtendChild : Parent
+{
+    public string DateTime { get; set; }
+
+    // parentには「Id」「Name」「ChildProp」が入ってくる
+    // Parent型なのにChildのプロパティまで含まれる
+    // ChildProp [string]:"child1prop"
+    // Id [int]:1
+    // Name [string]:"name"
+    public ExtendChild(Parent parent)
+    {
+        // 親クラスのプロパティ情報を一気に取得して使用する。
+        List<PropertyInfo> props = parent
+            .GetType()
+            .GetProperties(BindingFlags.Instance | BindingFlags.Public)
+            .ToList();
+        foreach (var prop in props)
+        {
+            var propValue = prop.GetValue(parent);
+            typeof(ExtendChild).GetProperty(prop.Name)?.SetValue(this, propValue);
+        }
+    }
+}
+```

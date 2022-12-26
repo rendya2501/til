@@ -4,10 +4,14 @@
 
 ---
 
-## markdown open preview to the side
+## マークダウン拡張
 
-Markdown All in One  
-markdownlint  
+- **Markdown All in One**  
+  - Markdownを編集する上で便利な機能を複数使えるようになる拡張機能。  
+- **markdownlint**  
+  - 構文チェックを行う拡張。
+
+[設計書をMarkdownで作成するためのテクニック](https://boardtechlog.com/2020/09/programming/%E8%A8%AD%E8%A8%88%E6%9B%B8%E3%82%92markdown%E3%81%A7%E4%BD%9C%E6%88%90%E3%81%99%E3%82%8B%E3%81%9F%E3%82%81%E3%81%AE%E3%83%86%E3%82%AF%E3%83%8B%E3%83%83%E3%82%AF/)  
 
 ---
 

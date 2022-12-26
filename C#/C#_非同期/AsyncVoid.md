@@ -127,11 +127,9 @@ public async Task ToaruAsyncMethod()
 
 ## async void と _ = Task.Run は同じか？
 
-[c# async voidでawait Task.Run()失敗の巻](https://qiita.com/twentyfourhours/items/3451f39567239f951a1a)  
-
-仕事投げっぱなしで終了を検知しないという意味では同じ。  
 async void は終了を検知できないけど、 Task.Runは検知できる。  
-だけど、破棄することであえて検知しない→投げっぱなしにすることも可能で、その状態はasync void を実行したのと同じような状態とみなせる。  
+だけど、破棄することで特に制御しないのであれば、処理を投げっぱなしにしている事と同等になるのでは？  
+イコール、async void を実行したのと同じような状態とみなせるのではなかろうか？  
 
 ``` C#
 // Start 0
@@ -190,6 +188,8 @@ async Task DelayMethodByAsyncTask(int id)
     Console.WriteLine("End " + id);
 }
 ```
+
+[c# async voidでawait Task.Run()失敗の巻](https://qiita.com/twentyfourhours/items/3451f39567239f951a1a)  
 
 ---
 

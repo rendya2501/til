@@ -36,16 +36,8 @@ a ??= b;
 ## null許容参照型
 
 変数名の後ろの `!` 記号は`null免除演算子(null-forgiving operator)`と呼ばれる。  
+`null抑制演算子`ともいうらしい。  
 8.0から使用可能  
-
-`抑制演算子`ともいうらしい。
-以下のように記述するとそういう警告が出る。  
-
-``` cs
-int? aaa = 1;
-// Null 抑制演算子 ('!') が重複しています
-_ = aaa !!?? throw new Exception("aa");
-```
 
 null免除演算子をnull許容参照型の変数名の後ろに記述すると、その変数は null でないとみなされる。  
 
@@ -82,8 +74,31 @@ class Hoge {
 >IDEのnullの警告を抑制する程度の演算子らしい。  
 >
 >Null許容参照型は8.0以上と警告が出る。  
+>[null許容参照型](https://ufcpp.net/study/csharp/resource/nullablereferencetype/?p=3#null-forgiving)  
 
-[null許容参照型](https://ufcpp.net/study/csharp/resource/nullablereferencetype/?p=3#null-forgiving)  
+---
+
+## null合体演算子の否定
+
+`!??`でnull合体演算子の否定はできない。  
+
+記述すること自体はできて、特にエラーにはならないが、それはnull許容演算子扱いになっていると思われる。  
+その証拠に`!!??`にするとnull免除演算子が～って警告が表示される。  
+
+``` cs
+int? aaa = 1;
+// Null 抑制演算子 ('!') が重複しています
+_ = aaa !!?? throw new Exception("aa");
+```
+
+やりたいこととしては、listに要素があれば、その要素を列挙してエラー文を組み立てるというもの  
+この時にリストに要素があれば、エラーとしたかったが、大抵の場合はnullの場合にエラーとする事しか眼中にない模様。  
+まぁ、普通にifで判定すればいいだけの話だが、折角便利な演算子があるのだから否定もできるのでは？と思った次第です。  
+
+``` cs
+List<string> aaa = new List();
+_ = aaa!.any() !?? throw new Exeption(string.join(",",aaa.select(s => s.str)));
+```
 
 ---
 
