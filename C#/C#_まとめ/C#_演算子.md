@@ -100,6 +100,8 @@ List<string> aaa = new List();
 _ = aaa!.any() !?? throw new Exeption(string.join(",",aaa.select(s => s.str)));
 ```
 
+c# not null coalescing operator  
+
 ---
 
 ## null!の意味

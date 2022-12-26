@@ -101,3 +101,5 @@ public class StudentGrade
 [【GoFのデザインパターン】「Builder」ってどんなパターン？](http://www.code-magagine.com/?p=2674)  
 [コンストラクタの引数が多すぎる場合の対応方法。Builderを検討しよう。](http://java-study.blog.jp/archives/1030064889.html)  
 [Javaで書くBuilderパターンのパターン](https://qiita.com/disc99/items/840cf9936687f97a482b)  
+[Builderパターン](https://qiita.com/takutotacos/items/33cfda205ab30a43b0b1)  
+[【java】実装ミスをなくす！Builderパターンをjavaで実装する](https://tamotech.blog/2021/11/22/java-builder-pattern/)  

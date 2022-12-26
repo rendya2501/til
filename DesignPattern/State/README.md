@@ -96,6 +96,26 @@ return $type_instance->getInfo();
 
 ---
 
+## シーケンス図
+
+``` mermaid
+sequenceDiagram
+    Client->>Context:test
+    Context->>StateA: stateMethod1
+    StateA->>Context: setState
+    Context->>StateB: stateMethos2
+    StateB->>Context: contextMethod3
+```
+
+``` mermaid
+sequenceDiagram
+    Alice->>John: Hello John, how are you?
+    John-->>Alice: Great!
+    Alice-)John: See you later!
+```
+
+---
+
 ## クラス図
 
 ``` mermaid : クラス図
