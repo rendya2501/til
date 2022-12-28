@@ -1,11 +1,8 @@
 # State
 
----
-
 ## 概要
 
-「状態」をクラスとして表現するパターン  
-
+「状態」をクラスとして表現するデザインパターン。  
 オブジェクトの状態に応じて挙動を変化させる場合に有効。  
 
 - 参考  
@@ -33,8 +30,8 @@
 
 ## 分岐された関数を実行する時のアンチパターン
 
-[分岐アンチパターン](https://qiita.com/pakkun/items/9bef9132f168ba0befd7)  
-このサイトの分岐処理のベストプラクティスとしてStateパターンが照会されていたのがきっかけでStateをまとめることになった。  
+[このサイト](https://qiita.com/pakkun/items/9bef9132f168ba0befd7)
+の分岐処理のベストプラクティスとしてStateパターンが紹介されていたのがきっかけでStateをまとめることになった。  
 
 以下のように、状態によって実行する関数を変化させたい場合にStateパターンが有効である。  
 
@@ -72,6 +69,8 @@ return $type_instance->getInfo();
 - Stateパターンを使えば、仕様を一箇所にまとめることができる。  
 - 分岐で「状態」や「タイプ」を参照し始めたら、Stateパターンを適応できる可能性が高い。  
 
+[分岐アンチパターン](https://qiita.com/pakkun/items/9bef9132f168ba0befd7)  
+
 ---
 
 ## 各クラスの役割
@@ -87,7 +86,7 @@ return $type_instance->getInfo();
 >3. Context(状況判断)  
 >現在の状態(「ConcreteStateA」か「ConcreteStateB」)を保持します。  
 >利用者へのインタフェースを定義します。  
->状態を変更するメソッドを定義します。(状態の変更は、「ConcreteState」が次ぎの状態として相応しいものを判断し、この状態変更メソッドを呼出すことによって行います。)  
+>状態を変更するメソッドを定義します。(状態の変更は、「ConcreteState」が次の状態として相応しいものを判断し、この状態変更メソッドを呼出すことによって行います。)  
 >
 >4. Client(利用者)  
 >「State」パターンを適用したクラスを用い処理を行います。  
@@ -100,18 +99,31 @@ return $type_instance->getInfo();
 
 ``` mermaid
 sequenceDiagram
-    Client->>Context:test
-    Context->>StateA: stateMethod1
-    StateA->>Context: setState
-    Context->>StateB: stateMethos2
-    StateB->>Context: contextMethod3
-```
+    participant Client
+    participant Context
+    participant StateA
+    participant StateB
 
-``` mermaid
-sequenceDiagram
-    Alice->>John: Hello John, how are you?
-    John-->>Alice: Great!
-    Alice-)John: See you later!
+    activate Client
+
+    Client->>+Context:contextMethod1
+    Context->>+StateA: stateMethod1
+    StateA->>Context: setState
+    Context-->>StateA:_
+    StateA-->>-Context:_
+    Context-->>-Client:_
+
+    Client->>+Context:contextMethod2
+    Context->>+StateB: stateMethod2
+    StateB->>Context: contextMethod3
+    Context-->>StateB:_
+    StateB-->>-Context:_
+    Context-->>-Client:_
+
+    deactivate Client
+
+    #Context->>StateB: stateMethos2
+    #StateB->>Context: contextMethod3
 ```
 
 ---
@@ -342,6 +354,35 @@ public class PauseState : IState
 
 Stateを内部クラスとして実装する場合、contextクラスは必要ないかもしれない。  
 
+``` mermaid
+sequenceDiagram
+    participant Client
+    participant Service
+    participant StateA
+    participant StateB
+    rect rgb(200, 150, 255)
+    Note over Service,StateB: Serciveクラスの内部クラスとして<br>StateAとStateBを定義すれば<br>Contextクラスの必要はないのでは？
+    end
+
+    activate Client
+    Client->>+Service:ServiceMethod<br>(引数に状態を渡す)
+
+    Note right of Service: 引数の状態によって<br>Stateを分岐
+    alt is stateA
+        Service->>+StateA: stateA_Method
+        StateA->>Service: stateA_Result
+    else is stateB
+        Service->>+StateB: stateB_Method
+        StateB->>Service: stateB_Result
+    end
+    
+    Service-->>-Client:_
+    deactivate Client
+
+    #Service->>StateB: stateMethos2
+    #StateB->>Service: ServiceMethod3
+```
+
 ``` cs
 public class Executer
 {
@@ -352,10 +393,11 @@ public class Executer
     };
     private STATE_ENUM _state;
 
-    public void Execute()
+    public void Execute(object arg)
     {
         // 拡張条件設定
-        this._state = STATE_ENUM.NormalCurrent;
+        // if (arg.STATE == brabra)
+        this._state = STATE STATE_ENUM.NormalCurrent;
 
         // データ生成
         CreateArea();
