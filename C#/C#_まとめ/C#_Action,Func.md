@@ -218,7 +218,77 @@ var aa = new Func<IEnumerable<int>>(() =>
 
 ## Actionとローカル関数のどちらを使うべきか調査
 
-ローカル関数のほうが早いので、特段の理由が無ければローカル関数を使うべし。  
+ローカル関数のほうが必要な処理が少ないので、特段の理由が無ければローカル関数を使うべし。  
+
+``` cs
+public class C 
+{
+    public void M() 
+    {
+        Action a =()=>{ Console.WriteLine("hoge"); };
+        a();        
+    }
+    
+    public void N()
+    {
+        void b(){ Console.WriteLine("hoge"); };
+        b();
+    }
+    
+    public void O()
+    {
+         new Action(() => Console.WriteLine("hoge")).Invoke();
+    }
+}
+
+
+public class C
+{
+    [Serializable]
+    [CompilerGenerated]
+    private sealed class <>c
+    {
+        public static readonly <>c <>9 = new <>c();
+
+        public static Action <>9__0_0;
+
+        public static Action <>9__2_0;
+
+        internal void <M>b__0_0()
+        {
+            Console.WriteLine("hoge");
+        }
+
+        internal void <O>b__2_0()
+        {
+            Console.WriteLine("hoge");
+        }
+    }
+
+    public void M()
+    {
+        (<>c.<>9__0_0 ?? (<>c.<>9__0_0 = new Action(<>c.<>9.<M>b__0_0)))();
+    }
+
+    public void N()
+    {
+        <N>g__b|1_0();
+    }
+
+    public void O()
+    {
+        (<>c.<>9__2_0 ?? (<>c.<>9__2_0 = new Action(<>c.<>9.<O>b__2_0)))();
+    }
+
+    [CompilerGenerated]
+    internal static void <N>g__b|1_0()
+    {
+        Console.WriteLine("hoge");
+    }
+}
+```
+
+[sharplab.io](https://sharplab.io/#v2:EYLgHgbALAPgAgJgIwFgBQ64GYAEicDCO6A3ujhXrnFDgLIAUAlMWpTmW+5XEgjgEMcAXmbCAfCTxIAnAwBEACwD2AcwCm8pgG4cAX23luFAc13HW7PUYo2qeWgDlmdzhYc5gzKbzlK1mjr6hlzGXjp21qGWPNS0APIu0W7uAHbqAO7SCAzMIuLSfioaWkwAdACSqQBuygDW6maUkezoUUA=)  
 
 [C#のActionとローカル関数のどちらを使うべきか調査](https://shibuya24.info/entry/action_or_local_method)  
 
