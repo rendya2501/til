@@ -64,9 +64,6 @@ x:Type マークアップ拡張機能は、Type 型を受け取るプロパテ�
 
 ## TextBoxで未入力の場合にBindingしてるソースのプロパティにnullを入れたい
 
-<https://blog.okazuki.jp/entry/20110411/1302529830>  
-
-なんてことはない知識だが、一応MDの練習やTILのために追加。  
 テキストボックスの空文字をNULLにしたい場合はどうすればいいのか分からなかったから調べたらドンピシャのがあったので、メモ。  
 
 TargetNullValueプロパティを以下のように書くことで、空文字のときにnullがプロパティに渡ってくるようになります。
@@ -75,6 +72,8 @@ TargetNullValueはこの値が来たらnullとして扱うことを設定する�
 ``` XML
 <TextBox Text="{Binding Path=NumberInput, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}" />
 ```
+
+[TextBoxで未入力の場合にBindingしてるソースのプロパティにnullを入れたい](https://blog.okazuki.jp/entry/20110411/1302529830)  
 
 ---
 
@@ -247,6 +246,7 @@ XAMLはジェネリックのバインドをサポートしてないっぽい。
 ①変更をすべて取得。  
 ②フラグで値が変更されたかを管理。  
 ③LostFocusで検索実行。  
+
 同じ値を許可しないといけないので、SetPropertyは使えない。  
 キーバインドを全て取得して、いちいちフラグを管理する方法で何とかしたが、面倒くさくなるのは確か。  
 
@@ -254,72 +254,72 @@ Interaction.TriggersのEventTriggerでどんなイベントがあるのか調べ
 eventtrigger eventname 一覧  
 [【WPF】【MVVM】GUIのマウス/キー操作処理をコードビハインドから駆逐する](https://qiita.com/hotelmoskva_/items/13ecc724bdad00078c16)  
 
-大抵の場合はBindingの`UpdateSourceTrigger=PropertyChanged`に設定すれば、  
-値が更新された瞬間にPropertyChangedが走るようになる。  
-伝票入力のほうはこちらで実装していた。  
-なぜ今回はこれが駄目だったのか。  
+大抵の場合はBindingの`UpdateSourceTrigger=PropertyChanged`に設定すれば、値が更新された瞬間にPropertyChangedが走るようになる。  
+
 伝票入力の場合では、入力して検索した後、入力を消すので直前と同じ値を入力しても検索が走ったが、今回は仕様上、値が残ったままにしないといけなかった。  
 値が入力されている状態で同じ値を入力しても、変更の観測はされるが、前回と同じなので検索は実行されない。  
 だからこの方法は使えなくてKeyDownとフラグで制御した。  
 
-[Bindingの各プロパティ(UpdateSourceTrigger,Delay,NotifyOnSourceUpdated)の動作について](https://qiita.com/furugen/items/6201f74cf5d5a823d92b)  
-[[C# WPF]Bindingソースの更新タイミングを変える -UpdateSourceTrigger-](http://cswpf.seesaa.net/article/313839819.html)  
-
 ``` XML
-    <im:GcNumber
-        Name="RankCDBox"
-        Width="70"
-        HorizontalAlignment="Left"
-        HorizontalContentAlignment="Center"
-        Style="{StaticResource RankCD}"
-        Value="{Binding Data.RankCD, Mode=TwoWay, TargetNullValue={x:Null}}">
-        <i:Interaction.Triggers>
-            <!-- ③LostFocusで検索実行 -->
-            <i:EventTrigger EventName="LostFocus">
-                <i:InvokeCommandAction Command="{Binding SearchRankAndWageCommand, Mode=OneWay}" />
-            </i:EventTrigger>
-            <!-- ①変更を全て取得 -->
-            <i:EventTrigger EventName="KeyDown">
-                <i:InvokeCommandAction Command="{Binding SetUpRankFlagCommand, Mode=OneWay}" />
-            </i:EventTrigger>
-        </i:Interaction.Triggers>
-    </im:GcNumber>
+<im:GcNumber
+    Name="RankCDBox"
+    Width="70"
+    HorizontalAlignment="Left"
+    HorizontalContentAlignment="Center"
+    Style="{StaticResource RankCD}"
+    Value="{Binding Data.RankCD, Mode=TwoWay, TargetNullValue={x:Null}}">
+    <i:Interaction.Triggers>
+        <!-- ③LostFocusで検索実行 -->
+        <i:EventTrigger EventName="LostFocus">
+            <i:InvokeCommandAction Command="{Binding SearchRankAndWageCommand, Mode=OneWay}" />
+        </i:EventTrigger>
+        <!-- ①変更を全て取得 -->
+        <i:EventTrigger EventName="KeyDown">
+            <i:InvokeCommandAction Command="{Binding SetUpRankFlagCommand, Mode=OneWay}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+</im:GcNumber>
 ```
 
 ``` C# : ViewModel
-        // ②フラグで値が変更されたかを管理
-        SetUpRankFlagCommand = new DelegateCommand(() => { IsChangedRankCD = true; }, () => !IsBusy);
+// ②フラグで値が変更されたかを管理
+SetUpRankFlagCommand = new DelegateCommand(() => { IsChangedRankCD = true; }, () => !IsBusy);
 
-        private void DataPropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            // ②フラグで値が変更されたかを管理。
-            else if (e.PropertyName == nameof(Data.RankCD))
-            {
-                IsChangedRankCD = true;
-            }
-        }
+private void DataPropertyChanged(object sender, PropertyChangedEventArgs e)
+{
+    // ②フラグで値が変更されたかを管理。
+    else if (e.PropertyName == nameof(Data.RankCD))
+    {
+        IsChangedRankCD = true;
+    }
+}
 
-        // ③LostFocusで検索実行
-        SearchRankAndWageCommand = new DelegateCommand(async () => await SearchRankAndWage(), () => !IsBusy);
-        /// <summary>
-        /// ランクとランク賃金検索処理
-        /// </summary>
-        private async Task SearchRankAndWage()
+// ③LostFocusで検索実行
+SearchRankAndWageCommand = new DelegateCommand(async () => await SearchRankAndWage(), () => !IsBusy);
+
+/// <summary>
+/// ランクとランク賃金検索処理
+/// </summary>
+private async Task SearchRankAndWage()
+{
+    if (!IsChangedRankCD)
+    {
+        return;
+    }
+    await ServiceErrorHandlingAsync(
+        async () =>
         {
-            if (IsChangedRankCD)
-            {
-                await ServiceErrorHandlingAsync(
-                    async () =>
-                    {
-                        await SearchSimpleRankAsync();
-                        await RankWageSearchImpl();
-                    },
-                    nameof(IsBusy)
-                );
-                IsChangedRankCD = false;
-            }
-        }
+            await SearchSimpleRankAsync();
+            await RankWageSearchImpl();
+        },
+        nameof(IsBusy)
+    );
+    IsChangedRankCD = false;
+}
 ```
+
+[Bindingの各プロパティ(UpdateSourceTrigger,Delay,NotifyOnSourceUpdated)の動作について](https://qiita.com/furugen/items/6201f74cf5d5a823d92b)  
+[[C# WPF]Bindingソースの更新タイミングを変える -UpdateSourceTrigger-](http://cswpf.seesaa.net/article/313839819.html)  
 
 ---
 
