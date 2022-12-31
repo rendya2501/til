@@ -220,13 +220,17 @@ var aa = new Func<IEnumerable<int>>(() =>
 
 ローカル関数のほうが必要な処理が少ないので、特段の理由が無ければローカル関数を使うべし。  
 
+ローカル関数は2ステップだが、Actionは4ステップ必要。  
+
+Actionを定義してから実行するのと、Actionをnewして即時実行する時のILは同じ。  
+
 ``` cs
 public class C 
 {
     public void M() 
     {
         Action a =()=>{ Console.WriteLine("hoge"); };
-        a();        
+        a();
     }
     
     public void N()

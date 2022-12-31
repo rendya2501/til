@@ -8,16 +8,16 @@ EnumのGetValueOrDefaultは何が帰ってくるのか気になった。
 Byteなので普通に0だが、面白いのは定義したEnumが1から始まるものでもデフォルトは0とされること。  
 
 ``` C#
-    CaddyType? caddyType = null;
-    // Enumが1から始まっていても0となる。
-    var aa  = (int)caddyType.GetValueOrDefault();
+CaddyType? caddyType = null;
+// Enumが1から始まっていても0となる。
+var aa  = (int)caddyType.GetValueOrDefault();
 
-    enum CaddyType : byte
-    {
-        None = 1,
-        Use =2,
-        UseTwo = 3,
-    }
+enum CaddyType : byte
+{
+    None = 1,
+    Use =2,
+    UseTwo = 3,
+}
 ```
 
 ---
@@ -28,72 +28,68 @@ Byteなので普通に0だが、面白いのは定義したEnumが1から始ま�
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-    class Program
+class Program
+{
+    static void Main(string[] args)
     {
-        static void Main(string[] args)
-        {
-            Console.WriteLine(Gender.Unknown.GetDisplayName());
-            Console.WriteLine(Gender.Unknown.GetDescription());
-            // 不明Display
-            // 不明Description
+        Console.WriteLine(Gender.Unknown.GetDisplayName()); // 不明Display
+        Console.WriteLine(Gender.Unknown.GetDescription()); // 不明Description
 
-            Console.WriteLine(Gender.Male.GetDisplayName());
-            Console.WriteLine(Gender.Male.GetDescription());
-            // Male
-            // 男性Description
+        Console.WriteLine(Gender.Male.GetDisplayName());   // Male
+        Console.WriteLine(Gender.Male.GetDescription());   // 男性Description
 
-            Console.WriteLine(Gender.Female.GetDisplayName());
-            Console.WriteLine(Gender.Female.GetDescription());
-            // 女性Display
-            // Female
-        }
+        Console.WriteLine(Gender.Female.GetDisplayName()); // 女性Display
+        Console.WriteLine(Gender.Female.GetDescription()); // Female
     }
+}
 
-    public enum Gender
-    {
-        [Display(Name = "不明Display")]
-        [Description("不明Description")]
-        Unknown,
-        [Description("男性Description")]
-        Male,
-        [Display(Name = "女性Display")]
-        Female,
-    }
+public enum Gender
+{
+    [Display(Name = "不明Display")]
+    [Description("不明Description")]
+    Unknown,
+
+    [Description("男性Description")]
+    Male,
+
+    [Display(Name = "女性Display")]
+    Female,
+}
+
+/// <summary>
+/// Enum拡張クラス
+/// </summary>
+public static class EnumExtentions
+{
+    /// <summary>
+    /// Enumに定義してあるDisplay属性を取得する。
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public static string GetDisplayName(this Enum value) =>
+        Enum.IsDefined(value.GetType(), value)
+            ? value.GetEnumAttribute<DisplayAttribute>()?.Name ?? value.ToString()
+            : string.Empty;
 
     /// <summary>
-    /// Enum拡張クラス
+    /// Enumに定義してあるDescription属性を取得する。
     /// </summary>
-    public static class EnumExtentions
-    {
-        /// <summary>
-        /// Enumに定義してあるDisplay属性を取得する。
-        /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        public static string GetDisplayName(this Enum value) =>
-            !Enum.IsDefined(value.GetType(), value)
-                ? string.Empty
-                : value.GetEnumAttribute<DisplayAttribute>()?.Name ?? value.ToString();
+    /// <param name="value"></param>
+    /// <returns></returns>
+    public static string GetDescription(this Enum value) =>
+        Enum.IsDefined(value.GetType(), value)
+            ? value.GetEnumAttribute<DescriptionAttribute>()?.Description ?? value.ToString()
+            : string.Empty;
 
-        /// <summary>
-        /// Enumに定義してあるDescription属性を取得する。
-        /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        public static string GetDescription(this Enum value) =>
-            !Enum.IsDefined(value.GetType(), value)
-                ? string.Empty
-                : value.GetEnumAttribute<DescriptionAttribute>()?.Description ?? value.ToString();
-
-        /// <summary>
-        /// Attributeの値を取得する共通処理
-        /// </summary>
-        /// <typeparam name="TAttribute"></typeparam>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        private static TAttribute GetEnumAttribute<TAttribute>(this Enum value) where TAttribute : Attribute =>
-            value.GetType().GetField(value.ToString()).GetCustomAttributes(typeof(TAttribute), false)?.OfType<TAttribute>()?.FirstOrDefault();
-    }
+    /// <summary>
+    /// Attributeの値を取得する共通処理
+    /// </summary>
+    /// <typeparam name="TAttribute"></typeparam>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    private static TAttribute GetEnumAttribute<TAttribute>(this Enum value) where TAttribute : Attribute =>
+        value.GetType().GetField(value.ToString()).GetCustomAttributes(typeof(TAttribute), false)?.OfType<TAttribute>()?.FirstOrDefault();
+}
 ```
 
 [Enumに定義してあるDisplay属性を表示する。リソースファイルがある場合、リソースから取得する拡張メソッド](https://qiita.com/mak_in/items/7909e51d249826115403)  
@@ -109,7 +105,7 @@ Enumのアノテーションから値を取得するのは遅いので、速度�
 
 ---
 
-## 文字列 → enum変換
+## 文字列 → Enum変換
 
 - Parse() : 成功すれば変換された値が返ってくるが、失敗したときに例外を吐くので少々扱いにくい。  
 - TryParse() : 変換の成否は戻り値。変換された値は第2引数でoutされる。  
@@ -139,23 +135,25 @@ Enum.TryParse("100", out wd); // true, wd = 100 →!!!!!!!!
 これを TryParse() と組み合わせれば、安全な変換が実現できる。  
 
 ``` C#
+/// <summary>
+/// Enum拡張クラス
+/// </summary>
+public static class EnumExtentions
+{
     /// <summary>
-    /// Enum拡張クラス
+    /// 拡張TryParse
+    /// Enumに定義されていない値をfalseとします。
     /// </summary>
-    public static class EnumExtentions
-    {
-        /// <summary>
-        /// 拡張TryParse
-        /// Enumに定義されていない値をfalseとします。
-        /// </summary>
-        /// <typeparam name="TEnum"></typeparam>
-        /// <param name="s"></param>
-        /// <param name="result"></param>
-        /// <returns></returns>
-        public static bool TryParse<TEnum>(string s, out TEnum result) where TEnum : struct =>
-            Enum.TryParse(s, out result) && Enum.IsDefined(typeof(TEnum), result);
-    }
+    /// <typeparam name="TEnum"></typeparam>
+    /// <param name="s"></param>
+    /// <param name="result"></param>
+    /// <returns></returns>
+    public static bool TryParse<TEnum>(string s, out TEnum result) where TEnum : struct =>
+        Enum.TryParse(s, out result) && Enum.IsDefined(typeof(TEnum), result);
+}
+```
 
+``` cs
 EnumExtentions.TryParse("2", out wd); // true, wd = Weekday.Tuesday
 EnumExtentions.TryParse("Tuesday", out wd); // true, wd = Weekday.Tuesday
 EnumExtentions.TryParse("April", out wd); // false, wd = Weekday.Saturday
@@ -225,11 +223,15 @@ Stateが最大だったらもとに戻して、そうでなければインクリ
 具体的にどうなってるんだろう。  
 なんとなくこうかなって感じでやったらできたので、余裕があったら解析したい。  
 
+■**最終的な形**  
+
 ``` C# : 最終的な形
 public DelegateCommand ButtonCommand => new DelegateCommand(
     () => State = (State == State.Error) ? State.Normal : ++State
 );
 ```
+
+■**ボツ1**  
 
 インクリメントした結果が最大値を超えていたらもとに戻す。  
 一番愚直かもしれないが、ifを切らないといけないので、中括弧が絶対に必要。  
@@ -243,6 +245,8 @@ public DelegateCommand ButtonCommand => new DelegateCommand(
     }
 );
 ```
+
+■**ボツ2**  
 
 全部参考演算子で判定する。  
 まぁ、中括弧はいらないが、毎回こんなことしてられないのでボツ。  
@@ -258,3 +262,44 @@ public DelegateCommand ButtonCommand => new DelegateCommand(
                    : throw new Exception("ありえん");
 );
 ```
+
+---
+
+## Enum バックからの受け取り
+
+asp側の定義
+
+``` cs
+public enum ResultStatus
+{
+    Success,
+    Error
+}
+```
+
+wpf側の定義  
+
+これだとasp側からSuccessで帰ってきてもExecutionになってしまう。  
+暗黙的に降られている番号的に一致するからだと思われる。  
+
+``` cs
+public enum ResultStatus
+{
+    Execution,
+    Success,
+    Error
+}
+```
+
+合わせたければこうする事
+
+``` cs
+public enum ResultStatus
+{
+    Success,
+    Error,
+    Execution,
+}
+```
+
+web側は結果を返すだけだが、フロントは実行中というステータスがあるのでこんな感じになっている。
