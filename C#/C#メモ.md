@@ -284,3 +284,216 @@ public class ExtendChild : Parent
     }
 }
 ```
+
+---
+
+## C# if or
+
+C# 9.0(.Net5)からパターンマッチングによって可能になった。  
+
+``` cs
+if (i is 2 or 3 or 5 or >= 10){}
+```
+
+[【C#】複数のORをまとめて書けないか](https://shozo-gson.com/cs-alt-or/)  
+
+---
+
+## バリデーションチェックに関するあれこれ
+
+愚直に実装するならこうなる。  
+
+``` cs
+/// <summary>
+/// 実行前バリデーション
+/// </summary>
+/// <param name="targetList"></param>
+/// <returns></returns>
+private bool ExecuteValidation(IEnumerable<ListView> targetList)
+{
+    // リスト事態が存在しない場合 or 1件も指定されていない場合、処理終了
+    if (!targetList?.Any() ?? true)
+    {
+        return false;
+    }
+    // 何も条件が指定されていない場合、やる意味がないので塞ぐ
+    if (!Condition1.HasValue && !Condition2.HasValue && !Condtion3.HasValue)
+    {
+        MessageDialogUtil.ShowWarning(Messenger, "変更内容が指定されていません。");
+        return false;
+    }
+    // 無効な組み合わせの場合
+    if (Condtion2.HasValue && !Condtion1.HasValue)
+    {
+        MessageDialogUtil.ShowWarning(Messenger, "条件2を指定する場合、条件1も指定してください。");
+        return false;
+    }
+
+    return true;
+}
+```
+
+普通のチェック処理なのでいうことはない。  
+しかし野暮ったい。で、思った。  
+
+仕組み的に、条件に合致したらメッセージを返却するだけなので、それなら条件とメッセージをリストとして定義しておくことはできないか？と。  
+
+■**改良版**  
+
+まずフィールド変数として条件を定義してしまう。  
+メッセージがあれば、warningをshowするだけ。  
+2回もフィールドにアクセスしているので、その点が少し心配ではある。  
+もう少しいい書き方がありそうな気がするが、思いついたらにしよう。  
+
+``` cs
+// 最初に引っかかったものを表示するならfirstを取ればよい。
+private string ExecuteErrMsg => new List<(bool flag, string msg)>()
+{
+    // 何も条件が指定されていない場合、やる意味がないので塞ぐ
+    (!Condition1.HasValue && !Condition2.HasValue && !Condtion3.HasValue , "変更内容が指定されていません。" ),
+    // 無効な組み合わせの場合
+    (Condtion2.HasValue && !Condtion1.HasValue,"条件2を指定する場合、条件1も指定してください。" )
+}.FirstOrDefault(f => f.flag).msg;
+
+/// <summary>
+/// 実行前バリデーション
+/// </summary>
+/// <returns></returns>
+private bool ExecuteValidation()
+{
+    // 1件でもあればアナウンスする
+    return string.IsNullOrEmpty(ExecuteErrMsg) ||
+        // awaitしていないので、ダイアログが表示されつつ、メインスレッドはfalseを返して処理は終了となるが、それ以上の処理をしないので問題無い。
+        // そのあとに処理が控えているなら非同期にしてawaitすべし。それかTaskでResultのwait
+        new Func<bool>(() =>
+        {
+            MessageDialogUtil.ShowWarning(
+                Messenger,
+                ExecuteErrMsg,
+                () => Messenger.Raise(new InteractionMessage("FocusTimeType"))
+            );
+            return false;
+        }).Invoke();
+}
+```
+
+上記例では、最に合致したメッセージを表示するだけだが、合致しなかった条件を全て表示指せるならこのようになるだろう。  
+
+``` cs
+// エラーを全て表示させたい場合はこうなる
+private string errMsg => string.Join(
+    Environment.NewLine,
+    new List<(bool flag, string msg)>()
+    {
+        // 何も条件が指定されていない場合、やる意味がないので塞ぐ
+        (!Condition1.HasValue && !Condition2.HasValue && !Condtion3.HasValue , "変更内容が指定されていません。" ),
+        // // 無効な組み合わせの場合
+        (Condtion2.HasValue && !Condtion1.HasValue,"条件2を指定する場合、条件1も指定してください。" )
+    }.Where(w => w.Key)
+);
+```
+
+■**試行錯誤の跡**
+
+最初はDictionaryで実装したのだが、2つ以上trueがあるとキーが衝突してしまうので使えなかった。  
+
+``` cs
+// DictionaryはKeyは衝突するので使えない。Listでタプルを使うべし。
+private Dictionary<bool, string> errMsgDic => new Dictionary<bool, string>() {
+    // 何も条件が指定されていない場合、やる意味がないので塞ぐ
+    {!Condition1.HasValue && !Condition2.HasValue && !Condtion3.HasValue , "変更内容が指定されていません。" },
+    // 無効な組み合わせの場合
+    {Condtion2.HasValue && !Condtion1.HasValue,"条件2を指定する場合、条件1も指定してください。" }
+};
+```
+
+---
+
+## readonlyの初期化
+
+[未確認飛行C](https://ufcpp.net/study/csharp/resource/readonlyness/)の以下のコードを見て、「クラス」ではできるのか？と思ってやってみた。  
+
+``` cs
+var p = new Point(1, 2);
+
+// p.X = 0; とは書けない。これはちゃんとコンパイル エラーになる
+
+// でも、このメソッドは呼べるし、X, Y が書き換わる
+p.Set(3, 4);
+
+Console.WriteLine(p.X); // 3
+Console.WriteLine(p.Y); // 4
+
+
+struct Point
+{
+    // フィールドに readonly を付けているものの…
+    public readonly int X;
+    public readonly int Y;
+
+    public Point(int x, int y) => (X, Y) = (x, y);
+
+    // this の書き換えができてしまうので、実は X, Y の書き換えが可能
+    public void Set(int x, int y)
+    {
+        // X = x; Y = y; とは書けない
+        // でも、this 自体は書き換えられる
+        this = new Point(x, y);
+    }
+}
+```
+
+発端はメソッドの引数で条件を生成したときに、それ以降変更することがないからreadonlyで運用できないか？と思ったからだ。  
+コンストラクタで初期化すればいいのだが、DIで運用している & 凄まじい数のサービスがインジェクションされているので、とてもじゃないがコンストラクタが使い物にならない。  
+というわけで、メソッドから引数を渡してそれっきりって運用はできないかと調べた。  
+
+一応クラスでも自分自身をnewして返却すれば出来なくはないが、コンストラクタはDI前提で成り立っているので、この方法は使えなかった。  
+
+``` cs
+var test = new Test(1);
+test = test.Fuga(2);
+Console.WriteLine(test._i); // 2
+
+public class Test
+{
+    public readonly int _i;
+
+    public Test(int i)
+    {
+        this._i = i;
+    }
+
+    public void Hoge()
+    {
+        // 読み取り専用であるため 'this' に割り当てできません 
+        // this = new Test(1);
+    }
+
+    // 自分自身を生成して返却すれば出来なくはない。
+    public Test Fuga(int i) => new Test(i);
+}
+```
+
+C# 9.0から追加されたrecord型とwith式なら、ある程度対応できるようだが、そもそも構造が悪い気がしてならない。  
+[未確認飛行C_init-only プロパティ](https://ufcpp.net/study/csharp/oo_property.html#init-only)  
+
+``` cs
+var test = new Test(1);
+test = test.Fuga(2);
+Console.WriteLine(test.Y); // 2
+
+public record Test
+{
+    public int Y { get; init; }
+
+    public Test(int i)
+    {
+        this.Y = i;
+    }
+    
+    // with式を使った
+    public Test Fuga(int i) {
+        return this with {Y = i};
+    }
+}
+```
