@@ -1,10 +1,13 @@
-
 CREATE TABLE #ParentReservation(
 	IntegratedReservationNo NVARCHAR(255),
 	ReservationNo  NVARCHAR(255),
 	BusinessDate DATETIME,
 	Comment NVARCHAR(255),
 )
+INSERT INTO #ParentReservation 
+VALUES
+	('AAA001',NULL, NULL, 'CommentC'),
+	('AAA002', NULL , NULL , 'CommentX' )
 
 
 CREATE TABLE #ChildReservation(
@@ -13,12 +16,6 @@ CREATE TABLE #ChildReservation(
 	BusinessDate DATETIME,
 	Comment NVARCHAR(255),
 )
-
-INSERT INTO #ParentReservation 
-VALUES
-	('AAA001',NULL, NULL, 'CommentC'),
-	('AAA002', NULL , NULL , 'CommentX' )
-
 INSERT INTO #ChildReservation
 VALUES
 	('AAA001','0001', '20221001', 'CommentA'),
@@ -32,6 +29,7 @@ VALUES
 	('AAA002','0003', '20221002', 'CommentC'),
 	('AAA002','0004', '20221003', 'CommentD')
 GO
+
 
 WITH DuplicateParent AS (
 	SELECT

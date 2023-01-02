@@ -39,17 +39,27 @@ WHEN NOT MATCHED THEN
 ``` sql
 -- t1 テーブルの作成
 CREATE TABLE t1
-( a int, b varchar(100) )
-
+(
+    a int,
+    b varchar(100)
+)
 INSERT INTO t1
-VALUES ( 1, 'AAA' ),( 2, 'BBB' ),( 3, 'CCC' ),( 4, 'DDD' )
+VALUES
+    ( 1, 'AAA' ),
+    ( 2, 'BBB' ),
+    ( 3, 'CCC' ),
+    ( 4, 'DDD' )
 
 -- t2 テーブルの作成
 CREATE TABLE t2
-( a int, b varchar(100) )
-
+(
+    a int,
+    b varchar(100)
+)
 INSERT INTO t2
-VALUES  ( 3, 'XXX' ),( 5, 'YYY' )
+VALUES
+    ( 3, 'XXX' ),
+    ( 5, 'YYY' )
 
 -- MERGE
 MERGE INTO t1
@@ -59,9 +69,6 @@ WHEN MATCHED THEN
     UPDATE SET t1.b = t2.b
 WHEN NOT MATCHED THEN
     INSERT VALUES ( t2.a, t2.b );
-
--- 結果の確認
-SELECT * FROM t1
 ```
 
 <http://www.sqlquality.com/books/dev03/11-1.txt>  

@@ -359,17 +359,18 @@ private string ExecuteErrMsg => new List<(bool flag, string msg)>()
 /// 実行前バリデーション
 /// </summary>
 /// <returns></returns>
-private bool ExecuteValidation()
+private bool ShowWarning(string errMsg)
 {
     // 1件でもあればアナウンスする
-    return string.IsNullOrEmpty(ExecuteErrMsg) ||
+    return string.IsNullOrEmpty(errMsg) ||
         // awaitしていないので、ダイアログが表示されつつ、メインスレッドはfalseを返して処理は終了となるが、それ以上の処理をしないので問題無い。
-        // そのあとに処理が控えているなら非同期にしてawaitすべし。それかTaskでResultのwait
+        // そのあとに処理が控えているなら非同期にしてawaitすべし。
+        // それかTaskでResultのwaitをすべし。
         new Func<bool>(() =>
         {
             MessageDialogUtil.ShowWarning(
                 Messenger,
-                ExecuteErrMsg,
+                errMsg,
                 () => Messenger.Raise(new InteractionMessage("FocusTimeType"))
             );
             return false;

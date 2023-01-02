@@ -3,7 +3,7 @@
 ## TransactionScope概要
 
 >TransactionScope とは、コードブロック内の処理をトランザクション処理にしてくれるものです。  
->NET Framework 2.0 から利用することができます。  
+>.NET Framework 2.0 から利用することができます。  
 >TransactionScope クラスを使用するとコードブロック内の処理で Complete() が呼ばれるとコミットし、Complete() が呼ばれることなくブロックを抜けると自動でロールバックしてくれます。  
 >[[C#] TransactionScope の使い方](https://webbibouroku.com/Blog/Article/cs-transaction-scope)  
 
@@ -105,6 +105,15 @@ SQLServer2016の教科書で紹介されていた内容をそのまま引用す�
 
 ---
 
+## 分離レベル
+
+TransactionScopeクラスのデフォルトは「Serializable」。  
+SqlTransactionクラスのデフォルトは「Read Committed」。  
+
+Serializableの場合、SELECTステートメントの実行時に共有ロックがトランザクションが完了するまで保持されてしまうため、同時実行性が低下するという問題が発生する。  
+
+---
+
 ## TransactionError
 
 - `The current TransactionScope is already complete.`  
@@ -126,22 +135,22 @@ SQLServer2016の教科書で紹介されていた内容をそのまま引用す�
 
 どこまで本当か分からないが、それっぽい答えにはなっている。  
 
-●TransactionScopeはSqlServer以外のデータベースでも有効に機能しますか？  
->はい、有効に機能します。  
+Q.TransactionScopeはSqlServer以外のデータベースでも有効に機能しますか？  
+A.はい、有効に機能します。  
 TransactionScopeはSqlServer以外のデータベースにも適用できる汎用的なトランザクション管理を提供します。  
 これは、様々な種類のデータベースに対応しているため、SqlServer以外のデータベースでも有効に機能します。  
 
-●sqlserverではTransactionScope内でopenとcloseを繰り返すと分散トランザクション扱いになってしまうというのは本当ですか？  
->はい、本当です。  
+Q.sqlserverではTransactionScope内でopenとcloseを繰り返すと分散トランザクション扱いになってしまうというのは本当ですか？  
+A.はい、本当です。  
 TransactionScope内で繰り返しopenとcloseを行うと、分散トランザクションが行われる可能性があります。  
 分散トランザクションを防ぐためには、openとcloseの呼び出しを単一のトランザクション内で行うようにする必要があります。  
 
-●他のデータベースでは同じようにopenとcloseを繰り返すことで分散トランザクションのようなものは発生しますか？  
->はい、発生します。  
+Q.他のデータベースでは同じようにopenとcloseを繰り返すことで分散トランザクションのようなものは発生しますか？  
+A.はい、発生します。  
 他のデータベースでも、openとcloseを繰り返すことで分散トランザクションのようなものが発生する可能性があります。  
 ただし、異なるデータベースでは、分散トランザクションが発生する確率や程度が異なる可能性があります。  
 
-●mysqlではどうですか？  
->はい、MySQLでも同様です。  
+Q.mysqlではどうですか？  
+A.はい、MySQLでも同様です。  
 MySQLでもOpenとCloseの呼び出しを単一のトランザクション内で行うようにする必要があります。  
 また、分散トランザクションが発生する確率や程度は、異なるデータベースで異なる可能性があります。  

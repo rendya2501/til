@@ -106,9 +106,40 @@ GO
 
 CASE式はSELECTステートメント内など、ステートメントの一部として条件分岐を行うことはできるが、IFのように単独で実行することはできない。  
 
+直接のPRINTは不能  
+
 ``` sql
-DECLARE @x int
-SET @x = DATEPART(hour,GETDATE())
+DECLARE @x int = DATEPART(hour,GETDATE())
+SELECT
+    CASE
+        WHEN @x < 12 THEN PRINT 'おはよう'
+        WHEN @x < 17 THEN PRINT 'こんにちは'
+        ELSE PRINT 'こんばんは'
+    END
+
+-- メッセージ 156、レベル 15、状態 1、行 4
+-- キーワード 'PRINT' 付近に不適切な構文があります。
+-- メッセージ 102、レベル 15、状態 1、行 7
+-- 'END' 付近に不適切な構文があります。
+```
+
+一度変数に受けて出力するか
+
+``` sql
+DECLARE @x int = DATEPART(hour,GETDATE()),@msg varchar(20);
+SELECT @msg = 
+    CASE
+        WHEN @x < 12 THEN 'おはよう'
+        WHEN @x < 17 THEN 'こんにちは'
+        ELSE 'こんばんは'
+    END
+PRINT @msg;
+```
+
+そのままSELECTする。
+
+``` sql
+DECLARE @x int = DATEPART(hour,GETDATE())
 SELECT
     CASE
         WHEN @x < 12 THEN 'おはよう'
