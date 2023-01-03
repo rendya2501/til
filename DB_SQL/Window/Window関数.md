@@ -1,10 +1,5 @@
 # Window関数
 
-[分析関数（ウインドウ関数）をわかりやすく説明してみた](https://qiita.com/tlokweng/items/fc13dc30cc1aa28231c5)  
-[【ひたすら図で説明】一番やさしい SQL window 関数（分析関数） の使い方](https://resanaplaza.com/2021/10/17/%E3%80%90%E3%81%B2%E3%81%9F%E3%81%99%E3%82%89%E5%9B%B3%E3%81%A7%E8%AA%AC%E6%98%8E%E3%80%91%E4%B8%80%E7%95%AA%E3%82%84%E3%81%95%E3%81%97%E3%81%84-sql-window-%E9%96%A2%E6%95%B0%EF%BC%88%E5%88%86/)  
-
----
-
 ## 概要
 
 何らかの条件で並んでいるデータに対して、特定の範囲のデータのみ参照できるようにする機能が用意されており、これをWindowと呼ぶ。  
@@ -16,52 +11,12 @@
   - `Window関数() OVER()`  
 - OVER() のカッコの中に、Partition by や Order by を指定することで、グルーピング（＝パーティション）した中身をソートし、それぞれに対してWindows関数が実行される。  
 
-``` SQL : Window関数の基本構文
-Window関数 () OVER ( PARTITION BY [カラム 1 ], [カラム 2], ... ORDER BY [カラム 1], [カラム 2], ...)
-```
-
 ---
 
-## Window関数早見表
+## Window関数の基本構文
 
-``` txt
-AVG(カラム名)                                  | 指定したカラムの平均を求める。
------------------------------------------------+-------------------------------------------------
-COUNT(* or カラム名)                           | 件数 を求める。
------------------------------------------------+-------------------------------------------------
-MAX( カラム名 )                                | 指定したカラムの 最大 を求める。
------------------------------------------------+-------------------------------------------------
-MIN( カラム名 )                                | 指定したカラムの 最小 を求める。
------------------------------------------------+-------------------------------------------------
-SUM( カラム名 )                                | 指定したカラムの 合計 を求める。
------------------------------------------------+-------------------------------------------------
-LAG( カラム名 , [オフセット] , [初期値])       | 指定したカラムにおいて、前の行の値を取得する。
-                                               | [オフセット]
-                                               |   さかのぼる行数。省略した場合は1
-                                               | [初期値]
-                                               |   値が存在しなかった場合に返される値。
-                                               |   省略時はNULL
------------------------------------------------+-------------------------------------------------
-LEAD( カラム名 , [ オフセット ] , [ 初期値 ])  | 指定したカラムにおいて、次の行の値を取得する。
-                                               | [オフセット]
-                                               |   先を見る行数。省略した場合は1
-                                               | [初期値]
-                                               |   値が存在しなかった場合に返される値。
-                                               |   省略時はNULL
------------------------------------------------+-------------------------------------------------
-FIRST_VALUE( カラム名 )                        | 最初の行の値を取得する。
------------------------------------------------+-------------------------------------------------
-LAST_VALUE( カラム名 )                         | 最後の行の値を取得する。
------------------------------------------------+-------------------------------------------------
-ROW_NUMBER()                                   | ソート順で1からの行番号を取得する
------------------------------------------------+-------------------------------------------------
-RANK()                                         | ソート順でランク付け（1からの連番）を取得する。
-                                               | 同じ値がある場合、ランクは飛び番になる。
-                                               | 例：1,2,3,3,5,5,5,8
------------------------------------------------+-------------------------------------------------
-DENSE_RANK()                                   | ソート順でランク付け（1からの連番）を取得する。
-                                               | 同じ値がある場合、ランクは飛ばない。
-                                               | 例：1,2,3,3,4,5,5,5,6
+``` SQL
+Window関数 () OVER ( PARTITION BY [カラム 1 ], [カラム 2], ... ORDER BY [カラム 1], [カラム 2], ...)
 ```
 
 ---
@@ -74,14 +29,68 @@ OVER の中に Partition by を書くことで、指定した項目でグルー�
 
 ---
 
+## Window関数早見表
+
+``` txt
+AVG(カラム名)
+指定したカラムの平均を求める。
+
+COUNT(* or カラム名)
+件数 を求める。
+
+MAX( カラム名 )
+指定したカラムの 最大 を求める。
+
+MIN( カラム名 )
+指定したカラムの 最小 を求める。
+
+SUM( カラム名 )
+指定したカラムの 合計 を求める。
+
+LAG( カラム名 , [オフセット] , [初期値])
+指定したカラムにおいて、前の行の値を取得する。
+
+[オフセット]
+さかのぼる行数。省略した場合は1
+
+[初期値]
+値が存在しなかった場合に返される値。
+省略時はNULL
+
+LEAD( カラム名 , [ オフセット ] , [ 初期値 ])
+指定したカラムにおいて、次の行の値を取得する。
+[オフセット]
+  先を見る行数。省略した場合は1
+[初期値]
+  値が存在しなかった場合に返される値。
+  省略時はNULL
+
+FIRST_VALUE( カラム名 )
+最初の行の値を取得する。
+
+LAST_VALUE( カラム名 )
+最後の行の値を取得する。
+
+ROW_NUMBER()
+ソート順で1からの行番号を取得する
+
+RANK()
+ソート順でランク付け（1からの連番）を取得する。
+同じ値がある場合、ランクは飛び番になる。
+例：1,2,3,3,5,5,5,8
+
+DENSE_RANK()
+ソート順でランク付け（1からの連番）を取得する。
+同じ値がある場合、ランクは飛ばない。
+例：1,2,3,3,4,5,5,5,6
+```
+
+---
+
 ## ROW_NUMBER
 
 連番を割り振る関数。  
 連番の順番と区分ごとに連番を生成できる。  
-
-[SQL Fiddle](http://sqlfiddle.com/#!18/7374f/71)  
-[よく使われる順位付け関数 1 - ROW_NUMBER](https://sql55.com/t-sql/sql-server-built-in-ranking-function-1.php)  
-<https://style.potepan.com/articles/23566.html>  
 
 ``` SQL
 -- 関数 'ROW_NUMBER' には ORDER BY 句を伴う OVER 句が必要です。
@@ -89,11 +98,13 @@ OVER の中に Partition by を書くことで、指定した項目でグルー�
 select ROW_NUMBER() OVER (), * from [Table]
 ```
 
+[SQL Fiddle](http://sqlfiddle.com/#!18/7374f/71)  
+[よく使われる順位付け関数 1 - ROW_NUMBER](https://sql55.com/t-sql/sql-server-built-in-ranking-function-1.php)  
+<https://style.potepan.com/articles/23566.html>  
+
 ---
 
 ## 集計サンプル
-
-[SQL PARTITION BYの基本と効率的に集計する便利な方法](https://zukucode.com/2017/08/sql-over-partition-by.html)  
 
 ``` txt : employee（社員）
 id  first_name  last_name  department_id  height
@@ -105,21 +116,21 @@ id  first_name  last_name  department_id  height
 
 ``` sql
 SELECT
-  last_name,
-  --全体の総件数
-  COUNT(1) OVER() total_count,
-  --部門ごとの件数
-  COUNT(1) OVER(PARTITION BY department_id) section_count,
-  --部門ごとの最大身長
-  MAX(height) OVER(PARTITION BY department_id) section_max_height,
-  --部門ごとの身長順（身長順に並び替えたときの行番号）
-  ROW_NUMBER() OVER(PARTITION BY department_id ORDER BY height DESC) section_height_order,
-  --全体の身長順（身長順に並び替えたときの行番号）
-  ROW_NUMBER() OVER(ORDER BY height DESC) height_order
+    last_name,
+    --全体の総件数
+    COUNT(1) OVER() total_count,
+    --部門ごとの件数
+    COUNT(1) OVER(PARTITION BY department_id) section_count,
+    --部門ごとの最大身長
+    MAX(height) OVER(PARTITION BY department_id) section_max_height,
+    --部門ごとの身長順（身長順に並び替えたときの行番号）
+    ROW_NUMBER() OVER(PARTITION BY department_id ORDER BY height DESC) section_height_order,
+    --全体の身長順（身長順に並び替えたときの行番号）
+    ROW_NUMBER() OVER(ORDER BY height DESC) height_order
 FROM
-  employee
+    employee
 ORDER BY
-  id
+    id
 ```
 
 ``` txt : 取得結果
@@ -129,3 +140,12 @@ last_name  total_count  section_count  section_max_height  section_height_order 
 田中        4            2              185                 1                     1
 鈴木        4            2              175                 2                     4
 ```
+
+[SQL PARTITION BYの基本と効率的に集計する便利な方法](https://zukucode.com/2017/08/sql-over-partition-by.html)  
+
+---
+
+[分析関数（ウインドウ関数）をわかりやすく説明してみた](https://qiita.com/tlokweng/items/fc13dc30cc1aa28231c5)  
+[【ひたすら図で説明】一番やさしい SQL window 関数（分析関数） の使い方](https://resanaplaza.com/2021/10/17/%E3%80%90%E3%81%B2%E3%81%9F%E3%81%99%E3%82%89%E5%9B%B3%E3%81%A7%E8%AA%AC%E6%98%8E%E3%80%91%E4%B8%80%E7%95%AA%E3%82%84%E3%81%95%E3%81%97%E3%81%84-sql-window-%E9%96%A2%E6%95%B0%EF%BC%88%E5%88%86/)  
+
+[【SQLの神髄】第５回　PARTITIONとROWS BETWEENを使ったレコード間比較](https://homegrowin.jp/all/4320/)  
