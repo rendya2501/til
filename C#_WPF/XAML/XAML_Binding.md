@@ -108,11 +108,7 @@ self
 
 ## 自分自身のItemsSourceのCountをXAML上で使用する方法
 
-自分自身の要素が1件も無かったらDataTriggerでEnableをFalseにしたくて調べた。  
-やっぱりそれなりに需要はあるみたいで、実現できたのでまとめる。  
-ここら辺はRelativeSourceの話になってくるが、そっちでも1記事レベルなのでそれは別でまとめる。1  
-
-[Bind Count of ItemsSource of an ItemsControl in a TextBlock using WPF](https://stackoverflow.com/questions/39482829/bind-count-of-itemssource-of-an-itemscontrol-in-a-textblock-using-wpf)  
+自分自身の要素が1件も無かったらDataTriggerでEnableをFalseにしたい。  
 
 ``` XML
 <c1:C1MultiSelect.Style>
@@ -128,6 +124,9 @@ self
     </Style>
 </c1:C1MultiSelect.Style>
 ```
+
+やっぱりそれなりに需要はある模様。  
+[Bind Count of ItemsSource of an ItemsControl in a TextBlock using WPF](https://stackoverflow.com/questions/39482829/bind-count-of-itemssource-of-an-itemscontrol-in-a-textblock-using-wpf)  
 
 ---
 
