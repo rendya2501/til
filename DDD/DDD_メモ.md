@@ -60,3 +60,6 @@ UnitOfWorkクラスはどのディレクトリに入れるべきですか？
 
 DDDの形で作れるテンプレート  
 [EduardoPires/EquinoxProject](https://github.com/EduardoPires/EquinoxProject)  
+
+こういう分け方はやめておけっていう動画
+[(3) Domain Layer Structure & Skeleton | Clean Architecture & DDD From Scratch Tutorial | Part 13 - YouTube](https://www.youtube.com/watch?v=jnutb5Z4wyg)

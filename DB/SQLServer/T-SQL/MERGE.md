@@ -24,7 +24,7 @@ WHEN NOT MATCHED THEN
 [t1]Table
 | a |  b  |
 |---+-----|
-|1  | AAA |
+|1  | AAA |               [t1]Table
 |2  | BBB |               | a |  b  |
 |3  | CCC |               |---+-----|
 |4  | DDD |               |1  | AAA |
@@ -72,3 +72,66 @@ WHEN NOT MATCHED THEN
 ```
 
 <http://www.sqlquality.com/books/dev03/11-1.txt>  
+
+---
+
+## 一括インポート時にMERGEを利用
+
+MERGEステートメントでは、OPENROWSET(BULK …)を利用してテキストファイルを一括インポートするときにMERGE処理を実行することもできる。  
+OPENROWSET(BULK …)は、SQLServer2005から提供された機能で、bcpコマンドと同じようにテキストファイルのインポートが可能。  
+bcpとの違いはフォーマットファイルが必須である点。  
+
+t1テーブル
+
+``` txt : t1テーブル
+a | b
+--+--
+1 | AAA
+2 | BBB
+3 | XXX
+4 | DDD
+5 | YYY
+```
+
+bulkText1.csvテキストファイル
+
+``` txt : bulkText1.csvテキストファイル
+
+4,FFF
+6,GGG
+```
+
+bulkTest1.fmt(フォーマットファイル)  
+
+``` txt : bulkTest1.fmt(フォーマットファイル)
+13.0
+2
+1 SQLCHAR 0 12 ","    1 a ""
+2 SQLCHAR 0 10 "\r\n" 2 b Japanese_CI_AS
+```
+
+実行SQL
+
+``` sql : 実行SQL
+MERGE INTO t1
+USING OPENROWSET(BULK 'C:\temp\bulkTest1.csv'
+                 ,FORMATFILE = 'C:\temp\bulkTest1.fmt') bulk1
+ON t1.a = bulk1.a
+WHEN MATCHED THEN
+    UPDATE SET t1.b = bulk.b
+WHEN NOT MATCHED THEN
+    INSERT VALUES (bulk.a,bulk1.b);
+```
+
+t1テーブルの結果
+
+``` txt : t1テーブルの結果
+a | b
+--+--
+1 | AAA
+2 | BBB
+3 | XXX
+4 | FFF ←UPDATEされたデータ
+5 | YYY
+6 | GGG ←INSERTされたデータ
+```

@@ -29,6 +29,47 @@ OVER の中に Partition by を書くことで、指定した項目でグルー�
 
 ---
 
+## 集計サンプル
+
+``` txt : employee（社員）
+id  first_name  last_name  department_id  height
+1   一郎         山田       1              170
+2   次郎         佐藤       2              175
+3   三郎         田中       1              185
+4   四郎         鈴木       2              155
+```
+
+``` sql
+SELECT
+    last_name,
+    --全体の総件数
+    COUNT(1) OVER() total_count,
+    --部門ごとの件数
+    COUNT(1) OVER(PARTITION BY department_id) section_count,
+    --部門ごとの最大身長
+    MAX(height) OVER(PARTITION BY department_id) section_max_height,
+    --部門ごとの身長順（身長順に並び替えたときの行番号）
+    ROW_NUMBER() OVER(PARTITION BY department_id ORDER BY height DESC) section_height_order,
+    --全体の身長順（身長順に並び替えたときの行番号）
+    ROW_NUMBER() OVER(ORDER BY height DESC) height_order
+FROM
+    employee
+ORDER BY
+    id
+```
+
+``` txt : 取得結果
+last_name  total_count  section_count  section_max_height  section_height_order  height_order
+山田        4            2              185                 2                     3
+佐藤        4            2              175                 1                     2
+田中        4            2              185                 1                     1
+鈴木        4            2              175                 2                     4
+```
+
+[SQL PARTITION BYの基本と効率的に集計する便利な方法](https://zukucode.com/2017/08/sql-over-partition-by.html)  
+
+---
+
 ## Window関数早見表
 
 ``` txt
@@ -104,48 +145,19 @@ select ROW_NUMBER() OVER (), * from [Table]
 
 ---
 
-## 集計サンプル
+## パフォーマンスに注意
 
-``` txt : employee（社員）
-id  first_name  last_name  department_id  height
-1   一郎         山田       1              170
-2   次郎         佐藤       2              175
-3   三郎         田中       1              185
-4   四郎         鈴木       2              155
-```
+順位付け関数(ROW_NUMBER等)は、ORDER BY句を指定していることからも分かるように、内部的には並べ替え処理が行われている。  
+また、PARTITION BY句を利用した場合は、内部的にはグループ化処理(GROUP BY演算とほとんど同じ処理)が行われる。  
+これらは、データべース サーバーによっては、非常に不可の高い処理(特にメモリとディスクへの高負荷、グループ化で指定する列が多い場合にはCPUへも高負荷)なので、使いすぎに注意する必要がある。  
 
-``` sql
-SELECT
-    last_name,
-    --全体の総件数
-    COUNT(1) OVER() total_count,
-    --部門ごとの件数
-    COUNT(1) OVER(PARTITION BY department_id) section_count,
-    --部門ごとの最大身長
-    MAX(height) OVER(PARTITION BY department_id) section_max_height,
-    --部門ごとの身長順（身長順に並び替えたときの行番号）
-    ROW_NUMBER() OVER(PARTITION BY department_id ORDER BY height DESC) section_height_order,
-    --全体の身長順（身長順に並び替えたときの行番号）
-    ROW_NUMBER() OVER(ORDER BY height DESC) height_order
-FROM
-    employee
-ORDER BY
-    id
-```
+基本的には、必要な場合のみ、最低限の場所でのみ利用すること。  
 
-``` txt : 取得結果
-last_name  total_count  section_count  section_max_height  section_height_order  height_order
-山田        4            2              185                 2                     3
-佐藤        4            2              175                 1                     2
-田中        4            2              185                 1                     1
-鈴木        4            2              175                 2                     4
-```
-
-[SQL PARTITION BYの基本と効率的に集計する便利な方法](https://zukucode.com/2017/08/sql-over-partition-by.html)  
+[SQLServer 2016の教科書]より  
 
 ---
 
 [分析関数（ウインドウ関数）をわかりやすく説明してみた](https://qiita.com/tlokweng/items/fc13dc30cc1aa28231c5)  
 [【ひたすら図で説明】一番やさしい SQL window 関数（分析関数） の使い方](https://resanaplaza.com/2021/10/17/%E3%80%90%E3%81%B2%E3%81%9F%E3%81%99%E3%82%89%E5%9B%B3%E3%81%A7%E8%AA%AC%E6%98%8E%E3%80%91%E4%B8%80%E7%95%AA%E3%82%84%E3%81%95%E3%81%97%E3%81%84-sql-window-%E9%96%A2%E6%95%B0%EF%BC%88%E5%88%86/)  
 
-[【SQLの神髄】第５回　PARTITIONとROWS BETWEENを使ったレコード間比較](https://homegrowin.jp/all/4320/)  
+[【SQLの神髄】第５回 PARTITIONとROWS BETWEENを使ったレコード間比較](https://homegrowin.jp/all/4320/)  
