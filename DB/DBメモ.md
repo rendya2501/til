@@ -151,11 +151,11 @@ E-R図で出てくる線のこと、とも言えます。
 したがって、カーディナリティが最も低い列は、すべての行で同じ値になります。SQL データベースはカーディナリティを使用して、特定のクエリに最適なクエリ プランを決定します。  
 [wiki]
 
-cardinality:<<数学>>濃度  
-
 男女は2なのでカーディナリーは低い。  
 1年は365日なのでカーディナリーは365となり、2より高いと言える。  
 インデックスはカーディナリーが高いものに張るべし。  
+
+※cardinality : 数学的な用法で 濃度  
 
 [カーディナリティについてまとめてみた](https://qiita.com/soyanchu/items/034be19a2e3cb87b2efb)  
 [カーディナリティが高い低いとは](https://dolphinpg.net/program/sql/cardinality/)  
@@ -244,3 +244,140 @@ A.効くらしい。
 
 - 検索キーワード  
   - 複合インデックス 一部  
+
+---
+
+## DROP TABLEやTRUNCATE TABLEはロールバック可能か？
+
+SQLServerではロールバック可能であることを確認した。  
+他はDBによる模様。  
+ロールバック不可能なDBに関してはdrop tableやtruncate等のDDL(テーブル構造)命令は、RollBackが利かないらしい。  
+
+``` sql
+drop table if exists employees;
+create table employees(dept_id int,name varchar(32));
+insert into employees(dept_id,name) values(1,'田中');
+insert into employees(dept_id,name) values(2,'玉木');
+insert into employees(dept_id,name) values(3,'鈴木');
+GO
+
+BEGIN TRY
+    BEGIN TRANSACTION;
+
+    DROP TABLE employees;
+    -- TRUNCATE TABLE employees;
+    SELECT 1/0
+
+    COMMIT TRANSACTION;
+END TRY
+
+BEGIN CATCH
+    ROLLBACK TRANSACTION;
+    SELECT
+        ERROR_NUMBER() AS ErrorNumber,
+        ERROR_SEVERITY() AS ErrorSeverity,
+        ERROR_STATE() AS ErrorState,
+        ERROR_PROCEDURE() AS ErrorProcedure,
+        ERROR_LINE() AS ErrorLine,
+        ERROR_MESSAGE() AS ErrorMessage;
+END CATCH
+GO
+
+select * from employees
+```
+
+---
+
+## DDLのトランザクション
+
+■**PostgreSQL**  
+
+CREATE TABLEやALTER TABLEなどのDDL命令もCOMMIT、ROLLBACKの対象になる。  
+
+PostgreSQLでは、CREATE TABLE や DROP TABLE などの DDL もトランザクションの一部となるため、トランザクションの途中でDROP TABLE を実行した場合でも、最後に ROLLBACK すれば、DROP したテーブルが元に戻ります。  
+
+■**Oracle**
+
+DDLはトランザクション対象にはならない。暗黙コミットされる。
+
+■**MySQL**
+
+DDLはトランザクション対象にはならない。暗黙コミットされる。
+
+■**SqlServer**
+
+DDL(create文等)はロールバックすることが出来る。  
+SQL Server ではTransaction 管理下ではRollback が可能なようです。
+
+[DDLのトランザクション(PostgresSQL,Oracle,MySQL)](https://tamata78.hatenablog.com/entry/2017/02/20/112026)  
+[SqlServerではDDL(create文等)をロールバックすることが出来る](https://culage.hatenablog.com/entry/20110129/p6)  
+[SQL Server でDDLがRollbackできる？](https://www.ilovex.co.jp/Division/ITD/archives/2005/05/sql_server_ddlr.html)  
+
+### DELETE
+
+表内のデータを(全)削除する。  
+
+`DELETE FROM (表名);`  
+
+- 語訳は「削除」  
+- DML(データ操作言語)  
+- COMMITしていなければロールバック可能です。  
+
+### TRUNCATE
+
+表内のデータを全削除する。
+
+`TRUNCATE TABLE (表名);`  
+
+- 語訳は「切り取る」  
+- DDL(データ定義言語)  
+- TRUNCATE文はWHERE句で指定できませんのでテーブルのデータを全て削除する。  
+- テーブルごと削除してから再作成するのでDELETE文よりも高速。  
+- トランザクションが効かない。  
+- ロールバックができない。  
+
+### DROP
+
+表内のオブジェクトを完全に削除する。  
+
+`DROP TABLE (表名);`  
+
+- 語訳は「捨てる」  
+- DDL(データ定義言語)  
+- 完全に削除するのでロールバックができません。表構造も残りません。  
+- DROP文はオブジェクトに対するSQL文なのでTABLEを変えてあげれば索引なども削除できる。  
+
+[DELETE文 TRUNCATE文 DROP文の違い(SQL構文)](https://www.earthlink.co.jp/engineerblog/technology-engineerblog/2680/)  
+
+---
+
+## 暗黙的なコミット
+
+MySQLでの話にはなるが、概要として理解するには十分なのでそのまま引用する。  
+
+MySQLの暗黙的なコミットは、特定のクエリを実行した際に現在のセッションで実行されているトランザクションを全てコミットしてから実行されるクエリで、クエリ自身の実行後もコミットされます。  
+
+DROP TABLEを行ったクエリの順番で考えていきます。
+
+``` sql
+mysql> START TRANSACTION;
+mysql> DROP TABLE zipcode;
+mysql> ROLLBACK;
+```
+
+上記のクエリに、先ほど説明した内容の暗黙的なコミットを明示的に入れ込んでみると、以下のようになります。
+
+``` sql
+mysql> START TRANSACTION;
+mysql> COMMIT; -- 処理の前に自動的にコミットされる
+mysql> DROP TABLE zipcode;
+mysql> COMMIT; -- 処理の後に自動的にコミットされる
+mysql> ROLLBACK;
+```
+
+ということで、ROLLBACKを打ったとしても結果が全てコミットされてしまっているため、元に戻せないことがわかります。
+
+よくある悲劇的な話としては、テーブル内のデータの削除の高速化のためにDELETE文で削除していたものを、TRUNCATE TABLEに変更した時などに起こります。  
+トランザクション処理の途中で単純に置き換えをしてしまった場合に、暗黙のコミットが挟まってしまって予期せぬ挙動になってしまうことがあります。  
+
+[DDLと暗黙的なコミットについて](https://gihyo.jp/dev/serial/01/mysql-road-construction-news/0134)  

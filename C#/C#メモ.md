@@ -498,3 +498,65 @@ public record Test
     }
 }
 ```
+
+---
+
+## is演算子による式中の変数宣言
+
+``` cs
+int hoge = Console.ReadLine() is string huga ? int.Parse(huga) : 0;
+```
+
+[特殊な変数宣言 - C# によるプログラミング入門 | ++C++; // 未確認飛行 C](https://ufcpp.net/study/csharp/datatype/declarationexpressions/)  
+[今更ながらC# で湯婆婆を単文で実装してみる - Qiita](https://qiita.com/kaedepol/items/7cbc3f7bebb2783f3651)  
+
+---
+
+## チェックボックスの3値判定
+
+チェックボックスで3値の判定をするときの実装。  
+
+リストが1件も無ければチェックを付けない。  
+複数件あって、1つでもfalseが混ざっていれば、「-」を表示する。  
+これはチェックボックスに置けるnullの状態。  
+もちろん全てtrueならチェックを付けるし、全てfalseならチェックを付けない。  
+
+そういう判定をスマートに出来ないかやってみた。  
+
+``` cs
+var ListData = new List<Hoge>(){
+    new Hoge(){
+        HogeValue = "hoge1",
+        IsSelected = true,
+    },
+    new Hoge(){
+        HogeValue = "hoge2",
+        IsSelected = true,
+    }
+};
+
+// switch 式
+var flag = ListData?.Select(a => a.IsSelected).Distinct().OrderBy(o => o).ToList() switch
+{
+    IEnumerable<bool?> hoge when (hoge?.Count() ?? 0) == 0 => false,
+    IEnumerable<bool?> hoge when hoge.Count() == 1 => hoge.First(),
+    _ => null,
+};
+
+// 
+var uniqueList = ListData?.Select(a => a.IsSelected).Distinct().OrderBy(o => o).ToList();
+IsSelectAll = (uniqueList?.Count() ?? 0) == 0
+    ? false
+    : uniqueList.Count() == 2
+        ? null
+        : (bool?)uniqueList.First();
+
+class Hoge
+{
+    public string HogeValue { get; set; }
+    public bool IsSelected { get; set; }
+}
+```
+
+[【WPF】DataTableバインドなDataGridでSelect Allチェックボックスを作る｜fuqunaga｜note](https://note.com/fuqunaga/n/n62c8d678f249)  
+[[C#] switch文をswitch式で表現する | FEELD BLOG](https://feeld-uni.com/?p=1365)  

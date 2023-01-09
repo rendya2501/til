@@ -74,3 +74,18 @@ WPFを選択した場合、.NET Framework 4.7/4.8にするか、.NET Core 3に�
 `./console`  
 
 [Windowsで開発した .Net Coreを、frameworkがインストールされていないLinuxで実行](https://techlive.tokyo/archives/10145)  
+
+---
+
+## WPFとWEBAPIを同じソリューションに含めて実行する  
+
+ソリューションの`スタートアッププロジェクトの設定`により実現できる。  
+
+- ソリューションを作成する。  
+- ソリューションのプロジェクトとしてWPFプロジェクトとWebAPIプロジェクトを作成する。  
+- ソリューションを右クリック → `スタートアッププロジェクトの設定(A)...`  
+- 共通プロパティ→スタートアッププロジェクト→マルチスタートアッププロジェクトを選択する。  
+- WPFプロジェクトとWebAPIプロジェクトのアクションを`開始`にする。  
+
+[Asp.Net Core Web API Client/Server Application | Visual Studio 2019](https://www.youtube.com/watch?v=Bz5S86jmXQQ)  
+[Consume ASP.Net Core Web API Using HttpClient in WPF](https://www.youtube.com/watch?v=qb3o_PIwVUk)  
