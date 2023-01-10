@@ -522,6 +522,7 @@ int hoge = Console.ReadLine() is string huga ? int.Parse(huga) : 0;
 もちろん全てtrueならチェックを付けるし、全てfalseならチェックを付けない。  
 
 そういう判定をスマートに出来ないかやってみた。  
+switch式が使えるバージョンならswitch式かなぁと思う。  
 
 ``` cs
 var ListData = new List<Hoge>(){
@@ -535,6 +536,14 @@ var ListData = new List<Hoge>(){
     }
 };
 
+class Hoge
+{
+    public string HogeValue { get; set; }
+    public bool IsSelected { get; set; }
+}
+```
+
+``` cs
 // switch 式
 var flag = ListData?.Select(a => a.IsSelected).Distinct().OrderBy(o => o).ToList() switch
 {
@@ -543,19 +552,13 @@ var flag = ListData?.Select(a => a.IsSelected).Distinct().OrderBy(o => o).ToList
     _ => null,
 };
 
-// 
+// C#7.3で愚直にやった場合
 var uniqueList = ListData?.Select(a => a.IsSelected).Distinct().OrderBy(o => o).ToList();
 IsSelectAll = (uniqueList?.Count() ?? 0) == 0
     ? false
     : uniqueList.Count() == 2
         ? null
         : (bool?)uniqueList.First();
-
-class Hoge
-{
-    public string HogeValue { get; set; }
-    public bool IsSelected { get; set; }
-}
 ```
 
 [【WPF】DataTableバインドなDataGridでSelect Allチェックボックスを作る｜fuqunaga｜note](https://note.com/fuqunaga/n/n62c8d678f249)  

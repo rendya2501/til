@@ -381,3 +381,113 @@ mysql> ROLLBACK;
 トランザクション処理の途中で単純に置き換えをしてしまった場合に、暗黙のコミットが挟まってしまって予期せぬ挙動になってしまうことがあります。  
 
 [DDLと暗黙的なコミットについて](https://gihyo.jp/dev/serial/01/mysql-road-construction-news/0134)  
+
+---
+
+## CONSTRAINT 句
+
+`CONSTRAINT 制約の名前 制約`  
+
+`CONSTRAINT [○○_PKC] PRIMARY KEY ([フィールド1],[フィールド2],・・・)`  
+
+テーブルのインデックスフォルダの中を見ると`Customers_PKC(クラスター化)`という名称でインデックスが生成される。  
+CONSTRAINT でインデックス名の指定をしない場合`PK_Customer_*****(クラスター化)`という名称でインデックスが生成される。  
+`*****`の部分は16桁のランダムな16進数となる模様。  
+
+制約を生成するのでFOREIGN KEY等も作成可能な模様。  
+
+CONSTRAINT句で制約名を設定しなくても複合主キーは設定できるが、ランダムチックな制約名になってしまう。  
+SQLServer2016の教科書でもできるなら任意の名前をつけたほうがよいとのこと。  
+
+``` sql
+CREATE TABLE Customers(
+    CustomerID nvarchar(20), 
+    CustomerName nvarchar(20), 
+    CustomerAdd nvarchar(50) NULL,
+    PRIMARY KEY(CustomerID,CustomerName)
+);
+```
+
+``` sql
+CREATE TABLE Customers(
+    CustomerID nvarchar(20), 
+    CustomerName nvarchar(20), 
+    CustomerAdd nvarchar(50) NULL,
+    CONSTRAINT [Customers_PKC] PRIMARY KEY(CustomerID,CustomerName)
+);
+```
+
+外部キー制約も作れる。
+
+``` sql
+CONSTRAINT `制約の名前`
+    FOREIGN KEY (`このテーブルの列名を外部キーに設定`)
+    REFERENCES `データベース名`.`テーブル名` (`カラム名`)
+    ON DELETE NO ACTION ←親テーブルの削除時何もしない
+    ON UPDATE NO ACTION ←親テーブルの更新時何もしない
+```
+
+CONSTRAINT : 制限、強制  
+
+[SQL文でのINDEX句、CONSTRAINT句について](https://toru-takagi.dev/article/3)  
+
+---
+
+## 制約名を変更する方法
+
+`EXEC sp_rename N'Tamp_Table_PKC', N'Table_PKC', N'OBJECT';`  
+
+■以下、昔の書き込み  
+
+削除して追加する。  
+制約名を更新する命令はない模様。  
+
+``` sql : 主キー制約の変更
+-- 制約削除
+ALTER TABLE [テーブル名] DROP CONSTRAINT [削除する制約名]
+
+-- 制約の追加
+ALTER TABLE [テーブル名] ADD CONSTRAINT [追加する制約名]
+PRIMARY KEY ([フィールド1],[フィールド2],...)
+```
+
+外部キー制約を確認するクエリ  
+
+``` sql
+select * from sys.key_constraints
+```
+
+[【SQL Server】外部キー制約の一覧を確認する](https://sqlserver.work/2021/01/06/%E3%80%90sys-foreign_keys-%E3%80%91%E5%A4%96%E9%83%A8%E3%82%AD%E3%83%BC%E5%88%B6%E7%B4%84%E3%81%AE%E4%B8%80%E8%A6%A7%E3%82%92%E7%A2%BA%E8%AA%8D%E3%81%99%E3%82%8B/)  
+
+---
+
+## PRIMARY KEY指定
+
+主キーが1つだけの場合は`フィールド名 型 PRIMARY KEY`でもよいし、一番最後に`PRIMARY KEY (フィールド名)`のどちらでもよい。  
+主キーが複数の場合は、CREATE TABLEの一番最後に`PRIMARY KEY (フィールド1,フィールド2,・・・)`の形でなければならない。  
+
+``` sql
+CREATE TABLE Customers(
+    CustomerID nvarchar(20), 
+    CustomerName nvarchar(20), 
+    CustomerAdd nvarchar(50) NULL,
+    PRIMARY KEY(CustomerID)
+);
+```
+
+``` sql
+CREATE TABLE Customers(
+    CustomerID nvarchar(20) PRIMARY KEY,
+    CustomerName nvarchar(20),
+    CustomerAdd nvarchar(50) NULL
+);
+```
+
+``` sql
+CREATE TABLE Customers(
+    CustomerID nvarchar(20), 
+    CustomerName nvarchar(20), 
+    CustomerAdd nvarchar(50) NULL,
+    CONSTRAINT [Customers_PKC] PRIMARY KEY(CustomerID)
+);
+```
