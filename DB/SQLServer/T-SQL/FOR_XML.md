@@ -296,3 +296,7 @@ FROM
 ```
 
 [Unable to use order by clause with for xml path properly(Sql server)](https://stackoverflow.com/questions/4387303/unable-to-use-order-by-clause-with-for-xml-path-properlysql-server)
+
+for xml sqlserver  
+[SQL ServerでXMLを操作する 第1回：リレーショナルDBからXML文書を取り出す（2/2）](https://atmarkit.itmedia.co.jp/fxml/tanpatsu/15mssql/mssql02.html)  
+[SQL Server のチューニングについてまとめてみる - その17 - ( FOR XML PATH の連結をもう少し高速化してみる )](https://ryuchan.hatenablog.com/entry/2016/02/02/000244)  

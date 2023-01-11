@@ -2,34 +2,42 @@
 
 ---
 
-## Validation
+## 条件によってバリデーションを切り替える
 
-[[WPF] IDataErrorInfoとValidation.ErrorTemplateを利用してエラーを表示する](https://www.pine4.net/Memo/Article/Archives/427)  
-
-[MVC モデルのバリデーションについて](https://teratail.com/questions/80391)  
 >条件によってこのアノテーションを無効にしたり有効にしたりする方法はありますでしょうか？(Dだけは必ず有効）  
 >FLGというプロパティがあるとして、その値が1の時はRequiredを有効0の時は無効みたいな事が出来ればいいと思っています。
+[MVC モデルのバリデーションについて](https://teratail.com/questions/80391)  
 
-TagにBindingさせてもアノテーションによるバリデーションが効くことを発見した。  
+`Tag`にBindingさせてもアノテーションによるバリデーションが効くことを発見した。  
 これにより、条件によってあるアノテーションを無効にしたり有効にしたりする運用を行えるようになった。  
 
 ``` C#
-    ErrorsContainer.SetErrors(
-        nameof(FixedPlayerSetting.CustomerCD),
-        new List<string>() { "aaaaa" }
-    );
-    FixedPlayerSetting.ErrorsContainer.SetErrors(
-        nameof(FixedPlayerSetting.CustomerCD),
-        new List<string>() { "aaaaa" }
-    );
-    OnErrorsChanged(nameof(FixedPlayerSetting.CustomerCD));
+FixedPlayerSetting.ErrorsContainer.SetErrors(
+    nameof(FixedPlayerSetting.CustomerCD),
+    new List<string>() { "aaaaa" }
+);
+OnErrorsChanged(nameof(FixedPlayerSetting.CustomerCD));
 ```
+
+``` cs
+public class Hoge {
+    /// <summary>
+    /// コードがなければ顧客コードの入力必須というRequireIfを実現するためのバリデーションプロパティ
+    /// </summary>
+    [Range(typeof(bool), "false", "false", ErrorMessage = "顧客コードは必須です。")]
+    [Display(Name = "顧客コード")]
+    public bool IsCustomerRequire => !PackCD.HasValue && string.IsNullOrEmpty(CustomerCD);
+}
+
+Hoge.ErrorsContainer.ClearErrors(nameof(Hoge.IsCustomerRequire));
+```
+
+[[WPF] IDataErrorInfoとValidation.ErrorTemplateを利用してエラーを表示する](https://www.pine4.net/Memo/Article/Archives/427)  
 
 ---
 
 ## アノテーションを使った、リストに1件もない場合のバリデーション
 
-<https://stackoverflow.com/questions/5146732/viewmodel-validation-for-a-list>  
 画面にエラー状態は表示したくないけど、警告は出したい場合があったのでその備忘録。  
 
 ``` C# : 0件は許可しない判定
@@ -45,11 +53,11 @@ public int ItemCount => Items != null ? Items.Length : 0;
 public bool IsZeroBalanceAmount => Amount == 0;
 ```
 
+[c# - ViewModel validation for a List - Stack Overflow](https://stackoverflow.com/questions/5146732/viewmodel-validation-for-a-list)  
+
 ---
 
 ## アノテーションによるValidationの抑制
-
-[How to suppress validation when nothing is entered](https://stackoverflow.com/questions/1502263/how-to-suppress-validation-when-nothing-is-entered)  
 
 いつぞや、IsEnableにDataのDepartmentをバインドしてF8を実行した時に、Requireのエラーが出て困ったことがあった。  
 その時はどうやって調べたいいかわからなかったので、仕方なくDataではなくコントロールのValueをバインドして解決したが、
@@ -67,3 +75,19 @@ BindingクラスにValidation関係のプロパティがたくさんあったの
     IsTabStop="{Binding Data.BankCD, Mode=OneWay, Converter={StaticResource NotNullOrEmptyToBoolConverter}, ValidatesOnNotifyDataErrors=False}"
 />
 ```
+
+[How to suppress validation when nothing is entered](https://stackoverflow.com/questions/1502263/how-to-suppress-validation-when-nothing-is-entered)  
+
+---
+
+## ErrorTemplate
+
+``` xml
+    <Validation.ErrorTemplate>
+        <ControlTemplate>
+            <TextBox Tag="{Binding IsCustomerRequire, Mode=OneWay}" />
+        </ControlTemplate>
+    </Validation.ErrorTemplate>
+```
+
+[[WPF] IDataErrorInfoとValidation.ErrorTemplateを利用してエラーを表示する - Netplanetes](https://www.pine4.net/Memo/Article/Archives/427)  
