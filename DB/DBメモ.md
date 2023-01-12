@@ -491,3 +491,108 @@ CREATE TABLE Customers(
     CONSTRAINT [Customers_PKC] PRIMARY KEY(CustomerID)
 );
 ```
+
+---
+
+## sql where 仕組み
+
+SELECT文の内部的な処理の基本は、テーブルの各行に対する繰り返し処理  
+プログラミングでいうところのfor文。  
+
+SELECT文の処理は2つに分けられる。  
+
+- テーブルを1行ずつ処理する。  
+- テーブル内の複数の行を集約する。  
+
+2つのうち、どちらの処理が行われるかは以下で判断できる。  
+
+- SELECT句で集約関数を使わない場合、テーブルは1行ずつ処理される。  
+- SELECT句で集約関数を1つでも使った場合、テーブル内の複数の行で集約が行われる。  
+
+[SELECT文の処理の仕組みを説明してみた。](https://nattou-curry-2.hatenadiary.org/entry/20090315/1237089749)
+
+---
+
+``` sql
+SELECT 'aaa' as A1,'bbb' AS A2,'ccc' AS A3
+GO
+-- A1    A2    A3
+-- aaa    bbb    ccc
+
+
+SELECT
+    [CD]
+FROM
+    (SELECT 'aaa' as A1,'bbb' AS A2,'ccc' AS A3) As a
+CROSS APPLY(
+    values
+    (A1),(A2),(A3)
+) AS [v] ([CD])
+GO
+-- CD
+-- aaa
+-- bbb
+-- ccc
+
+
+WITH TEMP
+AS (
+    SELECT 'aaa' as A1,'bbb' AS A2,'ccc' AS A3
+)
+SELECT
+    [CD]
+FROM TEMP
+CROSS APPLY(
+    values
+    (A1),(A2),(A3)
+) AS [v] ([CD])
+-- CD
+-- aaa
+-- bbb
+-- ccc
+```
+
+``` sql
+-- バッチ相対 0%
+SELECT 'aaa' 
+UNION ALL
+SELECT 'ccc' 
+UNION ALL
+SELECT 'ddd'
+UNION ALL
+SELECT 'ddd'
+-- (列名なし)
+-- aaa
+-- ccc
+-- ddd
+-- ddd
+
+-- バッチ相対 100%
+SELECT 'aaa' 
+UNION 
+SELECT 'ccc' 
+UNION 
+SELECT 'ddd'
+UNION 
+SELECT 'ddd'
+-- aa
+-- aaa
+-- ccc
+-- ddd
+
+SELECT DISTINCT
+    *
+FROM (
+    SELECT 'aaa'  AS aa
+    UNION ALL
+    SELECT 'ccc' 
+    UNION ALL
+    SELECT 'ddd'
+    UNION ALL
+    SELECT 'ddd'
+) AS a
+-- aa
+-- aaa
+-- ccc
+-- ddd
+```
