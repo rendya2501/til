@@ -1,10 +1,149 @@
 # Switch
 
+switch式 は `C# 8.0 (.NetCore 3.1)` からの機能。  
+
+---
+
+## C# 8.0 の switch式でORを再現する
+
+switch式中で複数条件の判定を行いたい。  
+C#9.0 (.Net5)なら`or演算子`で可能だが、C# 8.0では使えない。  
+代替案を見つけたのでメモする。  
+
+■**C# 8.0での対応**  
+
+一度変数受けして、`||`で振り分ける。  
+
+``` cs
+int switchValue = 1;
+var resultText = switchValue switch
+{
+    var x when x == 0 || x == 2 => "zero or two",
+    var x when x == 1 || x == 3 => "one or three",
+    _ => "unknown",
+};
+```
+
+■**C# 9.0での対応**  
+
+C# 9.0ならorで記述可能。  
+
+``` cs
+int switchValue = 1;
+var resultText = switchValue switch
+{
+    0 or 2 => "zero or two",
+    1 or 3 => "one or three",
+    _ => "unknown",
+};
+```
+
+[c# 8.0 - C# 8 switch expression with multiple cases with same result - Stack Overflow](https://stackoverflow.com/questions/56676260/c-sharp-8-switch-expression-with-multiple-cases-with-same-result)  
+
+---
+
+## switch文のパターンマッチング
+
+プレーヤーの席を交換したい。  
+プレーヤーはそれぞれの型を持っているので、そのまま代入すると参照を入れ替えるだけで意味がない。  
+
+if文で愚直にobjがPlayer1か2か判定してたけど、型で判定できないか探してみた。  
+switch文で型の判定ができる模様。  
+
+``` cs
+private void SwapRepre(ReservationPlayerView obj)
+{
+    if (pushFrom.ReservationPlayer1 == obj)
+    {
+        (repre.ReservationPlayer4, pushFrom.ReservationPlayer1) = (pushFrom.ReservationPlayer1, repre.ReservationPlayer4);
+    }
+    else if (pushFrom.ReservationPlayer2 == obj)
+    {
+        (repre.ReservationPlayer4, pushFrom.ReservationPlayer2) = (pushFrom.ReservationPlayer2, repre.ReservationPlayer4);
+    }
+    else if (pushFrom.ReservationPlayer3 == obj)
+    {
+        (repre.ReservationPlayer4, pushFrom.ReservationPlayer3) = (pushFrom.ReservationPlayer3, repre.ReservationPlayer4);
+    }
+    else if (pushFrom.ReservationPlayer4 == obj)
+    {
+        (repre.ReservationPlayer4, pushFrom.ReservationPlayer4) = (pushFrom.ReservationPlayer4, repre.ReservationPlayer4);
+    }
+}
+```
+
+結果的にif文より短くかけたけど、思ってたのと若干違った。  
+
+``` C#
+private void SwapRepre(ReservationPlayerView obj)
+{
+    // 押された場所を特定する
+    switch (obj)
+    {
+        // switchのパターンマッチング
+        case ReservationPlayerView n when n == frame.ReservationPlayer1:
+            // 一時変数と押された場所は今の代表者と入れ替えるのでbeRepreActionを登録する
+            return (frame.ReservationPlayer1, (repre) => frame.ReservationPlayer1 = repre);
+        case ReservationPlayerView n when n == frame.ReservationPlayer2:
+            return (frame.ReservationPlayer2, (repre) => frame.ReservationPlayer2 = repre);
+        case ReservationPlayerView n when n == frame.ReservationPlayer3:
+            return (frame.ReservationPlayer3, (repre) => frame.ReservationPlayer3 = repre);
+        case ReservationPlayerView n when n == frame.ReservationPlayer4:
+            return (frame.ReservationPlayer4, (repre) => frame.ReservationPlayer4 = repre);
+        default:
+            break;
+    }
+    
+    // これがswitchだと下のようになる
+    // if (pushFrom.ReservationPlayer1 == obj)
+    // {
+    //     (repre.ReservationPlayer4, pushFrom.ReservationPlayer1) = (pushFrom.ReservationPlayer1, repre.ReservationPlayer4);
+    // }
+    // else if (pushFrom.ReservationPlayer2 == obj)
+    // {
+    //     (repre.ReservationPlayer4, pushFrom.ReservationPlayer2) = (pushFrom.ReservationPlayer2, repre.ReservationPlayer4);
+    // }
+    // else if (pushFrom.ReservationPlayer3 == obj)
+    // {
+    //     (repre.ReservationPlayer4, pushFrom.ReservationPlayer3) = (pushFrom.ReservationPlayer3, repre.ReservationPlayer4);
+    // }
+    // else if (pushFrom.ReservationPlayer4 == obj)
+    // {
+    //     (repre.ReservationPlayer4, pushFrom.ReservationPlayer4) = (pushFrom.ReservationPlayer4, repre.ReservationPlayer4);
+    // }
+}
+```
+
+``` C#
+public string NankaMethod3(object obj)
+{
+    // Object型をそれぞれの型で判定し、その中身も同時に判定する
+    switch (obj)
+    {
+        // objがint型 かつ 0より大きい
+        case int x when x > 0:
+            return x.ToString();
+        // objがint型 かつ 0以下
+        case int x when x <= 0:
+            return (-x).ToString();
+        // objがfloat型
+        case float f:
+            return ((int) f).ToString();
+        // objが1文字以上のstring型
+        case string s when s.Length > 0:
+            return s;
+        // どれにもマッチしなかった
+        default:
+            throw new ArgumentOutOfRangeException(nameof(obj));
+    }
+}
+```
+
+[C#のアプデでめちゃくちゃ便利になったswitch文（パターンマッチング）の紹介](https://qiita.com/toRisouP/items/18b31b024b117009137a)
+
 ---
 
 ## Switch式でメソッドを実行できないか色々やった結果
-
-<https://stackoverflow.com/questions/59729459/using-blocks-in-c-sharp-switch-expression>
 
 if elseif でがりがり書くなら、switchの出番なんじゃないかと思ってやってみた。  
 結果的に出来なかった。  
@@ -21,7 +160,9 @@ switch式は絶対にreturnがないといけない形式なので、Actionと�
 /// <param name="e"></param>
 private void DataPropertyChanged(object sender, PropertyChangedEventArgs e)
 {
-    // 元のコード。{}がない分まだすっきりしているが、e.PropertyNameを毎回書かないといけないなら,それはswitchを使うべき。
+    // 元のコード。
+    // {}がない分まだすっきりしているが、e.PropertyNameを毎回書かないといけないなら,それはswitchを使うべき。
+
     // 部門コード
     if (e.PropertyName == nameof(Data.DepartmentCD))
         SetDepartmentCD();
@@ -45,7 +186,8 @@ private void DataPropertyChanged(object sender, PropertyChangedEventArgs e)
         default: break;
     }
 
-    // 本命。文法上は怒られないけど実行するとエラーになる。
+    // 本命。
+    // 文法上は怒られないけど実行するとエラーになる。
     // System.Runtime.CompilerServices.SwitchExpressionException: 'Non-exhaustive switch expression failed to match its input.'
 
     // 実行するのではなく,Actionデリゲートとして受け取り、最後に実行する。
@@ -59,7 +201,7 @@ private void DataPropertyChanged(object sender, PropertyChangedEventArgs e)
         nameof(Data.ProductClsCD) => SearchProductCls,
         _ => throw new InvalidOperationException()
     };
-    result();
+    result.invoke();
 }
 ```
 
@@ -107,7 +249,8 @@ C#8.0以降ではスイッチ式が利用可能。
             2 => Test2,
             _ => throw new InvalidOperationException()
         }).Invoke();
-        // 何とか1行に出来なくはないが・・・。ないだろうなぁ。
+
+        // 4を1行に出来なくはないが・・・。ないだろうなぁ。
         (flag switch { 1 => (Action)Test1, 2 => Test2, _ => throw new Exception() }).Invoke();
     }
 
@@ -133,77 +276,4 @@ C#8.0以降ではスイッチ式が利用可能。
     static void Test2() => Console.WriteLine("test2");
 ```
 
----
-
-## switch文のパターンマッチング
-
-[C#のアプデでめちゃくちゃ便利になったswitch文（パターンマッチング）の紹介](https://qiita.com/toRisouP/items/18b31b024b117009137a)
-
-swapの時にサラっと使ったけど改めてまとめ。  
-if文で愚直にobjがPlaer1か2か判定してたけど、型で判定できないか探してみた。  
-結果的にif文より短くかけたけど、思ってたのと若干違った。  
-
-``` C#
-public string NankaMethod3(object obj)
-{
-    // Object型をそれぞれの型で判定し、その中身も同時に判定する
-    switch (obj)
-    {
-        // objがint型 かつ 0より大きい
-        case int x when x > 0:
-            return x.ToString();
-        // objがint型 かつ 0以下
-        case int x when x <= 0:
-            return (-x).ToString();
-        // objがfloat型
-        case float f:
-            return ((int) f).ToString();
-        // objが1文字以上のstring型
-        case string s when s.Length > 0:
-            return s;
-        // どれにもマッチしなかった
-        default:
-            throw new ArgumentOutOfRangeException(nameof(obj));
-    }
-}
-```
-
-``` C#
-private void SwapRepre(ReservationPlayerView obj)
-{
-    // 押された場所を特定する
-    switch (obj)
-    {
-        // switchのパターンマッチング
-        case ReservationPlayerView n when n == frame.ReservationPlayer1:
-            // 一時変数と押された場所は今の代表者と入れ替えるのでbeRepreActionを登録する
-            return (frame.ReservationPlayer1, (repre) => frame.ReservationPlayer1 = repre);
-        case ReservationPlayerView n when n == frame.ReservationPlayer2:
-            return (frame.ReservationPlayer2, (repre) => frame.ReservationPlayer2 = repre);
-        case ReservationPlayerView n when n == frame.ReservationPlayer3:
-            return (frame.ReservationPlayer3, (repre) => frame.ReservationPlayer3 = repre);
-        case ReservationPlayerView n when n == frame.ReservationPlayer4:
-            return (frame.ReservationPlayer4, (repre) => frame.ReservationPlayer4 = repre);
-        default:
-            break;
-    }
-    
-    // これがswitchだと下のようになる
-    // if (pushFrom.ReservationPlayer1 == obj)
-    // {
-    //     (repre.ReservationPlayer4, pushFrom.ReservationPlayer1) = (pushFrom.ReservationPlayer1, repre.ReservationPlayer4);
-    // }
-    // else if (pushFrom.ReservationPlayer2 == obj)
-    // {
-    //     (repre.ReservationPlayer4, pushFrom.ReservationPlayer2) = (pushFrom.ReservationPlayer2, repre.ReservationPlayer4);
-    // }
-    // else if (pushFrom.ReservationPlayer3 == obj)
-    // {
-    //     (repre.ReservationPlayer4, pushFrom.ReservationPlayer3) = (pushFrom.ReservationPlayer3, repre.ReservationPlayer4);
-    // }
-    // else if (pushFrom.ReservationPlayer4 == obj)
-    // {
-    //     (repre.ReservationPlayer4, pushFrom.ReservationPlayer4) = (pushFrom.ReservationPlayer4, repre.ReservationPlayer4);
-    // }
-}
-```
+[c# 8.0 - Using blocks in C# switch expression? - Stack Overflow](https://stackoverflow.com/questions/59729459/using-blocks-in-c-sharp-switch-expression)  

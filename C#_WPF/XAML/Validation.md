@@ -40,12 +40,16 @@ Hoge.ErrorsContainer.ClearErrors(nameof(Hoge.IsCustomerRequire));
 
 画面にエラー状態は表示したくないけど、警告は出したい場合があったのでその備忘録。  
 
+■ 0件は許可しない判定
+
 ``` C# : 0件は許可しない判定
 // 最小値、最大値、エラーメッセージ
 [Range(1, int.MaxValue, ErrorMessage = "At least one item needs to be selected")]
 // GetOnlyの省略形の書き方
 public int ItemCount => Items != null ? Items.Length : 0;
 ```
+
+■ boolの判定
 
 ``` C# : boolの判定
 // 型の指定、最小値、最大値、エラーメッセージ
@@ -60,8 +64,9 @@ public bool IsZeroBalanceAmount => Amount == 0;
 ## アノテーションによるValidationの抑制
 
 いつぞや、IsEnableにDataのDepartmentをバインドしてF8を実行した時に、Requireのエラーが出て困ったことがあった。  
-その時はどうやって調べたいいかわからなかったので、仕方なくDataではなくコントロールのValueをバインドして解決したが、
-今回はバリデートを抑制したいということで、`wpf validation suppress`で調べたらいい感じのが出てきた。  
+
+その時はどうやって調べたいいかわからなかったので、仕方なくDataではなくコントロールのValueをバインドして解決したが、今回はバリデートを抑制したいということで、`wpf validation suppress`で調べたらいい感じのが出てきた。  
+
 BindingクラスにValidation関係のプロパティがたくさんあったので、それっぽいやつを指定したら、実現できたのでまとめる。  
 
 今回は`ValidatesOnNotifyDataErrors`をFalseにしたらうまく行った。  
@@ -91,3 +96,31 @@ BindingクラスにValidation関係のプロパティがたくさんあったの
 ```
 
 [[WPF] IDataErrorInfoとValidation.ErrorTemplateを利用してエラーを表示する - Netplanetes](https://www.pine4.net/Memo/Article/Archives/427)  
+
+---
+
+## WPF バリデーションエラーのアイコンをテキストボックスの右上に置く
+
+mahappのバリデーションエラー時に右上にチョコンと出てくる赤いアイコンを再現したい。  
+Gridの中にtextblockとpathを置けばよろしい。  
+
+``` xml
+<Grid ToolTipService.IsEnabled="{Binding Status, Mode=OneWay, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Error}">
+    <ToolTipService.ToolTip>
+        <TextBlock Text="{Binding Message, Mode=OneWay}" />
+    </ToolTipService.ToolTip>
+    <TextBlock
+        HorizontalAlignment="Center"
+        VerticalAlignment="Center"
+        Style="{StaticResource StatusTextBlock}" />
+    <Path
+        HorizontalAlignment="Right"
+        Data="M0.50.5 L8.652698,0.5 8.652698,8.068006 z"
+        Fill="Red"
+        SnapsToDevicePixels="True"
+        Visibility="{Binding Message, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}" />
+</Grid>
+```
+
+[Data Validation in WPF DataGrid control | Syncfusion](https://help.syncfusion.com/wpf/datagrid/data-validation)  
+[WPFボタンに画像を表示する-文字の上に画像を重ねて表示する | オレンジの国](https://techlive.tokyo/archives/4542)  

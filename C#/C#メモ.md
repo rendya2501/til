@@ -410,6 +410,126 @@ private Dictionary<bool, string> errMsgDic => new Dictionary<bool, string>() {
 
 ---
 
+## バリデーションエラーだった場合、専用の処理を実行した後、処理を終了したい
+
+やりたいのは以下みたいなこと。  
+
+処理を実行する時のバリデーションに引っかかったら、そのバリデーションに応じたメッセージを表示するとか、特定のコントロールにフォーカスするとか、そういう処理を実行してから全体の処理をreturnする方法。  
+
+ただ抜けるだけならThrowでもいいが、それほどではない。  
+かといって、if elseでグダグダ繋げて書くのもスマートではない。  
+
+何かいい書き方はないか悩んだのでまとめる。  
+
+``` cs
+public void Execute () {
+    if (!condition1) {
+        Hoge();
+        return;
+    } else if (!condition2) {
+        Fuga();
+        return;
+    }
+
+    Do();
+}
+```
+
+条件と処理はワンセットなので、Listでタプルにまとめることはできる。  
+で、バリデーションに引っかかった地点で常にfalseなわけなので、actionを実行しつつ、常にflaseを返してもらいたい。  
+つまり `Func<bool>`でアクションを実行しつつ、falseを返すように記述すればいいのだが、毎回return falseと書きたくない。
+
+``` cs
+public void Execute () {
+    if (!CantExecuteAction) {
+        return;
+    }
+
+    Do();
+}
+
+private bool CantExecuteAction => new List<(bool condition, Func<bool> func)>()
+{
+    (!Condition1,() => {Hoge(); return false:}), // 常に return falseと書く必要がある。
+    (!Condition2,() => {Fuga(); return false:}),
+}.FirstOrDefault(f => f.condition).func?.Invoke() ?? true;
+```
+
+そもそも、return false以前に、実行すべき関数が存在するなら実質falseであって、実行すべき関数がなければtrueなのだから、常にfalseを返すのはナンセンス。  
+null or not nullで十分なのである。  
+
+そういう判定をする関数を通せばいけるけど、actionが存在したら実行しつつ、falseを返す書き方がどうしても1文で収まらない。  
+とてもモヤモヤする。  
+
+``` cs
+public void Execute () {
+    if (Hantei(CantExecuteAction)) {
+        return;
+    }
+
+    Do();
+}
+
+private bool Hantei(Action action)
+{
+    // nullじゃなければ実行
+    action?.Invoke();
+    // 関数があれば、常にfalseとなって元の処理を終了できる。
+    return action == null;
+}
+
+private Action CantExecuteAction => new List<(bool condition, Action action)>()
+{
+    (!Condition1,() => Hoge()),
+    (!Condition2,() => Fuga()),
+}.FirstOrDefault(f => f.condition).action;
+```
+
+当時、最終的に行きついた考えとしてはis演算子で判定する方法。  
+is演算子はnullの場合はfalseとなるので、ifに入らない。  
+ifに入るということは関数が存在するということなので、後は関数を実行してreturnする。  
+ワンセンテンスとまではいかなかったが、is演算子を使うアイディアが思い浮かんで興奮したのでこれでいくことにした。  
+
+``` cs
+public void Execute () {
+    // 実行不可条件があれば処理しない
+    // nullはisでfalseになるので、actionがnullなら処理されない。
+    // actionがあればisはtrueになるので、中に入ってactionが実行される。
+    if (CantExecuteAction is Action action)
+    {
+        action.Invoke();
+        return;
+    }
+
+    Do();
+}
+
+private Action CantExecuteAction => new List<(bool condition, Action action)>()
+{
+    (!Condition1,() => Hoge()),
+    (!Condition2,() => Fuga()),
+}.FirstOrDefault(f => f.condition).action;
+```
+
+鬼畜の所業。  
+
+``` cs
+public void Execute () {
+    if (!CantExecuteAction) return;
+    Do();
+}
+
+private bool CantExecuteAction => new List<(bool condition, Action action)>()
+{
+    (true,Hoge),
+    (false,Fuga),
+}.FirstOrDefault(f => f.condition).action is Action action2
+    ? (new Func<bool>(() => { action2.Invoke(); return false; })).Invoke()
+    : true;
+```
+
+---
+
 ## readonlyの初期化
 
 [未確認飛行C](https://ufcpp.net/study/csharp/resource/readonlyness/)の以下のコードを見て、「クラス」ではできるのか？と思ってやってみた。  
