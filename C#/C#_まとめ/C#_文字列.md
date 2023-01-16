@@ -59,11 +59,10 @@ MessageBox.Show($"{{{ppap}}}");
 
 ## プレースホルダー中におけるToStringFormatの指定
 
-[【C#6.0～】文字列補間（$を使った文字列書式設定）](https://imagingsolution.net/program/string_interpolation/)  
-
 いつぞや、いつも`.ToString("N0")`ってフォーマット書くところ`:N0`で書けることを発見したのでまとめ。  
 プレースホルダー中でのフォーマットの指定はコロン指定ができるができるらしい。便利。  
-C#Ver6からの機能みたい。結構実装されてから経っているのね。  
+C#6.0からの機能らしい。  
+結構実装されてから経っているのね。  
 
 因みにToStringするときに文字列で指定するこれは、「書式設定」というらしい。  
 
@@ -71,6 +70,8 @@ C#Ver6からの機能みたい。結構実装されてから経っているの�
 // SettlementAmount.ToString("N0") → SettlementAmount:N0
 $"支払額{SettlementAmount:N0}円を人数{TargetPlayerCount}人で均等に割り付けます。{Environment.NewLine}よろしいですか？"
 ```
+
+[【C#6.0～】文字列補間（$を使った文字列書式設定）](https://imagingsolution.net/program/string_interpolation/)  
 
 ---
 
@@ -148,53 +149,50 @@ C#の文字列は２種類ある。
 
 ## Like検索(曖昧検索)
 
-[LINQ：文字列コレクションで「LIKE検索」（部分一致検索）をするには？［C#、VB］](https://atmarkit.itmedia.co.jp/ait/articles/1412/02/news129.html)  
-
 ``` C#
-    // 曖昧検索 LIKE '%ぶた%'
-    var 前後パーセント = sampleData.Where(item => item.Contains("ぶた"));
-    WriteItems("LIKE '%ぶた%'", 前後パーセント);
-    // → LIKE '%ぶた%': ぶた, こぶた, ぶたまん, ねぶたまつり
-    
-    // 前方一致 LIKE 'ぶた%'
-    var 後パーセント = sampleData.Where(item => item.StartsWith("ぶた"));
-    WriteItems("LIKE 'ぶた%'", 後パーセント);
-    // → LIKE 'ぶた%': ぶた, ぶたまん
+// 曖昧検索 LIKE '%ぶた%'
+var 前後パーセント = sampleData.Where(item => item.Contains("ぶた"));
+WriteItems("LIKE '%ぶた%'", 前後パーセント);
+// → LIKE '%ぶた%': ぶた, こぶた, ぶたまん, ねぶたまつり
 
-    // 後方一致 LIKE '%ぶた'
-    var 前パーセント = sampleData.Where(item => item.EndsWith("ぶた"));
-    WriteItems("LIKE '%ぶた'", 前パーセント);
-    // → LIKE '%ぶた': ぶた, こぶた
+// 前方一致 LIKE 'ぶた%'
+var 後パーセント = sampleData.Where(item => item.StartsWith("ぶた"));
+WriteItems("LIKE 'ぶた%'", 後パーセント);
+// → LIKE 'ぶた%': ぶた, ぶたまん
+
+// 後方一致 LIKE '%ぶた'
+var 前パーセント = sampleData.Where(item => item.EndsWith("ぶた"));
+WriteItems("LIKE '%ぶた'", 前パーセント);
+// → LIKE '%ぶた': ぶた, こぶた
 ```
+
+[LINQ：文字列コレクションで「LIKE検索」（部分一致検索）をするには？［C#、VB］](https://atmarkit.itmedia.co.jp/ait/articles/1412/02/news129.html)  
 
 ---
 
 ## StringBuilderで先頭にWHEREを追加する方法
 
 ``` C#
-    var whereQuery = new StringBuilder();
-    if (!string.IsNullOrEmpty(testNumber))
-    {
-        whereQuery.AppendLine("AND [TestNumber] = @testNumber");
-    }
-    if (!string.IsNullOrEmpty(testID))
-    {
-        whereQuery.AppendLine("AND [TestID] = @testID");
-    }
-    if (testFlag)
-    {
-        whereQuery.AppendLine("AND [testFlag] <> @testFlag");
-    }
-    // 先頭のAND消してWHEREにする。
-    whereQuery.Remove(0, 3).Insert(0, "WHERE");
+var whereQuery = new StringBuilder();
+if (!string.IsNullOrEmpty(testNumber))
+{
+    whereQuery.AppendLine("AND [TestNumber] = @testNumber");
+}
+if (!string.IsNullOrEmpty(testID))
+{
+    whereQuery.AppendLine("AND [TestID] = @testID");
+}
+if (testFlag)
+{
+    whereQuery.AppendLine("AND [testFlag] <> @testFlag");
+}
+// 先頭のAND消してWHEREにする。
+whereQuery.Remove(0, 3).Insert(0, "WHERE");
 ```
 
 ---
 
 ## 文字列のインクリメント
-
-[【C#】文字列内の末尾の数値をインクリメントするサンプル](https://baba-s.hatenablog.com/entry/2020/05/06/001800)  
-[c# - 文字と数字の両方で文字列をインクリメントします](https://tagsqa.com/detail/45665)  
 
 正規表現で数字を取得。  
 intに変換してインクリメントして文字列に直す。
@@ -269,11 +267,12 @@ var num = int.Parse(match.Groups[2].Value);
 var after = match.Groups[1].Value + (num + 1);
 ```
 
+[【C#】文字列内の末尾の数値をインクリメントするサンプル](https://baba-s.hatenablog.com/entry/2020/05/06/001800)  
+[c# - 文字と数字の両方で文字列をインクリメントします](https://tagsqa.com/detail/45665)  
+
 ---
 
 ## C#で0埋めする方法
-
-[C#で0埋めする方法](https://santerabyte.com/c-sharp-zero-padding/)  
 
 0埋めする場合は「D」のあとに桁数を指定するとその桁数になるように0が追加された文字列が返されます。  
 
@@ -283,6 +282,8 @@ int num = 123;
 string str = num.ToString("D5");
 ```
 
+[C#で0埋めする方法](https://santerabyte.com/c-sharp-zero-padding/)  
+
 ---
 
 ## 文字列補完式の中で三項演算子を使う
@@ -290,8 +291,6 @@ string str = num.ToString("D5");
 文字列補完式`{}`の中で三項演算をしつつ、なおかつ文字列を追加したい場合の書き方が分からなかったが、結果的にできたのでまとめる。  
 単純に三項演算子を括弧で囲えばよかった。  
 三項演算子の部分を1つの処理と見立てる意味では括弧で囲うのは自然なことなのかもしれない。  
-
-[C# における文字列補間](https://docs.microsoft.com/ja-jp/dotnet/csharp/tutorials/string-interpolation)  
 
 ``` C#
 // 愚直にやるならこう
@@ -301,10 +300,89 @@ var aa = "【" + (!string.IsNullOrEmpty(customer.Name) ? customer.Name : "席No"
 var aa = $"【{(!string.IsNullOrEmpty(customer.Name) ? customer.Name : "席No" + customer.SeatNo)}】様";
 ```
 
+[C# における文字列補間](https://docs.microsoft.com/ja-jp/dotnet/csharp/tutorials/string-interpolation)  
+
 ---
 
 ## ToString()の書式設定
 
+Enum.ToString("D")で数値に変換できるのは知っていたけど、まとめていなかったのでまとめる。  
+
 [書式を指定して数値を文字列に変換する](https://dobon.net/vb/dotnet/string/inttostring.html)  
 
-Enum.ToString("D")で数値に変換できるのは知っていたけど、まとめていなかったのでまとめる。  
+---
+
+## バリデーションメッセージ生成テクニック
+
+Linqの内容でもあるが、取り合えずこっちにまとめる。  
+「if○○なら□□というメッセージを表示したい」という場合、愚直にifで判定して、都度メッセージを追加するのもいいけれど、条件に対するメッセージが決まっているならDictionaryでKeyValueにしてしまったほうがよいのでは？というアイデア。
+
+■IF文で全部やってしまう案  
+
+is演算子による判定でmessage変数を定義しつつ、代入することができる。  
+そのままmessageが存在するならエラーダイアログを表示する案。  
+string.Joinでレコード分、NewLineできるので、文字列をjoinするときに、毎回NewLineしなくていいし、最後のNewLineで余計に改行が増えることも無い。  
+
+欠点はif文で全部やりすぎなのでぱっと見分かりにくい事だろうか。  
+
+``` cs
+// 警告メッセージがあれば表示してダイアログを開き直す。
+if (string.Join(
+        Environment.NewLine,
+        new List<(bool invalid, string msg)>()
+        {
+            (
+                string.IsNullOrEmpty(StaffCD), 
+                string.Format(ErrorMessage.Required, "担当者コード")
+            ),
+            (
+                InternalControlType == InternalControlType.PasswordInput && string.IsNullOrEmpty(Password),
+                string.Format(ErrorMessage.Required, "パスワード")
+            ),
+            (
+                string.IsNullOrEmpty(CorrectReasonContents), 
+                string.Format(ErrorMessage.Required, "理由内容")
+            )
+        }.Where(w => w.invalid).Select(s => s.msg)
+    ) is string message && !string.IsNullOrEmpty(message))
+{
+    await MessageDialogUtil.ShowWarningAsync(Messenger, message);
+    return;
+}
+```
+
+■すこしマイルドにした案
+
+Dictionaryを変数に抜き出した案。  
+多分こっちのほうがいい。  
+でもって毎回newするくらいなら、インスタンス変数として定義したほうがいいだろう。  
+
+``` cs
+// メッセージリストの定義
+var messageList = new List<(bool invalid, string msg)>()
+    {
+        (
+            string.IsNullOrEmpty(StaffCD), 
+            string.Format(ErrorMessage.Required, "担当者コード")
+        ),
+        (
+            InternalControlType == InternalControlType.PasswordInput && string.IsNullOrEmpty(Password),
+            string.Format(ErrorMessage.Required, "パスワード")
+        ),
+        (
+            string.IsNullOrEmpty(CorrectReasonContents), 
+            string.Format(ErrorMessage.Required, "理由内容")
+        )
+    }
+    .Where(w => w.invalid)
+    .Select(s => s.msg);
+// 警告メッセージがあれば表示してダイアログを開き直す。
+if (messageList.any())
+{
+    await MessageDialogUtil.ShowWarningAsync(
+        Messenger,
+        string.Join(Environment.NewLine,messageList)
+    );
+    return;
+}
+```

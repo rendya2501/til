@@ -390,7 +390,8 @@ var task = Task.Run(() =>
         Console.WriteLine("Task2 Cancel:{0}", t.IsCanceled);
         Console.WriteLine("Task2 Faulted:{0}", t.IsFaulted);
     },
-    csource.Token,TaskContinuationOptions.OnlyOnCanceled,TaskScheduler.Default
+    csource.Token,
+    TaskContinuationOptions.OnlyOnCanceled,TaskScheduler.Default
 )
 .ContinueWith(
     t =>
