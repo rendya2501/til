@@ -40,9 +40,6 @@ DataContextってプロパティなんだな。
 
 ## 他のコントロールのプロパティを使いたい場合
 
-[【WPF】RelativeSource(バインディング)の使い方メモ](https://qiita.com/tera1707/items/73cda312b7cd9c4df40d)  
-[Q092. Binding.RelativeSource の使い方がよくわからない](https://hilapon.hatenadiary.org/entry/20130405/1365143758)  
-
 自分自身のプロパティ  
 self
 
@@ -81,6 +78,9 @@ self
     </c1:Column.CellTemplate>
 </c1:Column>
 ```
+
+[【WPF】RelativeSource(バインディング)の使い方メモ](https://qiita.com/tera1707/items/73cda312b7cd9c4df40d)  
+[Q092. Binding.RelativeSource の使い方がよくわからない](https://hilapon.hatenadiary.org/entry/20130405/1365143758)  
 
 ---
 
