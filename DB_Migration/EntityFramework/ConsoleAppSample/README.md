@@ -1,17 +1,19 @@
 # コンソールプロジェクトでバンドルを作成するまでの一連の流れ
 
-## 環境構築
+## 実行構築
 
+- windows 10以降  
 - DotNetSDK .Net6以上  
-- VisualStudioCode or VisualStudio
+- VisualStudioCode or VisualStudio  
   - VSCodeを使う場合、C#関連の拡張がインストールされていること  
-- EntityFrameworkCore 7
+- EntityFrameworkCore 7  
 
 ---
 
 ## プロジェクト作成
 
 コンソールプロジェクトを作成する。  
+
 `dotnet new console -n ConsoleAppSample`  
 
 ---
@@ -43,7 +45,8 @@ dotnet tool install --global dotnet-ef
 - `Microsoft.Extensions.Hosting`  
 
 PowerShellやCommandPromptからCLIで実行する場合は下記コマンドを実行する。  
-NuGet公式サイトから検索した場合のコマンド。  
+下記コマンドはNuGet公式サイトからライブラリを検索した時に提示されるコマンドとなる。  
+[NuGet Gallery | Microsoft.EntityFrameworkCore 7.0.2](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore)  
 
 ``` txt
 dotnet add package Microsoft.EntityFrameworkCore --version 7.*
@@ -139,16 +142,16 @@ dotnet ef migrations add First
 ```
 
 Migrationsフォルダが自動生成される。  
+フォルダには下記形式でファイルが生成される。  
 
-Migrationsフォルダにファイルが生成される。  
-`yyyymmddhhmmss_First.cs`  
-`yyyymmddhhmmss_First.Designer.cs`  
+- `yyyymmddhhmmss_First.cs`  
+- `yyyymmddhhmmss_First.Designer.cs`  
 
 ---
 
 ## 移行を追加する2
 
-Descriptionフィールド追加  
+ProductEntityにDescriptionフィールドを追加  
 
 ``` cs : entity
 public class Product
@@ -171,8 +174,9 @@ dotnet ef migrations add Second
 ```
 
 Migrationフォルダに2つ目のファイルが生成される。  
-`yyyymmddhhmmss_Second.cs`  
-`yyyymmddhhmmss_Second.Designer.cs`  
+
+- `yyyymmddhhmmss_Second.cs`  
+- `yyyymmddhhmmss_Second.Designer.cs`  
 
 ---
 
@@ -184,6 +188,8 @@ PowerShell or CommandPromptでコマンド実行
 
 ※PMCコマンドではエラーとなりバンドルを作成できない。  
 プロジェクトがdllを参照しているからだと思われる。  
+
+---
 
 - 参考  
   - バンドル作成から実行までの流れを確認するのに適した動画  

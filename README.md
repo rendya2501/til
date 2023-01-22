@@ -2,6 +2,8 @@
 
 Today I Learned
 
+<https://github.com/rendya2501>
+
 ---
 
 〆・特定行から特定行までの文字列を置換するサンプル作りたい・・・。  
