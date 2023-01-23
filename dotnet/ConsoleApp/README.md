@@ -304,16 +304,47 @@ pause > nul
 
 ---
 
-## 単一exeとして発行するためのオプション設定
+## Microsoft.Data.SqlClient.SNI.dllを消すためのオプション設定
+
+コンソールアプリをexe発行するとき、
+windowsでsqlserverへの接続処理があると、`PublishSingleFile=true`をつけていても、`Microsoft.Data.SqlClient.SNI.dll`が絶対に生成されてしまう。  
+それすらも内包させるオプションが`IncludeNativeLibrariesForSelfExtract`となる模様。  
+
+linuxでは問題ない。  
+windows向けに発行した場合に発生する。  
+
+■ **Windows向け オプションなし**
+
+``` bat
+dotnet publish -o Output-win -c Release --self-contained true -r win-x64 -p:PublishSingleFile=true
+```
+
+- 生成されるファイル  
+  - ConsoleAppSample.exe  
+  - ConsoleAppSample.pdb  
+  - Microsoft.Data.SqlClient.SNI.dll  
+
+■ **Windows向け オプションあり**
 
 ``` bat
 dotnet publish -o Output-win -c Release --self-contained true -r win-x64 -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
+```
 
+- 生成されるファイル  
+  - ConsoleAppSample.exe  
+  - ConsoleAppSample.pdb  
+
+■ **Linux向け**
+
+``` bat
 dotnet publish -o Output-linux -c Release --self-contained true -r linux-x64 -p:PublishSingleFile=true
 ```
 
-windowsでsqlserverへの接続処理があると、`PublishSingleFile`をつけていても、○○.dllが絶対に生成されてしまう。  
-それすらも内包させるオプションが`IncludeNativeLibrariesForSelfExtract`。  
+- 生成されるファイル  
+  - ConsoleAppSample  
+  - ConsoleAppSample.pdb  
+
+[.net - How do I get rid of SNI.dll when publishing as a "single file" in Visual Studio 2019? - Stack Overflow](https://stackoverflow.com/questions/65045224/how-do-i-get-rid-of-sni-dll-when-publishing-as-a-single-file-in-visual-studio)  
 
 ---
 

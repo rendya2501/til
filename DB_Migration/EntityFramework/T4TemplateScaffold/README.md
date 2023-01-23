@@ -96,8 +96,9 @@ dotnet new ef-templates
 このコマンドを実行すると、プロジェクトに次のファイルが追加される。  
 
 - CodeTemplates/  
-  - DbContext.t4  
-  - EntityType.t4  
+  - EFCore/  
+    - DbContext.t4  
+    - EntityType.t4  
 
 [カスタム リバース エンジニアリング テンプレート - EF Core | Microsoft Learn](https://learn.microsoft.com/ja-jp/ef/core/managing-schemas/scaffolding/templates?tabs=dotnet-core-cli)  
 
@@ -145,7 +146,7 @@ T4の解説は公式サイトを参照されたし。
         if (!string.IsNullOrEmpty(EntityType.GetComment()))
         {
 #>
-[Comment("<#= EntityType.GetComment().Replace("\r\n", "\\r\\n") #>")]
+[Comment(@"<#= EntityType.GetComment().Replace("\r\n", "\\r\\n") #>")]
 <#
         }
     }
@@ -177,7 +178,7 @@ T4の解説は公式サイトを参照されたし。
             if (!string.IsNullOrEmpty(property.GetComment()))
             {
 #>
-    [Comment("<#= property.GetComment().Replace("\r\n", "\\r\\n") #>")]
+    [Comment(@"<#= property.GetComment().Replace("\r\n", "\\r\\n") #>")]
 <#
             }
         }
@@ -205,3 +206,73 @@ T4の解説は公式サイトを参照されたし。
 プロパティ側だけインデントを4つ設けているが、これは必要。  
 このインデントはそのままスキャフォールドした時に反映されるので、4つ開けておかないと、プロパティ側の`Commnet`アノテーションだけインデントの位置がずれてしまう。  
 クラス側は必要ないが、もちろん4つ設ければそのまま反映される。  
+
+■ **`[Comment("<#= EntityType.GetComment() #>")]`**  
+
+``` cs
+    /// <summary>
+    /// 操作区分:0:新規
+    /// 1:プラン変更
+    /// </summary>
+    [Comment("操作区分:0:新規
+1:プラン変更")]
+    public byte? FeeOperationType { get; set; }
+
+    /// <summary>
+    /// 伝言Path:伝言添付ファイルパス、会員写真の親パス(例 \gsv\ile)
+    /// </summary>
+    // 認識できないエスケープ シーケンスです [T4]csharp(CS1009)
+    [Comment("伝言Path:伝言添付ファイルパス、会員写真の親パス(例 \gsv\ile)")]
+    public string? MessagePath { get; set; }
+```
+
+■ **`[Comment(@"<#= EntityType.GetComment() #>")]`**  
+
+``` cs
+    /// <summary>
+    /// 操作区分:0:新規
+    /// 1:プラン変更
+    /// </summary>
+    [Comment(@"操作区分:0:新規
+1:プラン変更")]
+
+    /// <summary>
+    /// 伝言Path:伝言添付ファイルパス、会員写真の親パス(例 \gsv\ile)
+    /// </summary>
+    [Comment(@"伝言Path:伝言添付ファイルパス、会員写真の親パス(例 \gsv\ile)")]
+    public string? MessagePath { get; set; }
+```
+
+``` cs : yyyymmddhhmmss_First.cs
+FeeOperationType = table.Column<byte>(type: "tinyint", nullable: true, comment: "操作区分:0:新規\r\n1:プラン変更"),
+MessagePath = table.Column<string>(type: "nvarchar(max)", nullable: true, comment: "伝言Path:伝言添付ファイルパス、会員写真の親パス(例 \\gsv\\ile)"),
+```
+
+■ **`[Comment(@"<#= EntityType.GetComment().Replace("\r\n", "\\r\\n") #>")]`**
+
+``` cs
+    /// <summary>
+    /// 操作区分:0:新規
+    /// 1:プラン変更
+    /// </summary>
+    [Comment(@"操作区分:0:新規\r\n1:プラン変更")]
+    public byte? FeeOperationType { get; set; }
+
+    /// <summary>
+    /// 伝言Path:伝言添付ファイルパス、会員写真の親パス(例 \gsv\ile)
+    /// </summary>
+    [Comment(@"伝言Path:伝言添付ファイルパス、会員写真の親パス(例 \gsv\ile)")]
+    public string? MessagePath { get; set; }
+```
+
+``` cs : yyyymmddhhmmss_First.cs
+FeeOperationType = table.Column<byte>(type: "tinyint", nullable: true, comment: "操作区分:0:新規\r\n1:プラン変更"),
+MessagePath = table.Column<string>(type: "nvarchar(max)", nullable: true, comment: "伝言Path:伝言添付ファイルパス、会員写真の親パス(例 \\gsv\\ile)"),
+```
+
+---
+
+本家EFCoreのソースコードでT4テンプレートによるコードの生成個所と思われる場所のリンクを張っておく。  
+
+[efcore/CSharpEntityTypeGenerator.cs at main · dotnet/efcore · GitHub](https://github.com/dotnet/efcore/blob/main/src/EFCore.Design/Scaffolding/Internal/CSharpEntityTypeGenerator.cs)  
+[efcore/CSharpDbContextGenerator.cs at main · dotnet/efcore · GitHub](https://github.com/dotnet/efcore/blob/main/src/EFCore.Design/Scaffolding/Internal/CSharpDbContextGenerator.cs)  
