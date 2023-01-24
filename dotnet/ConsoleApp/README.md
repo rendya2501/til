@@ -171,8 +171,7 @@ dotnet publish -o Output -c Release --self-contained=true -r win-x64 -p:PublishS
 
 ## フォルダ全体を埋め込みリソースにする方法
 
-特定のフォルダのファイルを全て埋め込みリソースとしたい場合の設定。  
-csprojファイルに以下のタグを設定する。  
+特定のフォルダのファイルを全て埋め込みリソースとしたい場合、csprojファイルに以下のタグを設定する。  
 
 ``` xml
   <ItemGroup>
@@ -199,7 +198,7 @@ csprojファイルに以下のタグを設定する。
 - 参考  
   - [How can I have an entire folder be an embedded resource in a Visual Studio project?](https://stackoverflow.com/questions/8994258/how-can-i-have-an-entire-folder-be-an-embedded-resource-in-a-visual-studio-proje)  
 
-■**例**
+■ **例**
 
 EFCoreのマイグレーションでコンソールアプリで遭遇した事例をそのまま使用する。  
 以下のようなフォルダ構成の時にどのように表示されるか調査した。  
@@ -220,13 +219,13 @@ Project
 出力コード
 
 ``` cs
-    Assembly assembly = Assembly.GetExecutingAssembly();
-    var stream = assembly.GetManifestResourceNames();
-    foreach (var item in stream)
-        Console.WriteLine(item);
+Assembly assembly = Assembly.GetExecutingAssembly();
+var stream = assembly.GetManifestResourceNames();
+foreach (var item in stream)
+    Console.WriteLine(item);
 ```
 
-■**```*```の場合の出力**
+■ **```*```の場合の出力**
 
 全て出力される。  
 
@@ -244,7 +243,7 @@ ConsoleAppSample.Migrations.20221129070420_Second.Designer.cs
 ConsoleAppSample.Migrations.AppDbContextModelSnapshot.cs
 ```
 
-■**ワイルドカードを使用**
+■ **ワイルドカードを使用**
 
 条件に該当するファイルが出力される。  
 
@@ -259,7 +258,7 @@ ConsoleAppSample.Migrations.20221129070349_First.Designer.cs
 ConsoleAppSample.Migrations.20221129070420_Second.Designer.cs
 ```
 
-■**除外条件の設定**
+■ **除外条件の設定**
 
 `Remove`プロパティで設定可能な模様。  
 
@@ -276,8 +275,21 @@ ConsoleAppSample.Migrations.20221129070349_First.cs
 ConsoleAppSample.Migrations.20221129070420_Second.cs
 ```
 
+`Include`の対として`Exclude`でも除外の指定が可能な模様。  
+検証はしていない。  
+`Exclude`を使用する場合は下記のように設定すると思われる。  
+
+``` xml
+  <ItemGroup>
+    <EmbeddedResource
+      Include="Migrations\*.cs"
+      Exclude="Migrations\*.Designer.cs;Migrations\AppDbContextModelSnapshot.cs" />
+  </ItemGroup>
+```
+
 - 参考  
   - [How do I exclude files/folders from a .NET Core/Standard project?](https://stackoverflow.com/questions/43173811/how-do-i-exclude-files-folders-from-a-net-core-standard-project)  
+  - [方法: ビルドからファイルを除外する - MSBuild | Microsoft Learn](https://learn.microsoft.com/ja-jp/visualstudio/msbuild/how-to-exclude-files-from-the-build?view=vs-2022)  
 
 ---
 

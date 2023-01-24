@@ -210,12 +210,6 @@ public partial class TestTable
 `dotnet ef migrations add first`でマイグレーションファイルを作成。  
 `dotnet ef database script`コマンドでクエリを出力する。  
 
-OnModelCreatingは必要なく、アノテーションだけで同等のクエリを生成可能であることが分かる。  
-唯一、主キー制約名が違うのでUpメソッドで直接書き換える必要はある。  
-
-A5M2 : `TastTable_PKC`  
-EFcore : `PK_TestTable`  
-
 ``` sql
 CREATE TABLE [TestTable] (
     [SeqNo] bigint NOT NULL IDENTITY,
@@ -239,9 +233,15 @@ SET @description = N'区分';
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'TestTable', 'COLUMN', N'Type';
 ```
 
+OnModelCreatingは必要なく、アノテーションだけで同等のクエリを生成可能であることが分かる。  
+唯一、主キー制約名が違うのでUpメソッドで直接書き換える必要はある。  
+
+A5M2 : `TastTable_PKC`  
+EFcore : `PK_TestTable`  
+
 ---
 
-## OnModelCreatingが膨大になった場合の対処法
+## スキャフォールドした時にOnModelCreatingが膨大になった場合の対処法
 
 `IEntityTypeConfiguration<T>`を使用する。  
 OnModelCreatingにべた書きするのではなく、クラス事にOnModelCreatingして、ContextクラスのOnModelCreatingはそれを呼び出すように修正する。  
@@ -255,3 +255,19 @@ T4によるカスタムテンプレートを作った上でのスキャフォー
 <!--  -->
 >OnModelCreating メソッドのサイズを小さくするため、エンティティ型のすべての構成を、IEntityTypeConfiguration\<TEntity> を実装する個別のクラスに抽出できます。  
 >[モデルの作成と構成 - EF Core | Microsoft Learn](https://learn.microsoft.com/ja-jp/ef/core/modeling/#grouping-configuration)  
+
+---
+
+## Identityアノテーションがスキャフォールドされない
+
+どうやらそういうものらしい。  
+
+>DatabaseGenerated(DatabaseGeneratedOption.Identity)] データアノテーションを使用して、エンティティの追加時にデータベースが値を自分で生成することを知らせることは理論的には可能である。  
+>
+>しかし、[DatabaseGenerated]属性にはデフォルト値を指定するプロパティがないため、この場合、どのような値になるかの情報は保持されない。  
+>データベースを雛形化した後にmigrationsを使いたい場合もあるので、デフォルト値のメタデータはかなり有用かもしれません。  
+>
+>ちなみに、BirthDateとGenderのプロパティにはデフォルト値の呼び出しが生成されません。  
+>なぜなら、それらのデータベースで定義されたDEFAULT制約は、これらの型のCLRデフォルト値（DateTime?はnull、boolはfalse）と同じだからです。  
+>
+>[asp.net mvc - Scaffold-DbContext doese not add [DatabaseGenerated(DatabaseGeneratedOption.Computed)] on Generated class - Stack Overflow](https://stackoverflow.com/questions/63040061/scaffold-dbcontext-doese-not-add-databasegenerateddatabasegeneratedoption-comp)  

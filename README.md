@@ -2,7 +2,10 @@
 
 Today I Learned
 
-<https://github.com/rendya2501>
+日々学んだことをメモするためのリポジトリです。  
+毎日1つ以上、新しいことを学ぶために作りましたが、今では個人のメモ帳と化しています。  
+
+<https://github.com/rendya2501>  
 
 ---
 

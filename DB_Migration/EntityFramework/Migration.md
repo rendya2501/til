@@ -261,9 +261,6 @@ EntityFrameworkCoreでは無いほうのドキュメント
 既にデータベースが存在する場合の対応について書かれている。  
 [dotnet/EntityFramework.Docs](https://github.com/dotnet/EntityFramework.Docs/blob/main/entity-framework/ef6/modeling/code-first/migrations/existing-database.md)  
 
-Googleのデータベース運用に関する記事  
-[DevOps 技術: データベースのチェンジ マネジメント](https://cloud.google.com/architecture/devops/devops-tech-database-change-management?hl=ja)  
-
 EFCoreのマイグレーションに関する考察。  
 なんだかんだDbUpのほうがよくね？みたいな事が書いてある。  
 [Deploying an Entity Framework Database into Production](https://www.red-gate.com/simple-talk/development/dotnet-development/deploying-an-entity-framework-database-into-production/)  
