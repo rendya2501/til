@@ -142,15 +142,6 @@ int Sum(int x = 0 , int y = 0, int z = 0) => x + y + z;
 
 ---
 
-## Cysharp
-
-C#の可能性を切り開いていく専門会社が作ってるOSSライブラリ  
-
-コンソールアプリでCLIプログラムのひな形を紹介している。  
-[github_Cysharp](https://github.com/Cysharp/ConsoleAppFramework)  
-
----
-
 ## Parallel.For, Parallel.ForEach
 
 デフラグっぽいグラフィカルな表現で並列処理が確認できて面白い。  

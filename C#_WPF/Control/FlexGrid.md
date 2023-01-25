@@ -176,11 +176,13 @@ public class C1FlexGridClearSortAction : TriggerAction<C1FlexGrid>
 }
 ```
 
+[silverlight - Remove the sort from a DataGrid column header through the UI - Stack Overflow](https://stackoverflow.com/questions/20570797/remove-the-sort-from-a-datagrid-column-header-through-the-ui)  
+
 ---
 
 ## FlexGridの描画をリフレッシュするサンプル
 
-`CallMethodAction`を使って自分自身の再描画メソッドをコールするだけの記述ではあるが、
+`CallMethodAction`を使って自分自身の再描画メソッドをXANL上からコールする。  
 
 ``` XML
 <i:Interaction.Triggers>
@@ -197,6 +199,14 @@ Messenger.Raise(new InteractionMessage("FlexGridInvalidateAction"));
 ```
 
 上記2つでやっていることは下記トリガーアクションを呼び出した時と同じ。  
+
+``` XML
+ <i:Interaction.Triggers>
+    <l:InteractionMessageTrigger MessageKey="FlexGridInvalidateAction" Messenger="{Binding Messenger}">
+        <localaction:C1FlexGridInvalidateVisualAction />
+    </l:InteractionMessageTrigger>
+</i:Interaction.Triggers>
+```
 
 ``` C#
 /// <summary>

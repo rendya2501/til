@@ -29,3 +29,5 @@
 
 [Azure DevOps とは？](https://qiita.com/mstakaha1113/items/1cf45a5119e1397d0315)  
 [忙しい人のためのAzure DevOps【前編】](https://tech-blog.cloud-config.jp/2020-12-15-azure-devops-for-busy-people/)  
+
+[AzureDevOpsでプロマネ効率化してみた - Qiita](https://qiita.com/hasenagata/items/08b8bf3a169902c2141f)  
