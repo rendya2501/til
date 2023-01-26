@@ -372,3 +372,44 @@ dotnet publish -o Output-linux -c Release --self-contained true -r linux-x64 -p:
   - `.\`ではなく`./`  
 
 [Windows git-bash.exeでバッチファイルを実行](https://teratail.com/questions/100039)  
+
+---
+
+## コマンドラインパーサー
+
+ターミナルで`--help`とか`-h`みたいなのをコンソールアプリでやるための制御というか処理は`コマンドラインパーサー`と呼ぶらしい。  
+CLI処理ライブラリ
+
+×  
+
+- [Microsoft/Microsoft.Extensions.CommandLineUtils]  
+開発終了  
+
+>以前はASP.NETのコンポーネントの一つとして、Microsoft.Extensions.CommandlineUtilsというものがあった。  
+>ただ、コマンドラインオプションというのはどうしても要望が多くなってしまう類のもので、本質ではない部分のメンテコストが
+>増大することを危惧したASP.NET Coreチームは、このパッケージをメンテしないことに決定した。  
+>[https://qiita.com/skitoy4321/items/6ce755d0374bd9bc8387](https://qiita.com/skitoy4321/items/742d143b069569014769)  
+
+その記事  
+[Continue work Microsoft.Extensions.CommandlineUtils · Issue #257 · dotnet/extensions · GitHub](https://github.com/dotnet/extensions/issues/257)  
+
+○  
+
+- [Cysharp/ConsoleAppFramework](https://github.com/Cysharp/ConsoleAppFramework)  
+- [dotnet/CliCommandLineParser](https://github.com/dotnet/CliCommandLineParser)  
+- [natemcmaster/CommandLineUtils](https://github.com/natemcmaster/CommandLineUtils)  
+  [NuGet Gallery | McMaster.Extensions.CommandLineUtils](https://www.nuget.org/packages/McMaster.Extensions.CommandLineUtils)  
+- [GitHub - commandlineparser/commandline](https://github.com/commandlineparser/commandline)  
+
+`natemcmaster/CommandLineUtils`のnatemcmaster氏は Microsoft の ASP.NET Core チームの中の人の模様。  
+先ほどのパッケージの正統後継であると考えてよいでしょう。
+
+[.NET での CLI 処理ライブラリについて - 鷲ノ巣](https://tech.blog.aerie.jp/entry/2018/06/22/124630)  
+
+---
+
+## commandlineparser/commandline
+
+[C#とF#向けコマンドラインパーサーCommandLineParserの紹介 - Qiita](C#とF#向けコマンドラインパーサーCommandLineParserの紹介)  
+
+[GitHub - commandlineparser/commandline](https://github.com/commandlineparser/commandline)  
