@@ -84,11 +84,13 @@ Console.WriteLine(standardOutput);
 
 NuGetからライブラリをインストールする。  
 
-`Microsoft.Extensions.Configuration`  
-`Microsoft.Extensions.Configuration.Json`  
+- `Microsoft.Extensions.Configuration`  
+- `Microsoft.Extensions.Configuration.Json`  
 
 `dotnet add package Microsoft.Extensions.Configuration --version 6.*`
 `dotnet add package Microsoft.Extensions.Configuration.Json --version 6.*`
+
+jsonデータは以下の通りとする。  
 
 ``` json
 {
@@ -100,17 +102,20 @@ NuGetからライブラリをインストールする。
 
 ### appsettings.jsonをビルド結果に含める場合
 
-プロジェクトファイルにセクション追加
+プロジェクトファイルに以下のセクションを追加。  
+もしくは jsonファイルのプロパティでビルドアクションを「**コンテンツ**」に変更し、出力先ディレクトリにコピーを「**常にコピーする**」に変更する。  
 
 ``` xml : csproj
-  <ItemGroup>
-    <None Update="appsettings.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
+<ItemGroup>
+  <Content Include="appsettings.json">
+    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+  </Content>
+</ItemGroup>
 ```
 
 デフォルトの場合、`bin/debug`階層のappsettings.jsonファイルを参照しに行く模様。  
+
+以下のコードでjsonデータを取得可能。  
 
 ``` cs
 using Microsoft.Extensions.Configuration;
@@ -140,6 +145,7 @@ Console.WriteLine(configuration.GetConnectionString("DefaultConnection"));
 
 [.NETのコンソールアプリでappsettings.jsonを使う (.NET6)](https://zenn.dev/higmasu/articles/b3dab3c7bea6db)
 [How to Get Connection String from Appsettings.json? .net Core Console Application](https://yarkul.com/how-to-get-connection-string-from-appsettings-json-net-core-console-application/)  
+[Quick Way to Get Connection String from AppSettings.json Console Application .net Core 3.1 and Later](https://yarkul.com/how-to-get-connection-string-from-appsettings-json-net-core-console-application/)  
 
 ---
 
@@ -362,14 +368,15 @@ dotnet publish -o Output-linux -c Release --self-contained true -r linux-x64 -p:
 
 ## git.bashでexeを実行する方法
 
-`./ <exe_name>`  
+`./<exe_name>`  
 
 例:カレントディレクトリのefbundle.exeを実行する  
-`./ efbundle`  
+`./efbundle`  
 
 - 気を付けること  
   - exe名の直接指定では実行できない  
   - `.\`ではなく`./`  
+  - `./`の後にスペースは入れない  
 
 [Windows git-bash.exeでバッチファイルを実行](https://teratail.com/questions/100039)  
 
