@@ -65,7 +65,7 @@ namespace <#= NamespaceHint #>;
         if (!string.IsNullOrEmpty(EntityType.GetComment()))
         {
 #>
-[Comment("<#= EntityType.GetComment().Replace("\r\n", "\\r\\n") #>")]
+[Comment(@"<#= EntityType.GetComment().Replace("\r\n", "\\r\\n") #>")]
 <#
         }
     }
@@ -103,7 +103,7 @@ public partial class <#= EntityType.Name #>
             if (!string.IsNullOrEmpty(property.GetComment()))
             {
 #>
-    [Comment("<#= property.GetComment().Replace("\r\n", "\\r\\n") #>")]
+    [Comment(@"<#= property.GetComment().Replace("\r\n", "\\r\\n") #>")]
 <#
             }
         }

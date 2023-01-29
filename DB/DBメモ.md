@@ -262,24 +262,18 @@ insert into employees(dept_id,name) values(3,'鈴木');
 GO
 
 BEGIN TRY
-    BEGIN TRANSACTION;
+    BEGIN TRANSACTION
 
     DROP TABLE employees;
     -- TRUNCATE TABLE employees;
     SELECT 1/0
 
-    COMMIT TRANSACTION;
+    COMMIT TRANSACTION
 END TRY
 
 BEGIN CATCH
-    ROLLBACK TRANSACTION;
-    SELECT
-        ERROR_NUMBER() AS ErrorNumber,
-        ERROR_SEVERITY() AS ErrorSeverity,
-        ERROR_STATE() AS ErrorState,
-        ERROR_PROCEDURE() AS ErrorProcedure,
-        ERROR_LINE() AS ErrorLine,
-        ERROR_MESSAGE() AS ErrorMessage;
+    THROW
+    ROLLBACK TRANSACTION
 END CATCH
 GO
 
@@ -433,34 +427,6 @@ CONSTRAINT : 制限、強制
 
 ---
 
-## 制約名を変更する方法
-
-`EXEC sp_rename N'Tamp_Table_PKC', N'Table_PKC', N'OBJECT';`  
-
-■以下、昔の書き込み  
-
-削除して追加する。  
-制約名を更新する命令はない模様。  
-
-``` sql : 主キー制約の変更
--- 制約削除
-ALTER TABLE [テーブル名] DROP CONSTRAINT [削除する制約名]
-
--- 制約の追加
-ALTER TABLE [テーブル名] ADD CONSTRAINT [追加する制約名]
-PRIMARY KEY ([フィールド1],[フィールド2],...)
-```
-
-外部キー制約を確認するクエリ  
-
-``` sql
-select * from sys.key_constraints
-```
-
-[【SQL Server】外部キー制約の一覧を確認する](https://sqlserver.work/2021/01/06/%E3%80%90sys-foreign_keys-%E3%80%91%E5%A4%96%E9%83%A8%E3%82%AD%E3%83%BC%E5%88%B6%E7%B4%84%E3%81%AE%E4%B8%80%E8%A6%A7%E3%82%92%E7%A2%BA%E8%AA%8D%E3%81%99%E3%82%8B/)  
-
----
-
 ## PRIMARY KEY指定
 
 主キーが1つだけの場合は`フィールド名 型 PRIMARY KEY`でもよいし、一番最後に`PRIMARY KEY (フィールド名)`のどちらでもよい。  
@@ -513,44 +479,13 @@ SELECT文の処理は2つに分けられる。
 
 ---
 
-``` sql
-SELECT 'aaa' as A1,'bbb' AS A2,'ccc' AS A3
-GO
--- A1    A2    A3
--- aaa    bbb    ccc
+## UNION VS UNION ALL
 
+UNIONくっそ重いのでUNION ALL使おうねって話。  
+重複削除したかったらUNION ALLした後にDISTICTでもいいよね。  
 
-SELECT
-    [CD]
-FROM
-    (SELECT 'aaa' as A1,'bbb' AS A2,'ccc' AS A3) As a
-CROSS APPLY(
-    values
-    (A1),(A2),(A3)
-) AS [v] ([CD])
-GO
--- CD
--- aaa
--- bbb
--- ccc
-
-
-WITH TEMP
-AS (
-    SELECT 'aaa' as A1,'bbb' AS A2,'ccc' AS A3
-)
-SELECT
-    [CD]
-FROM TEMP
-CROSS APPLY(
-    values
-    (A1),(A2),(A3)
-) AS [v] ([CD])
--- CD
--- aaa
--- bbb
--- ccc
-```
+てかUNIONはJoinの度に重複削除するわけだから効率が悪い。  
+全部UNIONした後に重複削除で十分だ。  
 
 ``` sql
 -- バッチ相対 0%
@@ -596,3 +531,44 @@ FROM (
 -- ccc
 -- ddd
 ```
+
+``` sql
+SELECT 'aaa' as A1,'bbb' AS A2,'ccc' AS A3
+GO
+-- A1    A2    A3
+-- aaa    bbb    ccc
+
+
+SELECT
+    [CD]
+FROM
+    (SELECT 'aaa' as A1,'bbb' AS A2,'ccc' AS A3) As a
+CROSS APPLY(
+    values
+    (A1),(A2),(A3)
+) AS [v] ([CD])
+GO
+-- CD
+-- aaa
+-- bbb
+-- ccc
+
+
+WITH TEMP
+AS (
+    SELECT 'aaa' as A1,'bbb' AS A2,'ccc' AS A3
+)
+SELECT
+    [CD]
+FROM TEMP
+CROSS APPLY(
+    values
+    (A1),(A2),(A3)
+) AS [v] ([CD])
+-- CD
+-- aaa
+-- bbb
+-- ccc
+```
+
+---

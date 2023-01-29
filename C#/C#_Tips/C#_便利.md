@@ -97,13 +97,3 @@ Process.Start(
 <https://sharplab.io/>
 
 [C#で手軽にILや内部を確認するなら「SharpLab」！](https://qiita.com/RyotaMurohoshi/items/a6a252915f11f7559efe)  
-
----
-
-## Cysharp
-
-C#の可能性を切り開いていく専門会社が作ってるOSSライブラリ  
-
-コンソールアプリでCLIプログラムのひな形を紹介している。  
-[GitHub - Cysharp/ConsoleAppFramework](https://github.com/Cysharp/ConsoleAppFramework)  
-[NuGet Gallery | ConsoleAppFramework](https://www.nuget.org/packages/ConsoleAppFramework)  
