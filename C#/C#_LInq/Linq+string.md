@@ -227,3 +227,17 @@ elseの必要もない。
         throw new Exception(msg + "区分が入力されています");
     }
 ```
+
+---
+
+`.`でスプリットした結果、最初の2つはいらないので削除したい。  
+Linqでできたので備忘録として残す。  
+「最初の2つはいらない」という部分は、`Skip`で実現できた。  
+Splitして分解したものは`string.Join`でもとに戻すことになるが、まぁいいだろう。  
+
+``` cs
+// DbUp_Journal.Scripts.Dat._202301.202301271317_Fix1_TestTable1_Create.sql
+// Dat._202301.202301271317_Fix1_TestTable1_Create.sql
+
+_ = string.Join(".", script.Name.Split(".").Skip(2));
+```
