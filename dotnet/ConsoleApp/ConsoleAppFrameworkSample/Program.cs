@@ -9,7 +9,7 @@ internal class Program
 
         // app.AddCommands<Hello2>();
         app.AddCommands<Foo>();
-        // app.AddCommands<Bar>();
+        app.AddSubCommands<Bar>();
         app.Run();
     }
 

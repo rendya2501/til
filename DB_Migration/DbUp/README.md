@@ -15,7 +15,7 @@
 
 DbUpのcli操作を可能とするためのライブラリ  
 
-[GitHub - drwatson1/dbup-cli: Cross platform command line tool that helps you to deploy changes to SQL Server databases](https://github.com/drwatson1/dbup-cli)  
+[GitHub - drwatson1/dbup-cli](https://github.com/drwatson1/dbup-cli)  
 [NuGet Gallery | dbup-cli](https://www.nuget.org/packages/dbup-cli)  
 
 ---
@@ -34,10 +34,19 @@ DbUpをベースに更なるオプションが追加されている。
 
 ---
 
-時系列を採用すべき理由  
-スクリプトは冪等であるべき(同じ操作を何度繰り返しても、同じ結果が得られる性質)  
-スクリプトは変更、削除してはいけない  
-[5 DbUp tips from Paul Stovell | Steve Fenton](https://www.stevefenton.co.uk/blog/2019/02/5-dbup-tips-from-paul-stovell/)  
+>時系列を採用すべき理由  
+>スクリプトは冪等であるべき(同じ操作を何度繰り返しても、同じ結果が得られる性質)  
+>スクリプトは変更、削除してはいけない  
+>膨大なスクリプトのリストが増えるのが心配なら、DbUpプロジェクトをフォルダ構造で開始することができます。  
+>201902/20190220203000-AddCustomerTable.sql  
+>201902/20190220203012-AddProductTitleTagIndex.sql  
+>これで、各フォルダには、数ヶ月分の変更点があるだけです。  
+>[5 DbUp tips from Paul Stovell | Steve Fenton](https://www.stevefenton.co.uk/blog/2019/02/5-dbup-tips-from-paul-stovell/)  
+
+<!--  -->
+>フォルダ内のファイル名は一意でなければならず、通常は現在の日付と時間、またはプロジェクトの発券システムを使用している場合はチケット番号を追加します  
+>(例: Migration_20200430_1130_P0001_00001.sql)．  
+>[Database migrations with DbUp - BitLoop Blog](https://blog.bitloop.tech/database-migrations-with-dbup/)  
 
 ---
 
