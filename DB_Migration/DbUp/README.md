@@ -26,6 +26,7 @@ DbUpの拡張ライブラリ。
 DbUpをベースに更なるオプションが追加されている。  
 
 履歴テーブルに残して実行しない設定等、細かな設定が可能となっている。  
+→研究の結果、本家のDbUpでも実現できることが分かったので、採用する理由はなくなった。  
 
 しかし、SQLServer専用となってしまった。  
 
@@ -66,3 +67,4 @@ Webプロジェクトとして含めた例の紹介記事
 
 ジャーナルのカスタマイズについての記事  
 [C#: Tutorial: Building Custom DbUp Journal | by Joseph Saravanan Ganesan | Medium](https://medium.com/@saravananganesan/c-tutorial-building-custom-dbup-journal-5dae1d77ecfd)  
+[GitHub - vaananart/DbUp-CustomJournal](https://github.com/vaananart/DbUp-CustomJournal)  

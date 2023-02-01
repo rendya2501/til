@@ -42,8 +42,8 @@ var list = new List<int>(){1,2,3,4,5,6,7,8,9};
 list = list.WhereIf(true, w => w >= 5).ToList();
 
 // falseなのでwhereは実行されない。
-// 5,6,7,8,9
-list = list.WhereIf(false, w => w <= 7).ToList();
+// 1,2,3,4,5,6,7,8,9
+list = list.WhereIf(false, w => w <= 5).ToList();
 ```
 
 ---
