@@ -52,9 +52,14 @@ Microsoft謹製。
 ## Cysharp/ConsoleAppFramework
 
 C#の可能性を切り開いていく専門会社が作ってるOSSライブラリ  
-
-コンソールアプリでCLIプログラムのひな形を紹介している。  
 [GitHub - Cysharp/ConsoleAppFramework](https://github.com/Cysharp/ConsoleAppFramework)  
+
+戻り値  
+voidで何事も無ければ0。  
+throwされたら1。  
+int型で任意の値を返すことが可能。  
+最低でも、0か1を返すように作るべし。  
+[Introducing to ConsoleAppFramework (vol 1) | Yucchiy's Note](https://blog.yucchiy.com/2020/02/introducing-to-consoleappframework/)  
 
 ---
 
