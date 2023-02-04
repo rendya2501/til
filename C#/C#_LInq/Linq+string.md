@@ -249,24 +249,23 @@ if (!string.IsNullOrEmpty(msg) || testList.Any())
 
 ---
 
-## あるn番目の特定文字のから後ろを削除したい
+## n番目の特定文字から後ろだけが欲しい
 
-がっつり実例なのだが、例えばこういうファイルパスがあったとする。  
+例えばこういう文字列があったする。  
 `DbUp_Journal.Scripts.Dat._202301.202301271317_Fix1_TestTable1_Create.sql`  
 
-`.`でスプリットできることが分かる。  
-このままでは長いので、スプリットした後の最初の2単語`DbUp_Journal.Scripts`の部分はいらない。  
-
-結果的にこうしたい。  
+最終的にこうしたい。  
 `Dat._202301.202301271317_Fix1_TestTable1_Create.sql`  
 
-Linqでできたので備忘録として残す。  
+最初の2単語の`DbUp_Journal.Scripts`の部分はいらない。  
+構造的に`.`でスプリットできることが分かる。  
+
 「最初の2つはいらない」という部分は、`Skip`で実現できた。  
-Splitして分解したものは`string.Join`でもとに戻すことになるが、まぁいいだろう。  
+Splitして分解したものは`string.Join`で元に戻す。  
+切って張ってみたいな感じになるが、まぁいいだろう。  
 
 ``` cs
-// DbUp_Journal.Scripts.Dat._202301.202301271317_Fix1_TestTable1_Create.sql
+var abs_path = "DbUp_Journal.Scripts.Dat._202301.202301271317_Fix1_TestTable1_Create.sql";
+var result = string.Join(".", abs_path.Split(".").Skip(2));
 // Dat._202301.202301271317_Fix1_TestTable1_Create.sql
-
-_ = string.Join(".", script.Name.Split(".").Skip(2));
 ```

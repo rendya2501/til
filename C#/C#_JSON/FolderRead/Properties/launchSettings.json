@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "FolderRead": {
+      "commandName": "Project",
+      "commandLineArgs": "Hoge -f <path>"
+    }
+  }
+}

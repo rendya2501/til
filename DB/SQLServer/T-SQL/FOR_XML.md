@@ -300,3 +300,31 @@ FROM
 for xml sqlserver  
 [SQL ServerでXMLを操作する 第1回：リレーショナルDBからXML文書を取り出す（2/2）](https://atmarkit.itmedia.co.jp/fxml/tanpatsu/15mssql/mssql02.html)  
 [SQL Server のチューニングについてまとめてみる - その17 - ( FOR XML PATH の連結をもう少し高速化してみる )](https://ryuchan.hatenablog.com/entry/2016/02/02/000244)  
+
+---
+
+## なんだったか
+
+FOR XML使うときは、ORDER BYの位置に気をつけないといけない。  
+その検証用として作ったクエリだった気がするが、忘れてしまった。  
+後でまとめる。  
+
+``` sql
+WITH [TmpTable] AS (
+    SELECT 1 AS [ID], 1 AS [RowNum], 'and seventy nine' AS [Data]
+    UNION ALL
+    SELECT 1, 2, 'five hundred'
+    UNION ALL
+    SELECT 1, 3, 'two thousand'
+)
+SELECT
+    [ID],
+    [Data]
+FROM
+    (SELECT * FROM [TmpTable] ORDER BY [RowNum] DESC ) [t1]
+GROUP BY
+    [t1].[ID]
+
+-- メッセージ 1033、レベル 15、状態 1、行 12
+-- TOP、OFFSET、または FOR XML が指定されていない場合、ビュー、インライン関数、派生テーブル、サブクエリ、および共通テーブル式では ORDER BY 句は無効です。
+```

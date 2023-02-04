@@ -2,16 +2,14 @@
 
 MigrationにおけるEntityFrameworkCoreの仕様をまとめる  
 
+>EF7 は .NET 6 を対象としているため、.NET 6 (LTS) または .NET 7 で使用できます。  
+[EF Core 7.0 の新機能](https://learn.microsoft.com/ja-jp/ef/core/what-is-new/ef-core-7.0/whatsnew)  
+
 ---
 
 ## エンティティのプロパティ
 
 [エンティティのプロパティ](https://learn.microsoft.com/ja-jp/ef/core/modeling/entity-properties?tabs=data-annotations%2Cwithout-nrt)  
-
----
-
->EF7 は .NET 6 を対象としているため、.NET 6 (LTS) または .NET 7 で使用できます。  
-[EF Core 7.0 の新機能](https://learn.microsoft.com/ja-jp/ef/core/what-is-new/ef-core-7.0/whatsnew)  
 
 ---
 
