@@ -173,3 +173,5 @@ appsettings.json existance check
 [JSONの読み込み・デシリアライズを分かりやすく解説【C# Json.NET】](https://tech-and-investment.com/json2/)  
 
 [JSONファイルの作成方法を分かりやすく解説【C# Json.NET】](https://tech-and-investment.com/json3/)  
+
+[【.NET Core】ConfigurationBuilderを使ってC#で設定ファイルや環境変数を扱う | cloud.config Tech Blog](https://tech-blog.cloud-config.jp/2019-7-11-how-to-configuration-builder/)  

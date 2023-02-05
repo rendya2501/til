@@ -1,5 +1,13 @@
-
 # Union
+
+---
+
+## Concatとの違い
+
+- Unionは重複を削除する。  
+- Concatは重複を許可する。  
+
+[【C#】LINQの集合演算まとめ｜プログラミング暮らし](https://pg-life.net/csharp/linq-setoperation/#:~:text=%E3%81%A6%E8%BF%94%E3%81%97%E3%81%BE%E3%81%99%E3%80%82-,Union%20%E3%81%A8%20Concat%20%E3%81%AE%E9%81%95%E3%81%84,%E9%87%8D%E8%A4%87%E3%82%92%E8%A8%B1%E5%8F%AF%E3%81%97%E3%81%BE%E3%81%99%E3%80%82)  
 
 ---
 
@@ -8,7 +16,7 @@
 AリストとBリストの番号を統合して重複を排除した合計が1より大きいか？みたいな判定する時に使ったのでメモ。  
 
 ``` C#
-if (TestList1.Select(s => s.TestNo).Union(TestList2.Select(s => s.TestNo)).Distinct().Count(w => !string.IsNullOrEmpty(w)) > 1)
+if (TestList1.Select(s => s.TestNo).Union(TestList2.Select(s => s.TestNo)).Count(w => !string.IsNullOrEmpty(w)) > 1)
 ```
 
 [要素が重複しないようにして、複数の配列（またはコレクション）をマージする（和集合を取得する）](https://dobon.net/vb/dotnet/programing/arrayunion.html)  
@@ -21,9 +29,11 @@ LinqのAddはvoidなので、チェーンして書くことができない。
 だけど、Unionを工夫して使うと全部繋げて書けるよっていう例  
 速度は保証できないので、完全に好みであるが、備忘録として残しておく  
 
+■ **愚直に実装したパターン**
+
+途中でAddさせたいならいったんチェーンを切らないといけないし、ToList化もしないといけない。  
+
 ``` C#
-// 本来のパターン
-// 途中でAddさせたいならいったんチェーンを切らないといけないし、ToList化もしないといけない。
 var framePlayerList = TestModel
     .GetList(condition)
     .Where(w => w.TestNo != targetPlayer.TestNo)
@@ -32,44 +42,24 @@ var framePlayerList = TestModel
 framePlayerList.Add(targetPlayer);
 // 今回のチェックインでその枠に存在するプレーヤー全員がチェックイン済みになるなら組確定とする。
 reservationFrame.ConfirmFlag = framePlayerList.All(a => a.CheckinFlag == true);
+```
 
+■ **UNIONで疑似的にADDしたパターン**  
 
-// UNIONで疑似的にADDしたパターン
-// 繋げるべきデータをUnion内で作ってしまえば、データの追加が可能というわけ
+繋げるべきデータをUnion内で作ってしまえば、データの追加が可能  
+
+``` cs
 reservationFrame.ConfirmFlag = TestModel
     .GetList(condition)
     .Where(w => w.TestNo != targetPlayer.TestNo)
-    // そのプレーヤーNoを除外した後、Listを作成してUNIONすることで疑似的なADDが可能というわけ
+    // そのプレーヤーNoを除外した後、Listを作成してUNIONすることで疑似的なADDが可能
     .Union(new List<TestClass>() { targetPlayer })
     .All(a => a.CheckinFlag == true);
-
-
-// ごめん。このサンプルだったらこれで済んだわ。
-// 比較したい要素はフラグだけだから、そのプレーヤーが既に存在するなら、
-// そのフラグだけ最新のプレーヤー情報に書き換えればいいだけだった。
-var framePlayerList = TestModel
-    .GetList(condition)
-    .All(a => {
-        if (a.TestNo == targetPlayer.TestNo) {
-            a.CheckinFlag = targetPlayer.CheckinFlag;
-        }
-        return a.CheckinFlag == true;
-    });
-
-var tupleList = new List<(int Index, bool flag)>
-    {
-        (1, false),
-        (2, true),
-        (3, true),
-    }
-    .All(a => {
-        if (a.Index == 1)
-        {
-            a.flag=true;
-        }
-        return a.flag == true;
-    });
 ```
+
+■ **ベンチマーク**
+
+1000万回ループさせた場合、とEnumerable.Rangeで1000の空リスト作ってUnionした場合、30万:100万なので3倍ほど遅いと見なせる。  
 
 ``` C#
 static void Benchmark()

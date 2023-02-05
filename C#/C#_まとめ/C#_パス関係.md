@@ -4,7 +4,7 @@
 
 ## カレントディレクトリ
 
-[C#でカレントディレクトリを取得する](https://qiita.com/ot-nemoto/items/1282e10d3a02db4f490a)  
+要件によって適切なオブジェクトを選択する必要がある。  
 
 ``` C#
 // 現在の作業ディレクトリの完全修飾パスを取得
@@ -21,20 +21,18 @@ Console.WriteLine(System.IO.Path.GetDirectoryName(System.IO.Path.GetFullPath(Env
 Console.WriteLine(System.IO.Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName));
 ```
 
-実務でConfigを取得する時に使っていたのは `AppDomain.CurrentDomain.BaseDirectory` だった。
-
-要件によって切り替える必要がある。  
-
 - 実行ファイルと同じディレクトリにファイルを出力させるプログラムを作成。  
 - また、このプログラムは、他のアプリケーションから呼ばれることを想定している。  
 
 この場合 `System.IO.Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName))`  
 
+因みに実務でConfigを取得する時に使っていたのは `AppDomain.CurrentDomain.BaseDirectory` だった。
+
+[C#でカレントディレクトリを取得する](https://qiita.com/ot-nemoto/items/1282e10d3a02db4f490a)  
+
 ---
 
 ## 相対パスの指定の仕方
-
-[DOBON.NET](https://dobon.net/vb/dotnet/file/getabsolutepath.html#getfullpath)  
 
 カレントパスの取得がなければ、基準となるのはexeがある場所。  
 
@@ -45,11 +43,21 @@ Console.WriteLine(System.IO.Path.GetFullPath(@"..\file.txt"));
 Console.WriteLine(System.IO.Path.GetFullPath(@"..\..\file.txt"));
 ```
 
+[DOBON.NET](https://dobon.net/vb/dotnet/file/getabsolutepath.html#getfullpath)  
+
 ---
 
 ## AppData\Localフォルダのパスを取得
 
-``` C# : ユーザのAppData\Localフォルダのパスを取得
+ユーザのAppData\Localフォルダのパスを取得する例
+
+``` C#
 // C:\Users\ユーザー名\AppData\Roaming
 string localAppDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.Create);
 ```
+
+---
+
+## System.IO.Path早見表
+
+[C# 簡易Tips - 文字列/ファイルパス編 - - こつこつエンジニア](https://madai21.hatenablog.com/entry/csharp-tips-string-filepath)  
