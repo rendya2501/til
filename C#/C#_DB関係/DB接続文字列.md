@@ -5,7 +5,7 @@
 ①サーバを「DataSource」指定する場合  
 
 【SQLSERVER認証】  
-`Data Source=.\\SQLEXPRESS;Initial Catalog=[db_name];User ID=[userName];Password=[passwd]`  
+`Data Source=.\\SQLEXPRESS;Initial Catalog=[db_name];User ID=[userName];Password=[passwd];Trust Server Certificate=true`  
 
 【Windows認証】  
 `Data Source=.\\SQLEXPRESS;Initial Catalog=[db_name];Integrated Security=True`  
@@ -13,7 +13,7 @@
 ②サーバを「Server」指定する場合  
 
 【SQLSERVER認証】  
-`Server=.\SQLEXPRESS;Database=[db_name];User ID=[userName];Password=[passwd]`
+`Server=.\SQLEXPRESS;Database=[db_name];User ID=[userName];Password=[passwd];Trust Server Certificate=true`
 
 【Windows認証】  
 `Server=.\SQLEXPRESS;Database=[db_name];Trusted_Connection=True`  
@@ -21,6 +21,40 @@
 ローカルの指定は`.`以外にもあるがここでは`.`を使う。  
 
 [【Sql Server2016】接続文字列が２種類ある件について](https://www.topse.work/entry/2019/05/29/120000)  
+
+---
+
+## Linuxでの接続
+
+Linux上のSQLServerにアクセスする場合は以下のようにアクセスすればよい。  
+
+`Server=localhost;Database=myDatabase;User id=myUserName;Password=myPassword;Trust Server Certificate=true`  
+
+以下、Linux上で動作しているSQLServerにアクセスしようとして色々あったのでまとめる。  
+結果的にLinuxなのにWindows認証しようとしてエラーとなっていた。  
+
+■**connection string is not valid sql server**  
+
+こんな感じのWindow認証でログインしようとして発生した。  
+`"Server=.\\SQLEXPRESS; Database=<db_name>; Integrated Security=True"`  
+
+SQLServerでWindows認証が使えるはずないので当然と言えば当然。  
+Windows認証 = WindowではローカルのSQLServerにアクセス → Linux上の(ローカルの)SQLServerにアクセス  
+という理論でやったが、Localにアクセスなら素直に`localhost` or `127.0.0.1`だった。  
+
+>Linuxは名前付きパイプの概念が違う。  
+>また、統合セキュリティは、Active Directory / NTML Authorizationに関連しているため、Linuxでは動作しません（少なくとも未設定では、Kerberos認証はサポートされています）。  
+>そのため、通常の標準的なユーザー名認証の接続文字列を使用します。  
+>`Server=localhost;Database=myDatabase;User id=myUserName;Password=myPassword;`  
+[Invalid SQL Server Connection String on Linux Entity Framework Core](https://stackoverflow.com/questions/55454878/invalid-sql-server-connection-string-on-linux-entity-framework-core)  
+
+■**System.Data.SqlClient.SqlException: 'System.Net.Security.Native assembly:\<unknown assembly> type:\<unknown type> member:(null)**
+
+`System.Net.Security`とあるので、セキュリティに関することなのは分かった。  
+この時まだWindows認証で頑張っていたので、`Integrated Security`がセキュリティに関するオプションであることは明白だったので、消したらエラーも消えた。  
+リンク先の人も消したら出てこなくなったと言っている。  
+
+[System.Data.SqlClient.SqlException: 'System.Net.Security.Native assembly:\<unknown assembly> type:\<unknown type> member:(null)](https://learn.microsoft.com/en-us/answers/questions/979587/systemdatasqlclientsqlexception-39systemnetsecurit.html)  
 
 ---
 

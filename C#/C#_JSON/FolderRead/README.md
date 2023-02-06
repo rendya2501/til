@@ -85,7 +85,7 @@ linuxに拡張子の概念はないはずだが、ちゃんと抜き出せるこ
     app.Run();
     ```
 
-4. 次のコマンドをつかってexeを発行する。  
+4. 次のコマンドでexeを発行する。  
    `dotnet publish -o Bundle/linux -c Release --self-contained true -r linux-x64 -p:PublishSingleFile=true`  
 
 ---

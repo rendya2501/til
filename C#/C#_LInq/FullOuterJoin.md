@@ -5,6 +5,10 @@ LinqでFULL OUTER JOIN(完全外部結合)を実現するには？
 - LEFT OUTER + RIGHT OUTER  
 - 専用のメソッドはないので、拡張メソッドを自作する  
 
+---
+
+## 実装
+
 ``` cs
 var firstNames = new[]
 {
@@ -50,6 +54,10 @@ var rightOuterJoin = lastNames
 // [2]: (3, null, "Smith")
 var fullOuterJoin = leftOuterJoin.Union(rightOuterJoin);
 ```
+
+---
+
+匿名型ではうまくJoin出来なかった。謎。  
 
 ``` cs
 var firstNames = new[]
@@ -105,5 +113,7 @@ var fullOuterJoin = leftOuterJoin.Union<dynamic>(rightOuterJoin);
 // [3]: { ID = 3, FisrtName = null, LastName = "Smith" }
 fullOuterJoin = leftOuterJoin.Union<dynamic>(rightOuterJoin).Distinct();
 ```
+
+---
 
 [c# - LINQ - Full Outer Join - Stack Overflow](https://stackoverflow.com/questions/5489987/linq-full-outer-join)  
