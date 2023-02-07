@@ -1,14 +1,23 @@
 ﻿using Microsoft.Extensions.Configuration;
 using System.Reflection;
 
-var app = ConsoleApp.Create(args);
+var app = ConsoleApp.Create(
+    args,
+    options =>
+    {
+        options.ApplicationName = Assembly.GetExecutingAssembly().GetName().Name; // FolderRead
+        options.HelpSortCommandsByFullName = true;
+        // --connection-String を --connectionString にするための設定
+        options.NameConverter = new Func<string, string>(str => str);
+    }
+);
 
 app.AddCommand(
     "Hoge",
     ([Option("f", "Message to display.")] string folderPath) =>
     {
         // 引数の対象フォルダのパスから、フォルダ内のjsonファイルの絶対パスを取得する。
-        var filePath =  Directory.GetFiles(folderPath, "*.json");
+        var filePath = Directory.GetFiles(folderPath, "*.json");
         // ファイルの数分ループ
         foreach (string path in filePath)
         {

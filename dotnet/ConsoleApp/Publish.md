@@ -89,3 +89,13 @@ dotnet publish -o Output-linux -c Release --self-contained true -r linux-x64 -p:
   - ConsoleAppSample.pdb  
 
 [.net - How do I get rid of SNI.dll when publishing as a "single file" in Visual Studio 2019? - Stack Overflow](https://stackoverflow.com/questions/65045224/how-do-i-get-rid-of-sni-dll-when-publishing-as-a-single-file-in-visual-studio)  
+
+---
+
+## 発行時にexe名を指定する
+
+`dotnet msbuild -r -p:Configuration=Release;AssemblyName=foo`  
+
+`dotnet publish AssemblyName=appname`  
+
+[c# - How do I change the dll name when I dotnet publish? - Stack Overflow](How do I change the dll name when I dotnet publish?)  
