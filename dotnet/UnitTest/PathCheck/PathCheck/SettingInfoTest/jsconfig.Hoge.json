@@ -1,0 +1,6 @@
+{
+  "ConnectionStrings": {
+    "Dat": "Dat Hoge Trust Server Certificate=true",
+    "Sys": "Sys Hoge Trust Server Certificate=true"
+  }
+}

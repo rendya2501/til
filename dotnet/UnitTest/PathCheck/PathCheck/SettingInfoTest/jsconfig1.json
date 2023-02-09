@@ -1,0 +1,6 @@
+{
+  "ConnectionStrings": {
+    "Dat": "Dat Trust Server Certificate=true",
+    "Sys": "Sys Trust Server Certificate=true"
+  }
+}
