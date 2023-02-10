@@ -35,7 +35,8 @@ DbUpをベースに更なるオプションが追加されている。
 
 ---
 
->時系列を採用すべき理由  
+## 時系列を採用すべき理由
+
 >スクリプトは冪等であるべき(同じ操作を何度繰り返しても、同じ結果が得られる性質)  
 >スクリプトは変更、削除してはいけない  
 >膨大なスクリプトのリストが増えるのが心配なら、DbUpプロジェクトをフォルダ構造で開始することができます。  
@@ -50,6 +51,9 @@ DbUpをベースに更なるオプションが追加されている。
 >[Database migrations with DbUp - BitLoop Blog](https://blog.bitloop.tech/database-migrations-with-dbup/)  
 
 ---
+
+フォルダの実行順を制御する方法  
+[DbUp/run-group-order.md at master · DbUp/DbUp · GitHub](https://github.com/DbUp/DbUp/blob/master/docs/more-info/run-group-order.md)  
 
 DbUpの公式の紹介を更にわかりやすく解説してくれているサイト。  
 翻訳が面白かったので残す。  

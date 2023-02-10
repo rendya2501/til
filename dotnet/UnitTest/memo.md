@@ -1,11 +1,5 @@
 # UnitTestメモ
 
-## xUnit
-
-[How To Create xUnit Test In Visual Studio 2022](https://www.c-sharpcorner.com/article/how-to-create-xunit-test-in-visual-studio-2022/)  
-[単体テスト (xUnit) - アルパカのメモ](https://vicugna-pacos.github.io/dotnetcore/unittest/)  
-[C#： VSCodeでxUnitを使用し煩雑なテストを自動化して開発コスト削減](https://artisan.jp.net/blog/c_sharp-xunit-vscode/)  
-
 ---
 
 ## MSTest
@@ -16,9 +10,13 @@
 
 ## InternalClassをテストする方法
 
+プロジェクト内の任意のファイルに以下の2行のコードを記載することで、テストプロジェクトに対してのみinternalクラスを公開することができる模様。  
+
 ``` cs
 using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("<TestProjectNamespace>")]
 ```
+
+xUnitでも、MSTestやNUnitでも問題ない模様。  
 
 [【C#】internalクラスをテストする方法](https://hirahira.blog/internal-class-test/)  
