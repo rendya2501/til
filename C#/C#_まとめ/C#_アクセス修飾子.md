@@ -15,6 +15,61 @@
 
 ---
 
+## クラスにアクセス修飾子を書かか無かった時のデフォルト
+
+公式では`internal`と言っているが、`private`になるという人もいる。  
+実際に確かめないと分からんなぁ。  
+
+>クラス、レコード、構造体には、public または internal を指定できます。  
+>アクセス修飾子が指定されなかった場合は、既定で internal が適用されます  
+>
+>クラスや構造体と同様、インターフェイスの既定のアクセス レベルは internal になります。  
+>
+>[アクセス修飾子 - C# プログラミング ガイド | Microsoft Learn](https://learn.microsoft.com/ja-jp/dotnet/csharp/programming-guide/classes-and-structs/access-modifiers)  
+
+<!--  -->
+>```cs
+>namespace MyCsharp
+>{
+>    class csharprogram
+>    {
+>        void method1() {}
+>        class csharpin {}
+>    }
+>}
+>```
+>
+>上記のコードでは、クラスとそのフィールドおよびメソッドにアクセス修飾子を割り当てていません。  
+>したがって、デフォルトでは、internal アクセス修飾子はクラス csharpprogram に割り当てられ、private アクセス修飾子はそのフィールドとメソッドに割り当てられます。  
+>
+>したがって、コードは次のコードと同じように機能します。  
+>
+>``` cs
+>namespace MyCsharp
+>{
+>    internal class csharprogram
+>    {
+>        private void method1() {}
+>        private class csharpin {}
+>    }
+>}
+>```
+>
+>[C# のデフォルトのアクセス修飾子 | Delft スタック](https://www.delftstack.com/ja/howto/csharp/csharp-default-access-modifier/)  
+
+<!--  -->
+>C#でクラスのメンバに対して、アクセス修飾子を省略した場合、privateになります。  
+>
+>[C#でprivate書きますか？〜JavaとC#でクラスメンバにアクセス修飾子を書かない時の違い〜インターフェースについても - Qiita](https://qiita.com/RyotaMurohoshi/items/fe28abc91e24bc90a637)  
+
+<!--  -->
+>それはさておき省略した場合のアクセス修飾子は何になっているのでしょうか？  
+>調べた所privateになるようです。  
+>
+>[C#のclassでアクセス修飾子を省略する | 迷惑堂本舗](https://maywork.net/computer/csharp-class-access-control-omit/)
+
+---
+
 ## internal
 
 同一アセンブリ内(同一exe/同一dll)のクラスからのみアクセス可能な修飾子。  

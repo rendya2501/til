@@ -32,6 +32,27 @@
 
 ## WorkItemsの種類
 
+WorkItem以前にプロジェクトの方式(プロセスの種類)によって出てくるアイテムが変わる。  
+
+- プロセスの種類  
+  - Basic  
+  - Agile  
+  - Scrum  
+  - CMMI  
+
+Epic,Issue,Taskしか無いのはBasic。  
+それぞれの階層関係と意味は以下の通り。  
+
+``` txt
+Epic : やりたいこと
+  └─Issue : 実施項目・問題・論点
+       └─Task : 作業
+```
+
+[Azure DevOps Boards(ボード)で扱うプロセスには種類がある - Qiita](https://qiita.com/mstakaha1113/items/2c857e85ed6203d93028)  
+
+---
+
 ![label](https://camo.qiitausercontent.com/72c01deacab65c088a46276eda4d8dcafdca5192/68747470733a2f2f71696974612d696d6167652d73746f72652e73332e61702d6e6f727468656173742d312e616d617a6f6e6177732e636f6d2f302f3433393832362f61333239653532392d323436302d653962632d383938652d6533623932326238373662622e706e67)  
 
 - Epic  
@@ -63,3 +84,5 @@ Issuesに当たるものは「懸念事項」
 [Azure DevOps Boards(ボード)の超概要](https://qiita.com/mstakaha1113/items/44458046d5a8568559b5)  
 
 [一人システム開発だけど、Azure Boardsを使ってみる①](https://qiita.com/yossihard/items/0d5b40b1ba6e810bef6c)  
+
+[Azure DevOps Boards(ボード)で扱うプロセスには種類がある - Qiita](https://qiita.com/mstakaha1113/items/2c857e85ed6203d93028)  
