@@ -141,15 +141,13 @@ pullではなくcloneなら普通にありました。
 
 ## リモートブランチを削除する
 
-[Gitのリモートブランチを削除するまとめ](https://qiita.com/yuu_ta/items/519ea47ac2c1ded032d9)  
+`git push --delete origin <BranchName>`  
 
-git push --delete origin Fix/2345
+[Gitのリモートブランチを削除するまとめ](https://qiita.com/yuu_ta/items/519ea47ac2c1ded032d9)  
 
 ---
 
 ## ローカルのブランチ名を変更する方法
-
-[gitのローカルのブランチ名を変更したい](https://qiita.com/suin/items/96c110b218d919168d64)  
 
 >ローカルのブランチ名を変更する方法です。Pull Requestのissues番号を間違っていたときなどに活躍します。  
 >
@@ -157,8 +155,28 @@ git push --delete origin Fix/2345
 >今開いているブランチをリネームする場合は、単純に新しいブランチ名を指定するだけです。  
 >
 >`git branch -m <新しいブランチ名>`  
+>
+>[gitのローカルのブランチ名を変更したい](https://qiita.com/suin/items/96c110b218d919168d64)  
 
 VisualStudioでの作業なら右下のブランチ一覧からブランチを右クリックで、名前を変更する項目があるので、それだけでいける。  
+
+---
+
+## masterブランチを別名に切り替える
+
+ブランチ名の変更  
+`git branch -m master <new_branch>`
+
+変更したブランチのpush  
+`git push -u origin <new_branch>`  
+
+HEAD参照の変更  
+`git symbolic -ref refs/remotes/origin/HEAD refs/remotes/origin/<new_branch>`  
+
+masterブランチの削除  
+`git push origin --delete master`  
+
+[Git ブランチ名を master から main に変更する手順 - A Memorandum](https://blog1.mammb.com/entry/2022/11/22/090000)  
 
 ---
 
