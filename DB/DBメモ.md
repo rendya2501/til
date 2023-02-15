@@ -20,17 +20,6 @@
 
 ---
 
-## サロゲートキー
-
-それ単体では意味を持たないが、一意であるキーのこと。  
-自動発番のid列みたいなやつ。  
-
-surrogate : 代理  
-
-<https://amg-solution.jp/blog/8980>  
-
----
-
 ## PRIMARY KEY (主キー) と UNIQUE の違い
 
 [PostgreSQL - PRIMARY KEY (主キー) と UNIQUE の違い](https://esthersoftware.hatenablog.com/entry/deference-between-primarykey-and-unique-postgresql)  
