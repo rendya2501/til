@@ -19,6 +19,7 @@ EntityFrameworkにおいては、NuGetから`Microsoft.EntityFrameworkCore.Tools
 VisualStudioでは下記手順を踏むことでコンソールを開くことができる。  
 `ツール → NuGetパッケージマネージャー → パッケージ マネージャー コンソール`  
 
+PMCコマンド  
 [Entity Framework Core ツールのリファレンス - Visual Studio のパッケージ マネージャー コンソール](https://learn.microsoft.com/ja-jp/ef/core/cli/powershell)  
 
 ---
@@ -32,6 +33,7 @@ Entity Framework Core 用のコマンドライン インターフェイス ツ�
 
 文献が豊富でサポートも手厚く、環境に依存せずにEFCoreを扱えるようになるので入れるべし。  
 
+dotnet-efコマンド  
 [Entity Framework Core ツールのリファレンス - .NET Core CLI](https://learn.microsoft.com/ja-jp/ef/core/cli/dotnet)  
 
 ### dotnet-ef のインストール

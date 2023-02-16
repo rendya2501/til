@@ -4,6 +4,57 @@
 
 ---
 
+## リバースエンジニアリングコマンド
+
+TestServerのTestDatabaseの情報を逆移行(リバースエンジニアリング)するコマンド  
+
+■ PMC
+
+``` txt
+Scaffold-DbContext 'Server=TestServer;Database=TestDatabase;User ID=sa;Password=123456789' Microsoft.EntityFrameworkCore.SqlServer -OutputDir Model -ContextDir Context -Context DatContext -DataAnnotations -UseDatabaseNames -Force
+```
+
+■ dotnet-ef
+
+``` txt
+dotnet ef dbcontext scaffold 'Server=TestServer;Database=TestDatabase;User ID=sa;Password=123456789' Microsoft.EntityFrameworkCore.SqlServer -o Entity --context-dir Context --context DatContext --data-annotations --use-database-names --no-onconfiguring --force
+```
+
+■ コマンドの意味
+
+``` txt
+サーバー             : TestServer
+データベース         : TestDatabase
+ユーザー             : sa
+パスワード           : 123456789
+モデルの出力先       : Model
+コンテキストの出力先 : Context
+コンテキスト名       : DatContext
+プロパティにアノテーションをつける : -DataAnnotations  --data-annotations
+データベースのテーブル名に準拠する : -UseDatabaseNames --use-database-names
+リバース結果を上書きする           : -Force  --force
+```
+
+`Integrated Security`がTrueだとログインできないという警告が出る。  
+Falseにすることで解決するがそれでよいかどうかは知らない。  
+SecurityをFalseにするのであまりよい印象はない。  
+
+`–UseDatabaseNames`オプションがないとテーブル名が完全一致しない。
+`TMa_Master`テーブルのテーブル名が`TmaMaster`みたいになってしまう。  
+
+■ コマンド実行後のフォルダ構成  
+
+``` txt
+Project
+├─Context
+├─Model
+└─Program.cs
+```
+
+[ASP.NET Core - Scaffolding with Entity Framework Core (Database first approach)](https://www.youtube.com/watch?v=SnU4Ulee_NI)  
+
+---
+
 ## 論理名はxmlコメントとしてスキャフォールドされる
 
 ■**A5M2定義**  

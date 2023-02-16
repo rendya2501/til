@@ -35,6 +35,18 @@ DbUpをベースに更なるオプションが追加されている。
 
 ---
 
+## なぜDbUpか？
+
+>DbUpを使った方が、DB内のトランザクションログが非常に軽く、Entity Frameworkではできない効率的な方法で、自分好みのオブジェクトを作成できるので、楽です。  
+>DBにオブジェクトを作ることしかできないソースコードを使うより、Native SQLを使ってDatabaseの移行をスムーズかつ簡単に行う方がいい。  
+[[Docs] Difference to EF migrations](https://github.com/DbUp/DbUp/issues/590)  
+
+<!--  -->
+>個人的には、データベースの移行を実行したいという理由だけでテクノロジを強制されるのは好きではありません。
+[Database Migrations Using DbUp in an ASP.NET Core Web API Application](https://medium.com/cheranga/database-migrations-using-dbup-in-an-asp-net-core-web-api-application-c24ccfe0cb43)
+
+---
+
 ## 時系列を採用すべき理由
 
 >スクリプトは冪等であるべき(同じ操作を何度繰り返しても、同じ結果が得られる性質)  

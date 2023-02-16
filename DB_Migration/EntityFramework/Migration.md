@@ -151,6 +151,21 @@ efcore Add-Migration InitialCreate –IgnoreChanges
 
 ---
 
+## Add-Migration InitialCreate --IgnoreChanges
+
+EF6にある命令。  
+EFCoreにはない。  
+
+※EF6とEFCoreは別物。  
+
+既にデータベースが存在して、データベースファーストからコードファーストへの最初の移行を実施する時に使用する。  
+データベースには何もせずバージョン情報だけを記載したい場合に実行する。  
+
+`--IgnoreChanges`はデータベースに対して何もしないことを表すオプション。  
+EFCoreで同じ事をやろうとした場合、Upメソッドの中身を全て削除して実行する必要がある模様。  
+
+---
+
 ## 管理画面からEFCoreのマイグレーションを実行する
 
 バンドルやCLI以外でも、管理画面から移行を実行したいという要望は結構ある模様。  
