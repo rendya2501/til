@@ -20,6 +20,16 @@ WebAssemblyを用いて、Webブラウザ上に.NETランタイムを実装し�
 
 ---
 
+## Blazorで業務アプリとして必要だと思われる要素
+
+複数プログラムを開いた時のタブ  
+ページネーション  
+テーブルの横スクロール  
+
+[【CSS/html】tableのヘッダを固定してスクロールさせる方法](https://csshtml.work/table-scroll/#:~:text=th%E3%82%92%E5%9B%BA%E5%AE%9A%E3%81%95%E3%81%9B%E3%82%8B%E6%96%B9%E6%B3%95,-th%E3%81%ABposition&text=%E3%80%8Cposition%3Asticky%E3%80%8D%E3%82%92%E6%8C%87%E5%AE%9A,%E3%82%B9%E3%82%AF%E3%83%AD%E3%83%BC%E3%83%AB%E3%82%82%E5%9B%BA%E5%AE%9A%E3%81%A7%E3%81%8D%E3%81%BE%E3%81%99%E3%80%82)  
+
+---
+
 ## ファンクションのキーバインド
 
 ファンクションのキーバインド設定可能。  
