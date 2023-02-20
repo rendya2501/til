@@ -14,6 +14,8 @@ Console.WriteLine(employee.Name);
 // John Smith
 ```
 
+`ExpandoObject`はC#4.0から使用可能。  
+
 ---
 
 ## リフレクション
@@ -42,10 +44,12 @@ Console.WriteLine(test.key2);  // キー2
 ```
 
 ``` cs
-dynamic employee = new ExpandoObject();
-employee.Name = "John Smith";
-// 「employee.」と入力しても何も候補が表示されないが、しっかり中身は入っている。
-Console.WriteLine(employee.Name); // John Smith
+dynamic test = new ExpandoObject();
+test.key1 = "キー1";
+test.key2 = "キー2";
+// 「test.」と入力しても何も候補が表示されないが、しっかり中身は入っている。
+Console.WriteLine(test.key1);  // キー1
+Console.WriteLine(test.key2);  // キー2
 ```
 
 ---
@@ -53,7 +57,8 @@ Console.WriteLine(employee.Name); // John Smith
 ## 匿名クラスの動的生成の基本
 
 `IDictionary<string, object>`に格納することで実現可能。  
-`dic`にaddしているが、使用するのは`expando`変数であることが分かる。  
+
+`IDictionary<string, object>`型の`dic`にaddしているが、実際に使用するのは`ExpandoObject`側の変数となる。  
 
 ``` cs
 dynamic expando = new ExpandoObject();
@@ -76,7 +81,7 @@ expando["Name"] = "Hoge";
 dynamic d = expando;
 Console.WriteLine(d.Name); // Hoge
 
-// 詰まる所、やっていることはこれ
+// 詰まる所、やっていることはコレ
 Console.WriteLine(((dynamic)expando).Name); // Hoge
 ```
 
@@ -103,8 +108,8 @@ foreach (var item in dic)
 
 // 使用する場合はdynamicに変換
 dynamic d = expando;
-Console.WriteLine(d.key1);
-Console.WriteLine(d.key2);
+Console.WriteLine(d.key1); // キー1
+Console.WriteLine(d.key2); // キー2
 ```
 
 毎回`(IDictionary<string, object>)`にキャストする事でもAddできるがオススメはしない。  
@@ -118,19 +123,19 @@ var dic = new Dictionary<string, string>
 };
 
 // 匿名型宣言
-dynamic anonymousType = new ExpandoObject();
+dynamic expando = new ExpandoObject();
 
 // 匿名型にAdd
 foreach (var item in dic)
 {
-    ((IDictionary<string, object>)anonymousType).Add(item.Key, item.Value);
+    ((IDictionary<string, object>)expando).Add(item.Key, item.Value);
 }
-((IDictionary<string, object>)anonymousType).Add("Key3", "キー3");
+((IDictionary<string, object>)expando).Add("Key3", "キー3");
 
-// 表示
-Console.WriteLine(anonymousType.key1);  // キー1
-Console.WriteLine(anonymousType.key2);  // キー2
-Console.WriteLine(anonymousType.key3);  // キー3
+// この場合はdynamicへの変換は必要ない
+Console.WriteLine(expando.key1);  // キー1
+Console.WriteLine(expando.key2);  // キー2
+Console.WriteLine(expando.key3);  // キー3
 ```
 
 ---
@@ -139,6 +144,8 @@ Console.WriteLine(anonymousType.key3);  // キー3
 Dapperに渡す条件を生成するときに使えるだろう。  
 
 ``` C#
+using System.Reflection;
+
 Student student = new Student()
 {
     StudentId = "1",
@@ -149,30 +156,42 @@ Student student = new Student()
 IDictionary<string, object> anonymousType = new ExpandoObject();
 
 // 匿名型に追加
-foreach (var (key, value) in student
+foreach (var prop in student
     .GetType()
     .GetProperties(BindingFlags.Instance | BindingFlags.Public))
 {
-    anonymousType.Add(s.Name,  s.GetValue(condition));
+    anonymousType.Add(prop.Name, prop.GetValue(student));
 }
 // dynamicに変換
 dynamic dynamic = anonymousType;
 
 // アクセス
-Console.WriteLine(dynamic.key1);  // キー1
-Console.WriteLine(dynamic.key2);  // キー2
+Console.WriteLine(dynamic.StudentId);  // 1
+Console.WriteLine(dynamic.StudentName);  // Cnillincy
+
+class Student
+{
+    public string StudentId { get; set; }
+    public string StudentName { get; set; }
+}
 ```
 
 ---
 
 ## Linqで動的生成
 
-linqでは実現不能。  
+linqでは基本的に無理っぽい。  
 newしたインスタンスに対して愚直にaddするしかない模様。  
 
 動的生成はExpandoObjectをnewしたインスタンスに対してaddすることで追加するので、Linqによるyield returnは機能しない。  
 
-``` cs : ダメなやつ
+``` cs
+var dic = new Dictionary<string, string>
+{
+    { "key1", "キー1" },
+    { "key2", "キー2" }
+};
+
 dynamic d = (IDictionary<string, object>)dic.ToDictionary(s => s.Key, aa => (object)aa.Value);
 
 // これはダメ
@@ -185,9 +204,15 @@ Console.WriteLine(d["key1"]);
 Console.WriteLine(d["key2"]);
 ```
 
-どうしても1行で済ませたいならFuncデリゲートを使うしかない。  
+どうしても1行で済ませたいならFuncデリゲートを使うしかなさそう。  
 
 ``` cs
+var dic = new Dictionary<string, string>
+{
+    { "key1", "キー1" },
+    { "key2", "キー2" }
+};
+
 dynamic d = new Func<IDictionary<string, object>>(() =>
 {
     IDictionary<string, object> expando = new ExpandoObject();
@@ -198,8 +223,8 @@ dynamic d = new Func<IDictionary<string, object>>(() =>
     return expando;
 }).Invoke();
 
-Console.WriteLine(d.key1);
-Console.WriteLine(d.key2);
+Console.WriteLine(d.key1); // キー1
+Console.WriteLine(d.key2); // キー2
 ```
 
 ---
@@ -263,3 +288,5 @@ private SampleData GetSample(Condition condition)
 [匿名型を動的に作成しますか？](https://www.web-dev-qa-db-ja.com/ja/c%23/%E5%8C%BF%E5%90%8D%E5%9E%8B%E3%82%92%E5%8B%95%E7%9A%84%E3%81%AB%E4%BD%9C%E6%88%90%E3%81%97%E3%81%BE%E3%81%99%E3%81%8B%EF%BC%9F/970777402/)  
 
 [新しい匿名クラスを動的にするには？](https://www.web-dev-qa-db-ja.com/ja/c%23/%E6%96%B0%E3%81%97%E3%81%84%E5%8C%BF%E5%90%8D%E3%82%AF%E3%83%A9%E3%82%B9%E3%82%92%E5%8B%95%E7%9A%84%E3%81%AB%E3%81%99%E3%82%8B%E3%81%AB%E3%81%AF%EF%BC%9F/970949625/)  
+
+[ExpandoObject クラス (System.Dynamic) | Microsoft Learn](https://learn.microsoft.com/ja-jp/dotnet/api/system.dynamic.expandoobject?view=net-7.0)  
