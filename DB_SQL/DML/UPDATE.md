@@ -1,10 +1,9 @@
-
 # UPDATE
 
-<https://qiita.com/ryota_i/items/d17c7630bacb36d26864>  
 >特定テーブルにおける、条件に当てはまるレコードの特定のカラムの値を任意の値に書き換える。  
+>[SQLのUPDATE文の書き方あれこれ。 - Qiita](https://qiita.com/ryota_i/items/d17c7630bacb36d26864)  
 
-``` sql : 基本
+``` sql
 UPDATE テーブル名
 SET 列名1 = 値1 [,列名2 = 値2]・・・
 WHERE (条件);
@@ -12,9 +11,9 @@ WHERE (条件);
 
 ---
 
-## 副問い合わせを使ったUPDATE
+## UPDATE文のset句で副問合せを使用する
 
-``` sql : UPDATE文のset句で副問合せを使用する
+``` sql
 UPDATE syain
 SET name = (
     select name
@@ -23,9 +22,13 @@ SET name = (
 WHERE id = 2;
 ```
 
-``` sql : UPDATE文のwhere句で副問合せを使用する(where in)
--- テーブルの更新条件を副問い合わせで取ってくる
--- https://sqlazure.jp/r/sql-server/403/
+---
+
+## UPDATE文のwhere句で副問合せを使用する(where in)
+
+テーブルの更新条件を副問い合わせで取ってくる。  
+
+``` sql
 UPDATE syain
 SET name = 'テスト'
 WHERE id in (
@@ -34,11 +37,13 @@ WHERE id in (
 );
 ```
 
+[SQL Serverで、SELECT結果でUPDATEする方法 - 蒼の王座・裏口](https://sqlazure.jp/r/sql-server/403/)
+
 ---
 
 ## UPDATEでCASE式
 
-``` sql : UPDATE文でCASE式を使用する
+``` sql
 UPDATE
     syain
 SET
@@ -59,7 +64,7 @@ WHERE
 
 ## 別のデータベースの値と副問い合わせを行いUPDATEする
 
-``` sql : 別のデータベースの値と副問い合わせを行いUPDATEする(其の弐)
+``` sql
 UPDATE
     [DataBase1].[dbo].[Product]
 SET
@@ -96,13 +101,7 @@ FROM
     ON [main_table].id = [other_table].id
 ```
 
-[SQLServer にて他のテーブルのSELECT結果を利用したUPDATE](https://pg.4696.info/db/mssql/sqlserver-sql.html)  
-[UPDATE と JOIN を使ってデータを更新する](https://sql55.com/t-sql/t-sql-update-1.php)  
-[SQL Serverで、SELECT結果でUPDATEする方法](https://sqlazure.jp/r/sql-server/403/)  
-
----
-
-## UPDATE JOIN の他のパターン
+### UPDATE JOIN の他のパターン
 
 SQLServerではパターン2,パターン3の形式は使えない。  
 
@@ -125,11 +124,13 @@ WHERE
     テーブル名1.列名X = テーブル名2.列名X;
 ```
 
+[SQLServer にて他のテーブルのSELECT結果を利用したUPDATE](https://pg.4696.info/db/mssql/sqlserver-sql.html)  
+[UPDATE と JOIN を使ってデータを更新する](https://sql55.com/t-sql/t-sql-update-1.php)  
+[SQL Serverで、SELECT結果でUPDATEする方法](https://sqlazure.jp/r/sql-server/403/)  
+
 ---
 
 ## UPDATEでWITH句を使う
-
-[SQLでwith句とupdateを使う方法 サブクエリを共通テーブル式で置き換えるサンプルコード](https://style.potepan.com/articles/30390.html)  
 
 OrderByして最初のレコードだけを更新対象としたいときに、どうしても一回 SELECT FROM 別名 WHERE Seq = 1 で取らないと行けなかった。  
 ならサブクエリの部分をWITHに書けば、わざわざ一段階SELECTを挟まないで直接UPDATEまでできるのではないかと考えた。  
@@ -178,8 +179,6 @@ WHERE
     [SQ].[Seq] = 1
 ```
 
-[SQL ROW_NUMBER with INNER JOIN](https://stackoverflow.com/questions/9752361/sql-row-number-with-inner-join)  
-[How to Select the First Row in Each GROUP BY Group](https://learnsql.com/cookbook/how-to-select-the-first-row-in-each-group-by-group/)  
 ROW_NUMBER join
 
 そもそも、JOINの条件にROW_NUMBERを使えないかも調べた。  
@@ -199,3 +198,7 @@ SELECT *
 FROM added_row_number
 WHERE row_number = 1;
 ```
+
+[SQL ROW_NUMBER with INNER JOIN](https://stackoverflow.com/questions/9752361/sql-row-number-with-inner-join)  
+[How to Select the First Row in Each GROUP BY Group](https://learnsql.com/cookbook/how-to-select-the-first-row-in-each-group-by-group/)  
+[SQLでwith句とupdateを使う方法 サブクエリを共通テーブル式で置き換えるサンプルコード](https://style.potepan.com/articles/30390.html)  

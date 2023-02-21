@@ -183,7 +183,7 @@ class Student
 linqでは基本的に無理っぽい。  
 newしたインスタンスに対して愚直にaddするしかない模様。  
 
-動的生成はExpandoObjectをnewしたインスタンスに対してaddすることで追加するので、Linqによるyield returnは機能しない。  
+動的生成はExpandoObjectのインスタンスに対してaddすることで実現するので、Linqによるyield returnは機能しない。  
 
 ``` cs
 var dic = new Dictionary<string, string>
