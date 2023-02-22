@@ -72,7 +72,7 @@
     ``` CPP
     int left = 0.0;
     ```
-s
+
 </td><td>
 
     ``` CPP
@@ -108,3 +108,4 @@ s
 ```
 
 [markdownで2つのコードを横並びにして表示することはでき...](https://detail.chiebukuro.yahoo.co.jp/qa/question_detail/q14258031544)  
+[Markdownで2カラムの文書を作りたい - Qiita](https://qiita.com/ossyaritoori/items/9f38113847ee65e68e76)  

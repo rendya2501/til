@@ -76,46 +76,6 @@ nugetサイトでは``をメインに紹介しているので、素直にそち�
 
 ---
 
-## dotnet runからSwaggerを起動する
-
-これで行けた。  
-`dotnet watch run`  
-
-プロファイルを指定した起動  
-`dotnet run --launch-profile "IIS Express"`  
-
-上記のように、プロファイルを指定した起動も可能らしいが、以下のようなエラーとなってしまう。  
-dotnet run からIISのプロファイル起動はデフォルトの状態では無理な模様。  
-
-``` txt
-起動プロファイル "IIS Express" を適用できませんでした。
-起動プロファイルの種類 'IISExpress' はサポートされていません。
-```
-
-CLIからの起動はkestrelだけがサポートされているためだと思われる。  
-同じようなことを考えている人はいた。  
-→[Launching from CLI with IIS Express profile fails #18925](https://github.com/dotnet/AspNetCore.Docs/issues/18925)  
-
-少々話が逸れるが、デフォルトルートにリダイレクト命令をかませることでも実現可能。  
-`dotnet run`を実行した時に表示されるURLを開くことで、swaggerのページに飛んでくれる。  
-
-``` cs
-app.MapGet("/", async context =>
-{
-    context.Response.Redirect("/swagger/index.html");
-    await context.Response.CompleteAsync();
-});
-
-app.Run();
-```
-
-- 参考  
-  - [VS CodeでWebコーディング環境を作ろう（IIS向け）](https://machdesign.net/blog/article/vscode-iis-windows)  
-  - [Run Dotnet Core App With Code Examples](https://www.folkstalk.com/tech/run-dotnet-core-app-with-code-examples/)  
-- 検索文字列 : web api dotnet run iis express vscode  
-
----
-
 ## dotnet watch run
 
 `dotnet run` のリロードに相当する機能は `dotnet watch run` で行える。  
@@ -126,41 +86,6 @@ app.Run();
 
 ---
 
-## 色々
-
-dotnet watch runだけではだめ  
-dotnet watch run --profile profilename  
-
-■**dotnet run**  
-
-| 成否 | TH | コマンド |
-| :--- | :--- | :--- |
-| ○ | 手動 | `dotnet run --profile IIS Express` |
-| ○ | 手動 | `dotnet run --profile "IIS Express"` |
-| ○ | 手動 | `dotnet run --profile WebAPISample` |
-| ○ | 手動 | `dotnet run --profile "WebAPISample"` |
-| × | ---- | `dotnet run --launch-profile IIS Express` |
-| × | ---- | `dotnet run --launch-profile "IIS Express"` |
-| ○ | 手動 | `dotnet run --launch-profile WebAPISample` |
-| ○ | 手動 | `dotnet run --launch-profile "WebAPISample"` |
-
-■**dotnet watch run**  
-
-| 成否 | TH | コマンド |
-| :--- | :--- | :--- |
-| ○ | 自動 | `dotnet watch run --profile IIS Express` |
-| ○ | 自動 | `dotnet watch run --profile "IIS Express"` |
-| ○ | 自動 | `dotnet watch run --profile WebAPISample` |
-| ○ | 自動 | `dotnet watch run --profile "WebAPISample"` |
-| ○ | 自動 | `dotnet watch run --launch-profile IIS Express` |
-| × | ---- | `dotnet watch run --launch-profile "IIS Express"` |
-| × | ---- | `dotnet watch run --launch-profile WebAPISample` |
-| × | ---- | `dotnet watch run --launch-profile "WebAPISample"` |
-
-launchSettings.jsonのプロファイル名を指定して上げないと立ち上がらない。  
-
----
-
 ## カレントディレクトリにフォルダ名とは別にプロジェクトを作成する
 
 - -o でカレントディレクトリ(`./`)を指定  
@@ -168,6 +93,16 @@ launchSettings.jsonのプロファイル名を指定して上げないと立ち�
 
 例 : 現在の場所にtestという名前でコンソールプロジェクトを作成するコマンド  
 `dotnet new console -o ./ -n test`  
+
+---
+
+## dotnetコマンドによるリビルド
+
+リビルドには `--no-incremental` を指定する。  
+
+`dotnet build --no-incremental`  
+
+[dotnet コマンドによるビルド | Do Design Space](https://sakapon.wordpress.com/2018/08/01/dotnet-build/)  
 
 ---
 
