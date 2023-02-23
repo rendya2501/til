@@ -102,6 +102,29 @@ GO
 
 ---
 
+## DROP TABLE IF EXISTS
+
+`DROP TABLE`に`IF EXISTS`を繋げて、テーブルが存在したらDropする記述方法は、**SQLServer2016**から使用可能。  
+
+``` sql
+DROP TABLE IF EXISTS テーブル名
+```
+
+2016以前では`OBJECT_ID()`関数を使用して、「テーブル名」が存在するかチェックする必要がある。  
+
+``` sql
+IF OBJECT_ID (N'テーブル名', N'U') IS NOT NULL  
+    --テーブルが見つかったときの処理
+ELSE
+    --テーブルが見つからなかったときの処理
+```
+
+[SQLServer テーブルが存在していたらdropしてcreateする方法](https://note.mokuzine.net/sqlserver-if-exist-table/)  
+[【SQL Server】テーブルの存在チェックするやり方を解説します](https://www.tairax.com/entry/Microsoft-SQL-Server/Check-existence-of-table)  
+[テーブルなどのデータベースオブジェクトの存在確認](https://johobase.com/exists-database-object-sqlserver/#IF_EXISTS_ELSE)  
+
+---
+
 ## CASE
 
 CASE式はSELECTステートメント内など、ステートメントの一部として条件分岐を行うことはできるが、IFのように単独で実行することはできない。  
