@@ -77,7 +77,9 @@ ELSE
     [END]
 ```
 
-### なければ実行、あれば何もしないサンプル  
+---
+
+## なければ実行、あれば何もしないサンプル  
 
 ``` sql
 IF NOT EXISTS (SELECT TOP 1 1 FROM TestTable WHERE [Code] = 99)
@@ -86,7 +88,9 @@ IF NOT EXISTS (SELECT TOP 1 1 FROM TestTable WHERE [Code] = 99)
 GO
 ```
 
-### IF EXISTS での BEGIN END
+---
+
+## IF EXISTS での BEGIN END
 
 IF NOT EXISTSでもBEGIN ENDを省略した場合、対象となるクエリは1つだけになる。  
 実際にやらかしたのだが、例えばINSERT文を2つ書いた場合、適応されるのは最初のINSERT文だけで2つ目のINSERTはこの条件に関わらず絶対に実行されてしまうことに注意。  
@@ -104,13 +108,14 @@ GO
 
 ## DROP TABLE IF EXISTS
 
-`DROP TABLE`に`IF EXISTS`を繋げて、テーブルが存在したらDropする記述方法は、**SQLServer2016**から使用可能。  
+`DROP TABLE`に`IF EXISTS`を繋げて、テーブルが存在したらDropするように記述することができる。  
+この記述方法は**SQLServer2016**から使用可能。  
 
 ``` sql
 DROP TABLE IF EXISTS テーブル名
 ```
 
-2016以前では`OBJECT_ID()`関数を使用して、「テーブル名」が存在するかチェックする必要がある。  
+2016以前では`OBJECT_ID()`関数を使用して、「テーブル名」が存在するかチェックする必要があった。  
 
 ``` sql
 IF OBJECT_ID (N'テーブル名', N'U') IS NOT NULL  
