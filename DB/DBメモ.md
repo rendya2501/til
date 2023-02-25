@@ -50,25 +50,6 @@ E-R図で出てくる線のこと、とも言えます。
 
 ---
 
-## Redis
-
->Redisは、ネットワーク接続された永続化可能なインメモリデータベース。  
->連想配列（キー・バリュー）、リスト、セットなどのデータ構造を扱える。  
->いわゆるNoSQLデータベースの一つ。  
->オープンソースソフトウェアプロジェクトであり、Redis Labs（英語版）がスポンサーとなって開発されている。  
->[wiki]  
-
-## Vertica
-
-カラム指向データベース  
-
->Vertica Systems (ヴァーティカシステムズ)、はアメリカ合衆国マサチューセッツ州に本拠を置く、分析データプラットフォームを提供するソフトウェア会社である。  
-グリッドベースかつ列指向のVertica Analytic Databaseは大規模かつ急増するデータを管理し、データウェアハウス等の多クエリアプリケーションに使用するため、高速のクエリ性能を提供するために設計されている。  
-
-[wiki](https://ja.wikipedia.org/wiki/Vertica)  
-
----
-
 ## オンプレミス
 
 >オンプレミスとは、システムを運用する上で必要なソフトウェア・ハードウェアを自社で保有・管理する運用形態です。  
@@ -122,14 +103,6 @@ Dapperにおいて`@変数`として動的にSQL文を組み立てるあの部�
 
 [プリペアドステートメントを利用してデータを取得する方法について解説！](https://qiita.com/wakahara3/items/d7a3674eecd3b021a21e)  
 [C# .NET パラメータクエリでSQLインクジェクション対策](https://greentown.tokyo/dotnet-sqlinjection/)  
-
----
-
-## トランザクションの肥大化
-
-[トランザクションログ肥大化の対処方法 (log_reuse_wait_desc : LOG_BACKUP) [SQL Server]](https://www.nobtak.com/entry/tlogs2)  
-[【INDEX】SQL Server トランザクションログ肥大化 (原因／対処方法)](https://www.nobtak.com/tlogidx#2-%E3%83%88%E3%83%A9%E3%83%B3%E3%82%B6%E3%82%AF%E3%82%B7%E3%83%A7%E3%83%B3%E3%83%AD%E3%82%B0%E3%82%92%E8%82%A5%E5%A4%A7%E5%8C%96%E3%81%95%E3%81%9B%E3%81%A6%E3%81%84%E3%82%8B%E3%82%AF%E3%82%A8%E3%83%AA%E3%81%AE%E7%89%B9%E5%AE%9A%E6%96%B9%E6%B3%95)  
-[トランザクションログを肥大化させているクエリの特定方法 [SQL Server]](https://www.nobtak.com/entry/tlogs0)  
 
 ---
 
@@ -261,88 +234,6 @@ mysql> ROLLBACK;
 トランザクション処理の途中で単純に置き換えをしてしまった場合に、暗黙のコミットが挟まってしまって予期せぬ挙動になってしまうことがあります。  
 
 [DDLと暗黙的なコミットについて](https://gihyo.jp/dev/serial/01/mysql-road-construction-news/0134)  
-
----
-
-## CONSTRAINT 句
-
-`CONSTRAINT 制約の名前 制約`  
-
-`CONSTRAINT [○○_PKC] PRIMARY KEY ([フィールド1],[フィールド2],・・・)`  
-
-テーブルのインデックスフォルダの中を見ると`Customers_PKC(クラスター化)`という名称でインデックスが生成される。  
-CONSTRAINT でインデックス名の指定をしない場合`PK_Customer_*****(クラスター化)`という名称でインデックスが生成される。  
-`*****`の部分は16桁のランダムな16進数となる模様。  
-
-制約を生成するのでFOREIGN KEY等も作成可能な模様。  
-
-CONSTRAINT句で制約名を設定しなくても複合主キーは設定できるが、ランダムチックな制約名になってしまう。  
-SQLServer2016の教科書でもできるなら任意の名前をつけたほうがよいとのこと。  
-
-``` sql
-CREATE TABLE Customers(
-    CustomerID nvarchar(20), 
-    CustomerName nvarchar(20), 
-    CustomerAdd nvarchar(50) NULL,
-    PRIMARY KEY(CustomerID,CustomerName)
-);
-```
-
-``` sql
-CREATE TABLE Customers(
-    CustomerID nvarchar(20), 
-    CustomerName nvarchar(20), 
-    CustomerAdd nvarchar(50) NULL,
-    CONSTRAINT [Customers_PKC] PRIMARY KEY(CustomerID,CustomerName)
-);
-```
-
-外部キー制約も作れる。
-
-``` sql
-CONSTRAINT `制約の名前`
-    FOREIGN KEY (`このテーブルの列名を外部キーに設定`)
-    REFERENCES `データベース名`.`テーブル名` (`カラム名`)
-    ON DELETE NO ACTION ←親テーブルの削除時何もしない
-    ON UPDATE NO ACTION ←親テーブルの更新時何もしない
-```
-
-CONSTRAINT : 制限、強制  
-
-[SQL文でのINDEX句、CONSTRAINT句について](https://toru-takagi.dev/article/3)  
-
----
-
-## PRIMARY KEY指定
-
-主キーが1つだけの場合は`フィールド名 型 PRIMARY KEY`でもよいし、一番最後に`PRIMARY KEY (フィールド名)`のどちらでもよい。  
-主キーが複数の場合は、CREATE TABLEの一番最後に`PRIMARY KEY (フィールド1,フィールド2,・・・)`の形でなければならない。  
-
-``` sql
-CREATE TABLE Customers(
-    CustomerID nvarchar(20), 
-    CustomerName nvarchar(20), 
-    CustomerAdd nvarchar(50) NULL,
-    PRIMARY KEY(CustomerID)
-);
-```
-
-``` sql
-CREATE TABLE Customers(
-    CustomerID nvarchar(20) PRIMARY KEY,
-    CustomerName nvarchar(20),
-    CustomerAdd nvarchar(50) NULL
-);
-```
-
-``` sql
-CREATE TABLE Customers(
-    CustomerID nvarchar(20), 
-    CustomerName nvarchar(20), 
-    CustomerAdd nvarchar(50) NULL,
-    CONSTRAINT [Customers_PKC] PRIMARY KEY(CustomerID)
-);
-```
 
 ---
 
