@@ -269,3 +269,33 @@ var abs_path = "DbUp_Journal.Scripts.Dat._202301.202301271317_Fix1_TestTable1_Cr
 var result = string.Join(".", abs_path.Split(".").Skip(2));
 // Dat._202301.202301271317_Fix1_TestTable1_Create.sql
 ```
+
+---
+
+## 100行以内のものを表示する
+
+100行以下を削除する。
+
+コンソールログで出力するときに、何から何まで出力すると長すぎて先頭の情報が見切れてしまう。  
+先頭の数行が確認できれば充分なので、いい感じのところまで表示して、あとはいらないって処理を作りたい。  
+「n番目の特定文字から後ろだけが欲しい」の応用で行けた。  
+
+``` cs
+string hoge = string.Join(Environment.NewLine, new string[] {"aaaa","bbbb","cccc","dddd","eeee"});
+var aaa = string.Join(Environment.NewLine,hoge.Split(new string[] { Environment.NewLine },StringSplitOptions.RemoveEmptyEntries).Take(3));
+Console.WriteLine(aaa);
+
+// aaaa
+// bbbb
+// cccc
+```
+
+``` cs
+string hoge = string.Join(Environment.NewLine, new string[] {"aaaa","bbbb","cccc","dddd","eeee"});
+var aaa = hoge.Split(new string[] { Environment.NewLine },StringSplitOptions.RemoveEmptyEntries).Take(2);
+foreach (var item in aaa)
+    Console.WriteLine(item);
+
+// aaaa
+// bbbb
+```

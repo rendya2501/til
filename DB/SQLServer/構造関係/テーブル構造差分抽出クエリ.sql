@@ -2,6 +2,7 @@ DECLARE @SourceDataBaseName NVARCHAR(MAX) = 'SourceDataBaseName'
 DECLARE @TargetDataBaseName NVARCHAR(MAX) = 'TargetDataBaseName'
 
 -- 削除されたテーブル一覧
+-- Fromには存在しないが、Toには存在するテーブル
 exec('
     SELECT
         [SQ_Target_Table].[TABLE_NAME]
@@ -28,6 +29,7 @@ exec('
 ');
 
 -- 追加されたテーブル一覧
+-- Fromには存在するが、Toには存在しないテーブル
 exec('
     SELECT
         [SQ_Source_Table].[TABLE_NAME]
@@ -54,6 +56,7 @@ exec('
 ');
 
 -- 変更のあるカラム一覧
+-- FromとToの両方で差異があるカラム
 exec('
     SELECT
         CASE WHEN [SQ_Source_Table].[TABLE_NAME] IS NOT NULL THEN [SQ_Source_Table].[TABLE_NAME] ELSE [SQ_Target_Table].[TABLE_NAME] END AS [TABLE_NAME],
