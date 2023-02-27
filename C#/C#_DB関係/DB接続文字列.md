@@ -2,21 +2,25 @@
 
 ## ConnectionString
 
-①サーバを「DataSource」指定する場合  
+### サーバを「DataSource」指定する場合  
 
 【SQLSERVER認証】  
 `Data Source=.\\SQLEXPRESS;Initial Catalog=[db_name];User ID=[userName];Password=[passwd];Trust Server Certificate=true`  
 
 【Windows認証】  
-`Data Source=.\\SQLEXPRESS;Initial Catalog=[db_name];Integrated Security=True`  
+`Data Source=.\\SQLEXPRESS;Initial Catalog=[db_name];Trust Server Certificate=true;Integrated Security=True`  
+or  
+`Data Source=.\\SQLEXPRESS;Initial Catalog=[db_name];Trust Server Certificate=true;Trusted_Connection=True`
 
-②サーバを「Server」指定する場合  
+### サーバを「Server」指定する場合  
 
 【SQLSERVER認証】  
 `Server=.\SQLEXPRESS;Database=[db_name];User ID=[userName];Password=[passwd];Trust Server Certificate=true`
 
 【Windows認証】  
-`Server=.\SQLEXPRESS;Database=[db_name];Trusted_Connection=True`  
+`Server=.\SQLEXPRESS;Database=[db_name];Trust Server Certificate=true;Integrated Security=True`  
+or  
+`Server=.\SQLEXPRESS;Database=[db_name];Trust Server Certificate=true;Trusted_Connection=True`
 
 ローカルの指定は`.`以外にもあるがここでは`.`を使う。  
 
@@ -28,7 +32,7 @@
 
 Linux上のSQLServerにアクセスする場合は以下のようにアクセスすればよい。  
 
-`Server=localhost;Database=myDatabase;User id=myUserName;Password=myPassword;Trust Server Certificate=true`  
+`Server=localhost;Database=[myDatabase];User id=[myUserName];Password=[myPassword];Trust Server Certificate=true`  
 
 以下、Linux上で動作しているSQLServerにアクセスしようとして色々あったのでまとめる。  
 結果的にLinuxなのにWindows認証しようとしてエラーとなっていた。  
@@ -275,7 +279,7 @@ Windows認証モードで接続する。
 
 >Windows 認証は、接続文字列に `Integrated Security` キーワードまたは `Trusted_Connection` キーワードを使用することによって指定できます。  
 >こうすることで、ユーザー ID とパスワードを使う必要がなくなります。  
->[接続情報の保護](https://learn.microsoft.com/ja-jp/dotnet/framework/data/adonet/protecting-connection-information)  
+>[接続情報の保護 - ADO.NET | Microsoft Learn](https://learn.microsoft.com/ja-jp/dotnet/framework/data/adonet/protecting-connection-information)  
 
 ---
 
@@ -295,6 +299,32 @@ Windows認証モードで接続する。
 >`Persist Security Info` を true または yes に設定すると、ユーザー ID やパスワードなどのセキュリティ関連情報を、接続を開いた後にその接続から取得できます。
 >`Persist Security Info` を false または no に設定した場合、その情報を使って接続を開いた後で、セキュリティ情報が破棄されるため、信頼できないソースによってセキュリティ関連情報がアクセスされることを確実に防ぐことができます。  
 >[接続情報の保護](https://learn.microsoft.com/ja-jp/dotnet/framework/data/adonet/protecting-connection-information)  
+
+---
+
+## connection timeout
+
+タイムアウト関連のエラーが発生した場合、考慮すべし。  
+
+実例では、DbUpを使った移行作業において発生し、タイムアウト値を指定したら解決した。  
+
+デフォルトは15秒な模様。  
+[参考:SQL Serverに.NETで接続しようとすると1.2秒でタイムアウトする場合がある - give IT a try](https://blog.jnito.com/entry/20120219/1329633868)  
+
+0を指定すると無限に待機するので絶対に指定しないこと。  
+
+記述例  
+`Data Source=(local);Initial Catalog=AdventureWorks;Integrated Security=SSPI;Connection Timeout=30`  
+
+>サーバへの接続を待機する時間を指定します。指定した待機時間を過ぎると、接続を切断し、エラーを返します。  
+>待機時間の単位は秒です。  
+>0を指定した場合、待機時間に無制限が指定されます。接続が永続的に待機することになるので、0は指定しないようにしてください。  
+>[付録B 接続文字列に指定可能なキーワード](https://software.fujitsu.com/jp/manual/manualfiles/m130025/j2ul1759/02z200/j1759-b-00-00.html)  
+
+- 参考  
+  - [SQL Serverに.NETで接続しようとすると1.2秒でタイムアウトする場合がある - give IT a try](https://blog.jnito.com/entry/20120219/1329633868)  
+  - [SqlConnection.ConnectionTimeout プロパティ (System.Data.SqlClient) | Microsoft Learn](https://learn.microsoft.com/ja-jp/dotnet/api/system.data.sqlclient.sqlconnection.connectiontimeout?view=dotnet-plat-ext-7.0)  
+  - [付録B 接続文字列に指定可能なキーワード](https://software.fujitsu.com/jp/manual/manualfiles/m130025/j2ul1759/02z200/j1759-b-00-00.html)
 
 ---
 
