@@ -257,32 +257,3 @@ WHERE
     AND sys.index_columns.index_id = I.index_id
     AND is_included_column = 0
 
-
-
-
-
-WITH Test AS (
-    SELECT '001' AS Code, 'AAA' AS Name
-    UNION ALL
-    SELECT '001', 'BBB'
-)
-SELECT DISTINCT
-Code,
-STUFF(
-        (
-            SELECT
-                CONCAT(
-                    ', ',
-                    name
-                ) 
-            FROM
-                Test T2
-            WHERE 
-                T2.Code = Test.Code
-            FOR XML PATH(''),TYPE
-        ).value('.', 'VARCHAR(MAX)'), 1, 2, ''
-    ) AS IndexKeys
-FROM TEST
-
-
-

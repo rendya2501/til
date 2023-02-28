@@ -233,11 +233,71 @@ value()メソッドの第一引数はXQuery式で、第二引数はSQL型とな�
 FOR XMLで文字列を結合する時に、ORDER BYで順番を指定したい。  
 ORDER BYによる結合の順番は指定可能。  
 
-ORDER BYはFOR XMLと同じ階層で記述しなければならない。  
-GROUP BYを用いる場合、ORDER BYに使うキーはGROUP BYに含まれていなければエラーとなってしまう。  
-必要に応じてDISTINCTを使うべし。  
+■ **正しい例**
 
-``` sql : エラーになる例
+``` sql
+WITH TmpTable AS (
+    SELECT 1 AS ID, 1 AS RowNum, 'and seventy nine' AS [Data]
+    UNION
+    SELECT 1, 2, 'five hundred'
+    UNION
+    SELECT 1, 3, 'two thousand'
+)
+SELECT DISTINCT
+    [ID],
+    [Data] = (
+        SELECT
+            ' ' + Data
+        FROM
+            TmpTable t2
+        WHERE
+            t2.ID = t1.ID
+        ORDER BY
+            t2.RowNum DESC FOR XML PATH('')
+    )
+FROM
+    TmpTable t1
+
+-- |ID | Data
+-- +---+--------------------------------------------
+-- |1  | two thousand five hundred and seventy nine
+```
+
+■ **エラーになる例**
+
+FOR XML使うときは、ORDER BYの位置に気をつけないといけない。  
+サブクエリの段階でORDER BYしてから、それを使おうとするとうまくいかない。  
+ORDER BYはFOR XMLと同じ階層で記述しなければならない。  
+
+``` sql
+WITH [TmpTable] AS (
+    SELECT 1 AS [ID], 1 AS [RowNum], 'and seventy nine' AS [Data]
+    UNION ALL
+    SELECT 1, 2, 'five hundred'
+    UNION ALL
+    SELECT 1, 3, 'two thousand'
+)
+SELECT DISTINCT
+    [ID],
+    [Data] = (
+        Select
+            ' ' + [Data]
+        from
+            TmpTable t2
+        where
+            t2.ID = t1.ID
+        FOR XML PATH('')
+    )
+FROM
+    (SELECT * FROM [TmpTable] ORDER BY [RowNum] DESC ) [t1]
+
+-- メッセージ 1033、レベル 15、状態 1、行 12
+-- TOP、OFFSET、または FOR XML が指定されていない場合、ビュー、インライン関数、派生テーブル、サブクエリ、および共通テーブル式では ORDER BY 句は無効です。
+```
+
+GROUP BYを用いる場合、ORDER BYに使うキーはGROUP BYに含まれていなければエラーとなってしまう。  
+
+``` sql
 WITH TmpTable AS (
     SELECT 1 AS ID, 1 AS RowNum, 'and seventy nine' AS [Data]
     UNION
@@ -266,36 +326,7 @@ group by
 -- 列 'TmpTable.RowNum' は選択リスト内では無効です。この列は集計関数または GROUP BY 句に含まれていません。
 ```
 
-``` sql : 正しい例
-WITH TmpTable AS (
-    SELECT 1 AS ID, 1 AS RowNum, 'and seventy nine' AS [Data]
-    UNION
-    SELECT 1, 2, 'five hundred'
-    UNION
-    SELECT 1, 3, 'two thousand'
-)
-SELECT
-    DISTINCT
-    ID,
-    [Data] = (
-        SELECT
-            ' ' + Data
-        FROM
-            TmpTable t2
-        WHERE
-            t2.ID = t1.ID
-        ORDER BY
-            t2.RowNum DESC FOR XML PATH('')
-    )
-FROM
-    TmpTable t1
-
--- ID | Data
-------+--------------------------------------------
--- 1  | two thousand five hundred and seventy nine
-```
-
-[Unable to use order by clause with for xml path properly(Sql server)](https://stackoverflow.com/questions/4387303/unable-to-use-order-by-clause-with-for-xml-path-properlysql-server)
+[Unable to use order by clause with for xml path properly(Sql server)](https://stackoverflow.com/questions/4387303/unable-to-use-order-by-clause-with-for-xml-path-properlysql-server)  
 
 for xml sqlserver  
 [SQL ServerでXMLを操作する 第1回：リレーショナルDBからXML文書を取り出す（2/2）](https://atmarkit.itmedia.co.jp/fxml/tanpatsu/15mssql/mssql02.html)  
@@ -303,28 +334,52 @@ for xml sqlserver
 
 ---
 
-## なんだったか
+## DISTINCTで集計する
 
-FOR XML使うときは、ORDER BYの位置に気をつけないといけない。  
-その検証用として作ったクエリだった気がするが、忘れてしまった。  
-後でまとめる。  
+これを  
+
+``` txt
+Code Name
+001  AAA
+001  BBB
+002  CCC
+002  DDD
+002  EEE
+```
+
+こうする  
+
+``` txt
+Code Names
+001  AAA, BBB
+002  CCC, DDD, EEE
+```
 
 ``` sql
-WITH [TmpTable] AS (
-    SELECT 1 AS [ID], 1 AS [RowNum], 'and seventy nine' AS [Data]
+WITH TempTable AS (
+    SELECT '001' AS Code, 'AAA' AS Name
     UNION ALL
-    SELECT 1, 2, 'five hundred'
+    SELECT '001', 'BBB'
     UNION ALL
-    SELECT 1, 3, 'two thousand'
+    SELECT '002', 'CCC'
+    UNION ALL
+    SELECT '002', 'DDD'
+    UNION ALL
+    SELECT '002', 'EEE'
 )
-SELECT
-    [ID],
-    [Data]
-FROM
-    (SELECT * FROM [TmpTable] ORDER BY [RowNum] DESC ) [t1]
-GROUP BY
-    [t1].[ID]
-
--- メッセージ 1033、レベル 15、状態 1、行 12
--- TOP、OFFSET、または FOR XML が指定されていない場合、ビュー、インライン関数、派生テーブル、サブクエリ、および共通テーブル式では ORDER BY 句は無効です。
+SELECT DISTINCT
+    Code,
+    Names = STUFF(
+        (
+            SELECT
+                CONCAT(', ',name)
+            FROM
+                Test T2
+            WHERE 
+                T2.Code = Test.Code
+            FOR XML PATH(''),TYPE
+        ).value('.', 'VARCHAR(MAX)'),
+        1, 2, ''
+    )
+FROM TempTable
 ```
