@@ -1,4 +1,4 @@
-# OrderBy,ThenBy
+# OrderBy・ThenBy
 
 OrderByの後にOrderByすると、さっきまでソートした結果を無視して新しくソートしなおしてしまう。  
 だからThenByでどんどんソートした結果を保持したままソートする。  

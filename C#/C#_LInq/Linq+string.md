@@ -4,34 +4,41 @@
 
 ## Linqによる文字列連結
 
-[なんか外国のよく見るところ](https://www.it-swarm-ja.com/ja/c%23/linq%E3%82%92%E4%BD%BF%E7%94%A8%E3%81%97%E3%81%A6%E6%96%87%E5%AD%97%E5%88%97%E3%82%92%E9%80%A3%E7%B5%90%E3%81%99%E3%82%8B/958428705/)  
-[複数の文字列をセパレータ文字で区切って結合する方法(LINQ編)](https://www.exceedsystem.net/2020/08/29/how-to-join-multiple-strings-with-delimiter/)  
-
 1. string.Join  
 2. Linq.Aggregate  
 
 主にAggregateとString.joinを使う方法があるけれど、String.joinを使うことをおすすめする。  
 理由は速度だそうだ。  
 
-``` C# : サンプルデータ
+■ **string.Join方式**
+
+これ使えばよろしい。
+
+``` cs
 var data = new[] { "a", "b", "c" };
-```
-
-``` C# : string.Join方式
-// 出力は「a,b,c」
 Console.WriteLine(string.Join(",", data));
+// 出力は「a,b,c」
 ```
 
-``` C# : Linq.Aggregate方式
-// "a"
-// "a" + "," + "b"
-// "a,b" + "," + "c"
-// のような文字列の結合となるため結合文字数が増えると大きなパフォーマンス低下が生じる。
+■ **Linq.Aggregate方式**
+
+"a"  
+"a" + "," + "b"  
+"a,b" + "," + "c"  
+
+のような文字列の結合となるため結合文字数が増えると大きなパフォーマンス低下が生じる。  
+
+``` cs
+var data = new[] { "a", "b", "c" };
 Console.WriteLine(data.Aggregate((x, y) => $"{x},{y}"));
 ```
 
-``` C# : おまけ Aggregate+StringBuilder方式
-// チェーンしすぎてわけわからんので、自己満足以外で使うことはないだろう。
+■ **おまけ Aggregate+StringBuilder方式**
+
+チェーンしすぎてわけわからんので、自己満足以外で使うことはないだろう。
+
+```cs
+var data = new[] { "a", "b", "c" };
 var res = words.Aggregate(
         new StringBuilder(), 
         (current, next) => current.Append(current.Length == 0? "" : ", ").Append(next)
@@ -39,6 +46,9 @@ var res = words.Aggregate(
     .ToString();
 Console.WriteLine(res);
 ```
+
+[なんか外国のよく見るところ](https://www.it-swarm-ja.com/ja/c%23/linq%E3%82%92%E4%BD%BF%E7%94%A8%E3%81%97%E3%81%A6%E6%96%87%E5%AD%97%E5%88%97%E3%82%92%E9%80%A3%E7%B5%90%E3%81%99%E3%82%8B/958428705/)  
+[複数の文字列をセパレータ文字で区切って結合する方法(LINQ編)](https://www.exceedsystem.net/2020/08/29/how-to-join-multiple-strings-with-delimiter/)  
 
 ---
 
@@ -64,7 +74,7 @@ var warningMessage = TestModel
 
 ## 実装例2
 
-``` C# : 実装例2
+``` cs
 // これを
 if (TestList?.Any() == true)
 {

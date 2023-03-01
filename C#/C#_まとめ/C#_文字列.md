@@ -1,5 +1,103 @@
 # 文字列関係まとめ
 
+C#の文字列には`""`で囲む普通の文字列以外にも種類がある。  
+
+---
+
+## 標準リテラル文字列(Quoted string literal)
+
+エスケープ文字を埋め込む必要がある場合。  
+0個以上の文字を２重引用符（ダブルクォーテーション）で囲んで指定する。  
+
+例: `"Hello\n"`  
+
+---
+
+## 逐次的リテラル文字列(Verbatim String Literal)
+
+文字列テキストに¥記号が含まれる場合。
+@文字、２重引用符（ダブルクォーテーション）、0個以上の文字、閉じる用の２重引用符で指定する。  
+文字列テキスト内に２重引用符が含まれる場合は、その２重引用符に２重引用符を付ける。  
+
+例: `@"Hello"`  
+
+``` C#
+// 標準リテラル文字列
+string Text1 = "千早振る神代もきかず竜田川\n唐紅に水くくるとは"; 
+// 千早振る神代もきかず竜田川
+// 唐紅に水くくるとは
+
+    // 逐次的リテラル文字列
+string Text2 = @"千早振る神代もきかず竜田川\n唐紅に水くくるとは";
+// 千早振る神代もきかず竜田川\n唐紅に水くくるとは
+
+// 改行を含む逐次的リテラル文字列
+string Text3 = @"千早振る神代もきかず竜田川
+唐紅に水くくるとは"; 
+// 千早振る神代もきかず竜田川
+// 唐紅に水くくるとは
+
+// ２重引用符を含む逐次的リテラル文字列
+string Text4 = @"千早振る神代もきかず""竜田川"" 唐紅に水くくるとは"; 
+// 千早振る神代もきかず"竜田川" 唐紅に水くくるとは
+```
+
+[C# 11.0: Raw String Literals – Thomas Claudius Huber](https://www.t homasclaudiushuber.com/2022/12/22/csharp-11-raw-string-literals/)  
+
+---
+
+## 生文字リテラル(Raw String Literals)
+
+C# 11.0からの新機能。  
+
+``` cs
+// Quoted string literal
+var firstname1 = "Thomas";
+
+// Verbatim string literal
+var firstname2 = @"Thomas";
+
+// Raw string literal
+var firstName3 = """Thomas""";
+```
+
+``` cs
+// Verbatim string literal
+    public class MyClass
+    {
+        public string GetJson()
+        {
+            var json = @"{
+    ""firstName"":""Thomas"",
+    ""lastName"":""Huber""
+}";
+            return json;
+        }
+    }
+
+// Raw string literal
+public class MyClass
+{
+    public string GetJson()
+    {
+        var json = """
+            {
+                "firstName":"Thomas",
+                "lastName":"Huber"
+            }
+            """;
+
+        return json;
+    }
+}
+
+//出力結果
+//{
+//    "firstName":"Thomas",
+//    "lastName":"Huber"
+//}
+```
+
 ---
 
 ## BETWEEN(string.CompareTo)
@@ -93,9 +191,7 @@ System.Console.WriteLine(string.Format(str,"1","2"));
 
 ## 文字列先頭の`@`の意味
 
-文字列先頭の`@`ってなんだっけ？ということでまとめ。  
-
-結論から言うと先頭に`@`があると`\`をまとめてエスケープしてくれる。  
+先頭に`@`があると`\`をまとめてエスケープしてくれる。  
 ないと、全部エスケープしないといけない。
 
 ``` C#
@@ -106,44 +202,6 @@ string constr = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\CSharpS
 ```
 
 [C#で文字列の￥をエスケープする手間を省く](https://water2litter.net/rye/post/c_str_escape/)  
-
-C#の文字列は２種類ある。  
-
-### 標準リテラル文字列
-
-エスケープ文字を埋め込む必要がある場合。  
-0個以上の文字を２重引用符（ダブルクォーテーション）で囲んで指定する。  
-例: "Hello\n"  
-
-### 逐次的リテラル文字列
-
-文字列テキストに¥記号が含まれる場合。
-@文字、２重引用符（ダブルクォーテーション）、0個以上の文字、閉じる用の２重引用符で指定する。  
-文字列テキスト内に２重引用符が含まれる場合は、その２重引用符に２重引用符を付ける。  
-例: @"Hello"  
-
-### 逐次的リテラル文字列を試してみた
-
-``` C#
-    // 標準リテラル文字列
-    string Text1 = "千早振る神代もきかず竜田川\n唐紅に水くくるとは"; 
-    // 千早振る神代もきかず竜田川
-    // 唐紅に水くくるとは
-
-     // 逐次的リテラル文字列
-    string Text2 = @"千早振る神代もきかず竜田川\n唐紅に水くくるとは";
-    // 千早振る神代もきかず竜田川\n唐紅に水くくるとは
-
-    // 改行を含む逐次的リテラル文字列
-    string Text3 = @"千早振る神代もきかず竜田川
-    唐紅に水くくるとは"; 
-    // 千早振る神代もきかず竜田川
-    // 唐紅に水くくるとは
-
-    // ２重引用符を含む逐次的リテラル文字列
-    string Text4 = @"千早振る神代もきかず""竜田川"" 唐紅に水くくるとは"; 
-    // 千早振る神代もきかず"竜田川" 唐紅に水くくるとは
-```
 
 ---
 

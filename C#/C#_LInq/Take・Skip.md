@@ -1,4 +1,4 @@
-# Take,Skip
+# Take・Skip
 
 - Take : 指定した数だけ要素を読み出す  
 - Skip : 指定した数だけ読み飛ばす  
