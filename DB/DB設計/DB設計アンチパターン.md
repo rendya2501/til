@@ -1,9 +1,5 @@
 # DB設計のアンチパターン
 
-[データベース設計のアンチパターン、その対処法](https://products.sint.co.jp/topsic/blog/database-design-anti-pattern)  
-
----
-
 ## 配列データを保持する
 
 RDBMSの基本の一つに正規形という概念がありますが、その中で最も基本とされる第一正規形すら破壊してしまうのが「配列データの保持」です。
@@ -111,3 +107,8 @@ GROUP_CD    2       Hグループ
 一長一短ではありますが、例えば後から追加した内容によってはコード列の最大長が足りなくなる等の問題も発生する可能性があります。  
 
 ダブルミーニングにもなりますし、基本的にはテーブルは分けて、どうしても必要な場合はテーブルを1つにすると良いでしょう。  
+
+---
+
+[データベース設計のアンチパターン、その対処法](https://products.sint.co.jp/topsic/blog/database-design-anti-pattern)  
+[SQLアンチパターン簡単まとめ](https://zenn.dev/yukito0616/articles/00ccc30b58e458)  

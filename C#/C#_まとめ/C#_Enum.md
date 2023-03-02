@@ -2,6 +2,17 @@
 
 ---
 
+## 基本
+
+- 列挙子の標準の型はint  
+
+- 別の型を指定することも可能  
+  - 指定できるデータ : byte、sbyte、short、ushort、int、uint、long、ulong  
+
+[【ソースコード有】列挙型とは？C#のenumの使い方を知ろう | 株式会社パソナ（旧パソナテック）｜ITエンジニア・ものづくりエンジニアの求人情報・転職情報](https://www.pasonatech.co.jp/workstyle/column/detail.html?p=7559)  
+
+---
+
 ## EnumのGetValueOrDefault
 
 EnumのGetValueOrDefaultは何が帰ってくるのか気になった。  
