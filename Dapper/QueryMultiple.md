@@ -1,27 +1,6 @@
-
 # QueryMultiple
 
 ## QueryMultipleで受け取る
-
-``` cs
-string constr = @"Server=<server_name>;Database=<db_name>;User ID=<id>;Password=<passwd>;Trust Server Certificate=true";
-
-string sql = @"
-    SELECT * FROM Invoice WHERE InvoiceID = @InvoiceID;
-    SELECT * FROM InvoiceItem WHERE InvoiceID = @InvoiceID;
-";
-
-using (SqlConnection connection = new SqlConnection(constr))
-{
-    using (var multi = connection.QueryMultiple(sql, new {InvoiceID = 1}))
-    {
-        var invoice = multi.Read<Invoice>().First();
-        var invoiceItems = multi.Read<InvoiceItem>().ToList();
-    }
-}
-```
-
-参考リンクではusingで囲って取得しているが、usingで囲まなくても取得出来た。  
 
 ``` cs
 string constr = @"Server=<server_name>;Database=<db_name>;User ID=<id>;Password=<passwd>;Trust Server Certificate=true";
