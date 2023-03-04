@@ -1,11 +1,10 @@
-# GitStashまとめ
+# GitStash
 
-[【git stash】コミットはせずに変更を退避したいとき](https://qiita.com/chihiro/items/f373873d5c2dfbd03250)  
-
-「とあるブランチで作業中だけど、いますぐやりたいことができた。作業がすごく中途半端だからコミットはしたくない。」  
+>「とあるブランチで作業中だけど、いますぐやりたいことができた。作業がすごく中途半端だからコミットはしたくない。」  
 というときに、stashが使えます。  
 stashを使用すると、コミットしていない変更を退避することができます。  
 stashで現在の変更を退避して、今すぐやりたい作業をして、退避させていた変更を戻して作業を再開することができます。  
+[【git stash】コミットはせずに変更を退避したいとき](https://qiita.com/chihiro/items/f373873d5c2dfbd03250)  
 
 ---
 
@@ -123,3 +122,7 @@ stash@{0}: On test: stash message
 `$ git stash clear`  
 
 `git stash list`を実行すると、退避した情報がすべて消えていることが確認できます。  
+
+---
+
+[【git stash】コミットはせずに変更を退避したいとき](https://qiita.com/chihiro/items/f373873d5c2dfbd03250)  
