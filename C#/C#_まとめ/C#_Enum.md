@@ -180,33 +180,38 @@ EnumExtentions.TryParse("100", out wd); // false, wd = 100 →falseになった
 1. 単純なキャスト  
 2. Enum.ToObject  
 
-``` C#
+■ **単純なキャスト**  
+
+``` cs
 enum SomeEnum {
-  FOO = 1,
-  BAR = 2,
-  BAZ = 3,
+    FOO = 1,
+    BAR = 2,
+    BAZ = 3,
 }
-```
 
-()によるキャスト  
-
-``` C#
 int x = 1;
-SomeEnum ex = (SomeEnum) x;
-Console.WriteLine(ex); //=> FOO
+SomeEnum ex = (SomeEnum)x;
+Console.WriteLine(ex); // FOO
 ```
 
-Enum.ToObjectによるキャスト  
+■ **Enum.ToObjectによるキャスト**  
+
 `typeof`によるキャストが可能なので、リフレクションで元の値に変換しなおしたい時にはこちらを使うべし。  
 
-``` C#
+``` cs
+enum SomeEnum {
+    FOO = 1,
+    BAR = 2,
+    BAZ = 3,
+}
+
 int x = 1;
 SomeEnum ex = (SomeEnum) Enum.ToObject(typeof(SomeEnum), x);
-Console.WriteLine(ex); //=> FOO
+Console.WriteLine(ex); // FOO
 
 // ()によるキャストをしないとobject型となってしまうが、値はしっかり反映されている。
 var ex2 = Enum.ToObject(typeof(SomeEnum), x);
-Console.WriteLine(ex2); //=> FOO
+Console.WriteLine(ex2); // FOO
 ```
 
 [[C#] 数値→enum値に変換する（Enum.ToObject）](https://csharp.programmer-reference.com/convert-int-enum/)  
