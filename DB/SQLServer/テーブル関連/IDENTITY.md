@@ -66,8 +66,6 @@ Dapperで使う場合はINTO句は必要なく、戻り値として受け取る�
     );
 ```
 
-[SQL Server - OUTPUT 句の使い方](https://sql55.com/query/sql-server-output-clause.php)  
-
 OUTPUT句で出力する以外ではこういうものもあるらしい。  
 `var id = rnWebConnection.QueryFirstOrDefault<long>("SELECT LAST_INSERT_ID()");`  
 
@@ -78,3 +76,6 @@ DECLARE @Test INT
 set @Test = (INSERT INTO [Table] (TestID,TestName) OUTPUT inserted.TestID VALUES (1,'Test'));
 SELECT @Test;
 ```
+
+[SQL Server - OUTPUT 句の使い方](https://sql55.com/query/sql-server-output-clause.php)  
+[c# — Dapperで挿入を実行し、挿入されたIDを返すにはどうすればよいですか？](https://www.web-dev-qa-db-ja.com/ja/c%23/dapper%E3%81%A7%E6%8C%BF%E5%85%A5%E3%82%92%E5%AE%9F%E8%A1%8C%E3%81%97%E3%80%81%E6%8C%BF%E5%85%A5%E3%81%95%E3%82%8C%E3%81%9Fid%E3%82%92%E8%BF%94%E3%81%99%E3%81%AB%E3%81%AF%E3%81%A9%E3%81%86%E3%81%99%E3%82%8C%E3%81%B0%E3%82%88%E3%81%84%E3%81%A7%E3%81%99%E3%81%8B%EF%BC%9F/941401073/)  
