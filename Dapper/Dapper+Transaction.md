@@ -6,8 +6,8 @@ Executeメソッドの第三引数にSqlTransactionインスタンスを渡す�
 
 ``` cs
 // Dapperの基本となるトランザクション処理
-string con_str1 = @"Server=<sv>;Database=<db>;User ID=<id>;Password=<passwd>;Trust Server Certificate=true;";
-using (var connection = new SqlConnection(con_str1))
+var con_str = @"Server=<sv>;Database=<db>;User ID=<id>;Password=<passwd>;Trust Server Certificate=true;";
+using (var connection = new SqlConnection(con_str))
 {
     connection.Open();
     using (var tran = connection.BeginTransaction())
@@ -19,7 +19,7 @@ using (var connection = new SqlConnection(con_str1))
         }
         catch (Exception e)
         {
-            tran1.Rollback();
+            tran.Rollback();
         }
         finally
         {
@@ -314,6 +314,86 @@ public class TransactionScopeTest
             tran2?.Rollback();
         }
     }
+}
+```
+
+---
+
+## クエリでもトランザクションしたらどうなるか？
+
+`SqlConnection`や`TransactionScope`でコード中でトランザクションを張っておきながら、SQLでも`BEGIN TRAN`、`COMMIT TRAN`した場合どうなるのか実験した。  
+
+実行するクエリを、このように記述する分には普通にロールバックされることを確認した。  
+
+``` sql
+BEGIN TRAN;
+CREATE TABLE __HOGE1 (id int,name nvarchar)
+COMMIT TRAN;
+```
+
+しかし、このように記述した場合、コード中でトランザクションをロールバックしても適応されることを確認した。  
+しかもエラーにならない。
+
+``` sql
+BEGIN TRAN;
+CREATE TABLE __HOGE1 (id int,name nvarchar)
+COMMIT TRAN;
+COMMIT TRAN;
+```
+
+このように、3つもトランザクションを並べると流石にエラーとなるが、それでもテーブルが出来上がった。  
+
+``` sql
+BEGIN TRAN;
+CREATE TABLE __HOGE1 (id int,name nvarchar)
+COMMIT TRAN;
+COMMIT TRAN;
+COMMIT TRAN;
+```
+
+コードでトランザクション張っているなら、クエリ中では余計なことはしない方がよい。  
+
+■ **SqlConnection**
+
+``` cs
+{
+var con_str = @"Server=.\SQLEXPRESS;Database=SandBox;Integrated Security=True;";
+using (var connection = new SqlConnection(con_str))
+{
+    connection.Open();
+    using (var tran = connection.BeginTransaction())
+    {
+        string query = """
+        BEGIN TRAN;
+        CREATE TABLE __HOGE1 (id int,name nvarchar)
+        COMMIT TRAN;
+        COMMIT TRAN;
+        """;
+        var result = connection.Execute(query,null,tran);
+        tran.Rollback();
+    }
+}
+}
+```
+
+■ **TransactionScope**
+
+``` cs
+{
+var con_str = @"Server=.\SQLEXPRESS;Database=SandBox;Integrated Security=True;";
+using (TransactionScope ts = new TransactionScope())
+{
+    using (var connection = new SqlConnection(con_str))
+    {
+        string query = """
+        BEGIN TRAN;
+        CREATE TABLE __HOGE1 (id int,name nvarchar)
+        COMMIT TRAN;
+        COMMIT TRAN;
+        """;
+        var result = connection.Execute(query);
+    }
+}
 }
 ```
 
