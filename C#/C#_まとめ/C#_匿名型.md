@@ -87,6 +87,36 @@ Console.WriteLine(((dynamic)expando).Name); // Hoge
 
 ---
 
+## 匿名クラスの更新
+
+ExpandoObjectは更新可能。  
+
+``` cs
+dynamic expando = new ExpandoObject();
+expando.Hoge = "Hoge";
+Console.WriteLine(expando.Hoge); // Hoge
+expando.Hoge = "Fuga";
+Console.WriteLine(expando.Hoge); // Fuga
+```
+
+通常の匿名型はC#8.0までは不可能。  
+C#9.0から`With`式を用いることで可能となった。  
+[with 式 - 既存のオブジェクトの変更されたコピーである新しいオブジェクトを作成する | Microsoft Learn](https://learn.microsoft.com/ja-jp/dotnet/csharp/language-reference/operators/with-expression)  
+
+その場合、更新というよりは、値を変更して新しくインスタンスを作り直す感じになる。  
+元の値は破壊しない。  
+
+``` cs
+var hoge = new {Fuga ="Fuga"};
+Console.WriteLine(hoge.Fuga); // Fuga
+
+var fuga = hoge with {Fuga = "Piyo"};
+Console.WriteLine(hoge.Fuga); // Fuga
+Console.WriteLine(fuga.Fuga); // Piyo
+```
+
+---
+
 ## 匿名クラスの動的生成の実践例
 
 ``` cs
@@ -290,3 +320,5 @@ private SampleData GetSample(Condition condition)
 [新しい匿名クラスを動的にするには？](https://www.web-dev-qa-db-ja.com/ja/c%23/%E6%96%B0%E3%81%97%E3%81%84%E5%8C%BF%E5%90%8D%E3%82%AF%E3%83%A9%E3%82%B9%E3%82%92%E5%8B%95%E7%9A%84%E3%81%AB%E3%81%99%E3%82%8B%E3%81%AB%E3%81%AF%EF%BC%9F/970949625/)  
 
 [ExpandoObject クラス (System.Dynamic) | Microsoft Learn](https://learn.microsoft.com/ja-jp/dotnet/api/system.dynamic.expandoobject?view=net-7.0)  
+
+[匿名型 | Microsoft Learn](https://learn.microsoft.com/ja-jp/dotnet/csharp/fundamentals/types/anonymous-types)  
