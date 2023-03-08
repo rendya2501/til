@@ -323,37 +323,7 @@ public class TransactionScopeTest
 
 `SqlConnection`や`TransactionScope`でコード中でトランザクションを張っておきながら、SQLでも`BEGIN TRAN`、`COMMIT TRAN`した場合どうなるのか実験した。  
 
-実行するクエリを、このように記述する分には普通にロールバックされることを確認した。  
-
-``` sql
-BEGIN TRAN;
-CREATE TABLE __HOGE1 (id int,name nvarchar)
-COMMIT TRAN;
-```
-
-しかし、このように記述した場合、コード中でトランザクションをロールバックしても適応されることを確認した。  
-しかもエラーにならない。
-
-``` sql
-BEGIN TRAN;
-CREATE TABLE __HOGE1 (id int,name nvarchar)
-COMMIT TRAN;
-COMMIT TRAN;
-```
-
-このように、3つもトランザクションを並べると流石にエラーとなるが、それでもテーブルが出来上がった。  
-
-``` sql
-BEGIN TRAN;
-CREATE TABLE __HOGE1 (id int,name nvarchar)
-COMMIT TRAN;
-COMMIT TRAN;
-COMMIT TRAN;
-```
-
-コードでトランザクション張っているなら、クエリ中では余計なことはしない方がよい。  
-
-■ **SqlConnection**
+実行するクエリを、以下のように記述する分には普通にロールバックされることを確認した。  
 
 ``` cs
 {
@@ -367,7 +337,6 @@ using (var connection = new SqlConnection(con_str))
         BEGIN TRAN;
         CREATE TABLE __HOGE1 (id int,name nvarchar)
         COMMIT TRAN;
-        COMMIT TRAN;
         """;
         var result = connection.Execute(query,null,tran);
         tran.Rollback();
@@ -376,7 +345,34 @@ using (var connection = new SqlConnection(con_str))
 }
 ```
 
-■ **TransactionScope**
+しかし、以下のように`query`を記述した場合、コード中でトランザクションをロールバックしても適応されることを確認した。  
+しかもエラーにならない。  
+
+``` cs
+string query = """
+BEGIN TRAN;
+CREATE TABLE __HOGE1 (id int,name nvarchar)
+COMMIT TRAN;
+COMMIT TRAN;
+""";
+```
+
+このように、3つもトランザクションを並べると流石にエラーになったが、それでもテーブルが出来上がっていた。  
+エラーになってもロールバックが効いていないことになる。  
+
+``` cs
+string query = """
+BEGIN TRAN;
+CREATE TABLE __HOGE1 (id int,name nvarchar)
+COMMIT TRAN;
+COMMIT TRAN;
+COMMIT TRAN;
+""";
+```
+
+結論として、コードでトランザクション張っているなら、クエリ中で余計なことはしない方がよい。  
+
+因みにTransactionScopeでも同じ事になった。  
 
 ``` cs
 {
@@ -385,6 +381,7 @@ using (TransactionScope ts = new TransactionScope())
 {
     using (var connection = new SqlConnection(con_str))
     {
+        // queryを同じように変更して実行すると同じ結果となる。
         string query = """
         BEGIN TRAN;
         CREATE TABLE __HOGE1 (id int,name nvarchar)
