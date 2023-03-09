@@ -62,6 +62,22 @@ Windows認証 = WindowではローカルのSQLServerにアクセス → Linux上
 
 ---
 
+## ローカルDBへの接続文字列
+
+`@"Data Source=.\MSSQLLocalDB;AttachDbFilename=..\..\Database1.mdf;Integrated Security=True"`
+
+``` cs
+SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder
+{
+    DataSource = @".\MSSQLLocalDB",
+    AttachDBFilename = System.IO.Path.GetFullPath(@"..\..\Database1.mdf"),
+    IntegratedSecurity = true,
+};
+_ = builder.ConnectionString;
+```
+
+---
+
 ## コマンドプロンプトでの接続
 
 コマンドプロンプトで接続情報を記述する場合、`\`は１つだけで良い。  

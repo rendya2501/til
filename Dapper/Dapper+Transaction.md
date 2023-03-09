@@ -357,7 +357,7 @@ COMMIT TRAN;
 """;
 ```
 
-このように、3つもトランザクションを並べると流石にエラーになったが、それでもテーブルが出来上がっていた。  
+このように、3つもトランザクションを並べると流石にエラーになったが、それでもテーブルは出来上がっていた。  
 エラーになってもロールバックが効いていないことになる。  
 
 ``` cs
@@ -370,9 +370,8 @@ COMMIT TRAN;
 """;
 ```
 
-結論として、コードでトランザクション張っているなら、クエリ中で余計なことはしない方がよい。  
-
-因みにTransactionScopeでも同じ事になった。  
+当たり前ではあるが、コードでトランザクションを張っているなら、クエリ中で余計なことはしない方がよい。  
+因みにTransactionScopeでも同様の結果となった。  
 
 ``` cs
 {
@@ -381,7 +380,7 @@ using (TransactionScope ts = new TransactionScope())
 {
     using (var connection = new SqlConnection(con_str))
     {
-        // queryを同じように変更して実行すると同じ結果となる。
+        // queryを同じように変更して実行していくと同じ結果となる
         string query = """
         BEGIN TRAN;
         CREATE TABLE __HOGE1 (id int,name nvarchar)

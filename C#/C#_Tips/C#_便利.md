@@ -1,34 +1,5 @@
 # 便利コードまとめ
 
----
-
-## 処理速度計測
-
-``` C#
-static void Benchmark()
-{
-    var stopWatch = new System.Diagnostics.Stopwatch();
-
-    // 処理1
-    stopWatch.Start();
-
-    stopWatch.Stop();
-    stopWatch.Reset();
-
-
-    // 処理2
-    stopWatch.Start();
-
-    stopWatch.Stop();
-    stopWatch.Reset();
-}
-```
-
-ベンチマークアノテーションなるものがあるらしい。  
-[BenchmarkDotNetを使ってみる｡](https://qiita.com/Tokeiya/items/30d8a76163622a4b5be1)  
-
----
-
 ## イミディエイト クリップボード コピー
 
 `Clipboard.SetText(コピーしたい文字列)`  

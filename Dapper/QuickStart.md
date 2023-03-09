@@ -1,15 +1,15 @@
-# DapperQuiqStart
+# DapperQuickStart
 
 ---
 
-## 実行環境
+## 実行環境・開発環境
 
 - Windows10以上  
 - VSCode  
 - .Net6  
 - SQLServer  
 - Dapper v2.0.123  
-- System.Data.SqlClient 4.8.5
+- System.Data.SqlClient v4.8.5  
 
 SQLServerインストール済みであること。  
 ローカルの環境に適当なデータベースとデータがあること。  
@@ -19,14 +19,15 @@ SQLServerインストール済みであること。
 ## プロジェクトの用意
 
 - プロジェクト作成  
-  - `dotnet new console -o DapperQuiqStart -f net6.0`  
+  - `dotnet new console -o DapperQuickStart -f net6.0`  
 
 - VSCodeを起動  
-  - `Code DapperQuiqStart`  
+  - `Code DapperQuickStart`  
 
-- `Ctrl + J` でターミナルを起動  
+- VSCodeでターミナルを起動  
+  - `Ctrl + J`  
 
-- NuGetパッケージのインストール  
+- VSCodeのターミナルでNuGetパッケージのインストール  
   - `dotnet add package Dapper --version 2.0.123`  
   - `dotnet add package System.Data.SqlClient --version 4.8.5`  
 

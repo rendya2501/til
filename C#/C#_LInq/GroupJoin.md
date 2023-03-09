@@ -1,7 +1,84 @@
 # GroupJoin
 
-LeftOuterJoinを実現するためのメソッド。  
+## 概要
+
+LinqにおけるLeftOuterJoinを実現するためのメソッド。  
 Inner Joinは Joinメソッド。  
+
+---
+
+## 基本
+
+`左辺.GroupJoin(右辺、左辺の結合条件、右辺の結合条件、結合された結果から欲しいものだけSELECT)`  
+
+``` cs
+var left = new List<(int A, int B)>() {
+    (1,1),
+    (1,2),
+    (2,1),
+    (2,2),
+};
+var right = new List<(int A , int B, string C)>() {
+    (1,1,"Hoge"),
+    (1,2,"Fuga"),
+    (2,2,"Piyo"),
+};
+var result = left.GroupJoin(
+    right,
+    l => new { l.A, l.B },
+    r => new { r.A, r.B },
+    (l, r) => new
+    {
+        l.A,
+        l.B,
+        C = r.FirstOrDefault().C ?? "NULLです"
+    }
+);
+
+// 結果
+// [0]:{ A = 1, B = 1, C = "HOGE" }
+// [1]:{ A = 1, B = 2, C = "Fuga" }
+// [2]:{ A = 2, B = 1, C = "NULLです" }
+// [3]:{ A = 2, B = 2, C = "Piyo" }
+```
+
+---
+
+## 型推論エラー
+
+以下のコードは実行できない。  
+left変数のListのタプルに名前がついていないためである。  
+名前を付けるとエラーは解消される。  
+
+地味に嵌ったのでメモしておく。  
+これくらいわかるだろう、と思うのだが、わからないらしい。  
+
+``` cs
+var left = new List<(int, int)>() {
+    (1,1),
+    (1,2),
+    (2,1),
+    (2,2),
+};
+var right = new List<(int A , int B, string C)>() {
+    (1,1,"Hoge"),
+    (1,2,"Fuga"),
+    (2,2,"Piyo"),
+};
+// メソッド 'Enumerable.GroupJoin<TOuter, TInner, TKey, TResult>(IEnumerable<TOuter>, IEnumerable<TInner>, Func<TOuter, TKey>, Func<TInner, TKey>, Func<TOuter, IEnumerable<TInner>, TResult>)' の型引数を使い方から推論することはできません。型引数を明示的に指定してください。 
+// csharp(CS0411)
+var result = left.GroupJoin(
+    right,
+    l => new { l.Item1, l.Item2 },
+    r => new { r.A, r.B },
+    (l, r) => new
+    {
+        l.Item1,
+        l.Imte2,
+        C = r.FirstOrDefault().C ?? "NULLです"
+    }
+);
+```
 
 ---
 

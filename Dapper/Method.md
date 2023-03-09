@@ -2,10 +2,8 @@
 
 ## Query
 
-複数レコードを取得するメソッド。  
+複数レコードを取得する。  
 クエリの結果が何もない場合、空のIEnumerableを取得する。  
-
-単純にSELECT文を実行したければこれを使えばよい。  
 
 ``` cs
 string sql = "SELECT * FROM [Person]";
