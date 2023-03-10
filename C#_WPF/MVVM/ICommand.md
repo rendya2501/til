@@ -1,7 +1,5 @@
 # ICommand
 
----
-
 ## 概要
 
 INotifyPropertyChangedをやったなら、ボタンを押したときの実装もするだろう。  
@@ -15,7 +13,7 @@ INotifyPropertyChangedをやったなら、ボタンを押したときの実装�
 
 ICommandを実装することで強制される実装が3つもある。  
 ボタンを押した時の処理を記述したいだけなのに、クラスを定義しないといけない。  
-つまり、1つのコマンドを実装するためには、1つのクラスとICommandの実装が必要になるというわけ。  
+つまり、1つのコマンドを実装するためには、対となるICommand実装クラスが必要となる。  
 
 ``` C# : Commandクラスに実装すべき内容
 public class CountDownCommand : ICommand
@@ -37,8 +35,6 @@ public class CountDownCommand : ICommand
 ---
 
 ## IComandの最小実装
-
-[MVVM:とにかく適当なICommandを実装したい時のサンプル](https://running-cs.hatenablog.com/entry/2016/09/03/211015)  
 
 ``` C# : IComandの最小実装
 public class ViewModel : INotifyPropertyChanged
@@ -105,8 +101,7 @@ public class CountDownCommand : ICommand
 }
 ```
 
-まったくおすすめしないが、ライブラリ使わないとここまで大変というサンプル  
-[WPFのMVVMでコマンドをバインディングする利点](https://takamints.hatenablog.jp/entry/why-using-commands-in-wpf-mvvm)  
+[MVVM:とにかく適当なICommandを実装したい時のサンプル](https://running-cs.hatenablog.com/entry/2016/09/03/211015)  
 
 ---
 
@@ -125,7 +120,98 @@ internal class ViewModel : INotifyPropertyChanged
 
 VisualStudioが新しいためかは知らないが、DelegateCommandって入力して[Ctrl + .]でおすすめを表示させると、Prismをインストールしてusingまで通してくれる選択肢が出てくる。  
 簡単にインストールできてしかも軽いので、コマンドの実装をするなら使わない手はない。  
-nugetから入れようとすると、まず開くので重くて、調べるので重くて、インストールがだるいという3重苦だが、ここまで軽くて簡単に入れられるならマストで入れるべきだ。  
+
+nugetから入れようとすると、開く時点で重く、調べるのでも重く、インストールがだるいという3重苦だが、ここまで軽くて簡単に入れられるならマストで入れるべきだ。  
 
 CanExecuteとかFunc\<T>とか実装したいならこのサイトを参考に実装すればいいと思うけど、ならDelegateCommand使えという話。  
 [XAMLからViewModelのメソッドにバインドする～RelayCommand～](https://sourcechord.hatenablog.com/entry/2014/01/13/200039)  
+
+---
+
+## ヘルパークラス
+
+``` cs
+using System;
+using System.Windows.Input;
+
+namespace WPF_QuickStart.Common;
+
+public class RelayCommand : ICommand
+{
+    private readonly Action _execute;
+    private readonly Func<bool> _canExecute;
+
+    /// <summary>
+    /// RaiseCanExecuteChanged が呼び出されたときに生成されます。
+    /// </summary>
+    public event EventHandler CanExecuteChanged;
+
+    /// <summary>
+    /// 常に実行可能な新しいコマンドを作成します。
+    /// </summary>
+    /// <param name="execute">実行ロジック。</param>
+    public RelayCommand(Action execute)
+        : this(execute, null)
+    {
+    }
+
+    /// <summary>
+    /// 新しいコマンドを作成します。
+    /// </summary>
+    /// <param name="execute">実行ロジック。</param>
+    /// <param name="canExecute">実行ステータス ロジック。</param>
+    public RelayCommand(Action execute, Func<bool> canExecute)
+    {
+        if (execute == null)
+            throw new ArgumentNullException("execute");
+        _execute = execute;
+        _canExecute = canExecute;
+    }
+
+
+    /// <summary>
+    /// 現在の状態でこの <see cref="RelayCommand"/> が実行できるかどうかを判定します。
+    /// </summary>
+    /// <param name="parameter">
+    /// コマンドによって使用されるデータ。コマンドが、データの引き渡しを必要としない場合、このオブジェクトを null に設定できます。
+    /// </param>
+    /// <returns>このコマンドが実行可能な場合は true、それ以外の場合は false。</returns>
+    public bool CanExecute(object parameter)
+    {
+        return _canExecute == null ? true : _canExecute();
+    }
+
+    /// <summary>
+    /// 現在のコマンド ターゲットに対して <see cref="RelayCommand"/> を実行します。
+    /// </summary>
+    /// <param name="parameter">
+    /// コマンドによって使用されるデータ。コマンドが、データの引き渡しを必要としない場合、このオブジェクトを null に設定できます。
+    /// </param>
+    public void Execute(object parameter)
+    {
+        _execute();
+    }
+
+    /// <summary>
+    /// <see cref="CanExecuteChanged"/> イベントを発生させるために使用されるメソッド
+    /// <see cref="CanExecute"/> の戻り値を表すために
+    /// メソッドが変更されました。
+    /// </summary>
+    public void RaiseCanExcuteChanged()
+    {
+        var handler = CanExecuteChanged;
+        if (handler != null)
+        {
+            handler(this, EventArgs.Empty);
+        }
+    }
+}
+```
+
+[第6回　「コマンド」と「MVVMパターン」を理解する：連載：WPF入門（3/3 ページ） - ＠IT](https://atmarkit.itmedia.co.jp/ait/articles/1011/09/news102_3.html)  
+[XAMLからViewModelのメソッドにバインドする～RelayCommand～ - SourceChord](https://sourcechord.hatenablog.com/entry/2014/01/13/200039)  
+
+---
+
+まったくおすすめしないが、ライブラリ使わないとここまで大変というサンプル  
+[WPFのMVVMでコマンドをバインディングする利点](https://takamints.hatenablog.jp/entry/why-using-commands-in-wpf-mvvm)  

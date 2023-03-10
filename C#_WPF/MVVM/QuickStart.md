@@ -1,58 +1,74 @@
 # QuickStart
 
+---
+
+## 目的
+
+プレーンなWPFをMVVMでサクッと動かすためのサンプル。  
+
+加算ボタン、減算ボタン、カウントの表示だけを行うシンプルな構成でサクッと動かす。  
+
+開発はVSCodeで行う。  
+VSCodeでの開発では、XAMLの編集ヒントが全く出ないのでガリガリやっていくのには向かないが、VisualStudioなんて立ち上げていたら重くてたまらないので致し方なし。  
+
+---
+
 ## 環境
 
 - Windows10以降  
 - .NET6.0  
-- Visual Studio Community 2022  
+- VisualStudioCode  
 - WPF  
 
 ---
 
-`dotnet new wpf -o WPF_QuickStart -f net6.0`  
-`code WPF_QuickStart`  
+## プロジェクトの構成
+
+``` txt
+/WPF_QuickStart
+    /Common
+        BindableBase.cs
+        RelayCommand.cs
+    /ViewModels
+        ViewModels.cs
+    /Views
+        MainWindow.xaml
+        MainWindow.xaml.cs
+    App.xaml
+    App.xaml.cs
+```
+
+- Views : 画面表示に関するファイルを格納するフォルダ  
+- ViewModels : 画面と処理を繋ぐViewModelファイルを格納するフォルダ  
+- Models : ビジネスロジックに関する処理を格納するフォルダ  
+- Common : 共通的なロジックを格納するファルダ  
+
+今回はビジネスロジックはないためModelは省略  
 
 ---
 
-## ViewModels
+## プロジェクトの作成
 
-`ViewModels`フォルダを作成し、`ViewModel.cs`を新規作成する。  
-以下のコードをコピペする。  
+- ターミナルから`dotnet new`コマンドを実行する。  
+  - `dotnet new wpf -o WPF_QuickStart -f net6.0`  
+
+- VSCodeを起動する。  
+  - `code WPF_QuickStart`  
+
+---
+
+## Common
+
+`Common`フォルダを作成し、`BindableBase.cs`と`RelayCommand.cs`を新規作成する。  
+以下のコードをそれぞれのコピペする。  
+
+### BindableBase
 
 ``` cs
-using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Windows.Input;
 
-namespace WPF_QuickStart.ViewModels;
-
-public class ViewModel : BindableBase
-{
-    //コマンド
-    public ICommand Button1_Pushed { get; set; }
-
-    public ViewModel()
-    {
-        //コマンド
-        Button1_Pushed = new RelayCommand(Button1_Command);
-    }
-
-    //コマンドの処理内容
-    private void Button1_Command()
-    {
-        //カウント数を増やす
-        Count++;
-    }
-
-    //変数(カウント数)
-    private int _Count;
-    public int Count
-    {
-        get { return _Count; }
-        set { SetProperty(ref _Count, value); }
-    }
-}
+namespace WPF_QuickStart.Common;
 
 /// <summary>
 /// INotifyPropertyChangedのヘルパークラス
@@ -82,8 +98,17 @@ public class BindableBase : INotifyPropertyChanged
         return true;
     }
 }
+```
 
-class RelayCommand : ICommand
+### RelayCommand
+
+``` cs
+using System;
+using System.Windows.Input;
+
+namespace WPF_QuickStart.Common;
+
+public class RelayCommand : ICommand
 {
     private readonly Action _execute;
     private readonly Func<bool> _canExecute;
@@ -139,6 +164,11 @@ class RelayCommand : ICommand
         _execute();
     }
 
+    /// <summary>
+    /// <see cref="CanExecuteChanged"/> イベントを発生させるために使用されるメソッド
+    /// <see cref="CanExecute"/> の戻り値を表すために
+    /// メソッドが変更されました。
+    /// </summary>
     public void RaiseCanExcuteChanged()
     {
         var handler = CanExecuteChanged;
@@ -150,13 +180,86 @@ class RelayCommand : ICommand
 }
 ```
 
+---
+
+## ViewModels
+
+`ViewModels`フォルダを作成し、`ViewModel.cs`を新規作成する。  
+以下のコードをコピペする。  
+
+``` cs
+using System.Windows.Input;
+using WPF_QuickStart.Common;
+
+namespace WPF_QuickStart.ViewModels;
+
+public class ViewModel : BindableBase
+{
+    /// <summary>
+    /// インクリメントコマンド
+    /// </summary>
+    /// <value></value>
+    public RelayCommand IncrementCommand { get; set; }
+
+    /// <summary>
+    /// デクリメントコマンド
+    /// </summary>
+    /// <value></value>
+    public RelayCommand DecrementCommand { get; set; }
+
+    /// <summary>
+    /// カウントプロパティ
+    /// </summary>
+    /// <value></value>
+    public int Count
+    {
+        get { return _Count; }
+        set { SetProperty(ref _Count, value); }
+    }
+    private int _Count;
+
+    /// <summary>
+    /// コンストラクタ
+    /// </summary>
+    public ViewModel()
+    {
+        IncrementCommand = new RelayCommand(Increment);
+        DecrementCommand = new RelayCommand(Decrement,() => Count > 0);
+    }
+
+    /// <summary>
+    /// インクリメントコマンドの処理
+    /// カウント数を増やす
+    /// </summary>
+    private void Increment()
+    {
+        Count++;
+        DecrementCommand.RaiseCanExcuteChanged();
+    }
+
+    /// <summary>
+    /// デクリメントコマンドの処理
+    /// カウント数を減らす
+    /// </summary>
+    private void Decrement()
+    {
+        Count--;
+        DecrementCommand.RaiseCanExcuteChanged();
+    }
+}
+```
+
+---
+
 ## Views
 
 `Views`フォルダを作成する。  
 
 `MainWindow.xaml`と`MainWindow.xaml.cs`を`Views`フォルダに移動させる。  
 
-`App.xaml`の`StartupUri`を`MainWindow.xaml`から`Views/MainWindow.xaml`に変更する。  
+### App.xaml
+
+`StartupUri`を`MainWindow.xaml`から`Views/MainWindow.xaml`に変更する。  
 
 ``` xml
 <Application x:Class="WPF_QuickStart.App"
@@ -170,38 +273,44 @@ class RelayCommand : ICommand
 </Application>
 ```
 
-`MainWindow.xaml`  
+### MainWindow.xaml
 
-`x:Class="WPF_QuickStart.MainWindow"`から`x:Class="WPF_QuickStart.Views.MainWindow"`に変更。  
+`x:Class`を`x:Class="WPF_QuickStart.MainWindow"`から`x:Class="WPF_QuickStart.Views.MainWindow"`に変更。  
+
 `xmlns:vm="clr-namespace:WPF_QuickStart.ViewModels"`を追加。  
+
 `Window.DataContext`プロパティに`vm:ViewModel`を追加。  
 
+ボタンとテキストブロックを追加する。  
+
+最終形は以下の通り。  
+
 ``` xml
-<Window
-    x:Class="WPF_QuickStart.Views.MainWindow"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:local="clr-namespace:WPF_QuickStart"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:vm="clr-namespace:WPF_QuickStart.ViewModels"
-    Title="MainWindow"
-    Width="800"
-    Height="450"
-    mc:Ignorable="d">
+<Window x:Class="WPF_QuickStart.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WPF_QuickStart"
+        xmlns:vm="clr-namespace:WPF_QuickStart.ViewModels"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
     <Window.DataContext>
         <vm:ViewModel />
     </Window.DataContext>
     <Grid>
         <StackPanel Orientation="Vertical" >
-            <Button Content="Button1" Command="{Binding Button1_Pushed}" />
+            <Button Content="Increment" Command="{Binding IncrementCommand}" />
+            <Button Content="Decrement" Command="{Binding DecrementCommand}" />
             <TextBlock Text="{Binding Count}" />
         </StackPanel>
     </Grid>
 </Window>
 ```
 
-`MainWindow.xaml.cs`のnamespaceを`WPF_QuickStart`から`WPF_QuickStart.Views`に変更。  
+### MainWindow.xaml.cs
+
+namespaceを`WPF_QuickStart`から`WPF_QuickStart.Views`に変更。  
 
 ``` cs
 using System.Windows;
@@ -219,14 +328,25 @@ namespace WPF_QuickStart.Views
         }
     }
 }
-
 ```
 
+---
+
+## プロジェクトの起動
+
+VSCodeのターミナルを起動。  
+`Ctrl + J`  
+
+ターミナルでプロジェクト起動コマンドを実行する。  
 `dotnet run`  
 
 ---
 
+## 参考
+
+ここが一番よくまとまっている。  
 [【C#】MVVMプロジェクトの作り方【初心者向け】 | すぽてく](https://shinshin-log.com/mvvm-project/)  
 
+参考になるが、少し凝りすぎてうるさい。  
 [【C#】WPFでMVVMをフレームワークなしでシンプルに構築する](https://zenn.dev/takuty/articles/b12f4011871058)  
 [世界で一番短いサンプルで覚えるMVVM入門 | 趣味や仕事に役立つ初心者DIYプログラミング入門](https://resanaplaza.com/%E4%B8%96%E7%95%8C%E3%81%A7%E4%B8%80%E7%95%AA%E7%9F%AD%E3%81%84%E3%82%B5%E3%83%B3%E3%83%97%E3%83%AB%E3%81%A7%E8%A6%9A%E3%81%88%E3%82%8Bmvvm%E5%85%A5%E9%96%80/)  

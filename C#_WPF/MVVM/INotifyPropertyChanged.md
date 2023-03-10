@@ -15,42 +15,44 @@
 3. プロパティの set 内でのPropertyChangedEventHandlerイベントハンドラの呼び出し  
 
 ``` C# : INotifyPropertyChangedの最小実装
-    // 1. INotifyPropertyChangedの継承
-    internal class ViewModel : INotifyPropertyChanged
-    {
-        // 2. PropertyChangedEventHandlerイベントハンドラの記述
-        /// <summary>
-        /// INotifyPropertyChangedインターフェース実装イベント
-        /// </summary>
-        public event PropertyChangedEventHandler? PropertyChanged;
+// 1. INotifyPropertyChangedの継承
+internal class ViewModel : INotifyPropertyChanged
+{
+    // 2. PropertyChangedEventHandlerイベントハンドラの記述
+    /// <summary>
+    /// INotifyPropertyChangedインターフェース実装イベント
+    /// </summary>
+    public event PropertyChangedEventHandler? PropertyChanged;
 
-        /// <summary>
-        /// カウント数
-        /// </summary>
-        public int Count
+    /// <summary>
+    /// カウント数
+    /// </summary>
+    public int Count
+    {
+        get { return _Count; }
+        set
         {
-            get { return _Count; }
-            set
-            {
-                _Count = value;
-                // 3. プロパティの set 内でのPropertyChangedEventHandlerイベントハンドラの呼び出し
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Count)));
-            }
+            _Count = value;
+            // 3. プロパティの set 内でのPropertyChangedEventHandlerイベントハンドラの呼び出し
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Count)));
         }
-        private int _Count;
     }
+    private int _Count;
+}
 ```
 
 全てのプロパティにおいて、こんなこと書いてられないので、以下に紹介するヘルパークラス(BindableBase)を実装するというわけ。  
 
 ---
 
-## ヘルパークラス (BindableBase)
+## ヘルパークラス
 
 INotifyPropertyChangedインターフェースの実装をすべてのプロパティに実装するのは負荷が高いため、一般的に以下のようなヘルパークラスが作成されます。  
 
 →  
 これが実務でも見るViewModelBaseに記述されてるあれになるわけだ。  
+
+■ **INotifyPropertyChangedのヘルパークラス(BindableBase)**  
 
 ``` C# : INotifyPropertyChangedのヘルパークラス(BindableBase)
 using System.ComponentModel;
@@ -85,6 +87,8 @@ public class BindableBase : INotifyPropertyChanged
     }
 }
 ```
+
+■ **BindableBaseの実装例**  
 
 ``` C# : BindableBaseの実装例
 public class ViewModel : BindableBase
