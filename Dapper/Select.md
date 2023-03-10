@@ -159,3 +159,79 @@ _ = list.GroupJoin(
 // [3]:{ A = 2, B = 1, C = "Piyo" }
 // [4]:{ A = 2, B = 2, C = "NULLです" }
 ```
+
+---
+
+## サクッとJsonにする
+
+``` cs
+using Microsoft.Data.SqlClient;
+using Dapper;
+using System.Text.Json;
+
+// Dapperで取得
+using SqlConnection connection = new SqlConnection("接続文字列");
+var query = @"クエリ";
+var res = connection.QueryFirstOrDefault<dynamic>(query);
+
+// Jsonにシリアライズ
+string jsonstr = JsonSerializer.Serialize(
+    res,
+    new JsonSerializerOptions { WriteIndented = true }
+);
+Console.WriteLine(jsonstr);
+
+// ① QueryFirstOrDefault + WriteIndented = true の場合の出力
+// {
+//   "Field1": "Hoge",
+//   "Field2": "2022-10-07T00:00:00",
+//   "Field3": 1
+// }
+
+// ② QueryFirstOrDefault + WriteIndented = false の場合の出力
+// {"Field1":"Hoge","Field2":"2022-10-07T00:00:00","Field3":1}
+
+// ③ Query + WriteIndented = true の場合の出力
+// [
+//   {
+//     "Field1": "Hoge",
+//     "Field2": "2022-10-07T00:00:00",
+//     "Field3": 1
+//   }
+// ]
+
+// ④ Query + WriteIndented = false の場合の出力
+// [{"Field1":"Hoge","Field2":"2022-10-07T00:00:00","Field3":1}]
+```
+
+``` cs
+using Microsoft.Data.SqlClient;
+using Dapper;
+using System.Text.Json;
+
+// Dapperで取得
+using SqlConnection connection = new SqlConnection("接続文字列");
+var query = @"クエリ";
+var res = connection.QueryFirstOrDefault<dynamic>(query);
+
+// 匿名型でネスト
+var nested = new {
+    FugaFiled = "Fuga",
+    BasicItem = res
+};
+// Jsonにシリアライズ
+string jsonstr = JsonSerializer.Serialize(
+    nested,
+    new JsonSerializerOptions { WriteIndented = true }
+);
+Console.WriteLine(jsonstr);
+
+// {
+//   "FugaFiled": "Fuga",
+//   "BasicItem": {
+//     "Field1": "Hoge",
+//     "Field2": "2022-10-07T00:00:00",
+//     "Field3": 1
+//   }
+// }
+```
