@@ -5,11 +5,10 @@
 ## 目的
 
 プレーンなWPFをMVVMでサクッと動かすためのサンプル。  
-
-加算ボタン、減算ボタン、カウントの表示だけを行うシンプルな構成でサクッと動かす。  
-
+加算ボタン、減算ボタン、カウントの表示だけを行うシンプルな構成。  
 開発はVSCodeで行う。  
-VSCodeでの開発では、XAMLの編集ヒントが全く出ないのでガリガリやっていくのには向かないが、VisualStudioなんて立ち上げていたら重くてたまらないので致し方なし。  
+
+~~VSCodeでの開発では、XAMLの編集ヒントが全く出ないのでガリガリやっていくのには向かないが、VisualStudioなんて立ち上げていたら重くてたまらないので致し方なし。~~  
 
 ---
 
@@ -49,18 +48,18 @@ VSCodeでの開発では、XAMLの編集ヒントが全く出ないのでガリ�
 
 ## プロジェクトの作成
 
-- ターミナルから`dotnet new`コマンドを実行する。  
-  - `dotnet new wpf -o WPF_QuickStart -f net6.0`  
+ターミナルから`dotnet new`コマンドを実行する。  
+`dotnet new wpf -o WPF_QuickStart -f net6.0`  
 
-- VSCodeを起動する。  
-  - `code WPF_QuickStart`  
+VSCodeを起動する。  
+`code WPF_QuickStart`  
 
 ---
 
 ## Common
 
 `Common`フォルダを作成し、`BindableBase.cs`と`RelayCommand.cs`を新規作成する。  
-以下のコードをそれぞれのコピペする。  
+以下のコードをそれぞれコピペする。  
 
 ### BindableBase
 
