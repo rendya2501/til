@@ -106,41 +106,6 @@ Dapperにおいて`@変数`として動的にSQL文を組み立てるあの部�
 
 ---
 
-## DROP TABLEやTRUNCATE TABLEはロールバック可能か？
-
-SQLServerではロールバック可能であることを確認した。  
-他はDBによる模様。  
-ロールバック不可能なDBに関してはdrop tableやtruncate等のDDL(テーブル構造)命令は、RollBackが利かないらしい。  
-
-``` sql
-drop table if exists employees;
-create table employees(dept_id int,name varchar(32));
-insert into employees(dept_id,name) values(1,'田中');
-insert into employees(dept_id,name) values(2,'玉木');
-insert into employees(dept_id,name) values(3,'鈴木');
-GO
-
-BEGIN TRY
-    BEGIN TRANSACTION
-
-    DROP TABLE employees;
-    -- TRUNCATE TABLE employees;
-    SELECT 1/0
-
-    COMMIT TRANSACTION
-END TRY
-
-BEGIN CATCH
-    THROW
-    ROLLBACK TRANSACTION
-END CATCH
-GO
-
-select * from employees
-```
-
----
-
 ## DDLのトランザクション
 
 ■**PostgreSQL**  
@@ -222,3 +187,10 @@ SELECT文の処理は2つに分けられる。
 [SELECT文の処理の仕組みを説明してみた。](https://nattou-curry-2.hatenadiary.org/entry/20090315/1237089749)
 
 ---
+
+## MultiInsert
+
+`INSERT ALL` は ORACLEの構文の模様。  
+SQLServerはOUTPUT句とINTO句を組み合わせれば、ワンセンテンスで行けるっぽいけど、あまり現実的ではなさそう。  
+
+[【SQL】INSERT文の書き方：サンプル多数あり | SE日記](https://oreno-it.info/archives/2258#:~:text=%E3%83%9E%E3%83%AB%E3%83%81%E3%83%86%E3%83%BC%E3%83%96%E3%83%AB%E3%82%A4%E3%83%B3%E3%82%B5%E3%83%BC%E3%83%88%E3%81%A8%E3%81%84%E3%81%86%E6%9B%B8%E3%81%8D%E6%96%B9,%E3%81%99%E3%82%8B%E3%81%93%E3%81%A8%E3%81%8C%E5%87%BA%E6%9D%A5%E3%81%BE%E3%81%99%E3%80%82&text=INSERT%20ALL%E3%81%A8%E8%A8%98%E8%BF%B0%E3%81%97,%E8%A8%98%E8%BF%B0%E3%81%97%E3%81%A6%E3%81%84%E3%81%8D%E3%81%BE%E3%81%99%E3%80%82&text=%E5%90%8C%E3%81%98%E3%83%86%E3%83%BC%E3%83%96%E3%83%AB%E3%81%AB%E8%A4%87%E6%95%B0%E8%A1%8C,%E3%81%99%E3%82%8B%E3%81%93%E3%81%A8%E3%82%82%E5%8F%AF%E8%83%BD%E3%81%A7%E3%81%99%E3%80%82)  

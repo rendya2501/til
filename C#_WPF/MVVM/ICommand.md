@@ -197,7 +197,7 @@ public class RelayCommand : ICommand
     /// <see cref="CanExecute"/> の戻り値を表すために
     /// メソッドが変更されました。
     /// </summary>
-    public void RaiseCanExcuteChanged()
+    public void RaiseCanExecuteChanged()
     {
         var handler = CanExecuteChanged;
         if (handler != null)

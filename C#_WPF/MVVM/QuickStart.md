@@ -1,7 +1,5 @@
 # QuickStart
 
----
-
 ## 目的
 
 プレーンなWPFをMVVMでサクッと動かすためのサンプル。  
@@ -29,7 +27,7 @@
         BindableBase.cs
         RelayCommand.cs
     /ViewModels
-        ViewModels.cs
+        MainWindowViewModel.cs
     /Views
         MainWindow.xaml
         MainWindow.xaml.cs
@@ -168,7 +166,7 @@ public class RelayCommand : ICommand
     /// <see cref="CanExecute"/> の戻り値を表すために
     /// メソッドが変更されました。
     /// </summary>
-    public void RaiseCanExcuteChanged()
+    public void RaiseCanExecuteChanged()
     {
         var handler = CanExecuteChanged;
         if (handler != null)
@@ -183,7 +181,7 @@ public class RelayCommand : ICommand
 
 ## ViewModels
 
-`ViewModels`フォルダを作成し、`ViewModel.cs`を新規作成する。  
+`ViewModels`フォルダを作成し、`MainWindowViewModel.cs`を新規作成する。  
 以下のコードをコピペする。  
 
 ``` cs
@@ -192,7 +190,7 @@ using WPF_QuickStart.Common;
 
 namespace WPF_QuickStart.ViewModels;
 
-public class ViewModel : BindableBase
+public class MainWindowViewModel : BindableBase
 {
     /// <summary>
     /// インクリメントコマンド
@@ -220,7 +218,7 @@ public class ViewModel : BindableBase
     /// <summary>
     /// コンストラクタ
     /// </summary>
-    public ViewModel()
+    public MainWindowViewModel()
     {
         IncrementCommand = new RelayCommand(Increment);
         DecrementCommand = new RelayCommand(Decrement,() => Count > 0);
@@ -233,7 +231,7 @@ public class ViewModel : BindableBase
     private void Increment()
     {
         Count++;
-        DecrementCommand.RaiseCanExcuteChanged();
+        DecrementCommand.RaiseCanExecuteChanged();
     }
 
     /// <summary>
@@ -243,7 +241,7 @@ public class ViewModel : BindableBase
     private void Decrement()
     {
         Count--;
-        DecrementCommand.RaiseCanExcuteChanged();
+        DecrementCommand.RaiseCanExecuteChanged();
     }
 }
 ```
@@ -256,29 +254,13 @@ public class ViewModel : BindableBase
 
 `MainWindow.xaml`と`MainWindow.xaml.cs`を`Views`フォルダに移動させる。  
 
-### App.xaml
-
-`StartupUri`を`MainWindow.xaml`から`Views/MainWindow.xaml`に変更する。  
-
-``` xml
-<Application x:Class="WPF_QuickStart.App"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:WPF_QuickStart"
-             StartupUri="Views/MainWindow.xaml">
-    <Application.Resources>
-         
-    </Application.Resources>
-</Application>
-```
-
 ### MainWindow.xaml
 
 `x:Class`を`x:Class="WPF_QuickStart.MainWindow"`から`x:Class="WPF_QuickStart.Views.MainWindow"`に変更。  
 
 `xmlns:vm="clr-namespace:WPF_QuickStart.ViewModels"`を追加。  
 
-`Window.DataContext`プロパティに`vm:ViewModel`を追加。  
+`Window.DataContext`プロパティに`vm:MainWindowViewModel`を追加。  
 
 ボタンとテキストブロックを追加する。  
 
@@ -295,7 +277,7 @@ public class ViewModel : BindableBase
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Window.DataContext>
-        <vm:ViewModel />
+        <vm:MainWindowViewModel />
     </Window.DataContext>
     <Grid>
         <StackPanel Orientation="Vertical" >
@@ -329,12 +311,28 @@ namespace WPF_QuickStart.Views
 }
 ```
 
+### App.xaml
+
+`StartupUri`を`MainWindow.xaml`から`Views/MainWindow.xaml`に変更する。  
+
+``` xml
+<Application x:Class="WPF_QuickStart.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:WPF_QuickStart"
+             StartupUri="Views/MainWindow.xaml">
+    <Application.Resources>
+         
+    </Application.Resources>
+</Application>
+```
+
 ---
 
 ## プロジェクトの起動
 
 VSCodeのターミナルを起動。  
-`Ctrl + J`  
+`ctrl + j`  
 
 ターミナルでプロジェクト起動コマンドを実行する。  
 `dotnet run`  
@@ -349,3 +347,6 @@ VSCodeのターミナルを起動。
 参考になるが、少し凝りすぎてうるさい。  
 [【C#】WPFでMVVMをフレームワークなしでシンプルに構築する](https://zenn.dev/takuty/articles/b12f4011871058)  
 [世界で一番短いサンプルで覚えるMVVM入門 | 趣味や仕事に役立つ初心者DIYプログラミング入門](https://resanaplaza.com/%E4%B8%96%E7%95%8C%E3%81%A7%E4%B8%80%E7%95%AA%E7%9F%AD%E3%81%84%E3%82%B5%E3%83%B3%E3%83%97%E3%83%AB%E3%81%A7%E8%A6%9A%E3%81%88%E3%82%8Bmvvm%E5%85%A5%E9%96%80/)  
+
+MainWindowを移動させたときに変更が必要
+[WPFでMainWindow.xamlのフォルダを変更する](https://www.paveway.info/entry/2019/07/01/wpf_startupuri)  

@@ -1,20 +1,16 @@
-# 匿名型
+# ExpandoObject
 
----
-
-## 匿名型（匿名クラス）
-
-`var mydata1 = new { id = 100, name = "Penguin" }`の形で作る匿名型は、`System.Dynamic.ExpandoObject`クラスに該当する。  
-変数に直接代入せず、動的に匿名型を生成するためには、`System.Dynamic.ExpandoObject`クラスを使用する必要がある。  
+動的にプロパティを追加したりできるやつ。  
+`System.Dynamic`に属する`ExpandoObject`を使用する。  
+`ExpandoObject`はC#4.0から使用可能。  
 
 ``` cs
 dynamic employee = new ExpandoObject();
 employee.Name = "John Smith";
+
 Console.WriteLine(employee.Name);
 // John Smith
 ```
-
-`ExpandoObject`はC#4.0から使用可能。  
 
 ---
 
@@ -26,6 +22,7 @@ Console.WriteLine(employee.Name);
 ``` cs
 dynamic employee = new ExpandoObject();
 employee.Name = "John Smith";
+
 Console.WriteLine(employee.GetType().GetProperty("Name") ?? "nullです。");
 // nullです。
 ```
@@ -34,7 +31,7 @@ Console.WriteLine(employee.GetType().GetProperty("Name") ?? "nullです。");
 
 ## インテリセンス
 
-通常の匿名型はインテリセンスが効くが、`ExpandoObject`から生成した場合はインテリセンスは利かない。  
+匿名型はインテリセンスが効くが、`ExpandoObject`から生成した場合はインテリセンスは利かない。  
 
 ``` cs
 var test = new { key1 = "キー1", key2 = "キー2" };
@@ -54,7 +51,7 @@ Console.WriteLine(test.key2);  // キー2
 
 ---
 
-## 匿名クラスの動的生成の基本
+## 動的生成の基本
 
 `IDictionary<string, object>`に格納することで実現可能。  
 
@@ -87,7 +84,7 @@ Console.WriteLine(((dynamic)expando).Name); // Hoge
 
 ---
 
-## 匿名クラスの更新
+## 値の更新
 
 ExpandoObjectは更新可能。  
 
@@ -99,25 +96,9 @@ expando.Hoge = "Fuga";
 Console.WriteLine(expando.Hoge); // Fuga
 ```
 
-通常の匿名型はC#8.0までは不可能。  
-C#9.0から`With`式を用いることで可能となった。  
-[with 式 - 既存のオブジェクトの変更されたコピーである新しいオブジェクトを作成する | Microsoft Learn](https://learn.microsoft.com/ja-jp/dotnet/csharp/language-reference/operators/with-expression)  
-
-その場合、更新というよりは、値を変更して新しくインスタンスを作り直す感じになる。  
-元の値は破壊しない。  
-
-``` cs
-var hoge = new {Fuga ="Fuga"};
-Console.WriteLine(hoge.Fuga); // Fuga
-
-var fuga = hoge with {Fuga = "Piyo"};
-Console.WriteLine(hoge.Fuga); // Fuga
-Console.WriteLine(fuga.Fuga); // Piyo
-```
-
 ---
 
-## 匿名クラスの動的生成の実践例
+## 動的生成の実践例
 
 ``` cs
 // 動的に作成するプロパティ、値の組み合わせをDictionaryに登録
@@ -309,8 +290,6 @@ private SampleData GetSample(Condition condition)
 
 ## 参考
 
-[匿名型_ipentec](https://www.ipentec.com/document/csharp-using-anonymous-type)  
-
 [.NET Core (C#) 匿名型（匿名クラス）を動的に作成する](https://marock.tokyo/2021/01/24/net-core-%E5%8C%BF%E5%90%8D%E5%9E%8B%EF%BC%88%E5%8C%BF%E5%90%8D%E3%82%AF%E3%83%A9%E3%82%B9%EF%BC%89%E3%82%92%E5%8B%95%E7%9A%84%E3%81%AB%E4%BD%9C%E6%88%90%E3%81%99%E3%82%8B/)  
 
 [匿名型の動的生成に関して](https://dobon.net/vb/bbs/log3-54/31793.html)  
@@ -320,5 +299,3 @@ private SampleData GetSample(Condition condition)
 [新しい匿名クラスを動的にするには？](https://www.web-dev-qa-db-ja.com/ja/c%23/%E6%96%B0%E3%81%97%E3%81%84%E5%8C%BF%E5%90%8D%E3%82%AF%E3%83%A9%E3%82%B9%E3%82%92%E5%8B%95%E7%9A%84%E3%81%AB%E3%81%99%E3%82%8B%E3%81%AB%E3%81%AF%EF%BC%9F/970949625/)  
 
 [ExpandoObject クラス (System.Dynamic) | Microsoft Learn](https://learn.microsoft.com/ja-jp/dotnet/api/system.dynamic.expandoobject?view=net-7.0)  
-
-[匿名型 | Microsoft Learn](https://learn.microsoft.com/ja-jp/dotnet/csharp/fundamentals/types/anonymous-types)  
