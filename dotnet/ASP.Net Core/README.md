@@ -422,12 +422,14 @@ InterfaceではRequestを受け取れない。
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 
-app.MapGet("/", () => "Hello World!");
-// OK
+// NomalClass : OK
 app.MapPost("/OK1", (Todo todo) => new { todo.ID, todo.Name });
+// ConcreteClass : OK
 app.MapPost("/OK2", (ConcreateTodo todo) => new { todo.ID, todo.Name });
-// NG
+
+// Interface : NG
 app.MapPost("/NG", (ITodo todo) => new { todo.ID, todo.Name });
+
 app.Run();
 
 
