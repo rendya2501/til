@@ -1,11 +1,5 @@
 # Jsonライブラリ
 
-- System.Text.Json : 諸事情によりサードパーティライブラリを使えない時。  
-- NewtonJson : 高機能な検索やパフォーマンスを出したい時。  
-- DataContractJsonSerializer : 諸事情によりサードパーティライブラリを使えない時だが、わざわざ採用する理由はない。  
-
----
-
 ## NewtonJson
 
 MITライセンスで公開されている.NET用のオープンソースJSONライブラリ  
@@ -96,6 +90,12 @@ public static class JsonUtility
 ```
 
 [[C#] C#でJSONを扱う方法まとめ](https://dev.classmethod.jp/articles/c-sharp-json/)  
+
+---
+
+- System.Text.Json : 諸事情によりサードパーティライブラリを使えない時。  
+- NewtonJson : 高機能な検索やパフォーマンスを出したい時。  
+- DataContractJsonSerializer : 諸事情によりサードパーティライブラリを使えない時だが、わざわざ採用する理由はない。  
 
 ---
 

@@ -62,9 +62,9 @@ builder.Services.AddDbContext<DataContext>(options =>
 動画の方では全てURLで指定している。  
 
 記事のサンプルの方では`GetFromJsonAsync`メソッドでapi以下のURLを指定している。  
-自分自身のAPIへのアクセスは内部のロジックから行うべきということか。  
-
 CORSが発生する。
+
+■ **CORSが発生する記述方法**
 
 ``` cs
 protected async Task GetUser(){
@@ -73,7 +73,9 @@ protected async Task GetUser(){
 }
 ```
 
-CORSが発生しない。  
+自分自身のAPIへのアクセスは内部のロジックから行うべきということか。  
+
+■ **CORSが発生しない記述方法**
 
 ``` cs
 protected async Task GetUser()
@@ -142,6 +144,10 @@ public class HogehogeDataService
 }
 ```
 
+---
+
 [[ASP.NET Core] Blazor Server 入門 (EF Core + SQL Server 編)](https://mseeeen.msen.jp/asp-dotnet-core-blazor-ef-core-sqlserver/)  
 
 [How to Build a Blazor CRUD Application with Dapper](https://www.syncfusion.com/blogs/post/build-blazor-crud-application-with-dapper.aspx)  
+
+[.NET 6 と Entity Framework Core InMemory を使用した Blazor Server CRUD](https://www.youtube.com/watch?v=ii6QzWudZ6E)  

@@ -404,3 +404,51 @@ dotnet watch runだけではだめ
 | × | ---- | `dotnet watch run --launch-profile "WebAPISample"` |
 
 launchSettings.jsonのプロファイル名を指定して上げないと立ち上がらない。  
+
+---
+
+## InterfaceでRequestを受け取る
+
+InterfaceではRequestを受け取れない。  
+以下のエラーが発生する。  
+`System.NotSupportedException: 'Deserialization of interface types is not supported.`
+
+リクエストの問題というよりはJsonのデシリアライズの問題の模様。  
+インターフェースを実装した具象クラスであれば問題は発生しない。  
+
+`dotnet new web -o MinimalAPI -f net6.0`  
+
+``` cs
+var builder = WebApplication.CreateBuilder(args);
+var app = builder.Build();
+
+app.MapGet("/", () => "Hello World!");
+// OK
+app.MapPost("/OK1", (Todo todo) => new { todo.ID, todo.Name });
+app.MapPost("/OK2", (ConcreateTodo todo) => new { todo.ID, todo.Name });
+// NG
+app.MapPost("/NG", (ITodo todo) => new { todo.ID, todo.Name });
+app.Run();
+
+
+class Todo
+{
+    public int ID { get; set; }
+    public string? Name { get; set; }
+}
+
+class ConcreateTodo : ITodo
+{
+    public int ID { get; set; }
+    public string? Name { get; set; }
+}
+
+interface ITodo
+{
+    int ID { get; set; }
+    string? Name { get; set; }
+}
+```
+
+[[NET 6] Cannot deserialize an Interface from JSON in ASP.NET Core? : csharp](https://www.reddit.com/r/csharp/comments/rakcvp/net_6_cannot_deserialize_an_interface_from_json/)  
+[C# – Casting interfaces for deserialization in JSON.NET – iTecNote](https://itecnote.com/tecnote/c-casting-interfaces-for-deserialization-in-json-net/)  
