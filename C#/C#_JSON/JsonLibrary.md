@@ -4,13 +4,6 @@
 
 MITライセンスで公開されている.NET用のオープンソースJSONライブラリ  
 
-- High Performance :  DataContractJsonSerializerより50%高速  
-- LINQ to JSON : JSONの作成、パース、検索、変更をJObject、JArray、JValueオブジェクトを使って行える  
-- Easy To Use  
-- Run Anywhere : WindowsでもMonoでもXamarinでも使える  
-- JSON Path : XPathライクな書き方でJSONのクエリが行える  
-- XML Support : XMLとJSONの相互変換をサポート  
-
 ``` C# : NewtonJson
 using Newtonsoft.Json;
 

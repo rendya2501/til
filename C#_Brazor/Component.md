@@ -216,3 +216,71 @@ inputタグでもtypeの指定で色々変化指せる事ができる。
 
 >\<NavLink class="nav-link" href="@($"editproduct/{product.Id}")">  
 [Navigating pages in Blazor](https://stackoverflow.com/questions/68347033/navigating-pages-in-blazor)  
+
+---
+
+## disableへのバインド
+
+disableはboolとなるため、boolのプロパティとのバインドとboolを返却するラムダ式の記述が可能。
+
+``` razor
+<button type="button" disabled="@IsDisabled"></button>
+<input @bind="IsDisabled" type="checkbox" />
+<input disabled="@IsDisabled" type="time" />
+
+@code{
+    protected bool IsDisabled { get; set; }
+}
+```
+
+[html - How to enable/disable inputs in blazor - Stack Overflow](https://stackoverflow.com/questions/55002514/how-to-enable-disable-inputs-in-blazor)  
+[How are input components enabled/disabled in Blazor?](https://www.syncfusion.com/faq/blazor/forms-and-validation/how-are-input-components-enabled-disabled-in-blazor)  
+
+---
+
+## コンポーネントにラムダ式を記述する方法
+
+`@`文字は、C# に切り替えるために使用される。  
+C# の式の開始と終了を明示的に指定するには、かっこを使用する。  
+
+以上を組み合わせると以下のようになる。  
+
+``` html
+<p role="status">Current count: @currentCount</p>
+
+<button class="btn btn-primary" @onclick="IncrementCount">Increment</button>
+<button class="btn btn-primary" disabled="@(currentCount <= 0)" @onclick="DecrementCount">Decrement</button>
+
+@code {
+    private int currentCount = 0;
+
+    private void IncrementCount() => currentCount++;
+    private void DecrementCount() => currentCount--;
+}
+```
+
+こちらの場合でも動作はするが、警告が表示される。
+
+``` html
+<button class="btn btn-primary" disabled=@(currentCount <= 0) @onclick="DecrementCount">Decrement</button>
+```
+
+これらは認識されない。
+
+``` html
+<button class="btn btn-primary" disabled="(currentCount <= 0)" @onclick="DecrementCount">Decrement</button>
+<button class="btn btn-primary" disabled="() => @currentCount <= 0" @onclick="DecrementCount">Decrement</button>
+<button class="btn btn-primary" disabled="@(() => @currentCount <= 0)" @onclick="DecrementCount">Decrement</button>
+```
+
+[ASP.NET Core Blazor のイベント処理 | Microsoft Learn](https://learn.microsoft.com/ja-jp/aspnet/core/blazor/components/event-handling?view=aspnetcore-7.0#lambda-expressions)  
+[【Blazor】EventCallbackで子コンポーネントからイベントを受け取る方法｜Blazorマスターへの道](https://blazor-master.com/blazor-event-callback/)  
+
+---
+
+## PropertyChanged
+
+>Blazorは、ユーザーインタラクションが発生した場合（例：ボタンをクリックした、入力のテキストが変わった）、バインドされたプロパティの変更を自動的にチェックすることができます。  
+>この場合、BlazorのJavaScriptコードがC#（=Webassembly）の変更検知をトリガーします。したがって、ユーザーインタラクションの後にUIをリフレッシュしたい場合は、何もする必要はありません。  
+>しかし、タイマーなどのユーザーインタラクションが発生していないにもかかわらず、UIを更新したい場合がある。その場合、StateHasChangedを呼び出す必要があります。learn-blazor.comに、より詳細な例を作成しました。  
+[c# - How Blazor Framework get notifed when the property value gets changed - Stack Overflow](https://stackoverflow.com/questions/48920530/how-blazor-framework-get-notifed-when-the-property-value-gets-changed)  

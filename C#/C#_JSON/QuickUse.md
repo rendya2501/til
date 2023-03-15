@@ -64,8 +64,36 @@ var appSettingsJson = File.ReadAllText(appSettingsPath);
 // appsettings.jsonファイルの内容をJObjectに変換する
 var appSettings = JObject.Parse(appSettingsJson);
 
-// appsettings.jsonから値を取得する
+// キーを指定して値を取得する
 var someSetting = appSettings["MySetting"].Value<string>();
 Console.WriteLine($"MySetting value is {someSetting}");
 // MySetting value is Hello,World!
 ```
+
+---
+
+## System.Text.Json での実装
+
+ライブラリ自体はデフォルトで入っているので、nuget等からインストールする必要はない。  
+
+以下の実装を行う。  
+
+``` cs
+using System.Text.Json.Nodes;
+
+// 現在のディレクトリからappsettings.jsonファイルのパスを取得する
+var appSettingsPath = Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json");
+
+// appsettings.jsonファイルを読み込む
+var appSettingsJson = File.ReadAllText(appSettingsPath);
+
+// 不定形の取得にはSystem.Text.Json.Nodes.JsonNodeを使う
+var appSettings = JsonNode.Parse(appSettingsJson);
+
+// キーを指定して値を取得する
+var mySetting = appSettings?["MySetting"];
+Console.WriteLine($"MySetting value is {mySetting}");
+// MySetting value is Hello,World!
+```
+
+[System.Text.Json で型が不定のJSONを扱う(.NET) | Qreat](https://qreat.tech/3292/)  

@@ -452,5 +452,25 @@ interface ITodo
 }
 ```
 
+別にまとめるが、リクエストのjsonはこうじゃないと駄目。  
+
+``` json
+{
+  "ID" : 1,
+  "Name" : "Hoge"
+}
+```
+
+これはNG。全部初期値になってしまう。  
+
+``` json
+{
+  "Todo" : {
+    "ID" : 1,
+    "Name" : "Hoge"
+  }
+}
+```
+
 [[NET 6] Cannot deserialize an Interface from JSON in ASP.NET Core? : csharp](https://www.reddit.com/r/csharp/comments/rakcvp/net_6_cannot_deserialize_an_interface_from_json/)  
 [C# – Casting interfaces for deserialization in JSON.NET – iTecNote](https://itecnote.com/tecnote/c-casting-interfaces-for-deserialization-in-json-net/)  
