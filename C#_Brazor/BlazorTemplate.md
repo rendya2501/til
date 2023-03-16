@@ -16,4 +16,10 @@ WebAssemblyを用いて、Webブラウザ上に.NETランタイムを実装し�
 
 ---
 
+## .NET MAUI Blazor
+
+[初めての「.NET MAUI Blazor」──デスクトップとモバイルに対応した簡単なアプリを作成しよう (1/2)|CodeZine（コードジン）](https://codezine.jp/article/detail/16737)  
+
+---
+
 [7 つの Blazor と作り方 - rksoftware](https://rksoftware.hatenablog.com/entry/2022/06/03/024718)  
