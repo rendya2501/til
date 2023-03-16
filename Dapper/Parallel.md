@@ -153,6 +153,32 @@ public class DisposableThreadLocal<T> : ThreadLocal<T>
 
 ---
 
+## AsyncAwait
+
+もちろんTaskを用いた非同期処理も行えるようになる。  
+
+``` cs
+var con_str = @"Server=.\SQLEXPRESS;Database=SandBox;Integrated Security=True;";
+using (var connection = DisposableThreadLocal.Create(
+    () =>
+    {
+        var conn = new SqlConnection(con_str);
+        conn.Open();
+        return conn;
+    }
+))
+{
+    var a1 = 0;
+    var a2 = (DateTime?)null;
+    Task.WaitAll(
+        Task.Run(() => a1 = connection.Value.QueryFirst<int>("select 1")),
+        Task.Run(() => a2 = connection.Value.QueryFirst<DateTime>("select current_timestamp"))
+    );
+}
+```
+
+---
+
 ## 速度検証
 
 ループ回数が1,000回までの場合、通常のForが早いが、10万回になってくると圧倒的にParallelForの方が早いことが分かった。  
