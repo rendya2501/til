@@ -14,16 +14,6 @@
 
 ---
 
-## ソリューション
-
-`dotnet new sln`  
-デフォルトではフォルダ名がソリューション名となる。  
-
-例 : [\<SolutionName>]でフォルダを作りつつソリューションを作成する  
-`dotnet new -o <SolutionName>`  
-
----
-
 ## パッケージ
 
 `dotnet add package <PackageName>`  
@@ -103,6 +93,28 @@ nugetサイトを見ればわかるが、提示されているコマンドは`do
 `dotnet build --no-incremental`  
 
 [dotnet コマンドによるビルド | Do Design Space](https://sakapon.wordpress.com/2018/08/01/dotnet-build/)  
+
+---
+
+## 他プロジェクトの参照
+
+.csprojに以下のように直接記述するかコマンドを叩く。  
+コマンド叩いた結果が以下の結果であるので、相対パスでプロジェクトを追加するほうが楽かもしれない。  
+
+``` xml
+  <ItemGroup>
+    <ProjectReference Include="..\OPMLCoredotNET\src\OPMLCore.NET\OPMLCore.NET.csproj" />
+  </ItemGroup>
+```
+
+コマンドの場合はこのようにするらしい。  
+
+``` txt
+dotnet add reference ../OPMLCoredotNET/src/OPMLCore.NET/OPMLCore.NET.csproj
+dotnet restore
+```
+
+[.NET Core, Visual Studio Codeでプロジェクト参照を追加する](https://www.aruse.net/entry/2018/09/09/203402)  
 
 ---
 
