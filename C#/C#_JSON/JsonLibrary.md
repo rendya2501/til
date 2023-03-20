@@ -1,5 +1,11 @@
 # Jsonライブラリ
 
+- NewtonJson  
+- System.Text.Json  
+- DataContractJsonSerializer
+
+---
+
 ## NewtonJson
 
 MITライセンスで公開されている.NET用のオープンソースJSONライブラリ  
@@ -86,24 +92,16 @@ public static class JsonUtility
 
 ---
 
-- System.Text.Json : 諸事情によりサードパーティライブラリを使えない時。  
-- NewtonJson : 高機能な検索やパフォーマンスを出したい時。  
-- DataContractJsonSerializer : 諸事情によりサードパーティライブラリを使えない時だが、わざわざ採用する理由はない。  
+## どれを使えばいいのか？
 
----
+|ライブラリ|ユースケース|
+|---|---|
+|NewtonJson|高機能な検索やパフォーマンスを出したい時|
+|System.Text.Json|諸事情によりサードパーティライブラリを使えない時|
+|DataContractJsonSerializer|諸事情によりサードパーティライブラリを使えない時だが、わざわざ採用する理由はない|
 
-## C#のJSONの取り扱いの歴史
-
-[System.Text.Json でJSONを扱ってみよう](https://iwasiman.hatenablog.com/entry/20210614-CSharp-json)  
-
-- System.Runtime.Serialization.Json.DataContractJsonSerializer  
-- 長く使われてきたサードパーティ製ライブラリのJson.NET (NuGetで取り込むときのライブラリ名はNewtonsoft.Json)  
-- C#4.0で導入されたライブラリのDynamic.Json  
-
-ググると上記が入り混じってヒットするかと思います。特にJson.NETが広く使われたのでよくヒットしますね。  
-
-2015/11リリースの .NET Framework 4.6.1 からSystem.Text.Jsonが導入されパッケージ管理のNuGetでインストールすると使えるようになり、実行環境自体が刷新された .NET Core では2017/8リリースの .NET Core 2.0 から標準搭載。  
-2021年現在はこの [System.Text.Json] が**デフォルトで推奨**となっています。  
+[[C#] C#でJSONを扱う方法まとめ | DevelopersIO](https://dev.classmethod.jp/articles/c-sharp-json/)  
+[【C#】JSONのシリアライザは、System.Text.JSONを使おう。](https://qiita.com/SY81517/items/1cf6246dd99869f7b9c5)  
 
 ---
 
@@ -113,5 +111,3 @@ public static class JsonUtility
 >JSON.NETは多機能で使われる頻度が高く2020年3月現在ではデファクトスタンダードです。  
 >System.Text.Jsonは新しくMicrosoftが開発したライブラリで機能は少なめですがパフォーマンスが優れており、Webアプリケーションのスループットを向上させることができるようです。  
 >[VB/C#でJSONの読み込み (System.Text.Json編)](https://www.umayadia.com/Note/Note010VBSystem.Text.Json.htm)  
-
-[【C#】JSONのシリアライザは、System.Text.JSONを使おう。](https://qiita.com/SY81517/items/1cf6246dd99869f7b9c5)  

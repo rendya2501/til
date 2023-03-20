@@ -14,6 +14,22 @@ appsettings.json existance check
 
 ---
 
+## C#のJSONの取り扱いの歴史
+
+- System.Runtime.Serialization.Json.DataContractJsonSerializer  
+- 長く使われてきたサードパーティ製ライブラリのJson.NET (NuGetで取り込むときのライブラリ名はNewtonsoft.Json)  
+- C#4.0で導入されたライブラリのDynamic.Json  
+
+ググると上記が入り混じってヒットするかと思います。特にJson.NETが広く使われたのでよくヒットしますね。  
+
+2015/11リリースの .NET Framework 4.6.1 からSystem.Text.Jsonが導入された。  
+パッケージ管理のNuGetでインストールすると使えるようになり、実行環境自体が刷新された .NET Core では2017/8リリースの .NET Core 2.0 から標準搭載。  
+2021年現在はこの [System.Text.Json] が**デフォルトで推奨**。  
+
+[System.Text.Json でJSONを扱ってみよう](https://iwasiman.hatenablog.com/entry/20210614-CSharp-json)  
+
+---
+
 ## ファイル読み書きを含めたサンプルコード
 
 ``` C# : Read
@@ -167,6 +183,8 @@ appsettings.json existance check
 ---
 
 [C# を使用して JSON をシリアル化および逆シリアル化する方法 - .NET | Microsoft Learn](https://docs.microsoft.com/ja-jp/dotnet/standard/serialization/system-text-json-how-to?pivots=dotnet-6-0)
+
+[C#(.NET)でJsonの操作はJsonSerializerを使いましょう | DevelopersIO](https://dev.classmethod.jp/articles/csharp-dotnet-lets-use-jsonserializer/)  
 
 [C#でJSONを読み書きする方法](https://usefuledge.com/csharp-json.html)  
 

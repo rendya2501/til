@@ -13,9 +13,6 @@ Dispatcherはキューを管理するクラス。
 操作したいコントロールを所有しているスレッドのキュー管理に対して、指定したデリゲートの実行をお願いするイメージ。  
 とりあえず、並列処理とかasync,awaitとかの時に使えばいいみたいね。  
 
-[Dispatcher.InvokeとDispatcher.BeginInvoke、Dispatcher.InvokeAsyncの違い](https://redwarrior.hateblo.jp/entry/2021/03/29/090000)  
-この記事も面白い。  
-
 [await/async等の別スレッドからコントロールのプロパティを変更する](https://todosoft.net/blog/?p=363)  
 改めて見てみたけど、非同期中に他のコントロールのプロパティ変更したりするときに使う命令みたいね。  
 
@@ -43,9 +40,24 @@ System.Windows.Application.Current.Dispatcher.Invoke((Action)(() => {
 ```
 
 <https://hilapon.hatenadiary.org/entry/20130225/1361779314>  
-<https://araramistudio.jimdo.com/2017/05/02/c-%E3%81%A7%E5%88%A5%E3%82%B9%E3%83%AC%E3%83%83%E3%83%89%E3%81%8B%E3%82%89%E3%82%B3%E3%83%B3%E3%83%88%E3%83%AD%E3%83%BC%E3%83%AB%E3%82%92%E6%93%8D%E4%BD%9C%E3%81%99%E3%82%8B/>  
 <https://www.it-swarm-ja.com/ja/c%23/dispatcherinvoke%E3%82%92%E4%BD%BF%E7%94%A8%E3%81%97%E3%81%A6%E9%9D%9E%E3%83%A1%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%AC%E3%83%83%E3%83%89%E3%81%8B%E3%82%89wpf%E3%82%B3%E3%83%B3%E3%83%88%E3%83%AD%E3%83%BC%E3%83%AB%E3%82%92%E5%A4%89%E6%9B%B4%E3%81%99%E3%82%8B/968851135/>  
 
 ## UIスレッド以外からUIのコントロールを操作する
 
+スレッドの流れを含めた説明としてここが一番わかりやすい。  
 [【C#】UIスレッド以外からUIのコントロールを操作する](https://hikotech.net/post-388/)  
+
+[C#で別スレッドからコントロールを操作する (Dispatcher.Invoke) - Ararami Studio](https://araramistudio.jimdo.com/2017/05/02/c-%E3%81%A7%E5%88%A5%E3%82%B9%E3%83%AC%E3%83%83%E3%83%89%E3%81%8B%E3%82%89%E3%82%B3%E3%83%B3%E3%83%88%E3%83%AD%E3%83%BC%E3%83%AB%E3%82%92%E6%93%8D%E4%BD%9C%E3%81%99%E3%82%8B/)  
+
+---
+
+## Invoke・BeginInvoke・InvokeAsync
+
+- Invokeが同期処理  
+- BeginInvokeとInvokeAsyncが非同期処理  
+- BeginInvokeとInvokeAsyncの実装は同じ模様  
+
+InvokeAsyncが.NET Framework 4.5 で追加された新しいメソッド。  
+非同期ならInvokeAsyncを使っておけば良い模様。  
+
+[Dispatcher.InvokeとDispatcher.BeginInvoke、Dispatcher.InvokeAsyncの違い - redwarrior’s diary](https://redwarrior.hateblo.jp/entry/2021/03/29/090000)  
