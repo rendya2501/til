@@ -165,4 +165,12 @@ void Cancel(int i)
 
 ---
 
+Blazor WebAssembly  
+
+ASP.NET Core Hostedにチェックを入れてプロジェクトを作成すると、Client,Server,Sharedが自動生成される。  
+ServerはWebAPI。  
+Sharedはクラスライブラリだろうか。  
+
+---
+
 ## 参考サイト
