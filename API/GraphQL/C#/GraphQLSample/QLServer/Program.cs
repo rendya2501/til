@@ -1,9 +1,3 @@
-using HotChocolate;
-using HotChocolate.AspNetCore;
-using HotChocolate.Types;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
@@ -39,18 +33,4 @@ public class Book
     public string? Author { get; set; }
     public string? Publisher { get; set; }
     public DateTime PublicationDate { get; set; }
-}
-
-
-public class BookType : ObjectType<Book>
-{
-    protected override void Configure(IObjectTypeDescriptor<Book> descriptor)
-    {
-        descriptor.BindFieldsExplicitly();
-        descriptor.Field(x => x.Id).Type<NonNullType<IdType>>();
-        descriptor.Field(x => x.Title).Type<NonNullType<StringType>>();
-        descriptor.Field(x => x.Author).Type<NonNullType<StringType>>();
-        descriptor.Field(x => x.Publisher).Type<StringType>();
-        descriptor.Field(x => x.PublicationDate).Type<DateTimeType>();
-    }
 }

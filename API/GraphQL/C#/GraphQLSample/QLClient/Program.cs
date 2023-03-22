@@ -1,4 +1,4 @@
-﻿using GraphQL;
+using GraphQL;
 using GraphQL.Client.Http;
 using GraphQL.Client.Serializer.Newtonsoft;
 
@@ -11,8 +11,8 @@ using var graphQLClient = new GraphQLHttpClient(endpoint, new NewtonsoftJsonSeri
 var getAllBooksQuery = new GraphQLRequest
 {
     Query = @"
-    query {
-        getBooks {
+    query GetBooks(){
+        books  {
             id
             title
             author
@@ -25,7 +25,7 @@ var getAllBooksQuery = new GraphQLRequest
 var allBooksResponse = await graphQLClient.SendQueryAsync<BooksResponse>(getAllBooksQuery);
 
 Console.WriteLine("All books (Title and Author):");
-foreach (var book in allBooksResponse.Data.GetBooks)
+foreach (var book in allBooksResponse.Data.Books ?? Enumerable.Empty<Book>())
 {
     Console.WriteLine($"Title: {book.Title}, Author: {book.Author}");
 }
@@ -35,14 +35,14 @@ Console.WriteLine();
 var getBookByIdQuery = new GraphQLRequest
 {
     Query = @"
-    query GetBookById($id: ID) {
-        getBookById(id: $id) {
-            id
-            title
-            author
-            publisher
-            publicationDate
-        }
+    query GetBookById($id: String!) {
+      bookById (id: $id) {
+        id
+        title
+        author
+        publisher
+        publicationDate
+      }
     }",
     Variables = new { id = "1" }
 };
@@ -50,23 +50,31 @@ var getBookByIdQuery = new GraphQLRequest
 var bookByIdResponse = await graphQLClient.SendQueryAsync<BookByIdResponse>(getBookByIdQuery);
 
 Console.WriteLine("Book by ID (All fields):");
-Console.WriteLine($"ID: {bookByIdResponse.Data.GetBookById.Id}, Title: {bookByIdResponse.Data.GetBookById.Title}, Author: {bookByIdResponse.Data.GetBookById.Author}, Publisher: {bookByIdResponse.Data.GetBookById.Publisher}, PublicationDate: {bookByIdResponse.Data.GetBookById.PublicationDate.ToShortDateString()}");
+Console.WriteLine($"" +
+    $"ID: {bookByIdResponse.Data.BookById.Id}, " +
+    $"Title: {bookByIdResponse.Data.BookById.Title}, " +
+    $"Author: {bookByIdResponse.Data.BookById.Author}, " +
+    $"Publisher: {bookByIdResponse.Data.BookById.Publisher}, " +
+    $"PublicationDate: {bookByIdResponse.Data.BookById.PublicationDate.ToShortDateString()}"
+);
+
+Console.ReadLine();
 
 public class BooksResponse
 {
-    public Book[] GetBooks { get; set; }
+    public List<Book>? Books { get; set; }
 }
 
 public class BookByIdResponse
 {
-    public Book GetBookById { get; set; }
+    public Book? BookById { get; set; }
 }
 
 public class Book
 {
-    public string Id { get; set; }
-    public string Title { get; set; }
-    public string Author { get; set; }
-    public string Publisher { get; set; }
+    public string? Id { get; set; }
+    public string? Title { get; set; }
+    public string? Author { get; set; }
+    public string? Publisher { get; set; }
     public DateTime PublicationDate { get; set; }
 }
