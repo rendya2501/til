@@ -19,14 +19,12 @@
 
 ## オペレーション対応表
 
-``` txt
-OPERATION | SQL    | HTTP/REST
-----------+--------+-----------
-CREATE    | INSERT | POST
-READ      | SELECT | GET
-UPDATE    | UPDATE | PUT/PATCH
-DELETE    | DELETE | DELETE
-```
+|OPERATION|SQL| HTTP/REST|
+|---|---|---|
+|CREATE    | INSERT | POST|
+|READ      | SELECT | GET|
+|UPDATE    | UPDATE | PUT/PATCH|
+|DELETE    | DELETE | DELETE|
 
 [Repository Pattern](https://www.youtube.com/watch?v=x6C20zhZHw8)  
 
