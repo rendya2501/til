@@ -1,29 +1,71 @@
 # GraphQL
 
----
-
 ## GraphQLとは
 
->GraphQL は API のために作られたクエリ言語であり、既存のデータに対するクエリを実行するランタイムです。  
-理解できる完全な形で API 内のデータについて記述します。  
-GraphQL を利用すれば、クライアント側から必要な内容だけを問い合わせられると共に、漸次的に API を進化させることが容易になり、強力な開発者ツールを実現できます。  
-[GraphQL 入門ガイド](https://circleci.com/ja/blog/introduction-to-graphql/)  
+GraphQLは、Facebookが開発し、2015年にオープンソースとして公開されたデータクエリおよび操作言語です。  
+APIを介してデータを取得・操作する際に利用されます。  
+RESTful APIに代わる新しいアプローチとして広く普及しています。  
 
-``` txt
-GraphQL とは、API 用のクエリ言語およびランタイムのこと。 by RedHat
-Facebookが開発しているWeb APIのための規格。
+GraphQLの主な特徴は以下の通りです：  
+
+1. **データ要求の柔軟性**: REST（REpresentational State Transfer）APIとは異なり、GraphQLは、クライアントが必要とするデータ構造を指定してリクエストできるため、過剰なデータや不足しているデータを受け取ることがありません。  
+   クライアントが必要なデータのみを取得できるため、通信量の削減やパフォーマンスの向上が可能です。  
+2. **型システム**: GraphQLは型システムを持っており、クエリの結果が事前に分かるため、データ検証やドキュメント作成が容易になります。  
+3. **単一エンドポイント**: すべてのデータ操作が単一のエンドポイントで行われるため、APIのバージョン管理やエンドポイントの管理が容易になります。  
+
+これらの特徴により、GraphQLは現代のウェブアプリケーションやモバイルアプリケーション開発で広く使われており、多くの開発者に支持されています。  
+
+---
+
+## RESTとの比較
+
+``` mermaid
+flowchart BT
+    subgraph "REST API"
+        direction TB
+        REST_Client[Client]
+        REST_Client-->Users
+        REST_Client-->Posts
+        REST_Client-->Comments
+    end
+    subgraph "GraphQL"
+        direction TB
+        QL_Client[Client]
+        QL_Client-->Query
+        Query-->User
+        Query-->Post
+        Query-->Comment
+    end
 ```
 
-うーん。つまり、API記述用の言語って事でok?  
-やってみればわかるんだろうけど、どこも抽象的な事しか書いてない。  
-絶対にAPIという言葉はついて来るので、Web関係の技術でRESTと関係があるのだろう。  
-APIを記述するための言語と実行環境があってもおかしくないか。  
-うちには縁がない話だからぽかーんて感じではある。  
-2015年ごろからの技術見たいね。最近になって注目され始めた感じなのかな。  
+---
+
+## \.NET における代表的な GraphQL ライブラリ
+
+### 1. GraphQL\.NET
+
+- 概要: GraphQL\.NET は、.NET 環境で利用できる GraphQL サーバーおよびクライアントの実装を提供するライブラリです。  
+- [リポジトリ: https://github.com/graphql-dotnet/graphql-dotnet](https://github.com/graphql-dotnet/graphql-dotnet)  
+
+<!--  -->
+- 主な特徴  
+  - **柔軟性**: 機能豊富で柔軟性があり、多くのプロジェクトで使用されています。  
+  - **LINQ サポート**: 独自の LINQ 式を使って GraphQL クエリを組み立てることができます。  
+  - **型安全**: 型安全なクエリの組み立てをサポートしています。  
+  - **データローディング**: データのバッチ処理やキャッシングをサポートする DataLoader を提供しています。  
+
+### 2. HotChocolate
+
+- 概要: Hot Chocolate は、.NET Core および .NET 5/6 で利用できる GraphQL サーバー実装を提供するライブラリです。  
+- [リポジトリ: https://github.com/ChilliCream/hotchocolate](https://github.com/ChilliCream/hotchocolate)  
+
+<!--  -->
+- 主な特徴  
+  - **現代的な設計**: 現代的なアプリケーション開発に適した設計がされており、ASP.NET Core との統合が容易です。  
+  - **高度な機能**: GraphQL クエリの最適化やサブスクリプション、リアルタイム通信などの高度な機能をサポートしています。  
+  - **コードファーストおよびスキーマファースト**: コードファーストとスキーマファーストの両方のアプローチをサポートしています。  
+  - **フィルタリングやソート**: データのフィルタリングやソートを簡単に行うための機能を提供しています。  
+
+---
 
 [GraphQL を使うと何が嬉しいのか？いろいろ触って検証してみた](https://sitest.jp/blog/?p=11001)  
-
-そうそう、こういうのでいいんだよ。  
-概要だけじゃなく、登場背景もわかると、その技術がよくわかるよね。  
-しかし、2021/09/16現在の認識では、APIが不便だから出てきたんだなぁ位しか認識できない。  
-実際に使ってみたら全然違うんだろうけど、今はその程度の事しかわからないな。  

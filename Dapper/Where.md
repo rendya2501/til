@@ -58,14 +58,50 @@ var sql = "select * from customers" + (gender != null ? " where gender = @Gender
 const string sql = @"
 select * 
 from customers
-where (gender = @Gender or @Gender is null)
-";
+where (gender = @Gender or @Gender is null)";
+
 var customers = _connection.Query(sql, new {Gender = (object) null});
 ```
 
-インデックスが効くかどうかは不明な模様。  
-
 [Dapper のクエリ](https://qiita.com/masakura/items/3409a766e46580a5ad99)  
+
+---
+
+## 動的に条件を組み立てる
+
+SQLのCASE WHEN で対象のフィールドを変更できるので、それと組み合わせたテクニック。  
+まぁこういうこともできるよっていう備忘録として。  
+
+``` cs
+var query = @"
+SELECT SUM(Count)
+FROM Table
+WHERE Code = @Code
+AND (
+    CASE @FieldCondition
+        WHEN 0 THEN HogeCD
+        WHEN 1 THEN FugaCD
+        WHEN 2 THEN PiyoCD
+    END
+) BETWEEN @FromCD AND @ToCD";
+
+var result = _connection.Query(
+    query,
+    new
+    {
+        FieldCondition = Condition.HogeCD,
+        FromCD = 1,
+        ToCD = 10
+    }
+);
+
+enum Condtion
+{
+    HogeCD,
+    FugaCD,
+    PiyoCD,
+}
+```
 
 ---
 

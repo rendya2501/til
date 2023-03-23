@@ -16,9 +16,9 @@ public class Query
 {
     private readonly List<Book> _books = new()
     {
-        new Book { Id = "1", Title = "GraphQL“ü–å", Author = "R“c ‘¾˜Y", Publisher = "‹Zp‘o”Å", PublicationDate = new DateTime(2021, 10, 1) },
-        new Book { Id = "2", Title = "C#ƒvƒƒOƒ‰ƒ~ƒ“ƒO", Author = "—é–Ø ˆê˜Y", Publisher = "‹Zp‘o”Å", PublicationDate = new DateTime(2020, 5, 15) },
-        new Book { Id = "3", Title = ".NETŠJ”­‚Ì‹ÉˆÓ", Author = "²“¡ Ÿ˜Y", Publisher = "‹Zp‘o”Å", PublicationDate = new DateTime(2019, 11, 30) },
+        new Book { Id = "1", Title = "GraphQLå…¥é–€", Author = "å±±ç”° å¤ªéƒ", Publisher = "æŠ€è¡“æ›¸å‡ºç‰ˆ", PublicationDate = new DateTime(2021, 10, 1) },
+        new Book { Id = "2", Title = "C#ãƒ—ãƒ­ã‚°ãƒ©ãƒŸãƒ³ã‚°", Author = "éˆ´æœ¨ ä¸€éƒ", Publisher = "æŠ€è¡“æ›¸å‡ºç‰ˆ", PublicationDate = new DateTime(2020, 5, 15) },
+        new Book { Id = "3", Title = ".NETé–‹ç™ºã®æ¥µæ„", Author = "ä½è—¤ æ¬¡éƒ", Publisher = "æŠ€è¡“æ›¸å‡ºç‰ˆ", PublicationDate = new DateTime(2019, 11, 30) },
     };
 
     public List<Book> GetBooks() => _books;

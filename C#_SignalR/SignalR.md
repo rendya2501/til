@@ -1,252 +1,99 @@
 # SignalR
 
-## SignalR 概要
+## 概要
 
-[SignalR を Windows Mixed Reality で使いたい](https://blog.okazuki.jp/entry/2018/04/26/125929)  
-
-- リアルタイムの双方向通信を簡単におこなうライブラリ  
-- WebSocket とかをいい感じに隠してくれてサーバーからクライアント（Webやネイティブアプリなど）に対して処理を実行することが出来る  
-- SignalRの通信はURLを指定するのではなく、サーバー、クライアントのお互いの関数を呼び合う感じで行う  
-- Web側にHubを実装し、フロント側からHubにアクセスすることで実現できる  
+SignalRは、ASP.NET Coreの一部であり、リアルタイムWebアプリケーションを簡単に構築するためのライブラリとなります。  
+SignalRを使用すると、サーバーとクライアント間でリアルタイムでデータをやり取りすることができます。  
 
 ---
 
-## .Net6 + ASP.NET Core SignalR における最小実装
+## 特徴
 
-[SignalR Core復習](https://shuhelohelo.hatenablog.com/entry/2020/02/10/162108)  
-
-大体ここ参考にした。  
-かなり良い記事なのだが、一番上に出てこないタイプだったので、たどり着くまでに苦労した。  
-
-### 開発環境
-
-- Windows 11 Home  
-- .Net6  
-  - ConsolApp  
-  - ASP.NET Core(空)  
-
-### 実行手順
-
-- サーバー側  
-  - SignalRServerのソリューションを立ち上げて実行  
-
-- クライアント側  
-  - SignalRClientソリューションを2つ立ち上げてそれぞれで実行  
+1. **抽象化**  
+   さまざまなリアルタイム通信プロトコル（WebSocket、Server-Sent Events、Long Pollingなど）を抽象化し、開発者はプロトコルの詳細を気にせずリアルタイム機能を実装できます。  
+2. **自動接続管理**  
+   SignalRは接続の管理を自動化し、クライアントが接続、切断、再接続する際の処理を簡単に実装できます。  
+3. **高度なメッセージング**  
+   すべてのクライアント、特定のクライアント、またはクライアントグループに対してメッセージを送信する機能を提供します。  
+4. **スケーラビリティ**  
+   サーバーが負荷分散された環境でも動作するように設計されており、大規模なアプリケーションにも対応できます。  
 
 ---
 
-### サーバ実装
+## コンポーネント
 
-[1] プロジェクト作成  
-
-[ASP.NET Core(空)] プロジェクトを選択する。  
-.Net6 を選択して作成。  
-
-※  
-[ASP.NET Core Web API] でも動作することを確認した。  
-こちらは実務で使っているSwaggerが起動するタイプのプロジェクト。  
-やることも以下の手順と同じようにやればOK。  
-しかし、ただ最小実装を目指すなら余計なモノが入っていない ASP.NET Coreの空プロジェクトで十分。  
-
-[2] nugetからSignalRライブラリをインストール  
-
-nugetから以下の2点をインストールする。  
-
-- AspNetCore.SignalR.Core  
-- AspNetCore.SignalR  
-
-※  
-[ASP.NET Core SignalR でルーム付きチャットアプリを作ってみた](https://www.tetsis.com/blog/asp-net-core-signalr-group-chat/)
-
-→  
-マイクロソフト公式、及びこのサイトでは以下のように設定すべしと紹介しているが、nugetだけで十分であることがわかった。  
-一応この通りにやっても動くので備忘録として残しておく。  
-
-→  
-ソリューションエクスプローラーで、プロジェクトを右クリックし、[追加] -> [クライアント側のライブラリ]を選択する  
-
-[クライアント側のライブラリを追加します]ダイアログで以下の通り選択する  
-プロバイダー: unpkg  
-ライブラリ：@microsoft/signalr@latest  
-[特定のファイルの選択]を選択する  
-dist/browser フォルダを展開し、 signalr.js と signalr.min.js を選択する  
-[ターゲットロケーション]に wwwroot/js/signalr/ と入力する  
-[インストール]をクリック  
-
-[3] SignalR Hubの実装  
-
-``` C#
-using Microsoft.AspNetCore.SignalR;
-
-namespace WebApplication1
-{
-    public class ChatHub : Hub
-    {
-        /// <summary>
-        /// クライアントの呼び出しに対応するメソッド
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="message"></param>
-        /// <returns></returns>
-        /// <remarks>
-        /// クライアントからチャットが送られてきた場合、それを接続している全てのクライアントに対して送り返しているだけ
-        /// </remarks>
-        public async Task SendMessage(string name, string message)
-        {
-            // クライアントのメソッドを呼び出す処理
-            await Clients.All.SendAsync("ReceiveMessage", name, message);
-        }
-    }
-}
-```
-
-[4] StartUpの実装  
-
-Asp.Netまでは [StartUp.cs] が存在したのかもしれないが、 .Net6 からは [Program.cs] に変わった模様。  
-どちらであっても、同じように実装すればよろしい。  
-
-``` C# : Program.cs
-// Hubを実装した名前空間
-using WebApplication1;
-
-var builder = WebApplication.CreateBuilder(args);
-// SignalR追加
-builder.Services.AddSignalR();
-var app = builder.Build();
-
-app.MapGet("/", () => "Hello World!");
-// SignalR Hubの登録
-app.MapHub<ChatHub>("/chatHub");
-
-app.Run();
-```
-
-[5] サービスの起動と動作確認。  
-
-F5でデバッグ実行。  
-[https://localhost:~~~~/chatHub] にアクセスして、 `Connection ID required` と表示されれば動作確認はOK。  
+1. **ハブ (Hub)**  
+   サーバー側のコンポーネントで、クライアントとの通信を管理します。  
+   ハブはクライアントがサーバーにメッセージを送信するためのメソッドを定義し、クライアントにメッセージを送信する機能を提供します。  
+2. **クライアント**  
+   クライアント側のコンポーネントで、JavaScript、C#、またはその他の言語で実装できます。  
+   クライアントは、サーバーとの接続を確立し、サーバーからのメッセージを受信するためのコールバック関数を定義します。  
 
 ---
 
-### クライアント側実装
+## 使用例
 
-[1] プロジェクト作成  
-
-コンソールアプリで十分なので、.Net6でコンソールアプリプロジェクトを新規で作成する。  
-
-[2] nugetからSignalRライブラリをインストール  
-
-nugetから以下2点をインストール  
-
-- SignalR.Client
-- SignalR.Client.Core
-
-[3] クライアント実装  
-
-``` C#
-// See https://aka.ms/new-console-template for more information
-using Microsoft.AspNetCore.SignalR.Client;
-
-MainAsync(args).GetAwaiter().GetResult();
-
-static async Task MainAsync(string[] args)
-{
-    Console.Write("What is your name? : ");
-    var yourname = Console.ReadLine();
-
-    // 1. Hub へのコネクション
-    var connection = new HubConnectionBuilder()
-        .WithUrl("https://localhost:7263/chatHub")
-        .WithAutomaticReconnect()
-        .Build();
-
-    // 2. サーバーからの呼び出しに対応するメソッドの登録
-    connection.On<string, string>(
-        "ReceiveMessage",
-        (user, message) =>
-        {
-            Console.WriteLine($"{user} : {message}");
-            Console.Write("Message :");
-        }
-    );
-
-    // 3. コネクション開始
-    try
-    {
-        //サーバー側のSignalRハブと接続
-        await connection.StartAsync();
-        Console.WriteLine("接続できました");
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine("接続できませんでした:" + ex.Message);
-        return;
-    }
-
-    Console.Write("Message :");
-    while (true)
-    {
-        // メッセージ待機
-        var yourmessage = Console.ReadLine();
-
-        //メッセージ送信
-        try
-        {
-            // 4. サーバーのメソッド呼び出し
-            await connection.InvokeAsync("SendMessage", yourname, yourmessage);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine("メッセージの送信に失敗しました:" + ex.Message);
-        }
-    }
-}
-```
+- チャットアプリケーション
+- ダッシュボード
+- ゲーム
+- リアルタイムで更新が必要なアプリケーション
 
 ---
 
-### 躓いたところ
+## 若干の歴史
 
-[1]  
-クライアント実装において、HubConnectionBuilderのWithUrlメソッドが存在しないと言われた。  
-
-→  
-nugetで[Microsoft.AspNetCore.SignalR.Client.Core]のインストールが必要であった。  
-SignalRのClientとつくものを全てインストールしていればこんな事にはならなかったのだろうけど、初めだから何も知らなくて、そういうチュートリアルもどこにもなく、地味に嵌ったのでメモしておく。  
-
-[WithUrl() not found in Core 3 client - Stack Overflow](https://stackoverflow.com/questions/58677179/withurl-not-found-in-core-3-client)  
-
-[2]  
-クライアント実装において、設定はあっているはずなのに全然サーバーに接続できなかった。  
-ふと気が付いて、そもそも表示されているURLをそのままコピーして貼り付けたら接続できた。  
-
-→  
-結論は接続プロトコルがHTTPだったから。  
-ローカルでの接続だからてっきりHTTPだと思っていたけど、HTTPSで接続する必要があった。  
-スキームをHTTPSにしてつないだら問題なく実現できた。  
-
-プロトコルはHTTPかHTTPSか確認すること。  
+SignalRは元々ASP.NET Framework用に開発され、初版は2013年頃にリリースされました。  
+その後、ASP.NET Coreの登場に伴い、SignalRもASP.NET Core向けに再設計され、2018年にASP.NET Core SignalRとしてリリースされました。  
+ASP.NET Core SignalRは、従来のASP.NET SignalRとはいくつかの点で異なり、よりパフォーマンスが向上し、クロスプラットフォーム対応が強化されています。  
 
 ---
 
-## 他ミドルウェアとの連携
+## デメリットや難しい点
 
-[RedisをBackplaneとしたSignalRのスケールアウト](https://www.buildinsider.net/web/iis8/07)  
-[ASP.NET Core SignalR のスケールアウトのために Redis バックプレーンを設定する](https://docs.microsoft.com/ja-jp/aspnet/core/signalr/redis-backplane?view=aspnetcore-6.0)  
+SignalRはリアルタイムWebアプリケーションの開発を容易にするための優れたライブラリですが、いくつかのデメリットや難しい点が存在します。  
+
+1. **リソース消費**  
+   SignalRはリアルタイム通信を提供するため、サーバー側とクライアント側のリソース消費が増加します。  
+   多くの同時接続がある場合、サーバーのメモリやCPU負荷が高くなることがあります。  
+
+2. **スケーラビリティの課題**  
+   SignalRアプリケーションをスケールアウトする際には、特別な対応が必要です。  
+   複数のサーバー間でSignalR接続を共有するために、バックプレーン (Redis, Azure SignalR Serviceなど) を設定する必要があります。  
+   これは、追加のコストや構成の複雑さをもたらすことがあります。  
+
+3. **学習曲線**  
+   SignalR自体は比較的簡単に使い始めることができますが、リアルタイム通信の概念やWebSocketプロトコル、接続管理などについて理解する必要があります。  
+   これには、学習曲線が存在します。  
+
+4. **ブラウザの互換性**  
+   SignalRは自動的に最適な通信プロトコルを選択しますが、古いブラウザではWebSocketがサポートされていない場合があります。  
+   そのため、アプリケーションが古いブラウザでも正常に動作することを保証するために、フォールバックメカニズムについて考慮する必要があります。  
+
+5. **デバッグとトラブルシューティング**  
+   リアルタイムのアプリケーションでは、問題が発生した際のデバッグやトラブルシューティングが難しくなることがあります。  
+   サーバーとクライアント間での通信がリアルタイムで行われるため、問題の特定や解決に手間がかかることがあります。  
+
+これらのデメリットや難しい点に注意しながら、SignalRを使用してリアルタイムWebアプリケーションを開発することが重要です。  
+適切な設計やパフォーマンス最適化を行うことで、これらの課題を克服することが可能です。  
+
+---
+
+## Redisとの連携
 
 現実問題、大規模になれば間にRedis等を挟むことになるはず。  
 そうなった時にSignalRは動くのか、また性能を確保できるのかという問題が発生してくる。  
 備忘録として残す。  
 
+[RedisをBackplaneとしたSignalRのスケールアウト](https://www.buildinsider.net/web/iis8/07)  
+[ASP.NET Core SignalR のスケールアウトのために Redis バックプレーンを設定する](https://docs.microsoft.com/ja-jp/aspnet/core/signalr/redis-backplane?view=aspnetcore-6.0)  
+
 ---
 
 ## 参考
 
-[Microsoft_ASP.NET Core 用 SignalR でハブを使用する](https://docs.microsoft.com/ja-jp/aspnet/core/signalr/hubs?view=aspnetcore-6.0)  
-[Microsoft_チュートリアル: ASP.NET Core SignalR の概要](https://docs.microsoft.com/ja-jp/aspnet/core/tutorials/signalr?view=aspnetcore-6.0&tabs=visual-studio)  
-[Microsoft_ASP.NET Core SignalR .NET クライアント](https://docs.microsoft.com/ja-jp/aspnet/core/signalr/dotnet-client?view=aspnetcore-6.0&tabs=visual-studio)  
+[SignalR を Windows Mixed Reality で使いたい](https://blog.okazuki.jp/entry/2018/04/26/125929)  
 
 [SignalR でChat アプリを作ってみた](https://qiita.com/TsuyoshiUshio@github/items/65ea4e2669afa19f6a31)  
-[ASP.NET Core SignalR でルーム付きチャットアプリを作ってみた](https://www.tetsis.com/blog/asp-net-core-signalr-group-chat/)  
-→
+
 このサンプルはあまり参考にならなかったが、個別に送信する機能を有しているので、そういうのを実装する時になったらやくに立つのでは。  
+[ASP.NET Core SignalR でルーム付きチャットアプリを作ってみた](https://www.tetsis.com/blog/asp-net-core-signalr-group-chat/)  
