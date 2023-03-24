@@ -19,40 +19,34 @@ while (true)
     Console.WriteLine("5: Greet");
     Console.WriteLine("q: Exit");
     Console.Write("Enter the number or 'q': ");
-    var input = Console.ReadLine();
 
-    if (input == "q")
+    switch (Console.ReadLine() ?? "")
     {
-        break;
-    }
-
-    if (!int.TryParse(input, out int operation) || operation < 1 || operation > 5)
-    {
-        Console.WriteLine("Invalid operation. Please choose a number between 1 and 5, or 'q' to exit.");
-        continue;
-    }
-
-    switch (operation)
-    {
-        case 1:
+        case "1":
             await ShowDetail(userClient);
             break;
-        case 2:
+        case "2":
             await InsertUser(userClient);
             break;
-        case 3:
+        case "3":
             await UpdateUser(userClient);
             break;
-        case 4:
+        case "4":
             await DeleteUser(userClient);
             break;
-        case 5:
+        case "5":
             await Greet(greeterClient);
             break;
+        case "q":
+            return;
+        default:
+            Console.WriteLine("Invalid operation. Please choose a number between 1 and 5, or 'q' to exit.");
+            break;
     }
-    Console.WriteLine("");
+
+    Console.WriteLine();
     Console.WriteLine("---------------------------------------------------------------");
-    Console.WriteLine("");
+    Console.WriteLine();
 }
 
 static async Task DisplayUsers(User.UserClient client)
@@ -99,7 +93,6 @@ static async Task UpdateUser(User.UserClient client)
     var request = new UpdateUserRequest { User = new UserModel { Id = id, Name = newName } };
     // var request = new UpdateUserRequest { User = { Id = id, Name = newName } }; // NG
     var response = await client.UpdateUserAsync(request);
-
 
     Console.WriteLine($"User with ID {id} {(response.Success ? "updated" : "not found")}.");
 }
