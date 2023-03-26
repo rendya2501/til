@@ -34,6 +34,68 @@ Windows用の新しいコマンドライン環境・スクリプト言語。
 
 ---
 
+## パワーシェルを実行する方法
+
+1. **PowerShell コンソールからスクリプトを実行する**  
+    PowerShell コンソールを開いて、スクリプトのフルパスを指定して実行できます。  
+    例えば、スクリプトが C:\Scripts\my_script.ps1 にある場合、以下のように実行します。  
+
+    ``` ps1
+    C:\Scripts\my_script.ps1
+    ```
+
+2. **コマンドプロンプトから PowerShell スクリプトを実行する**  
+    コマンドプロンプトから PowerShell スクリプトを実行するには、powershell.exe を使って以下のように実行します。  
+
+    ``` batch
+    powershell.exe -ExecutionPolicy Bypass -File "C:\Scripts\my_script.ps1"
+    ```
+
+    ここで、-ExecutionPolicy Bypass は、スクリプトの実行ポリシーをバイパスして実行するためのオプションです。  
+    このオプションは、スクリプトの実行が制限されている場合に役立ちます。  
+    ただし、信頼できるスクリプトのみを実行するように注意してください。  
+
+3. **PowerShell スクリプトを右クリックして実行する**  
+    PowerShell スクリプトを Windows エクスプローラーで右クリックし、「PowerShell で実行」または「管理者として PowerShell で実行」を選択することで実行できます。  
+    ただし、この方法では、実行ポリシーによってスクリプトの実行がブロックされる場合があります。  
+
+4. **PowerShell ISE でスクリプトを開いて実行する**  
+    PowerShell ISE（Integrated Scripting Environment）は、PowerShell スクリプトの開発やデバッグに便利な環境です。  
+    PowerShell ISE を開いてスクリプトを読み込み、F5 キーを押すことでスクリプトを実行できます。  
+
+    注意: PowerShell ISE は、Windows PowerShell (バージョン 5.1) で利用可能ですが、PowerShell Core (バージョン 6.0 以降) では非推奨となっています。  
+    代わりに Visual Studio Code などのエディタを使用することが推奨されています。  
+
+---
+
+## 手っ取り早く PowerShell スクリプトを実行する方法
+
+1. **スクリプトを実行するショートカットを作成する**  
+    - デスクトップやフォルダ内で右クリックし、「新規」 > 「ショートカット」を選択します。  
+    - 「ショートカットの場所を指定してください」で、以下のコマンドを入力します。  
+       [path_to_script] をスクリプトのフルパスに置き換えてください。  
+
+    ``` batch
+    powershell.exe -ExecutionPolicy Bypass -File "[path_to_script]"
+    ```
+
+    「次へ」をクリックし、ショートカットの名前を入力して「完了」をクリックします。  
+    これで、ショートカットをダブルクリックするだけで、手早く PowerShell スクリプトを実行できます。  
+
+2. **スクリプトを .bat ファイルにラップする**  
+    スクリプトを実行するバッチファイルを作成することで、ダブルクリックで手早く実行できます。  
+    新しいテキストファイルを作成し、以下の内容を入力して .bat 拡張子で保存します。  
+    [path_to_script] をスクリプトのフルパスに置き換えてください。  
+
+    ``` batch
+    powershell.exe -ExecutionPolicy Bypass -File "[path_to_script]"
+    ```
+
+    これで、作成した .bat ファイルをダブルクリックするだけで、PowerShell スクリプトが実行されます。  
+    ただし、信頼できるスクリプトのみを実行するように注意してください。  
+
+---
+
 ## カレントディレクトリの設定方法
 
 ### 1. Set-Locationコマンドレット

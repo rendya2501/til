@@ -98,6 +98,94 @@ public class StudentGrade
 
 ---
 
+## メソッドの制御
+
+AビルダーではAメソッドとBメソッドがあり、どちらかのメソッドを実行した場合、Bビルダーに切り替わり、CメソッドとDメソッドのどちらかを実行することができるようなビルダー。  
+
+``` cs
+using System;
+
+// A Builder Interface
+public interface IABuilder
+{
+    IBBuilder AMethod();
+    IBBuilder BMethod();
+}
+
+// B Builder Interface
+public interface IBBuilder
+{
+    Product CMethod();
+    Product DMethod();
+}
+
+// Concrete Builder
+public class ConcreteBuilder : IABuilder, IBBuilder
+{
+    private Product _product;
+
+    public ConcreteBuilder()
+    {
+        _product = new Product();
+    }
+
+    public IBBuilder AMethod()
+    {
+        _product.Steps.Add("A Method");
+        return this;
+    }
+
+    public IBBuilder BMethod()
+    {
+        _product.Steps.Add("B Method");
+        return this;
+    }
+
+    public Product CMethod()
+    {
+        _product.Steps.Add("C Method");
+        return _product;
+    }
+
+    public Product DMethod()
+    {
+        _product.Steps.Add("D Method");
+        return _product;
+    }
+}
+
+// Product
+public class Product
+{
+    public List<string> Steps { get; set; }
+
+    public Product()
+    {
+        Steps = new List<string>();
+    }
+
+    public override string ToString()
+    {
+        return $"Product with steps: {string.Join(", ", Steps)}";
+    }
+}
+
+public class Program
+{
+    public static void Main(string[] args)
+    {
+        IABuilder aBuilder = new ConcreteBuilder();
+        Product product1 = aBuilder.AMethod().CMethod();
+        Console.WriteLine(product1);
+
+        Product product2 = aBuilder.BMethod().DMethod();
+        Console.WriteLine(product2);
+    }
+}
+```
+
+---
+
 [【GoFのデザインパターン】「Builder」ってどんなパターン？](http://www.code-magagine.com/?p=2674)  
 [コンストラクタの引数が多すぎる場合の対応方法。Builderを検討しよう。](http://java-study.blog.jp/archives/1030064889.html)  
 [Javaで書くBuilderパターンのパターン](https://qiita.com/disc99/items/840cf9936687f97a482b)  
