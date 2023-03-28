@@ -738,3 +738,75 @@ bool? flag = ListData?.Select(a => a.IsSelected).Distinct().OrderBy(o => o).ToLi
 
 [【WPF】DataTableバインドなDataGridでSelect Allチェックボックスを作る｜fuqunaga｜note](https://note.com/fuqunaga/n/n62c8d678f249)  
 [[C#] switch文をswitch式で表現する | FEELD BLOG](https://feeld-uni.com/?p=1365)  
+
+---
+
+## オブジェクトイニシャライザ(object initializer)
+
+C#において、オブジェクトのインスタンスを作成し、そのプロパティやインデクサを設定することができるシンタックス。  
+コンストラクタの呼び出し後にオブジェクトのメンバーを初期化する際に役立つ。  
+これにより、コードが簡潔で読みやすくなります。  
+
+例えば、次のクラスがあるとする。
+
+``` cs
+public class Person
+{
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    public int Age { get; set; }
+}
+```
+
+オブジェクトイニシャライザを使用してプロパティを設定するとこうなる。
+
+``` cs
+var person = new Person{
+    FirstName = "Hoge",
+    LastName = "Fuga",
+    Age = 30
+};
+```
+
+これは、次のコードと同等である。  
+
+``` csharp
+var person = new Person();
+person.FirstName = "Hoge";
+person.LastName = "Fuga";
+person.Age = 30;
+```
+
+コレクションやディクショナリなどの特定のクラスにも適用できる。  
+Dictionary の初期化にオブジェクトイニシャライザを使用した場合は次のようになる。  
+
+``` cs
+var dic = new Dictionary<string,int> { ["a"] = 1, ["b"] = 2};
+```
+
+---
+
+## コレクションイニシャライザ（collection initializer）
+
+C# の言語機能で、コレクションのインスタンスを作成し、その要素を追加するためのシンタックス。  
+コレクションイニシャライザは、IEnumerable インターフェイスを実装し、Add メソッドを持つクラスに適用できる。  
+この機能は、List\<T> や Dictionary\<TKey, TValue> など、一般的なコレクションクラスに対して特に有用となる。  
+
+例えば、次のように List\<int> のインスタンスを作成し、要素を追加することができる。
+
+``` cs
+var numbers = new List<int> { 1, 2, 3, 4, 5 };
+```
+
+これは、次のコードと同等です。
+
+``` cs
+var numbers = new List<int>();
+numbers.Add(1);
+numbers.Add(2);
+numbers.Add(3);
+numbers.Add(4);
+numbers.Add(5);
+```
+
+コレクションイニシャライザを使用すると、コードの可読性が向上し、コレクションの初期化が簡潔になります。
