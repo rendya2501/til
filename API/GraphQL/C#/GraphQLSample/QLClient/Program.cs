@@ -4,12 +4,12 @@ using QLClient.GraphQL.Operations;
 
 const string GraphQLApiUrl = "https://localhost:7167/graphql";
 var graphQLClient = new GraphQLClientFactory(GraphQLApiUrl).Create();
-var bookOperations = new BookOperations(graphQLClient);
+var bookOperation = new BookOperation(graphQLClient);
 
 while (true)
 {
     Console.Clear();
-    await bookOperations.ShowBooksAsync();
+    await bookOperation.ShowBooksAsync();
 
     Console.WriteLine();
     Console.WriteLine("1: Get");
@@ -22,16 +22,16 @@ while (true)
     switch (Console.ReadLine() ?? "")
     {
         case "1":
-            await bookOperations.GetBookByIdAsync();
+            await bookOperation.GetBookByIdAsync();
             break;
         case "2":
-            await bookOperations.CreateBookAsync();
+            await bookOperation.CreateBookAsync();
             break;
         case "3":
-            await bookOperations.UpdateBookAsync();
+            await bookOperation.UpdateBookAsync();
             break;
         case "4":
-            await bookOperations.DeleteBookAsync();
+            await bookOperation.DeleteBookAsync();
             break;
         case "q":
             return;

@@ -12,7 +12,6 @@ REpresentational State Transferの略で、分散型システムにおける複�
 ## RESTfulとは
 
 >「RESTの原則」に従って実装されているWebシステムのHTTPでの呼び出しインターフェースのことを指します。  
-[RESTful APIとは何なのか](https://qiita.com/NagaokaKenichi/items/0647c30ef596cedf4bf2)  
 
 ---
 
@@ -48,11 +47,4 @@ GET、POST、PUT、DELETE等のHTTP標準のメソッドを使うことで、シ
 
 ---
 
-## 感想
-
-参照元を全てコピペしただけ。だって完成度高すぎるんだもん。  
-2021/09/16時点でRESTと言われた時の自分の認識はHTTPで呼び出すアレってくらいしかない。  
-大体RESTって言えば、APIって通じるけど、じゃあRESTって何？ってのは説明できなかった。  
-
-どうもインターフェースであるのは確かなのだが、RESTの原則というものを満たしたものに関してはREST APIと呼ぶことが出来るらしい。  
-原則を守るということは使いやすくあるべき事柄を満たしているということなので、そういうのを総称してRESTって読んでいるのかもしれないな。  
+[RESTful APIとは何なのか](https://qiita.com/NagaokaKenichi/items/0647c30ef596cedf4bf2)  

@@ -69,3 +69,4 @@ flowchart BT
 ---
 
 [GraphQL を使うと何が嬉しいのか？いろいろ触って検証してみた](https://sitest.jp/blog/?p=11001)  
+[GraphQL入門](https://zenn.dev/yoshii0110/articles/2233e32d276551)  

@@ -1,0 +1,52 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net6.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<AssemblyName>Bundle</AssemblyName>
+		<DebugType>embedded</DebugType>
+		<PublishSingleFile>true</PublishSingleFile>
+		<SelfContained>true</SelfContained>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<EmbeddedResource Include="..\Scripts\Dat\*\*.sql">
+			<Link>Scripts\Dat\%(RecursiveDir)%(Filename)%(Extension)</Link>
+		</EmbeddedResource>
+		<EmbeddedResource Include="..\Scripts\Sys\*\*.sql">
+			<Link>Scripts\Sys\%(RecursiveDir)%(Filename)%(Extension)</Link>
+		</EmbeddedResource>
+		<EmbeddedResource Remove="..\Scripts\Dat\Exclude\*" />
+		<EmbeddedResource Remove="..\Scripts\Sys\Exclude\*" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="ConsoleAppFramework" Version="4.2.4" />
+		<PackageReference Include="dbup" Version="5.0.8" />
+		<PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="7.0.0" />
+		<PackageReference Include="Sharprompt" Version="2.4.5" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="../appsettings.json">
+			<Link>appsettings.json</Link>
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Include="..\Scripts\Dat\190001\**\*">
+			<Link>Scripts\Dat\190001\%(RecursiveDir)%(Filename)%(Extension)</Link>
+		</None>
+		<None Include="..\Scripts\Dat\Exclude\**\*">
+			<Link>Scripts\Dat\Exclude\%(RecursiveDir)%(Filename)%(Extension)</Link>
+		</None>
+		<None Include="..\Scripts\Sys\190001\**\*">
+			<Link>Scripts\Sys\190001\%(RecursiveDir)%(Filename)%(Extension)</Link>
+		</None>
+		<None Include="..\Scripts\Sys\Exclude\**\*">
+			<Link>Scripts\Sys\Exclude\%(RecursiveDir)%(Filename)%(Extension)</Link>
+		</None>
+	</ItemGroup>
+</Project>
+

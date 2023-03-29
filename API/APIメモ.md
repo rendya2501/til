@@ -13,10 +13,6 @@
 
 ---
 
-## API Tester
-
----
-
 ## オペレーション対応表
 
 |OPERATION|SQL| HTTP/REST|
@@ -27,35 +23,3 @@
 |DELETE    | DELETE | DELETE|
 
 [Repository Pattern](https://www.youtube.com/watch?v=x6C20zhZHw8)  
-
----
-
-## PUTとPATCHの違い
-
-PUT : 全てのリソースを変更  
-PATCH : 一部のリソース変更  
-
-以下のようなテーブルがあるとする。  
-
-``` cs
-class Hoge {
-    public int Id {get;set;}
-    public string Name {get;set;}
-    public string Description {get;set;}
-}
-```
-
-以下のようなリクエストを送ったとする。  
-
-``` cs
-{
-    Name = "hoge"
-}
-```
-
-Putは全て置き換えるので、IdとDescriptionはnullとなる。  
-Patchであれば、IdとDescriptionはそのままで、Nameだけ更新する形となる。  
-
-これが全てのリソースを変更するか一部のリソースを変更するかの違いとなる。  
-
-[PUTとPATCHの違いは何？](https://techblg.app/articles/difference-between-put-and-patch/)  

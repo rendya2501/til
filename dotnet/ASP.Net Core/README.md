@@ -474,3 +474,15 @@ interface ITodo
 
 [[NET 6] Cannot deserialize an Interface from JSON in ASP.NET Core? : csharp](https://www.reddit.com/r/csharp/comments/rakcvp/net_6_cannot_deserialize_an_interface_from_json/)  
 [C# – Casting interfaces for deserialization in JSON.NET – iTecNote](https://itecnote.com/tecnote/c-casting-interfaces-for-deserialization-in-json-net/)  
+
+---
+
+## Visual Studio 2022のREST Client
+
+>Visual Studio 2022には、APIやMicroservicesをテストするためのREST Clientが組み込まれています。  
+これは、拡張子が.http/.restの新しいファイルを追加することで簡単に行うことができます。  
+.rest/.http は Visual Studio 2022 v17.5 の特別なファイルであり、プレビューウィンドウも備えています。  
+1つのhttp/restファイルから複数のAPIをテストすることができます。  
+この.http/.restファイルを使うと、Postmanやswaggerなどの外部ツールは不要になります。  
+これはAPI開発のインナーループとも呼ばれる。  
+[Built in REST CLIENT (.http/.rest) file in Visual Studio 2022 | Best way to test the API - YouTube](https://www.youtube.com/watch?v=t75Uz515WVg)  

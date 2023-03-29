@@ -5,11 +5,11 @@ using QLServer.Models;
 
 namespace QLClient.GraphQL.Operations;
 
-public class BookOperations
+public class BookOperation
 {
     private readonly IGraphQLClient _client;
 
-    public BookOperations(IGraphQLClient client)
+    public BookOperation(IGraphQLClient client)
     {
         _client = client;
     }
