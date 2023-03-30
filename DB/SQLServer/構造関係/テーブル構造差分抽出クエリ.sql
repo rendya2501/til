@@ -1,40 +1,11 @@
 DECLARE @SourceDataBaseName NVARCHAR(MAX) = 'SourceDataBaseName'
 DECLARE @TargetDataBaseName NVARCHAR(MAX) = 'TargetDataBaseName'
 
-
--- 削除されたテーブル一覧
--- Fromには存在しないが、Toには存在するテーブル一覧を表示する
+-- Fromに存在しないテーブルとToに存在しないテーブルを出力
 exec('
 SELECT
-    [SQ_Target_Table].[TABLE_NAME]
-FROM
-    (
-        SELECT
-            [TABLE_NAME]
-        FROM
-            [' + @TargetDataBaseName + '].[INFORMATION_SCHEMA].[COLUMNS] AS [Target_Table]
-        GROUP BY [TABLE_NAME]
-    ) AS [SQ_Target_Table]
-    LEFT OUTER JOIN
-    (
-        SELECT
-            [TABLE_NAME]
-        FROM
-            [' + @SourceDataBaseName + '].[INFORMATION_SCHEMA].[COLUMNS] AS [Source_Table]
-        GROUP BY [TABLE_NAME]
-    ) AS [SQ_Source_Table]
-    ON [SQ_Target_Table].[TABLE_NAME] = [SQ_Source_Table].[TABLE_NAME]
-WHERE
-    [SQ_Source_Table].[TABLE_NAME] IS NULL
-ORDER BY [SQ_Target_Table].[TABLE_NAME]
-');
-
-
--- 追加されたテーブル一覧
--- Fromには存在するが、Toには存在しないテーブル一覧を表示する
-exec('
-SELECT
-    [SQ_Source_Table].[TABLE_NAME]
+    [SQ_Source_Table].[TABLE_NAME] AS [From_Not_Exists],
+    [SQ_Target_Table].[TABLE_NAME] AS [To_Not_Exists]
 FROM
     (
         SELECT
@@ -43,7 +14,7 @@ FROM
             [' + @SourceDataBaseName + '].[INFORMATION_SCHEMA].[COLUMNS] AS [Source_Table]
         GROUP BY [TABLE_NAME]
     ) AS [SQ_Source_Table]
-    LEFT OUTER JOIN
+    FULL OUTER JOIN
     (
         SELECT
             [TABLE_NAME]
@@ -53,15 +24,20 @@ FROM
     ) AS [SQ_Target_Table]
     ON [SQ_Source_Table].[TABLE_NAME] = [SQ_Target_Table].[TABLE_NAME]
 WHERE
-    [SQ_Target_Table].[TABLE_NAME] IS NULL
-ORDER BY [SQ_Source_Table].[TABLE_NAME]
+    [SQ_Source_Table].[TABLE_NAME] IS NULL
+    OR [SQ_Target_Table].[TABLE_NAME] IS NULL
+ORDER BY [From_Not_Exists], [To_Not_Exists]
 ');
-
 
 -- 変更のあるカラム一覧
 -- FromとToの両方で差異があるカラム一覧を表示する
 EXEC('
 SELECT
+    CASE 
+        WHEN [SQ_Source_Table].[TABLE_NAME] IS NULL THEN ''FromNothing''
+        WHEN [SQ_Target_Table].[TABLE_NAME] IS NULL THEN ''ToNothing''
+        ELSE ''ColumnDiff''
+    END AS [DifferenceReason],
     CASE WHEN [SQ_Source_Table].[TABLE_NAME] IS NOT NULL THEN [SQ_Source_Table].[TABLE_NAME] ELSE [SQ_Target_Table].[TABLE_NAME] END AS [TABLE_NAME],
     CASE WHEN [SQ_Source_Table].[COLUMN_NAME] IS NOT NULL THEN [SQ_Source_Table].[COLUMN_NAME] ELSE [SQ_Target_Table].[COLUMN_NAME] END AS [COLUMN_NAME],
     [SQ_Source_Table].[DATA_TYPE],
