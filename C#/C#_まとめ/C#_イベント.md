@@ -16,6 +16,35 @@
 
 ---
 
+## イベントハンドラとは?
+
+イベントハンドラとは、特定のイベントが発生した際に実行されるメソッドや関数のことです。  
+
+イベントハンドラは、イベントが発生すると自動的に呼び出され、イベントに関連する処理を実行します。  
+例えば、ユーザーがボタンをクリックしたときや、キーボードのキーが押されたときなど、特定のアクションが発生したときにそれに対応する処理を実行するために使われます。  
+
+C#では、イベントハンドラはイベントとデリゲートを使用して実装されます。  
+
+イベントは、クラス内で定義され、そのクラスのインスタンスが特定のアクションを実行したときに発生するアクションの通知を提供します。  
+イベントは、デリゲートを使って他のメソッドに関連付けられます。  
+デリゲートは、メソッドのシグネチャを表す型で、イベントハンドラとして使用されるメソッドを参照するために使用されます。  
+
+WindowsFormsにおけるButton_Clickメソッドなどがイベントハンドラとなる。  
+
+---
+
+## ハンドラの意味
+
+「ハンドラ」は、一般的に「処理するもの」または「管理するもの」という意味を持ちます。  
+イベントハンドラという言葉は、プログラムにおいて特定のイベントが発生した際にそのイベントを「処理」または「管理」する関数やメソッドを指します。  
+言い換えると、イベントハンドラはイベントを「ハンドル」（取り扱う）ものです。  
+
+「ハンドル」という言葉は、物理的なハンドル（取っ手）から来ていて、それが何らかの操作を行う際の「制御」を意味するようになりました。  
+これが転じて、イベントハンドラのようなコンセプトにも使われるようになりました。  
+つまり、イベントハンドラはイベントを「制御」または「操作」する役割を持っていると言えます。  
+
+---
+
 ## とりあえず最小実装
 
 1. イベント定義  
@@ -25,30 +54,30 @@
 5. 登録した処理の実行  
 
 ``` C#
-    class EventTest
+class EventTest
+{
+    // 1. イベント定義  
+    private event EventHandler TestEvent;
+
+    // 2. 処理を定義  
+    private void DoSomething(object sender, EventArgs e)
     {
-        // 1. イベント定義  
-        private event EventHandler TestEvent;
-
-        // 2. 処理を定義  
-        private void DoSomething(object sender, EventArgs e)
-        {
-            // 5. 登録した処理の実行  
-            Console.WriteLine("Event!");
-        }
-
-        // 3. イベントに処理を登録  
-        public EventTest()
-        {
-            TestEvent += DoSomething;
-        }
-
-        // 4. イベント発火
-        public void OnRaiseEvent()
-        {
-            TestEvent?.Invoke(this, new EventArgs());
-        }
+        // 5. 登録した処理の実行  
+        Console.WriteLine("Event!");
     }
+
+    // 3. イベントに処理を登録  
+    public EventTest()
+    {
+        TestEvent += DoSomething;
+    }
+
+    // 4. イベント発火
+    public void OnRaiseEvent()
+    {
+        TestEvent?.Invoke(this, new EventArgs());
+    }
+}
 ```
 
 ---
@@ -65,30 +94,30 @@
 5. 登録した処理の実行  
 
 ``` C#
-    class EventTest
+class EventTest
+{
+    // 1. ジェネリックタイプのイベントを定義
+    private event EventHandler<string> TestEvent;
+
+    // 2. 処理を定義
+    private void DoSomething(object sender, string msg)
     {
-        // 1. ジェネリックタイプのイベントを定義
-        private event EventHandler<string> TestEvent;
-
-        // 2. 処理を定義
-        private void DoSomething(object sender, string msg)
-        {
-            // 5. 登録した処理の実行
-            Console.WriteLine(msg);
-        }
-
-        // 3. イベントに処理を登録
-        public EventTest()
-        {
-            TestEvent += DoSomething;
-        }
-
-        // 4. イベント発火
-        public void OnRaiseEvent()
-        {
-            TestEvent?.Invoke(this, "Event!");
-        }
+        // 5. 登録した処理の実行
+        Console.WriteLine(msg);
     }
+
+    // 3. イベントに処理を登録
+    public EventTest()
+    {
+        TestEvent += DoSomething;
+    }
+
+    // 4. イベント発火
+    public void OnRaiseEvent()
+    {
+        TestEvent?.Invoke(this, "Event!");
+    }
+}
 ```
 
 ---
@@ -107,38 +136,38 @@
 7. 登録した処理の実行  
 
 ``` C#
-    // 1. EventArgsの派生クラスを定義
-    public class HogeEventArgs : EventArgs { 
-        public string Message; 
-    }
+// 1. EventArgsの派生クラスを定義
+public class HogeEventArgs : EventArgs { 
+    public string Message; 
+}
 
-    public class EventTest
+public class EventTest
+{
+    // 2. オリジナルのEventHandlerを定義
+    public delegate void HogeEventHandler(object sender, HogeEventArgs e);
+
+    // 3. イベント定義  
+    private event HogeEventHandler TestEvent;
+
+    // 4. 処理を定義  
+    private void DoSomething(object sender, HogeEventArgs e)
     {
-        // 2. オリジナルのEventHandlerを定義
-        public delegate void HogeEventHandler(object sender, HogeEventArgs e);
-
-        // 3. イベント定義  
-        private event HogeEventHandler TestEvent;
-
-        // 4. 処理を定義  
-        private void DoSomething(object sender, HogeEventArgs e)
-        {
-            // 7. 登録した処理の実行  
-            Console.WriteLine(e.Message);
-        }
-
-        // 5. イベントに処理を登録
-        public EventTest()
-        {
-            TestEvent += DoSomething;
-        }
-
-        // 6. イベント発火
-        public void OnRaiseEvent()
-        {
-            TestEvent?.Invoke(this, new HogeEventArgs { Message = "終わったよ。" });
-        }
+        // 7. 登録した処理の実行  
+        Console.WriteLine(e.Message);
     }
+
+    // 5. イベントに処理を登録
+    public EventTest()
+    {
+        TestEvent += DoSomething;
+    }
+
+    // 6. イベント発火
+    public void OnRaiseEvent()
+    {
+        TestEvent?.Invoke(this, new HogeEventArgs { Message = "終わったよ。" });
+    }
+}
 ```
 
 >EventArgsの派生クラスを用いてデータを返していたが、必ずしもそうする必要はない。  
@@ -150,7 +179,7 @@
 
 ## イベントのOverride
 
-・Overrideしたイベントは 「-=」や「+=」で登録、解除はできない。  
+Overrideしたイベントは 「-=」や「+=」で登録、解除はできない。  
 なので発動させたくなかったらフラグ使って、returnしたりして実行されないようにする必要がある。  
 
 [C# eventのオーバーライドと基底クラスで発生するイベントの処理](https://opcdiary.net/c-event%E3%81%AE%E3%82%AA%E3%83%BC%E3%83%90%E3%83%BC%E3%83%A9%E3%82%A4%E3%83%89%E3%81%A8%E5%9F%BA%E5%BA%95%E3%82%AF%E3%83%A9%E3%82%B9%E3%81%A7%E7%99%BA%E7%94%9F%E3%81%99%E3%82%8B%E3%82%A4%E3%83%99/)  
