@@ -2,8 +2,8 @@
 2つのテーブルを比較して差分を確認するためのクエリです。
 ****/
 
-DECLARE @SourceTable NVARCHAR(MAX) = 'SourceTable'
-DECLARE @TargetTable NVARCHAR(MAX) = 'TargetTable'
+DECLARE @SourceTable NVARCHAR(MAX) = 'SourceTable';
+DECLARE @TargetTable NVARCHAR(MAX) = 'TargetTable';
 
 SELECT
     [SQ_Source_Table].[TABLE_NAME],
@@ -36,6 +36,6 @@ FULL JOIN
 (
     SELECT * 
     FROM [INFORMATION_SCHEMA].[COLUMNS]
-    WHERE TABLE_NAME = @TableseName
+    WHERE TABLE_NAME = @@TargetTable
 ) AS [SQ_Target_Table]
 ON [SQ_Source_Table].[COLUMN_NAME] = [SQ_Target_Table].[COLUMN_NAME]

@@ -1,11 +1,10 @@
-[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
-
 # Change the working directory to the script's directory
 $scriptPath = Split-Path -Parent -Path $MyInvocation.MyCommand.Definition
 Set-Location -Path $scriptPath
 
 # Create script blocks for win-x64 and linux-x64 tasks
 $win_x64_task = {
+    [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
     Set-Location -Path $using:scriptPath
     Write-Output "--- win-x64_Start ---"
     dotnet publish -o ../Bundle/win_bundle -c Release --self-contained true -r win-x64 -p:IncludeNativeLibrariesForSelfExtract=true
@@ -13,6 +12,7 @@ $win_x64_task = {
 }
 
 $linux_x64_task = {
+    [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
     Set-Location -Path $using:scriptPath
     Write-Output "--- linux-x64_Start ---"
     dotnet publish -o ../Bundle/linux_bundle -c Release --self-contained true -r linux-x64
