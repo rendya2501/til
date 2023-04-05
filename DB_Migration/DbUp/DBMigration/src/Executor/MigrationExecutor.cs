@@ -2,6 +2,10 @@ using DbUp.Engine;
 
 namespace DBMigration.Executor;
 
+/// <summary>
+/// マイグレーション実行のエントリーポイント。
+/// 指定された実行モードに応じて、適切なマイグレーション戦略を選択して実行します。
+/// </summary>
 internal class MigrationExecutor
 {
     /// <summary>
