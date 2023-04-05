@@ -1,189 +1,153 @@
 DECLARE @SourceDataBaseName NVARCHAR(MAX) = 'SourceDataBaseName'
 DECLARE @TargetDataBaseName NVARCHAR(MAX) = 'TargetDataBaseName'
 
--- Fromに存在しないテーブルとToに存在しないテーブルを出力
+-- FromとToのテーブル存在確認
+-- ○ : 存在する
+-- × : 存在しない
 exec('
 SELECT
-    [SQ_Source_Table].[TABLE_NAME] AS [From_Not_Exists],
-    [SQ_Target_Table].[TABLE_NAME] AS [To_Not_Exists]
+    COALESCE([SQ_Source_Table].[TABLE_NAME], [SQ_Target_Table].[TABLE_NAME]) AS ObjectName,
+    CASE
+        WHEN [SQ_Source_Table].[TABLE_NAME] IS NOT NULL THEN ''○''
+        ELSE ''×''
+    END AS [FromStatus],
+    CASE
+        WHEN [SQ_Target_Table].[TABLE_NAME] IS NOT NULL THEN ''○''
+        ELSE ''×''
+    END AS [ToStatus]
 FROM
     (
         SELECT
             [TABLE_NAME]
         FROM
             [' + @SourceDataBaseName + '].[INFORMATION_SCHEMA].[COLUMNS] AS [Source_Table]
-        GROUP BY [TABLE_NAME]
+        GROUP BY
+            [TABLE_NAME]
     ) AS [SQ_Source_Table]
     FULL OUTER JOIN
-    (
-        SELECT
-            [TABLE_NAME]
-        FROM
-            [' + @TargetDataBaseName + '].[INFORMATION_SCHEMA].[COLUMNS] AS [Target_Table]
-        GROUP BY [TABLE_NAME]
-    ) AS [SQ_Target_Table]
-    ON [SQ_Source_Table].[TABLE_NAME] = [SQ_Target_Table].[TABLE_NAME]
+        (
+            SELECT
+                [TABLE_NAME]
+            FROM
+                [' + @TargetDataBaseName + '].[INFORMATION_SCHEMA].[COLUMNS] AS [Target_Table]
+            GROUP BY
+                [TABLE_NAME]
+        ) AS [SQ_Target_Table]
+    ON  [SQ_Source_Table].[TABLE_NAME] = [SQ_Target_Table].[TABLE_NAME]
 WHERE
     [SQ_Source_Table].[TABLE_NAME] IS NULL
-    OR [SQ_Target_Table].[TABLE_NAME] IS NULL
-ORDER BY [From_Not_Exists], [To_Not_Exists]
-');
+OR  [SQ_Target_Table].[TABLE_NAME] IS NULL
+ORDER BY
+    ObjectName
+')
+
+
 
 -- 変更のあるカラム一覧
 -- FromとToの両方で差異があるカラム一覧を表示する
-EXEC('
+exec('
+WITH SourceResult AS(
+    SELECT
+        [Source_Table].[TABLE_NAME],
+        [Source_Table].[COLUMN_NAME],
+        [Source_Table].[DATA_TYPE],
+        [Source_Table].[CHARACTER_MAXIMUM_LENGTH],
+        [Source_Table].[IS_NULLABLE],
+        (CASE WHEN [Source_Key].[COLUMN_NAME] IS NOT NULL THEN ''Key'' ELSE NULL END) AS [Key]
+    FROM
+        [' + @SourceDataBaseName + '].[INFORMATION_SCHEMA].[COLUMNS] AS [Source_Table]
+        LEFT OUTER JOIN
+            [INFORMATION_SCHEMA].[KEY_COLUMN_USAGE] AS [Source_Key]
+        ON  [Source_Table].[TABLE_NAME] = [Source_Key].[TABLE_NAME]
+        AND [Source_Table].[COLUMN_NAME] = [Source_Key].[COLUMN_NAME]
+),
+TargetResult AS(
+    SELECT
+        [Target_Table].[TABLE_NAME],
+        [Target_Table].[COLUMN_NAME],
+        [Target_Table].[DATA_TYPE],
+        [Target_Table].[CHARACTER_MAXIMUM_LENGTH],
+        [Target_Table].[IS_NULLABLE],
+        (CASE WHEN [Target_Key].[COLUMN_NAME] IS NOT NULL THEN ''Key'' ELSE NULL END) AS [Key]
+    FROM
+        [' + @TargetDataBaseName + '].[INFORMATION_SCHEMA].[COLUMNS] AS [Target_Table]
+        LEFT OUTER JOIN
+            [INFORMATION_SCHEMA].[KEY_COLUMN_USAGE] AS [Target_Key]
+        ON  [Target_Table].[TABLE_NAME] = [Target_Key].[TABLE_NAME]
+        AND [Target_Table].[COLUMN_NAME] = [Target_Key].[COLUMN_NAME]
+),
+Comparison AS(
+    SELECT
+        CASE
+            WHEN NOT EXISTS(
+                SELECT
+                    1
+                FROM
+                    [' + @SourceDataBaseName + '].INFORMATION_SCHEMA.TABLES
+                WHERE
+                    TABLE_NAME = COALESCE(S.[TABLE_NAME], T.[TABLE_NAME])
+            ) THEN ''FromTable is Missing''
+            WHEN NOT EXISTS(
+                SELECT
+                    1
+                FROM
+                    [' + @TargetDataBaseName + '].INFORMATION_SCHEMA.TABLES
+                WHERE
+                    TABLE_NAME = COALESCE(S.[TABLE_NAME], T.[TABLE_NAME])
+            ) THEN ''ToTable is Missing''
+            WHEN S.[COLUMN_NAME] IS NULL THEN ''FromColumn is Missing''
+            WHEN T.[COLUMN_NAME] IS NULL THEN ''ToColumn is Missing''
+            WHEN S.[COLUMN_NAME] <> T.[COLUMN_NAME]
+        OR  S.[DATA_TYPE] <> T.[DATA_TYPE]
+        OR  S.[CHARACTER_MAXIMUM_LENGTH] <> T.[CHARACTER_MAXIMUM_LENGTH]
+        OR  S.[IS_NULLABLE] <> T.[IS_NULLABLE]
+        OR  S.[Key] <> T.[Key] THEN ''Column Diff''
+            ELSE ''Match''
+        END AS Comparison,
+        COALESCE(S.[TABLE_NAME], T.[TABLE_NAME]) AS [TABLE_NAME],
+        COALESCE(S.[COLUMN_NAME], T.[COLUMN_NAME]) AS [COLUMN_NAME],
+        ''|'' AS ''|||'',
+        S.[DATA_TYPE],
+        S.[CHARACTER_MAXIMUM_LENGTH],
+        S.[IS_NULLABLE],
+        S.[Key],
+        ''→'' AS [To],
+        T.[COLUMN_NAME] AS [To_COLUMN_NAME],
+        T.[DATA_TYPE] AS [TO_DATA_TYPE],
+        T.[CHARACTER_MAXIMUM_LENGTH] AS [TO_CHARACTER_MAXIMUM_LENGTH],
+        T.[IS_NULLABLE] AS [TO_IS_NULLABLE],
+        T.[Key] AS [TO_KEY]
+    FROM
+        SourceResult AS S
+        FULL OUTER JOIN
+            TargetResult AS T
+        ON  S.[TABLE_NAME] = T.[TABLE_NAME]
+        AND S.[COLUMN_NAME] = T.[COLUMN_NAME]
+)
 SELECT
-    CASE 
-        WHEN [SQ_Source_Table].[TABLE_NAME] IS NULL THEN ''FromNothing''
-        WHEN [SQ_Target_Table].[TABLE_NAME] IS NULL THEN ''ToNothing''
-        ELSE ''ColumnDiff''
-    END AS [DifferenceReason],
-    CASE WHEN [SQ_Source_Table].[TABLE_NAME] IS NOT NULL THEN [SQ_Source_Table].[TABLE_NAME] ELSE [SQ_Target_Table].[TABLE_NAME] END AS [TABLE_NAME],
-    CASE WHEN [SQ_Source_Table].[COLUMN_NAME] IS NOT NULL THEN [SQ_Source_Table].[COLUMN_NAME] ELSE [SQ_Target_Table].[COLUMN_NAME] END AS [COLUMN_NAME],
-    [SQ_Source_Table].[DATA_TYPE],
-    [SQ_Source_Table].[CHARACTER_MAXIMUM_LENGTH] AS [LEN],
-    [SQ_Source_Table].[IS_NULLABLE] AS [ISNULL],
-    [SQ_Source_Table].[Key] AS [Key],
-    ''→'' AS [To],
-    [SQ_Target_Table].[DATA_TYPE],
-    [SQ_Target_Table].[CHARACTER_MAXIMUM_LENGTH] AS [LEN],
-    [SQ_Target_Table].[IS_NULLABLE] AS [ISNULL],
-    [SQ_Target_Table].[Key] AS [Key]
+    *
 FROM
-    (
-        SELECT
-            [Source_Table].[TABLE_NAME],
-            [Source_Table].[COLUMN_NAME],
-            [Source_Table].[DATA_TYPE],
-            [Source_Table].[CHARACTER_MAXIMUM_LENGTH],
-            [Source_Table].[IS_NULLABLE],
-            (CASE WHEN [Source_Key].[COLUMN_NAME] IS NOT NULL THEN ''Key'' ELSE NULL END) AS [Key]
-        FROM
-            [' + @SourceDataBaseName + '].[INFORMATION_SCHEMA].[COLUMNS] AS [Source_Table]
-            LEFT OUTER JOIN [INFORMATION_SCHEMA].[KEY_COLUMN_USAGE] AS [Source_Key]
-            ON [Source_Table].[TABLE_NAME] = [Source_Key].[TABLE_NAME]
-            AND [Source_Table].[COLUMN_NAME] = [Source_Key].[COLUMN_NAME]
-    ) AS [SQ_Source_Table]
-    FULL JOIN
-    (
-        SELECT
-            [Target_Table].[TABLE_NAME],
-            [Target_Table].[COLUMN_NAME],
-            [Target_Table].[DATA_TYPE],
-            [Target_Table].[CHARACTER_MAXIMUM_LENGTH],
-            [Target_Table].[IS_NULLABLE],
-            (CASE WHEN [Target_Key].[COLUMN_NAME] IS NOT NULL THEN ''Key'' ELSE NULL END) AS [Key]
-        FROM
-            [' + @TargetDataBaseName + '].[INFORMATION_SCHEMA].[COLUMNS] AS [Target_Table]
-            LEFT OUTER JOIN [INFORMATION_SCHEMA].[KEY_COLUMN_USAGE] AS [Target_Key]
-            ON [Target_Table].[TABLE_NAME] = [Target_Key].[TABLE_NAME]
-            AND [Target_Table].[COLUMN_NAME] = [Target_Key].[COLUMN_NAME]
-    ) AS [SQ_Target_Table]
-    ON [SQ_Source_Table].[TABLE_NAME] = [SQ_Target_Table].[TABLE_NAME]
-    AND [SQ_Source_Table].[COLUMN_NAME] = [SQ_Target_Table].[COLUMN_NAME]
+    Comparison
 WHERE
-    (
-        ISNULL([SQ_Source_Table].[COLUMN_NAME], '''') <> ISNULL([SQ_Target_Table].[COLUMN_NAME], '''')
-        OR ISNULL([SQ_Source_Table].[DATA_TYPE], '''') <> ISNULL([SQ_Target_Table].[DATA_TYPE], '''')
-        OR ISNULL([SQ_Source_Table].[CHARACTER_MAXIMUM_LENGTH], -1) <> ISNULL([SQ_Target_Table].[CHARACTER_MAXIMUM_LENGTH], -1)
-        OR ISNULL([SQ_Source_Table].[IS_NULLABLE], '''') <> ISNULL([SQ_Target_Table].[IS_NULLABLE], '''')
-        OR ISNULL([SQ_Source_Table].[Key], '''') <> ISNULL([SQ_Target_Table].[Key], '''')
-    )
-    AND NOT EXISTS (
-        SELECT
-            *
-        FROM
-            (
-                SELECT
-                    [SQ_Target_Table].[TABLE_NAME]
-                FROM
-                    (
-                        SELECT
-                            [TABLE_NAME]
-                        FROM
-                            [' + @TargetDataBaseName + '].[INFORMATION_SCHEMA].[COLUMNS] AS [Target_Table]
-                        GROUP BY [TABLE_NAME]
-                    ) AS [SQ_Target_Table]
-                    LEFT OUTER JOIN
-                    (
-                        SELECT
-                            [TABLE_NAME]
-                        FROM
-                            [' + @SourceDataBaseName + '].[INFORMATION_SCHEMA].[COLUMNS] AS [Source_Table]
-                        GROUP BY [TABLE_NAME]
-                    ) AS [SQ_Source_Table]
-                    ON [SQ_Target_Table].[TABLE_NAME] = [SQ_Source_Table].[TABLE_NAME]
-                WHERE
-                    [SQ_Source_Table].[TABLE_NAME] IS NULL
-            ) AS [SQ_DeleteTable]
-        WHERE
-            [SQ_Target_Table].[TABLE_NAME] = [SQ_DeleteTable].[TABLE_NAME]
-    )
-    AND NOT EXISTS (
-        SELECT
-            *
-        FROM
-            (
-                SELECT
-                    [SQ_Source_Table].[TABLE_NAME]
-                FROM
-                    (
-                        SELECT
-                            [TABLE_NAME]
-                        FROM
-                            [' + @SourceDataBaseName + '].[INFORMATION_SCHEMA].[COLUMNS] AS [Source_Table]
-                        GROUP BY [TABLE_NAME]
-                    ) AS [SQ_Source_Table]
-                    LEFT OUTER JOIN
-                    (
-                        SELECT
-                            [TABLE_NAME]
-                        FROM
-                            [' + @TargetDataBaseName + '].[INFORMATION_SCHEMA].[COLUMNS] AS [Target_Table]
-                        GROUP BY [TABLE_NAME]
-                    ) AS [SQ_Target_Table]
-                    ON [SQ_Source_Table].[TABLE_NAME] = [SQ_Target_Table].[TABLE_NAME]
-                WHERE
-                    [SQ_Target_Table].[TABLE_NAME] IS NULL
-            ) AS [SQ_AddTable]
-        WHERE
-            [SQ_Source_Table].[TABLE_NAME] = [SQ_AddTable].[TABLE_NAME]
-    )
+    Comparison.Comparison NOT IN(''Match'', ''FromTable is Missing'', ''ToTable is Missing'')
 ORDER BY
-    CASE WHEN [SQ_Source_Table].[TABLE_NAME] IS NOT NULL THEN [SQ_Source_Table].[TABLE_NAME] ELSE [SQ_Target_Table].[TABLE_NAME] END,
-    CASE WHEN [SQ_Source_Table].[COLUMN_NAME] IS NOT NULL THEN [SQ_Source_Table].[COLUMN_NAME] ELSE [SQ_Target_Table].[COLUMN_NAME] END
-');
+    [TABLE_NAME]
+')
+
 
 
 -- インデックスの差異一覧
 -- FromとToの両方で差異があるインデックス一覧を表示する
-EXEC('
-SELECT
-    [SQ_Source_Table].[ObjectName],
-    [SQ_Source_Table].[IndexName],
-    [SQ_Source_Table].[IndexTypeDesc],
-    [SQ_Source_Table].[IsPrimaryKey],
-    [SQ_Source_Table].[IsUnique],
-    [SQ_Source_Table].[IsDisabled],
-    [SQ_Source_Table].[IndexKeys],
-    ''→'' as [To],
-    [SQ_Target_Table].[ObjectName],
-    [SQ_Target_Table].[IndexName],
-    [SQ_Target_Table].[IndexTypeDesc],
-    [SQ_Target_Table].[IsPrimaryKey],
-    [SQ_Target_Table].[IsUnique],
-    [SQ_Target_Table].[IsDisabled],
-    [SQ_Target_Table].[IndexKeys]
-FROM 
-    (
-        SELECT
-            [O].[name] AS [ObjectName],
-            [I].[name] AS [IndexName],
-            [I].[type_desc] AS [IndexTypeDesc],
-            [I].[is_primary_key] AS [IsPrimaryKey],
-            [I].[is_unique] AS [IsUnique],
-            [I].[is_disabled] AS [IsDisabled],
-            [IndexKeys] = STUFF((
+exec('
+WITH SourceResult AS(
+    SELECT
+        [O].[name] AS [ObjectName],
+        [I].[name] AS [IndexName],
+        [I].[type_desc] AS [IndexTypeDesc],
+        [I].[is_primary_key] AS [IsPrimaryKey],
+        [I].[is_unique] AS [IsUnique],
+        [I].[is_disabled] AS [IsDisabled],
+        [IndexKeys] = STUFF((
                 SELECT
                     CONCAT(
                         '', '',
@@ -195,33 +159,34 @@ FROM
                     )
                 FROM
                     [' + @SourceDataBaseName + '].[sys].[index_columns] AS [IC]
-                    JOIN [' + @SourceDataBaseName + '].[sys].[all_columns] AS [AC]
+                    JOIN
+                        [' + @SourceDataBaseName + '].[sys].[all_columns] AS [AC]
                     ON  [IC].[object_id] = [AC].[object_id]
                     AND [IC].[column_id] = [AC].[column_id]
                 WHERE
                     [IC].[object_id] = [I].[object_id]
-                    AND [IC].[index_id] = [I].[index_id]
-                    AND [is_included_column] = 0 
-                    FOR XML PATH(''''), TYPE
+                AND [IC].[index_id] = [I].[index_id]
+                AND [is_included_column] = 0 FOR XML PATH(''''),
+                    TYPE
             ).value(''.'', ''VARCHAR(MAX)''), 1, 2, '''')
-        FROM
-            [' + @SourceDataBaseName + '].[sys].[indexes] AS [I]
-            INNER JOIN [' + @SourceDataBaseName + '].[sys].[objects] AS [O]
-            ON [I].[object_id] = [O].[object_id]
-        WHERE
-            [I].[index_id] > 0
-            AND [O].[is_ms_shipped] = 0
-    ) AS [SQ_Source_Table]
-    FULL JOIN
-    (
-        SELECT
-            [O].[name] AS [ObjectName],
-            [I].[name] AS [IndexName],
-            [I].[type_desc] AS [IndexTypeDesc],
-            [I].[is_primary_key] AS [IsPrimaryKey],
-            [I].[is_unique] AS [IsUnique],
-            [I].[is_disabled] AS [IsDisabled],
-            [IndexKeys] = STUFF((
+    FROM
+        [' + @SourceDataBaseName + '].[sys].[indexes] AS [I]
+        INNER JOIN
+            [' + @SourceDataBaseName + '].[sys].[objects] AS [O]
+        ON  [I].[object_id] = [O].[object_id]
+    WHERE
+        [I].[index_id] > 0
+    AND [O].[is_ms_shipped] = 0
+),
+TargetResult AS(
+    SELECT
+        [O].[name] AS [ObjectName],
+        [I].[name] AS [IndexName],
+        [I].[type_desc] AS [IndexTypeDesc],
+        [I].[is_primary_key] AS [IsPrimaryKey],
+        [I].[is_unique] AS [IsUnique],
+        [I].[is_disabled] AS [IsDisabled],
+        [IndexKeys] = STUFF((
                 SELECT
                     CONCAT(
                         '', '',
@@ -233,27 +198,82 @@ FROM
                     )
                 FROM
                     [' + @TargetDataBaseName + '].[sys].[index_columns] AS [IC]
-                    JOIN [' + @TargetDataBaseName + '].[sys].[all_columns] AS [AC]
+                    JOIN
+                        [' + @TargetDataBaseName + '].[sys].[all_columns] AS [AC]
                     ON  [IC].[object_id] = [AC].[object_id]
                     AND [IC].[column_id] = [AC].[column_id]
                 WHERE
                     [IC].[object_id] = [I].[object_id]
-                    AND [IC].[index_id] = [I].[index_id]
-                    AND [is_included_column] = 0 
-                    FOR XML PATH(''''), TYPE
+                AND [IC].[index_id] = [I].[index_id]
+                AND [is_included_column] = 0 FOR XML PATH(''''),
+                    TYPE
             ).value(''.'', ''VARCHAR(MAX)''), 1, 2, '''')
-        FROM
-            [' + @TargetDataBaseName + '].[sys].[indexes] AS [I]
-            INNER JOIN [' + @TargetDataBaseName + '].[sys].[objects] AS [O]
-            ON [I].[object_id] = [O].[object_id]
-        WHERE
-            [I].[index_id] > 0
-            AND [O].[is_ms_shipped] = 0
-    ) AS [SQ_Target_Table]
-    ON [SQ_Source_Table].[ObjectName] = [SQ_Target_Table].[ObjectName]
-    AND [SQ_Source_Table].[IndexName] = [SQ_Target_Table].[IndexName]
-    AND [SQ_Source_Table].[IndexKeys] = [SQ_Target_Table].[IndexKeys]
-WHERE 
-    [SQ_Source_Table].[ObjectName] IS NULL
-    OR [SQ_Target_Table].[ObjectName] IS NULL
+    FROM
+        [' + @TargetDataBaseName + '].[sys].[indexes] AS [I]
+        INNER JOIN
+            [' + @TargetDataBaseName + '].[sys].[objects] AS [O]
+        ON  [I].[object_id] = [O].[object_id]
+    WHERE
+        [I].[index_id] > 0
+    AND [O].[is_ms_shipped] = 0
+),
+Comparison AS(
+    SELECT
+        CASE
+            WHEN NOT EXISTS(SELECT 1 FROM [' + @SourceDataBaseName + '].INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = COALESCE(S.ObjectName, T.ObjectName)) THEN ''FromTable is Missing''
+            WHEN NOT EXISTS(SELECT 1 FROM [' + @TargetDataBaseName + '].INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = COALESCE(S.ObjectName, T.ObjectName)) THEN ''ToTable is Missing''
+            WHEN S.IndexName IS NULL THEN ''FromIndex is Missing''
+            WHEN T.IndexName IS NULL THEN ''ToIndex is Missing''
+            WHEN S.IndexTypeDesc <> T.IndexTypeDesc
+            OR  S.IsPrimaryKey <> T.IsPrimaryKey
+            OR  S.IsUnique <> T.IsUnique
+            OR  S.IsDisabled <> T.IsDisabled
+            OR  S.IndexKeys <> T.IndexKeys THEN ''IndexDiff''
+            ELSE ''Match''
+        END AS Comparison,
+        COALESCE(S.ObjectName, T.ObjectName) AS ObjectName,
+        COALESCE(S.IndexName, T.IndexName) AS IndexName,
+        S.ObjectName as a,
+        S.IndexName as ss,
+        S.IndexTypeDesc,
+        S.IsPrimaryKey,
+        S.IsUnique,
+        S.IsDisabled,
+        S.IndexKeys,
+        T.ObjectName as b,
+        T.IndexName AS TargetIndexName,
+        T.IndexTypeDesc AS TargetIndexTypeDesc,
+        T.IsPrimaryKey AS TargetIsPrimaryKey,
+        T.IsUnique AS TargetIsUnique,
+        T.IsDisabled AS TargetIsDisabled,
+        T.IndexKeys AS TargetIndexKeys
+    FROM
+        SourceResult AS S
+        FULL OUTER JOIN
+            TargetResult AS T
+        ON  S.ObjectName = T.ObjectName
+        AND S.IndexName = T.IndexName
+)
+SELECT
+    Comparison,
+    ObjectName,
+    IndexName,
+    ''|'' AS ''|||'',
+    IndexTypeDesc,
+    IsPrimaryKey,
+    IsUnique,
+    IsDisabled,
+    IndexKeys,
+    ''→'' AS [to],
+    TargetIndexTypeDesc,
+    TargetIsPrimaryKey,
+    TargetIsUnique,
+    TargetIsDisabled,
+    TargetIndexKeys
+FROM
+    Comparison
+WHERE
+    Comparison NOT IN (''Match'',''FromTable is Missing'',''ToTable is Missing'')
+ORDER BY
+    ObjectName
 ')
