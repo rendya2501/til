@@ -13,8 +13,10 @@
 
 ## 仕様
 
-プログラム起動直後は一覧を表示する。  
-一覧では「ID,Title,Author」を表示するものとする。  
+コンソールアプリで簡単なCRUDをGraphQLで実装する。  
+
+プログラム起動直後はデータ一覧を表示する。  
+表示内容は「ID,Title,Author」とする。  
 
 キー入力による選択肢は以下の通り。  
 
@@ -28,17 +30,15 @@ getはIDを入力するとその書籍に関する詳しい結果が表示され
 insertは「Title,Author,Publisher,publicationDate」を入力する。  
 updateはidを入力し、名前だけを変更できるようにする。  
 deleteはidを入力する。  
-qはプログラムを終了する。  
 
 各選択肢を実行した後、再び一覧を表示する。  
-この処理はwhileループとする。  
-qを押下することでbreakする。  
+この処理はwhileループとし、qを押下することでbreakする。  
 
 ---
 
 ## サーバー側（ASP.NET Core Minimal API）
 
-依存関係の追加
+依存関係の追加  
 
 HotChocolate.AspNetCore を使用するため、NuGet からパッケージをインストールします。  
 
@@ -54,3 +54,12 @@ GraphQL.Client.Http と GraphQL.Client.Serializer.SystemTextJson を使用する
 
 - `dotnet add package GraphQL.Client.Http`  
 - `dotnet add package GraphQL.Client.Serializer.SystemTextJson`  
+
+---
+
+## 参考
+
+GPT4  
+
+[A Basic GraphQL CRUD Operation With .NET6 + Hot Chocolate(V 12) + SQL Database](https://www.learmoreseekmore.com/2022/01/basic-graphql-crud-operation-dotnet6-hotchocolate-v12-sqldatabase.html)  
+[ASP.NET Core で GraphQL API の Mutation を実装する - present](https://tnakamura.hatenablog.com/entry/2018/12/14/graphql-mutation)  

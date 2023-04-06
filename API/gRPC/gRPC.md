@@ -127,4 +127,6 @@ RESTやGraphQLは、それぞれ異なるユースケースに適しています
 
 [サービス間通信のための新技術「gRPC」入門 | さくらのナレッジ](https://knowledge.sakura.ad.jp/24059/)  
 
+[REST APIの設計で消耗している感じたときのgRPC入門](https://qiita.com/disc99/items/cfca50a32240284578bb)  
+
 [Intro to gRPC in C# - How To Get Started, - YouTube](https://www.youtube.com/watch?v=QyxCX2GYHxk)  
