@@ -1,0 +1,44 @@
+<Window
+    x:Class="TabViewProject.Views.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Title="MainWindow"
+    Width="800"
+    Height="450"
+    mc:Ignorable="d">
+    <!--
+        xmlns:prism="http://prismlibrary.com/"
+        prism:ViewModelLocator.AutoWireViewModel="True"
+    -->
+    <Grid>
+        <TabControl>
+            <TabItem Header="Tab 1">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <TextBox Grid.Row="0" Text="{Binding Tab1.TextBoxContent, UpdateSourceTrigger=PropertyChanged}" />
+                    <Button
+                        Grid.Row="1"
+                        Command="{Binding Tab1.ShowMessageCommand}"
+                        Content="Show Message" />
+                </Grid>
+            </TabItem>
+            <TabItem Header="Tab 2">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <TextBox Grid.Row="0" Text="{Binding Tab2.TextBox1Content, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox Grid.Row="1" Text="{Binding Tab2.TextBox2Content, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBlock Grid.Row="2" Text="{Binding Tab2.CombinedText}" />
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Window>
