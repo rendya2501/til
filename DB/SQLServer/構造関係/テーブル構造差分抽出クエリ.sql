@@ -138,6 +138,11 @@ ORDER BY
 
 -- インデックスの差異一覧
 -- FromとToの両方で差異があるインデックス一覧を表示する
+-- 自身のテーブルがそもそも存在しない → FromTable is Missing
+-- 自身のテーブルは存在するが相手のindexが存在しない → ToIndex is Missing
+-- 相手のテーブルがそもそも存在しない → ToTable is Missing
+-- 相手のテーブルは存在するが自身のindexが存在しない → FromIndex is Missing
+-- 自身と相手のテーブルとインデックスは存在するが、内容が違う → IndexDiff
 exec('
 WITH SourceResult AS(
     SELECT

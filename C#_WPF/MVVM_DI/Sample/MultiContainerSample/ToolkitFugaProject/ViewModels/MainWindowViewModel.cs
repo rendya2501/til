@@ -2,9 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows;
 using ToolkitFugaProject.Common;
-using ToolkitFugaProject.Service;
 
 namespace ToolkitFugaProject.ViewModels;
 
@@ -31,10 +29,7 @@ public partial class MainWindowViewModel : ObservableObject
     private bool CanDecrement() => Count > 0;
 
     [Unity.Dependency]
-    public FugaService FugaService { get; set; }
-
-    [RelayCommand]
-    private void ShowFuga() => MessageBox.Show(FugaService.FugaContent, "Message from ShowFugaCommand");
+    public FugaViewModel FugaViewModel { get; init; }
 
     public MainWindowViewModel()
     {

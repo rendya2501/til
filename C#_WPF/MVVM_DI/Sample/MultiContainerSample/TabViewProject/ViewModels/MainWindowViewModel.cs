@@ -8,8 +8,7 @@ public class MainWindowViewModel : BindableBase
     public Tab1ViewModel Tab1 { get; }
     public Tab2ViewModel Tab2 { get; }
 
-    //[Unity.Dependency]
-    //public HogeService HogeService { get; set; }
+    public HogeService HogeService { get; set; }
 
     public MainWindowViewModel(Tab1ViewModel tab1, Tab2ViewModel tab2)
     {
