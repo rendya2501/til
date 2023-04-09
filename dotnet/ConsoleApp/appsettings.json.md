@@ -129,5 +129,20 @@ Console.WriteLine(configuration.GetConnectionString("DefaultConnection"));
 
 ---
 
+## appsettings.jsonを相対参照でプロジェクトに含める設定
+
+`Link`タグを使う。
+
+``` xml
+<ItemGroup>
+  <Content Include="../appsettings.json">
+    <Link>appsettings.json</Link>
+    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+  </Content>
+</ItemGroup>
+```
+
+---
+
 [Quick Way to Get Connection String from AppSettings.json Console Application .net Core 3.1 and Later](https://yarkul.com/how-to-get-connection-string-from-appsettings-json-net-core-console-application/)  
 [.NETのコンソールアプリでappsettings.jsonを使う (.NET6)](https://zenn.dev/higmasu/articles/b3dab3c7bea6db)  

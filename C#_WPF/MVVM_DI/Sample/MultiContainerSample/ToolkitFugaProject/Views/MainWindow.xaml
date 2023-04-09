@@ -6,11 +6,18 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:prism="http://prismlibrary.com/"
+    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:l="http://schemas.livet-mvvm.net/2011/wpf"
     Title="MainWindow"
     Width="800"
     Height="450"
     prism:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
+    <i:Interaction.Triggers>
+        <l:InteractionMessageTrigger MessageKey="WindowAction" Messenger="{Binding Messenger}">
+            <l:WindowInteractionMessageAction InvokeActionOnlyWhenWindowIsActive="False" />
+        </l:InteractionMessageTrigger>
+    </i:Interaction.Triggers>
     <Window.Resources>
         <common:EnumDescriptionConverter x:Key="enumConverter" />
     </Window.Resources>
@@ -45,6 +52,19 @@
                 Margin="0,10,0,0"
                 Command="{Binding FugaViewModel.ShowFugaCommand}"
                 Content="ShowFuga" />
+
+            <Button
+                Width="100"
+                Margin="0,10,0,0"
+                Command="{Binding ShowTabViewCommand}"
+                Content="ShowTabView" />
+
+
+            <Button
+                Width="100"
+                Margin="0,10,0,0"
+                Command="{Binding CloseWindowCommand}"
+                Content="CloseWindow" />
         </StackPanel>
     </Grid>
 </Window>

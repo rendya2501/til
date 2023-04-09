@@ -19,12 +19,17 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
                     <TextBox Grid.Row="0" Text="{Binding Tab1.TextBoxContent, UpdateSourceTrigger=PropertyChanged}" />
                     <Button
                         Grid.Row="1"
                         Command="{Binding Tab1.ShowMessageCommand}"
                         Content="Show Message" />
+                    <Button
+                        Grid.Row="2"
+                        Command="{Binding Tab1.ShowToolKitCommand}"
+                        Content="Show ToolKit" />
                 </Grid>
             </TabItem>
             <TabItem Header="Tab 2">
