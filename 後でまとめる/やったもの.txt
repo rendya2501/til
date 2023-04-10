@@ -197,3 +197,8 @@ LINQ OrderBy 複数
 
 〆・lru
 〆・eventaggregator c# example
+
+〆・クラスの継承とインターフェース
+
+〆・foreachとaggregateの速度比較
+〆・aggregateの動作確認
