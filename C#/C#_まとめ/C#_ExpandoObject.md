@@ -240,6 +240,35 @@ Console.WriteLine(d.key2); // キー2
 
 ---
 
+## Linq.Aggregate
+
+Aggregateでいけました。
+
+``` cs
+var items = new Dictionary<string, string>
+{
+    { "key1", "キー1" },
+    { "key2", "キー2" }
+};
+
+IDictionary<string, object> d = items.Aggregate(
+    (IDictionary<string, object>)new ExpandoObject()!,
+    (Accumulator, next) =>
+    {
+        Accumulator.Add(next.Key, next.Value);
+        return Accumulator;
+    });
+d.Add("Hoge","Fuga");
+
+
+dynamic res = d;
+Console.WriteLine(res.key1); // キー1
+Console.WriteLine(res.key2); // キー2
+Console.WriteLine(res.Hoge); // Fuga
+```
+
+---
+
 ## Dapperと匿名型の動的生成を用いた例
 
 日付でBETWEENしたい条件が複数ある場合とか使えるかもしれん。  
