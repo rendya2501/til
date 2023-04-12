@@ -269,6 +269,80 @@ Console.WriteLine(res.Hoge); // Fuga
 
 ---
 
+## foreach vs aggregate
+
+foreachとaggregateならどちらが早いのか検証。  
+結果的にほとんど差がなかったので、スッキリ書けるAggregateのほうがいいんじゃないかなといった感じ。  
+
+``` cs
+using System.Diagnostics;
+using System.Dynamic;
+
+
+int iterations = 100;
+var dic = Enumerable.Range(1, 1000).ToDictionary(k => $"key{k.ToString()}", v => $"キー{v.ToString()}");
+Stopwatch sw = new Stopwatch();
+
+// Test foreach method
+sw.Start();
+for (int i = 0; i < iterations; i++)
+{
+    var result = foreachMethod(dic);
+}
+sw.Stop();
+Console.WriteLine("Foreach method took: " + sw.ElapsedMilliseconds + " ms");
+
+// Test Aggregate method
+sw.Reset();
+sw.Start();
+for (int i = 0; i < iterations; i++)
+{
+    var result = aggregateMethod(dic);
+}
+sw.Stop();
+Console.WriteLine("Aggregate method took: " + sw.ElapsedMilliseconds + " ms");
+
+
+static ExpandoObject foreachMethod(Dictionary<string, string> dic)
+{
+    var result = new ExpandoObject();
+    var resultDic = (IDictionary<string, object>)result;
+
+    foreach (var item in dic)
+    {
+        resultDic.Add(item.Key, item.Value);
+    }
+
+    return result;
+}
+
+static ExpandoObject aggregateMethod(Dictionary<string, string> dic)
+{
+    var result = dic.Aggregate(
+        new ExpandoObject(),
+        (accumulator, next) =>
+        {
+            ((IDictionary<string, object>)accumulator!).Add(next.Key, next.Value);
+            return accumulator;
+        });
+    return result;
+}
+
+// 1回目
+// Foreach method took: 1003 ms
+// Aggregate method took: 868 ms
+
+// 2回目
+// Foreach method took: 921 ms
+// Aggregate method took: 1113 ms
+
+// 3回目
+// Foreach method took: 1108 ms
+// Aggregate method took: 902 ms
+```
+
+---
+
 ## Dapperと匿名型の動的生成を用いた例
 
 日付でBETWEENしたい条件が複数ある場合とか使えるかもしれん。  
