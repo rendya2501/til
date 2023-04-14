@@ -202,3 +202,9 @@ LINQ OrderBy 複数
 
 〆・foreachとaggregateの速度比較
 〆・aggregateの動作確認
+
+〆・最小限のUtilやJsonから値を取得するサンプル
+〆・クラス図と関連のまとめ
+〆・TransactionScopeの分散トランザクション
+〆・実行計画のみかた
+

@@ -88,7 +88,7 @@ iisを開いて`サイト`を右クリック→`Webサイトの追加`
 
 5.**サイトへアクセス**  
 
-iisの右側の操作タブ,`Webサイトの参照`から`*:8080(http)参照`をクリック or `http://localhost:8081/`にアクセス。  
+iisの右側の操作タブ,`Webサイトの参照`から`*:8080(http)参照`をクリック or `http://localhost:8080/`にアクセス。  
 
 - 他参考サイト  
 [How To Set Default Swagger Welcome Page In Web Api](https://www.adoclib.com/blog/how-to-set-default-swagger-welcome-page-in-web-api.html)  
