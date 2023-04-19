@@ -29,47 +29,6 @@ OVER の中に Partition by を書くことで、指定した項目でグルー�
 
 ---
 
-## 集計サンプル
-
-``` txt : employee（社員）
-id  first_name  last_name  department_id  height
-1   一郎         山田       1              170
-2   次郎         佐藤       2              175
-3   三郎         田中       1              185
-4   四郎         鈴木       2              155
-```
-
-``` sql
-SELECT
-    last_name,
-    --全体の総件数
-    COUNT(1) OVER() total_count,
-    --部門ごとの件数
-    COUNT(1) OVER(PARTITION BY department_id) section_count,
-    --部門ごとの最大身長
-    MAX(height) OVER(PARTITION BY department_id) section_max_height,
-    --部門ごとの身長順（身長順に並び替えたときの行番号）
-    ROW_NUMBER() OVER(PARTITION BY department_id ORDER BY height DESC) section_height_order,
-    --全体の身長順（身長順に並び替えたときの行番号）
-    ROW_NUMBER() OVER(ORDER BY height DESC) height_order
-FROM
-    employee
-ORDER BY
-    id
-```
-
-``` txt : 取得結果
-last_name  total_count  section_count  section_max_height  section_height_order  height_order
-山田        4            2              185                 2                     3
-佐藤        4            2              175                 1                     2
-田中        4            2              185                 1                     1
-鈴木        4            2              175                 2                     4
-```
-
-[SQL PARTITION BYの基本と効率的に集計する便利な方法](https://zukucode.com/2017/08/sql-over-partition-by.html)  
-
----
-
 ## Window関数早見表
 
 ``` txt
@@ -157,7 +116,125 @@ select ROW_NUMBER() OVER (), * from [Table]
 
 ---
 
+## WINDOW句
+
+OVER句の()括弧内の記述に対して、エイリアスを設定することができる機能。  
+長ったらしい記述を使いまわすことができるので便利。  
+
+``` sql
+-- ノーマル
+SELECT 
+  a,b, 
+  ROW_NUMBER() OVER (PARTITION BY a ORDER BY a,b) AS A
+FROM Test
+
+-- WINDOW句
+SELECT 
+  a,b, 
+  ROW_NUMBER() OVER PART AS A
+FROM Test
+WINDOW PART AS (PARTITION BY a ORDER BY a,b)
+```
+
+[分析関数（OVER句,WINDOW句）｜SQL入門](https://excel-ubara.com/vba_sql/vba_SQL023.html)  
+
+## FILTER句
+
+OVER句の前にFILTER句を記述することで、条件を満たしたレコードのみで集計処理を行うもの。  
+
+`分析関数 FILTER(WHERE 条件式) OVER(・・・)`  
+
+PostgreSQLでは以下のように記述可能。  
+
+``` sql
+WITH CTE AS (
+    SELECT a, b
+    FROM (
+        VALUES
+            (1, 1), (1, 2), (1, 3),
+            (2, 1), (2, 2), (2, 3), (2, 4)
+    ) AS t(a, b)
+)
+SELECT
+    a, b,
+    string_agg(b::text, ',') FILTER (WHERE b != 2) OVER (PARTITION BY a ORDER BY a,b) as [filter]
+    string_agg(b::text, ',') OVER (PARTITION BY a ORDER BY a,b) as [not_filter]
+FROM test;
+/*
+  a | b | filter |not_filter 
+ ---+---+--------+-----------
+  1 | 1 | 1      | 1         
+  1 | 2 | 1      | 1,2       
+  1 | 3 | 1,3    | 1,2,3     
+  2 | 1 | 1      | 1         
+  2 | 2 | 1      | 1,2       
+  2 | 3 | 1,3    | 1,2,3     
+  2 | 4 | 1,3,4  | 1,2,3,4   
+*/
+```
+
+SQLServerで同じようにやるならこうなる。
+
+``` sql
+WITH CTE AS (
+    SELECT a, b
+    FROM (
+        VALUES
+            (1, 1), (1, 2), (1, 3),
+            (2, 1), (2, 2), (2, 3), (2, 4)
+    ) AS t(a, b)
+)
+SELECT DISTINCT
+    CTE.a,
+    CTE.b,
+    STUFF((
+        SELECT ',' + CAST(CTE2.b AS VARCHAR(MAX))
+        FROM CTE AS CTE2
+        WHERE CTE2.a = CTE.a AND CTE2.b <= CTE.b AND CTE2.b <> 2
+        FOR XML PATH('')
+    ), 1, 1, '') AS [filter],
+    STUFF((
+        SELECT ',' + CAST(CTE2.b AS VARCHAR(MAX))
+        FROM CTE AS CTE2
+        WHERE CTE2.a = CTE.a AND CTE2.b <= CTE.b
+        FOR XML PATH('')
+    ), 1, 1, '') AS [not_filter]
+FROM CTE
+ORDER BY a, b
+/*
+  a | b | filter |not_filter 
+ ---+---+--------+-----------
+  1 | 1 | 1      | 1         
+  1 | 2 | 1      | 1,2       
+  1 | 3 | 1,3    | 1,2,3     
+  2 | 1 | 1      | 1         
+  2 | 2 | 1      | 1,2       
+  2 | 3 | 1,3    | 1,2,3     
+  2 | 4 | 1,3,4  | 1,2,3,4   
+*/
+```
+
+[分析関数（OVER句,WINDOW句）｜SQL入門](https://excel-ubara.com/vba_sql/vba_SQL023.html)  
+
+---
+
+## WINDOWS句とFILTER句のサポート状況
+
+ChatGPTに聞いてみた結果。　　
+
+|データベース|Window句|Filter句|備考|
+|---|---|---|---|
+|PostgreSQL|○|○||
+|MariaDB|○|○||
+|IBM Db2|○|○||
+|Oracle Database|○|×|Filter句の代わりにCASE式を使用可能|
+|SQLServer|×|×||
+
+---
+
 [分析関数（ウインドウ関数）をわかりやすく説明してみた](https://qiita.com/tlokweng/items/fc13dc30cc1aa28231c5)  
 [【ひたすら図で説明】一番やさしい SQL window 関数（分析関数） の使い方](https://resanaplaza.com/2021/10/17/%E3%80%90%E3%81%B2%E3%81%9F%E3%81%99%E3%82%89%E5%9B%B3%E3%81%A7%E8%AA%AC%E6%98%8E%E3%80%91%E4%B8%80%E7%95%AA%E3%82%84%E3%81%95%E3%81%97%E3%81%84-sql-window-%E9%96%A2%E6%95%B0%EF%BC%88%E5%88%86/)  
 
 [【SQLの神髄】第５回 PARTITIONとROWS BETWEENを使ったレコード間比較](https://homegrowin.jp/all/4320/)  
+
+[Window関数のFILTER句を極める](https://masahikosawada.github.io/2018/12/17/Window-Function-Filter-Clause/)  
