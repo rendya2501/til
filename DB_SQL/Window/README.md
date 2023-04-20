@@ -238,3 +238,7 @@ ChatGPTに聞いてみた結果。　　
 [【SQLの神髄】第５回 PARTITIONとROWS BETWEENを使ったレコード間比較](https://homegrowin.jp/all/4320/)  
 
 [Window関数のFILTER句を極める](https://masahikosawada.github.io/2018/12/17/Window-Function-Filter-Clause/)  
+
+[集約関数と分析関数の併用はできる？](https://teratail.com/questions/88199)  
+[SQL GROUP BY と PARTITION BYを同時に使う | 味方出版](https://mikata.mobi/2020/11/06/sql-group-by-%E3%81%A8-partition-by%E3%82%92%E5%90%8C%E6%99%82%E3%81%AB%E4%BD%BF%E3%81%86/)  
+[分析関数（OVER句,WINDOW句）｜SQL入門](https://excel-ubara.com/vba_sql/vba_SQL023.html)  
