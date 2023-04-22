@@ -289,9 +289,18 @@ Windows 認証 (統合セキュリティ) を使用する
 
 ---
 
-## Integrated Security・Trusted_Connection
+## Integrated Security vs Trusted_Connection
 
-Windows認証モードで接続する。  
+Trusted_ConnectionとIntegrated SecurityはどちらもWindows認証を使用してSQL Serverに接続することを指定します。  
+Trusted_Connection=TrueとIntegrated Security=Trueは同じ意味となります。  
+Integrated Security=SSPIとすることもあります。  
+これも同じくWindows認証を使用することを意味します。  
+
+つまり、次の3つの接続文字列は同じ接続方法を表しています。  
+
+1. `Server=localhost;Database=your_database_name;Trusted_Connection=True;`
+2. `Server=localhost;Database=your_database_name;Integrated Security=True;`
+3. `Server=localhost;Database=your_database_name;Integrated Security=SSPI;`
 
 >Windows 認証は、接続文字列に `Integrated Security` キーワードまたは `Trusted_Connection` キーワードを使用することによって指定できます。  
 >こうすることで、ユーザー ID とパスワードを使う必要がなくなります。  
