@@ -12,42 +12,21 @@ JOIN句の中では使えないことが判明した。
 
 ---
 
-## 実装例
+## クエリの途中でWITHを使う
 
-``` sql : 使い方例
-WITH employee_with AS (
-  SELECT *
-  FROM
-    employee T1
-  WHERE
-    T1.last_name = '山田'
+SQLServerでのWITH句は基本的にステートメントの一番上で定義しなければならないが`;`でステートメントを区切ることで途中でもWITHを使うことができる。  
+
+``` sql
+-- 前のステートメント
+SELECT Column1, Column2
+FROM Table1;
+
+-- CTEを使用した新しいステートメント
+WITH CTE AS (
+  -- ここにCTEのクエリを記述します。
 )
-SELECT
-  T1.id,
-  T1.first_name,
-  T1.last_name,
-  T1.department_id,
-  (
-    SELECT
-      AVG(SUB1.height)
-    FROM
-      -- WITH句で指定したテーブルを参照
-      employee_with SUB1
-    WHERE
-      T1.department_id = SUB1.department_id
-  ) AS avg_height,
-  (
-    SELECT
-      MAX(SUB1.height)
-    FROM
-      -- WITH句で指定したテーブルを参照
-      employee_with SUB1
-    WHERE
-      T1.department_id = SUB1.department_id
-  ) AS max_height
-FROM
-  -- WITH句で指定したテーブルを参照
-  employee_with T1
+SELECT *
+FROM CTE;
 ```
 
 ---
@@ -117,3 +96,103 @@ DROP TABLE IF EXISTS #TempTable
 
 ただ、テーブルを作るのが面倒くさいと思っていたが、DECLAREと同じ要領でやればいいだけ、と考えれば、CREATETABLEから一時テーブルを作る事なんて大したことではないのかもしれないと思ったり。  
 WITHから生成と言いつつ、単純にサブクエリから作っていることに変わりはないけど、こういうこともできるよって、ことだけ残しておく。  
+
+追記  
+INSERT INTO VALUES使えばこんなことする必要ない。  
+
+``` sql
+SELECT * INTO #TempTable 
+FROM (
+    VALUES
+        ('ABC20200725001000009001434'),
+        ('ABC20200725001000011000942'),
+        ('ABC20200725001000012000176'),
+        ('ABC20200725001000018001431')
+) AS t(ID)
+```
+
+---
+
+## CTEは
+
+Q.CTEを元に複数のテーブルに対してupdateを実行するみたいな芸当は可能か？
+A.無理。  
+素直に一時テーブルかテーブル変数を使いましょう。  
+
+``` sql
+-- テーブル1 (Table1) を作成
+CREATE TABLE Table1 (
+  ID INT PRIMARY KEY,
+  Name NVARCHAR(50),
+  ModifiedDate DATE
+);
+-- テーブル1 (Table1) にデータを挿入
+INSERT INTO Table1 (ID, Name, ModifiedDate)
+VALUES (1, 'John', '2023-01-01'),
+       (2, 'Jane', '2023-01-01');
+
+
+-- テーブル2 (Table2) を作成
+CREATE TABLE Table2 (
+  ID INT PRIMARY KEY,
+  Name NVARCHAR(50),
+  ModifiedDate DATE
+);
+-- テーブル2 (Table2) にデータを挿入
+INSERT INTO Table2 (ID, Name, ModifiedDate)
+VALUES (1, 'John', '2023-01-01'),
+       (2, 'Jane', '2023-01-01');
+
+
+-- CTEの定義
+WITH UpdateDatesCTE AS (
+  SELECT 1 AS ID, CAST('2023-04-24' AS DATE) AS NewModifiedDate
+  UNION ALL
+  SELECT 2 AS ID, CAST('2023-04-25' AS DATE) AS NewModifiedDate
+)
+
+-- CTEを使用してTable1を更新
+UPDATE Table1
+SET ModifiedDate = UpdateDatesCTE.NewModifiedDate
+FROM Table1
+JOIN UpdateDatesCTE ON Table1.ID = UpdateDatesCTE.ID;
+
+-- CTEを使用してTable2を更新
+UPDATE Table2
+-- マルチパート識別子"UpdateDatesCTE.NewModifiedDate"をバインドできませんでした。
+SET ModifiedDate = UpdateDatesCTE.NewModifiedDate
+FROM Table2
+JOIN UpdateDatesCTE ON Table2.ID = UpdateDatesCTE.ID;
+```
+
+``` sql
+-- 一時テーブルの作成
+CREATE TABLE #UpdateDatesTempTable (
+  ID INT PRIMARY KEY,
+  NewModifiedDate DATE
+);
+
+-- CTEの結果を一時テーブルに挿入
+WITH UpdateDatesCTE AS (
+  SELECT 1 AS ID, CAST('2023-04-24' AS DATE) AS NewModifiedDate
+  UNION ALL
+  SELECT 2 AS ID, CAST('2023-04-25' AS DATE) AS NewModifiedDate
+)
+INSERT INTO #UpdateDatesTempTable
+SELECT * FROM UpdateDatesCTE;
+
+-- 一時テーブルを使用してTable1を更新
+UPDATE Table1
+SET ModifiedDate = #UpdateDatesTempTable.NewModifiedDate
+FROM Table1
+JOIN #UpdateDatesTempTable ON Table1.ID = #UpdateDatesTempTable.ID;
+
+-- 一時テーブルを使用してTable2を更新
+UPDATE Table2
+SET ModifiedDate = #UpdateDatesTempTable.NewModifiedDate
+FROM Table2
+JOIN #UpdateDatesTempTable ON Table2.ID = #UpdateDatesTempTable.ID;
+
+-- 一時テーブルの削除
+DROP TABLE #UpdateDatesTempTable;
+```
