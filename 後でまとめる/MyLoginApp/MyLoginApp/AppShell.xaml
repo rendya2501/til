@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="MyLoginApp.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:views="clr-namespace:MyLoginApp.Views"
+    Shell.FlyoutBehavior="Disabled">
+
+    <!--<ShellContent
+        Title="Home"
+        ContentTemplate="{DataTemplate local:LoginPage}"
+        Route="LoginPage" />-->
+    <ShellItem>
+        <ShellContent
+            Title="Home"
+            ContentTemplate="{DataTemplate views:LoginPage}"
+            Route="LoginPage" />
+    </ShellItem>
+    <ShellItem>
+        <ShellContent ContentTemplate="{DataTemplate views:SuccessPage}" Route="SuccessPage" />
+    </ShellItem>
+
+    <!--<Shell.ItemTemplate>
+        <DataTemplate>
+            <TabBar>
+                <Tab Title="{Binding Title}">
+                    <ShellContent ContentTemplate="{DataTemplate views:LoginPage}" />
+                </Tab>
+            </TabBar>
+        </DataTemplate>
+    </Shell.ItemTemplate>-->
+
+</Shell>

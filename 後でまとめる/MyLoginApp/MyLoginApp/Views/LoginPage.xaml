@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="MyLoginApp.Views.LoginPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:viewModels="clr-namespace:MyLoginApp.ViewModels"
+    BackgroundColor="#1c86ee">
+
+    <ContentPage.BindingContext>
+        <viewModels:LoginViewModel />
+    </ContentPage.BindingContext>
+
+    <StackLayout Margin="20">
+        <Label
+            Margin="0,40,0,60"
+            FontAttributes="Bold"
+            FontSize="32"
+            HorizontalOptions="Center"
+            Text="MyLoginApp"
+            TextColor="White" />
+
+        <Frame
+            Margin="0,0,0,10"
+            Padding="2"
+            BackgroundColor="White"
+            CornerRadius="5">
+            <Entry
+                BackgroundColor="Transparent"
+                FontSize="18"
+                Keyboard="Email"
+                Placeholder="ユーザー名"
+                ReturnType="Next"
+                Text="{Binding UserName}"
+                TextColor="Black" />
+        </Frame>
+
+        <Frame
+            Margin="0,0,0,10"
+            Padding="2"
+            BackgroundColor="White"
+            CornerRadius="5">
+            <Entry
+                BackgroundColor="Transparent"
+                FontSize="18"
+                IsPassword="True"
+                Keyboard="Default"
+                Placeholder="パスワード"
+                ReturnType="Next"
+                Text="{Binding Password}"
+                TextColor="Black" />
+        </Frame>
+
+        <Button
+            Margin="0,20,0,0"
+            Padding="10"
+            BackgroundColor="#0d47a1"
+            Command="{Binding LoginCommand}"
+            CornerRadius="5"
+            FontSize="18"
+            Text="ログイン"
+            TextColor="White" />
+    </StackLayout>
+
+</ContentPage>
