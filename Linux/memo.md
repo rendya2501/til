@@ -13,15 +13,6 @@ UNIXはファイル名に[.]を使ってもOK。
 
 ---
 
-## cron
-
-UNIX系のOS（MacとかLinuxとか）に入っているプログラムのひとつ  
-事前に「いついつになったら、このプログラムを動かしてね」と指示を出しておくと、  
-その時間になったときに指定しておいたプログラムを動かしてくれるやつ  
-こいつがスケジュールに従ってプログラムを定期実行するサービス(デーモン)ってわけか。  
-
----
-
 ## 管理者権限でフォルダを消す
 
 確認なし : `sudo rm -rf ファイル名`  
@@ -38,28 +29,6 @@ rm : remove
 
 ---
 
-## Linuxディストリビューション
-
-- Red Hat系  
-  - Fedora  
-  - Red Hat Enterprise Linux  
-  - CentOS  
-  - AlmaLinux  
-
-- Debian系  
-  - Ubuntu  
-  - Linux Mint  
-  - Raspbian  
-
-- Slackware系  
-  - Slackware  
-  - openSUSE  
-
-- 独立系  
-  - Arch Linux  
-
----
-
 ## --(Double Dash)の意味
 
 >「--」は「これ以降の入力はオプションではありません」と指定する記号です。  
@@ -69,7 +38,8 @@ rm : remove
 
 ## Linuxは小文字、大文字を判別する
 
-タイトルの通り
+タイトルの通り。  
+これを知らないと嵌る。  
 
 ---
 
