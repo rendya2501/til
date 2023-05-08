@@ -2,98 +2,9 @@
 
 ---
 
-## JavaScriptのObject
+## なんか実務の例
 
-端的に言うと、「キーとバリューの集合」。  
-配列変数もオブジェクトの一種に当たる。  
-
-[[JavaScript] オブジェクトの基礎](https://qiita.com/yoshi389111/items/245df2d642e49d2acf3a)  
->ほとんどのものはオブジェクト  
->JavaScriptにおける通常のオブジェクトは、メンバ（名前）と値を覚えることのできる入れ物で、他の言語でいうところのハッシュテーブルや連想配列みたいなものです。  
->
->オブジェクトリテラルでオブジェクト生成  
->オブジェクトへのメンバの登録はオブジェクトリテラルという形式でもできます。  
->メンバ名の後ろに`:`と値を書き、`,`で区切って、中カッコ`{}`で囲む形式です。  
-
-``` js
-var json_object = {
-  name: ['Bob', 'Smith'],
-  age: 32,
-  gender: 'male',
-  hobby: {
-    outdoor: {
-      land: ['running','waking']
-    },
-    indoor: ['movie', 'game', 'card'],
-    test: 12
-  }
-};
-
-json_object.age
-// 32
-json_object["hobby"]["outdoor"]["land"][1]
-json_object.hobby.outdoor.land[1]
-// waking
-json_object["hobby"]["indoor"]
-json_object.hobby.indoor
-// ['movie', 'game', 'card']
-json_object["hobby"]["test"]
-json_object.hobby.test
-// 12
-```
-
-jsonの説明に関しては、json自体があまりに偉大過ぎる表現形式なので、概要はプログラミング側の記事に移動させた。  
-詳しくはそちらを参照されたし。  
-
----
-
-## JSON文字列 → オブジェクトへの変換
-
-JSON.parse()に渡すことでオブジェクトに変換されます。  
-あとは通常のオブジェクトの扱いと同じで、ドットで繋げながら取得したい要素にアクセスしています。
-
-``` js
-var json_str = '{"id":1, "name":"tanaka", "attribute":{"gender":"male", "phone_number":"xxxxxxxxxxx", "birth":"1991/01/01"}}';
-var obj = JSON.parse(json_str)
-console.log(obj.name)
-console.log(obj.attribute.birth)
-// tanaka
-// 1991/01/01
-```
-
-## オブジェクト → JSON文字列への変換
-
-JSON.stringify()に渡してJSON文字列に変換しています。  
-typeofで型を見てみると、stringになっているのが分かります。  
-普段JavaScript内で使用するときはオブジェクトで良いですが、サーバサイドとデータのやり取りをしたい場合は文字列にして送ると非常に便利です。  
-
-``` js
-var obj = {"id":1, "name":"tanaka", "attribute":{"gender":"male", "phone_number":"xxxxxxxxxxx", "birth":"1991/01/01"}}
-var json_str = JSON.stringify(obj)
-console.log(json_str)
-console.log(typeof json_str)
-// {"id":1,"name":"tanaka","attribute":{"gender":"male","phone_number":"xxxxxxxxxxx","birth":"1991/01/01"}}
-// string
-```
-
----
-
-## [...array] 表記の意味
-
-<https://sbfl.net/blog/2018/07/04/javascript-array/>  
-スプレッド演算子という見たい。  
-
-```js
-const array1 = [1, 2, 3];
-
-// スプレッド演算子で配列内に配列を展開
-const array2 = [4, ...array]; // [4, 1, 2, 3]
-
-// スプレッド演算子で関数呼び出し内に配列を展開
-const max = Math.max(...array1); // Math.max(1, 2, 3) と同じ
-```
-
-```ts
+``` ts
 // 同組、同予約のListを重複無しで合体させ、検索を行う
 this.sameGroupList.
   concat(this.sameReservationList).
@@ -119,34 +30,14 @@ this.sameGroupList.
 
 ---
 
-## 配列をマージして重複を削除する
-
-``` JS
-const member1 = ["2020-08-01", "2020-08-02", "2020-08-03", "2020-08-04"]
-const member2 = ["2020-08-03", "2020-08-04", "2020-08-05", "2020-08-06"]
-const result = [...member1,...member2].filter((x, i, self) => self.indexOf(x) === i);
-console.log(result);
-
-// [
-//     '2020-08-01',
-//     '2020-08-02',
-//     '2020-08-03',
-//     '2020-08-04',
-//     '2020-08-05',
-//     '2020-08-06'
-// ]
-```
-
----
-
 ## JavaScriptもしくはTypeScriptにstring.IsNullOrEmptyに相当する関数は存在するか？
 
 結論から言うとない。  
 けど、言語使用上、必要ないみたい。  
 そんなものを使わなくても !stringで全部わかるんだとか。  
 
+>Javascriptでは、null, undefined, 空文字, 0, NaN、およびfalseすべて「偽」であり、条件付きで失敗します。  
 [jquery - JavaScriptのstring.isnullorempty（）のような関数はありますか](https://try2explore.com/questions/jp/10503360)  
-Javascriptでは、null, undefined, 空文字, 0, NaN、およびfalseすべて「偽」であり、条件付きで失敗します。  
 
 [String.IsNullOrEmpty in JavaScript](https://codereview.stackexchange.com/questions/5572/string-isnullorempty-in-javascript)  
 [javascriptでの空文字判定](https://teratail.com/questions/49848)  
@@ -171,18 +62,6 @@ a = "1";
 if (!a) { /* ここは実行されない */ }
 if (!a.length){ /* ここは実行されない */  }
 if (a.length == 1) { /* ここが実行される */ }
-```
-
----
-
-## 配列をカンマ区切りの文字列に変換する方法
-
-地味によく使う機能だから覚えておきたい。  
-
-```js
-let badPlansName = this.gdoData.GDOGotPlanMasterInfoList
-    .map(m => m.PlanMasterName)
-    .join(',');
 ```
 
 ---
