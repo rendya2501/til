@@ -1,0 +1,50 @@
+# Shell
+
+---
+
+## Shellのタイトルを消す
+
+存在しない画像を割り当てると良い模様
+
+``` xml : MainPage.xaml
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MauiApp.MainPage">
+
+    <!-- タイトル削除 -->
+    <Shell.TitleView>
+      <Image Source="hoge.png"
+             HorizontalOptions="Center"
+             VerticalOptions="Center" />
+    </Shell.TitleView>
+
+</ContentPage>
+```
+
+[[.NET MAUI] タイトルバーからページ名を消す | JI0VWLのFreakな日常](https://ji0vwl.net/index.php/2022/08/15/3379/)
+
+---
+
+## Shell FlyoutItemのハンバーガーメニューを右に配置する方法
+
+`\Platforms\Android\MainActivity.cs`を以下のように設定するとハンバーガーメニューを右に配置することができるが、これでは全てのコンテンツが右に移動してしまう。  
+
+``` cs
+public class MainActivity : MauiAppCompatActivity
+{
+    protected override void OnCreate(Bundle savedInstanceState)
+    {
+        base.OnCreate(savedInstanceState);
+        Window.DecorView.LayoutDirection = Android.Views.LayoutDirection.Rtl;
+    }
+}
+```
+
+[how can i move hamburger menu to right side on maui android? - Stack Overflow](https://stackoverflow.com/questions/75267229/how-can-i-move-hamburger-menu-to-right-side-on-maui-android)  
+
+---
+
+##
+
+[Customize the Title Bar of a MAUI app with these simple steps](https://ewerspej.hashnode.dev/customize-the-title-bar-of-a-maui-app-with-these-simple-steps)  
