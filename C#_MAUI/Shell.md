@@ -48,3 +48,7 @@ public class MainActivity : MauiAppCompatActivity
 ##
 
 [Customize the Title Bar of a MAUI app with these simple steps](https://ewerspej.hashnode.dev/customize-the-title-bar-of-a-maui-app-with-these-simple-steps)  
+
+## シェルにヘッダーフッターを追加する時に参考になりそうな動画
+
+[.NET MAUI Shell Basic Overview (Flyout, Tabs) - YouTube](https://www.youtube.com/watch?v=E9b1Sun0ecc)  
