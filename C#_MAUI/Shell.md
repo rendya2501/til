@@ -49,6 +49,18 @@ public class MainActivity : MauiAppCompatActivity
 
 [Customize the Title Bar of a MAUI app with these simple steps](https://ewerspej.hashnode.dev/customize-the-title-bar-of-a-maui-app-with-these-simple-steps)  
 
+---
+
 ## シェルにヘッダーフッターを追加する時に参考になりそうな動画
 
 [.NET MAUI Shell Basic Overview (Flyout, Tabs) - YouTube](https://www.youtube.com/watch?v=E9b1Sun0ecc)  
+
+---
+
+## FlyoutItemからログアウトしたい
+
+[このサイト(xamarin.forms - How to capture Click event or command in FlyoutItem - Stack Overflow)](https://stackoverflow.com/questions/75668861/how-to-capture-click-event-or-command-in-flyoutitem)でそのような事例を挙げてくれているが、次の参考サイトのように素直にFlyoutFooterにボタンを配置して実現したほうがいいと思った。  
+
+[Login Flow In .NET MAUI App Shell (App Shell Login Flow) - YouTube](https://www.youtube.com/watch?v=dWnGoZY3XiE)  
+[Add Dynamic Shell Item In .NET MAUI (Login Flow Part 2) - YouTube](https://www.youtube.com/watch?v=lSmRAV5IIBs)  
+[GitHub - mistrypragnesh40/SimpleLoginUI](https://github.com/mistrypragnesh40/SimpleLoginUI)  

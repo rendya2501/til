@@ -12,6 +12,8 @@
 
 [【Flutter】BottomNavigationBarを使い、アプリの下部にナビゲーションを設置する](https://www.azukipan.com/posts/flutter-bottomnavigationbar/)  
 
+[[Flutter] ボトムナビゲーションをBottomNavigationBarで実装してみた | DevelopersIO](https://dev.classmethod.jp/articles/flutter-bottom-navigation/)  
+
 ---
 
 ## 画面遷移参考

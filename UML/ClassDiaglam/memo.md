@@ -15,3 +15,7 @@
 ### has-a(包含関係)
 
 全体クラス has a 部分クラス。
+
+---
+
+[クラス図の関係性](https://chat.openai.com/share/af9a06a3-1e8b-43c9-8ff3-2c1f65bd13ff)  
