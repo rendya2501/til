@@ -57,6 +57,12 @@ public class MainActivity : MauiAppCompatActivity
 
 ---
 
+## Flyoutの参考等
+
+[MAUI新生5.1-Shell导航视觉层次结构 - functionMC - 博客园](https://www.cnblogs.com/functionMC/p/17004274.html)  
+
+---
+
 ## FlyoutItemからログアウトしたい
 
 [このサイト(xamarin.forms - How to capture Click event or command in FlyoutItem - Stack Overflow)](https://stackoverflow.com/questions/75668861/how-to-capture-click-event-or-command-in-flyoutitem)でそのような事例を挙げてくれているが、次の参考サイトのように素直にFlyoutFooterにボタンを配置して実現したほうがいいと思った。  
