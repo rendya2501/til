@@ -70,3 +70,13 @@ public class MainActivity : MauiAppCompatActivity
 [Login Flow In .NET MAUI App Shell (App Shell Login Flow) - YouTube](https://www.youtube.com/watch?v=dWnGoZY3XiE)  
 [Add Dynamic Shell Item In .NET MAUI (Login Flow Part 2) - YouTube](https://www.youtube.com/watch?v=lSmRAV5IIBs)  
 [GitHub - mistrypragnesh40/SimpleLoginUI](https://github.com/mistrypragnesh40/SimpleLoginUI)  
+
+---
+
+## ShellのTitleViewのロゴ等が消失する
+
+偶数回の時にロゴが消失してしまう問題を確認。  
+バグの模様。  
+MasterPage側にShell.TitleViewを定義したら発生しなくなったので、しばらく様子を見る。  
+
+[Shell TitleView disappearing on tab change · Issue #9687 · dotnet/maui · GitHub](https://github.com/dotnet/maui/issues/9687)  
