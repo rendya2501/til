@@ -45,9 +45,12 @@ public class MainActivity : MauiAppCompatActivity
 
 ---
 
-##
+## TitleViewのカスタマイズ
 
 [Customize the Title Bar of a MAUI app with these simple steps](https://ewerspej.hashnode.dev/customize-the-title-bar-of-a-maui-app-with-these-simple-steps)  
+
+xamarin時代から真ん中に画像が配置されない模様。  
+[xamarin.forms - Xamarin Forms Shell TitleView does not center image - Stack Overflow](https://stackoverflow.com/questions/58613454/xamarin-forms-shell-titleview-does-not-center-image)  
 
 ---
 
