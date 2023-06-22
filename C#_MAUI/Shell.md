@@ -1,5 +1,16 @@
 # Shell
 
+## System.ArgumentException: 'Ambiguous routes matched for...'
+
+3階層あるようなページ構成において、3ページ目で`Shell.Current.GoToAsync('..')`したら発生した。  
+
+AppShell.xamlでxaml上とコードビハインドでそれぞれRoutingを定義していると発生する模様。  
+XAML側の定義を削除したら解決した。  
+
+>これは、XAML（appshellファイル）でルートを登録し、C#のコードビハインドでルートを登録しようとしたときに発生します。  
+>XAMLまたはC#のどちらかを使用して、一度だけルートを登録するようにしてください（両方は使用しないでください）。  
+>[forms - Xamarin Shell Raise Ambiguous Routes matched Exception - Stack Overflow](https://stackoverflow.com/questions/58352925/xamarin-shell-raise-ambiguous-routes-matched-exception)  
+
 ---
 
 ## Shellのタイトルを消す
@@ -83,3 +94,37 @@ xamarin時代から真ん中に画像が配置されない模様。
 MasterPage側にShell.TitleViewを定義したら発生しなくなったので、しばらく様子を見る。  
 
 [Shell TitleView disappearing on tab change · Issue #9687 · dotnet/maui · GitHub](https://github.com/dotnet/maui/issues/9687)  
+
+---
+
+## ShellContentで定義したRouteではTransientの動作をしない
+
+AddTransientは都度新しいインスタンスを作成するDIのモードなのだが、ShellContentでRouteを定義して`GotoAsync($"{//nameof(Hoge)}")`で遷移しても新しいインスタンスが生成されないことを確認した。
+そういう問い合わせも上がっており、マイクロソフトの見解的にバグの模様。  
+
+>Q.  
+>DIにtransientとして追加されたページをShellContentとして使用する場合、他のページに移動したり戻ったりしても、新しいページやViewModelをインスタンス化することはありません。  
+>しかし、Pageをルーティングに追加し、Shell.Current.GoToAsyncメソッドでそのページを行ったり来たりすると、毎回新しいインスタンスが生成されます。  
+>これは期待された動作なのでしょうか、それともバグなのでしょうか？ShellContentとして使用されているとき、なぜPageは決して破棄されないのですか？  
+>
+>A.  
+>やあ、@adamradocz 課題がリンクされ、そこからさらにいくつかの課題がリンクされている。  
+>この仕組みについてもう少し明確にする必要があることは明らかだと思います。  
+>今のところ、多かれ少なかれ同じことに関して多くの異なる問題を抱えないために、この問題を閉じます。ありがとう！  
+>
+>[Page is not transient when used as ShellContent · Issue #7329 · dotnet/maui · GitHub](https://github.com/dotnet/maui/issues/7329)  
+
+<!--  -->
+
+``` cs
+// Get current page
+var page = Application.Current.MainPage.Navigation.NavigationStack.LastOrDefault();
+
+// Load new page
+await Shell.Current.GoToAsync(nameof(SecondPage), false);
+
+// Remove old page
+Application.Current.MainPage.Navigation.RemovePage(page);
+```
+
+[c# - Reload a transient page in .NET MAUI from within the page - Stack Overflow](https://stackoverflow.com/questions/73268515/reload-a-transient-page-in-net-maui-from-within-the-page)  
