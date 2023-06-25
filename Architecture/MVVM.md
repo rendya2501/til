@@ -145,3 +145,15 @@ View と ViewModel
 相互依存になりますね。
 
 相互に依存しても最初のうちは問題になりません。しかし、後から手を入れる際の労力が半端なく大きいものになる可能性があります。
+
+---
+
+綺麗なMVVMの実装。  
+[Foreign keys in local databases with SQLite-net and .NET MAUI - DEV Community](https://dev.to/icebeam7/foreign-keys-in-local-databases-with-sqlite-net-and-net-maui-22a1)  
+[GitHub - icebeam7/DemoFK](https://github.com/icebeam7/DemoFK)  
+
+MVVMに置けるService(通信部分)を実装する時に参考になる。  
+[C# Simple Interfaces: Service. Software is an art form in so many… | by Justin Coulston | Dev Genius](https://blog.devgenius.io/c-simple-interfaces-service-d9d1921912e4)  
+
+ViewModelはModelの情報をViewが扱えるように加工をするだけ  
+[MVVMとはなんぞやを公理から求めてみる - 滅入るんるん](https://blog.meilcli.net/2018/10/21/165056)  

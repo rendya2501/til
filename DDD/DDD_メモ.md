@@ -63,3 +63,6 @@ DDDの形で作れるテンプレート
 
 こういう分け方はやめておけっていう動画
 [(3) Domain Layer Structure & Skeleton | Clean Architecture & DDD From Scratch Tutorial | Part 13 - YouTube](https://www.youtube.com/watch?v=jnutb5Z4wyg)
+
+お手軽DDD  
+[ドメイン駆動開発_フォルダー構成編_#01_プロジェクトの作成｜ピーコックアンダーソン](https://anderson02.com/cs/nddd/nddd-01/)  

@@ -77,6 +77,13 @@ xamarin時代から真ん中に画像が配置されない模様。
 
 ---
 
+## Flyoutのカスタマイズ
+
+[Custom Flyout Menu in .Net MAUI - YouTube](https://www.youtube.com/watch?v=qs1otgknDHA)  
+[GitHub - Abhayprince/CustomFlyoutMAUI: Customizing Flyout (App Drawer) Menu in .Net MAUI](https://github.com/Abhayprince/CustomFlyoutMAUI.git)  
+
+---
+
 ## FlyoutItemからログアウトしたい
 
 [このサイト(xamarin.forms - How to capture Click event or command in FlyoutItem - Stack Overflow)](https://stackoverflow.com/questions/75668861/how-to-capture-click-event-or-command-in-flyoutitem)でそのような事例を挙げてくれているが、次の参考サイトのように素直にFlyoutFooterにボタンを配置して実現したほうがいいと思った。  

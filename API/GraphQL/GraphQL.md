@@ -68,7 +68,39 @@ flowchart BT
 
 ---
 
+## 参考
+
 [GraphQL を使うと何が嬉しいのか？いろいろ触って検証してみた](https://sitest.jp/blog/?p=11001)  
 [GraphQL入門](https://zenn.dev/yoshii0110/articles/2233e32d276551)  
 
 [GraphQLを導入する時に考えておいたほうが良いこと | メルカリエンジニアリング](https://engineering.mercari.com/blog/entry/20220303-concerns-with-using-graphql/)  
+
+---
+
+## C#のGraphQL Clientの参考
+
+内部クラスを駆使するやり方もある。  
+[graphql-client/examples/GraphQL.Client.Example at master · graphql-dotnet/graphql-client · GitHub](https://github.com/graphql-dotnet/graphql-client/tree/master/examples/GraphQL.Client.Example)  
+
+レスポンスがRESTであるが、基本的な構想は自分のイメージそのもの。  
+一番参考にしたかもしれない。  
+[Securing a graphQL API with Azure Active Directory :: my tech ramblings — A blog for writing about my techie ramblings](https://www.mytechramblings.com/posts/securing-dotnet-graphql-api-with-aad/)  
+[GitHub - karlospn/securing-graphql-api-with-aad: A practical example about how you can secure and consume a graphQL api with Azure Active Directory](https://github.com/karlospn/securing-graphql-api-with-aad)  
+
+これも基本的な部分を構築するなら充分参考になる。  
+[GraphQl API Client Integration In ASP.NET Core 3.1](https://www.c-sharpcorner.com/blogs/graphql-api-client-integration-in-asp-net-core-31)  
+
+Blazorバージョンではあるが、参考になった。  
+[GitHub - CloudBloq/GraphQLSampleAppUI: A Blazor WebAssembly app that demostrates how to consume a GraphQL API in .NET](https://github.com/CloudBloq/GraphQLSampleAppUI)  
+
+直接的なGraphQLの参考ではないが、Repositoryのインターフェースが具象クラスに依存していいのか迷ったときにやってるところがあったので拝借した。  
+Entityならばプログラム中、全てにおいて使うので依存していいらしい。  
+[GraphQL_HotChoclate_EFCore/GraphQL_HotChoclate_EFCore/Services at master · JayKrishnareddy/GraphQL_HotChoclate_EFCore · GitHub](https://github.com/JayKrishnareddy/GraphQL_HotChoclate_EFCore/tree/master/GraphQL_HotChoclate_EFCore/Services)  
+
+打って変わってこちらでは`<T>`で定義している。  
+MVVMのサンプルではあるが、参考になる。  
+[Foreign keys in local databases with SQLite-net and .NET MAUI - DEV Community](https://dev.to/icebeam7/foreign-keys-in-local-databases-with-sqlite-net-and-net-maui-22a1)  
+[GitHub - icebeam7/DemoFK](https://github.com/icebeam7/DemoFK)  
+
+C#のGraphQLサンプル貴重なので  
+[Building GraphQL API With .Net 5 — EF Core And Hot Chocolate | by Jay Krishna Reddy | Level Up Coding](https://levelup.gitconnected.com/building-graphql-api-with-net-5-ef-core-and-hot-chocolate-ad1d2482dd69)  
