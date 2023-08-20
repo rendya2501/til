@@ -124,188 +124,60 @@ UOWの作成は、抽象化の抽象化。
 
 ---
 
+## イメージ
+
+![aa](https://i0.wp.com/davidskyspace.com/wp-content/uploads/2022/02/UnitOfWork.png?resize=770%2C590&ssl=1)
+
+---
+
 ## クラス図
+
+``` mermaid
+classDiagram
+
+UnitOfWork ..> IUnitOfWork
+
+UnitOfWork *-- A_Repository
+UnitOfWork *-- B_Repository
+
+A_ApplicationService o-- UnitOfWork
+B_ApplicationService o-- UnitOfWork
+```
 
 ---
 
 ## 実装
 
-``` cs
-public interface IRepository<T> where T : class
-{
-    Task<T> GetByIdAsync(int id);
-    Task<IReadOnlyList<T>> GetAllAsync();
-    Task<int> AddAsync(T entity);
-    Task<int> UpdateAsync(T entity);
-    Task<int> DeleteAsync(int id);
-}
-```
-
-``` cs
-public abstract class Repository<T> : IRepository<T> where T : class
-{
-    public Task<int> AddAsync(T entity)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<int> DeleteAsync(int id)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<IReadOnlyList<T>> GetAllAsync()
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<T> GetByIdAsync(int id)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<int> UpdateAsync(T entity)
-    {
-        throw new NotImplementedException();
-    }
-}
-```
-
-``` cs
-public class Book
-{
-    public int Id { get; set; }
-    public string Title { get; set; }
-    public string Author { get; set; }
-    public string Publisher { get; set; }
-    public string Genre { get; set; }
-    public int Price { get; set; }
-}
-
-public interface IBookRepository : IRepository<Book>{}
-
-public class BookRepository : IBookRepository
-{
-    private readonly IConfiguration _configuration;
-    public BookRepository(IConfiguration configuration)
-    {
-        _configuration = configuration;
-    }
-
-    public async Task<int> AddAsync(Book entity)
-    {
-        var sql = @"
-            INSERT INTO Book (Title,Author,Publisher,Genre,Price) 
-            VALUES (@Title,@Author,@Publisher,@Genre,@Price)";
-        using var connection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
-        return await connection.ExecuteAsync(sql, entity);
-    }
-
-    public async Task<int> DeleteAsync(int id)
-    {
-        var sql = "DELETE FROM Book WHERE Id = @Id";
-        using var connection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
-        return await connection.ExecuteAsync(sql, new { id });
-    }
-
-    public async Task<IReadOnlyList<Book>> GetAllAsync()
-    {
-        var sql = "SELECT * FROM Book";
-        using var connection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
-        var result = (await connection.QueryAsync<Book>(sql)).ToList();
-        return result;
-    }
-
-    public async Task<Book> GetByIdAsync(int id)
-    {
-        var sql = "SELECT * FROM Book WHERE Id = @Id";
-        using var connection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
-        var result = await connection.QuerySingleOrDefaultAsync<Book>(sql, new { id });
-        return result;
-    }
-
-    public async Task<int> UpdateAsync(Book entity)
-    {
-        var sql = @"
-            UPDATE Book 
-            SET Title  = @Title , Author  = @Author , Publisher  = @Publisher , Genre  = @Genre , Price  = @Price
-            WHERE Id = @Id";
-        using var connection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
-        var result = await connection.ExecuteAsync(sql, entity);
-        return result;
-    }
-}
-```
-
-``` cs
-public class Catalogue
-{
-    public int CatalogueId { get; set; }
-    public string Name { get; set; }
-    public List<Book> Books { get; set; }
-}
-
-public interface ICatalogueRepository : IRepository<Catalogue>{}
-
-namespace DataLayer.Repositories.CatalogueAggregation
-{
-    public class CatalogueRepository : ICatalogueRepository
-    {
-        public Task<int> AddAsync(Catalogue entity)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<int> DeleteAsync(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IReadOnlyList<Catalogue>> GetAllAsync()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<Catalogue> GetByIdAsync(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<int> UpdateAsync(Catalogue entity)
-        {
-            throw new NotImplementedException();
-        }
-    }
-}
-```
+UnitOfWorkの定義
 
 ``` cs
 public interface IUnitOfWork : IDisposable
 {
-    IBookRepository BookRepository { get; }
-    ICatalogueRepository CatalogueRepository { get; }
+    IUserRepository UserRepository { get; }
+    ICircleRepository CircleRepository { get; }
 
     void Commit();
+    void Rollback();
 }
-```
 
-``` cs
 public class UnitOfWork : IUnitOfWork
 {
-    private IDbConnection _connection;
-    private IDbTransaction _transaction;
-    private BookRepository _bookRepository;
-    private ICatalogueRepository _catalogueRepository;
-    private bool _disposed;
-    
-    public IBookRepository BookRepository => _bookRepository ??= new BookRepository(_transaction);
-    public ICatalogueRepository CatalogueRepository => _catalogueRepository ??= new CatalogueRepository(_transaction);
+    private readonly IDbConnection connection;
+    private readonly IDbTransaction transaction;
+    private bool disposed;
 
-    public UnitOfWork(string connectionString)
+    private UserRepository userRepository;
+    public IUserRepository UserRepository => userRepository ??= new UserRepository(connection);
+
+    private CircleRepository circleRepository;
+    public ICircleRepository CircleRepository => circleRepository ??= new CircleRepository(cconnectionon);
+
+
+    public UnitOfWork(IDbConnection connection)
     {
-        _connection = new SqlConnection(connectionString);
-        _connection.Open();
-        _transaction = _connection.BeginTransaction();
+        this.connection = connection;
+        this.connection.Open();
+        this.transaction = this.connection.BeginTransaction();
     }
 
     ~UnitOfWork()
@@ -313,57 +185,378 @@ public class UnitOfWork : IUnitOfWork
         dispose(false);
     }
 
+
     public void Commit()
     {
-        try
-        {
-            _transaction.Commit();
-        }
-        catch
-        {
-            _transaction.Rollback();
-            throw;
-        }
-        finally
-        {
-            _transaction.Dispose();
-            _transaction = _connection.BeginTransaction();
-            resetRepositories();
-        }
+        transaction.Commit();
     }
 
-    private void resetRepositories()
+    public void Rollback()
     {
-        _bookRepository = null;
-        _catalogueRepository = null;
+        transaction.Rollback();
     }
 
     public void Dispose()
     {
-        dispose(true);
+        Dispose(true);
         GC.SuppressFinalize(this);
     }
 
-    private void dispose(bool disposing)
+    protected virtual void Dispose(bool disposing)
     {
-        if (_disposed)
+        if (disposed)
         {
             return;
         }
         if(disposing)
         {
-            if (_transaction != null)
+            if (this.transaction != null)
             {
-                _transaction.Dispose();
-                _transaction = null;
+                this.transaction.Dispose();
+                this.transaction = null;
             }
-            if(_connection != null)
+            if(this.connection != null)
             {
-                _connection.Dispose();
-                _connection = null;
+                this.connection.Dispose();
+                this.connection.Dispose();
             }
         }
-        _disposed = true;
+        disposed = true;
+    }
+}
+```
+
+UserRepositoryの実装
+
+``` cs
+public interface IUserRepository {
+    User Find(UserId id);
+    User Find(UserName name);
+    IEnumerable<User> FindAll();
+    void Save(User user);
+    void Remove(User user);
+}
+
+public class UserRepository : IUserRepository
+{
+    private readonly IDbConnection con;
+
+    public UserRepository(IDbConnection con)
+    {
+        this.con = con;
+    }
+
+    public User Find(UserId id)
+    {
+        using (var com = con.CreateCommand())
+        {
+            com.CommandText = "SELECT * FROM t_user WHERE id = @id";
+            com.Parameters.Add(new MySqlParameter("@id", id.Value));
+            var reader = com.ExecuteReader();
+            if (reader.Read())
+            {
+                var username = reader["username"] as string;
+                var firstname = reader["firstname"] as string;
+                var familyname = reader["familyname"] as string;
+                return new User(
+                    id,
+                    new UserName(username),
+                    new FullName(firstname, familyname)
+                );
+            }
+            else
+            {
+                return null;
+            }
+        }
+    }
+
+    public User Find(UserName userName)
+    {
+        using (var com = con.CreateCommand())
+        {
+            com.CommandText = "SELECT * FROM t_user WHERE username = @username";
+            com.Parameters.Add(new MySqlParameter("@username", userName.Value));
+            var reader = com.ExecuteReader();
+            if (reader.Read())
+            {
+                var id = reader["id"] as string;
+                var firstname = reader["firstname"] as string;
+                var familyname = reader["familyname"] as string;
+
+                return new User(
+                    new UserId(id),
+                    userName,
+                    new FullName(firstname, familyname)
+                );
+            }
+            else
+            {
+                return null;
+            }
+        }
+    }
+
+    public IEnumerable<User> FindAll()
+    {
+        using (var com = con.CreateCommand())
+        {
+            com.CommandText = "SELECT * FROM t_user";
+            var reader = com.ExecuteReader();
+            var results = new List<User>();
+            while (reader.Read())
+            {
+                var id = reader["id"] as string;
+                var firstname = reader["firstname"] as string;
+                var familyname = reader["familyname"] as string;
+                var username = reader["username"] as string;
+                var user = new User(
+                    new UserId(id),
+                    new UserName(username),
+                    new FullName(firstname, familyname)
+                );
+                results.Add(user);
+            }
+            return results;
+        }
+    }
+
+    public void Save(User user)
+    {
+        bool isExist;
+        using (var com = con.CreateCommand())
+        {
+            com.CommandText = "SELECT * FROM t_user WHERE id = @id";
+            com.Parameters.Add(new MySqlParameter("@id", user.Id.Value));
+            var reader = com.ExecuteReader();
+            isExist = reader.Read();
+        }
+
+        using (var command = con.CreateCommand())
+        {
+            command.CommandText = isExist
+                ? "UPDATE t_user SET username = @username, firstname = @firstname, familyname = @familyname WHERE id = @id"
+                : "INSERT INTO t_user VALUES(@id, @username, @firstname, @familyname)";
+            command.Parameters.Add(new MySqlParameter("@id", user.Id.Value));
+            command.Parameters.Add(new MySqlParameter("@username", user.UserName.Value));
+            command.Parameters.Add(new MySqlParameter("@firstname", user.Name.FirstName));
+            command.Parameters.Add(new MySqlParameter("@familyname", user.Name.FamilyName));
+            command.ExecuteNonQuery();
+        }
+    }
+
+    public void Remove(User user)
+    {
+        using (var command = con.CreateCommand())
+        {
+            command.CommandText = "DELETE FROM t_user WHERE id = @id";
+            command.Parameters.Add(new MySqlParameter("@id", user.Id.Value));
+            command.ExecuteNonQuery();
+        }
+    }
+}
+```
+
+CircleRepositoryの実装
+
+``` cs
+public interface ICircleRepository {
+    Circle Find(CircleId id);
+    void Save(Circle circle);
+}
+
+public class CircleRepository : ICircleRepository
+{
+    private readonly IDbConnection con;
+
+    public CircleRepository(IDbConnection con)
+    {
+        this.con = con;
+    }
+
+    public Circle Find(CircleId id)
+    {
+        using (var com = con.CreateCommand())
+        {
+            com.CommandText = "SELECT * FROM t_circle WHERE id = @id";
+            com.Parameters.Add(new MySqlParameter("@id", id.Value));
+            var reader = com.ExecuteReader();
+            if (reader.Read())
+            {
+                var circleName = reader["circle_name"] as string;
+                var users = (reader["join_members"] as string)?.Split(",").Select(s => new UserId(s)).ToList();
+                return new Circle(id, circleName, users);
+            }
+            else
+            {
+                return null;
+            }
+        }
+    }
+
+    public void Save(Circle circle)
+    {
+        using (var com = con.CreateCommand())
+        {
+            var note = new CircleNotification();
+            circle.Notify(note);
+            var data = note.Build();
+
+            com.CommandText = "UPDATE t_circle SET circle_name = @circle_name, join_members = @join_members WHERE id = @id";
+            com.Parameters.Add(new MySqlParameter("@circle_name", data.Name));
+            com.Parameters.Add(new MySqlParameter("@id", data.Id));
+            com.Parameters.Add(new MySqlParameter("@join_members", string.Join(",", data.UserIds))); // 所属メンバーは中間テーブルにしたほうがいいかも
+            com.ExecuteNonQuery();
+        }
+    }
+}
+```
+
+UserApplicationServiceの実装
+
+``` cs
+public class UserApplicationService
+{
+    private readonly IUserFactory userFactory;
+    private readonly IUnitOfWork uow;
+    private readonly UserService userService;
+
+    public UserApplicationServiceByUow(IUserFactory userFactory, IUnitOfWork uow)
+    {
+        this.userFactory = userFactory;
+        this.uow = uow;
+        userService = new UserService(uow.UserRepository);
+    }
+
+    public void RegisterUser(string username, string firstname, string familyname)
+    {
+        try
+        {
+            var user = userFactory.CreateUser(
+                new UserName(username),
+                new FullName(firstname, familyname)
+            );
+            if (userService.IsDuplicated(user))
+            {
+                throw new Exception("重複しています");
+            }
+            uow.UserRepository.Save(user);
+            
+            uow.Commit();
+        }
+        catch
+        {
+            uow.Rollback();
+            throw;
+        }
+    }
+
+    public void ChangeUserInfo(string id, string username, string firstname, string familyname)
+    {
+        try
+        {
+            var targetId = new UserId(id);
+            var target = uow.UserRepository.Find(targetId) ?? throw new Exception("not found. target id:" + id);
+            var newUserName = new UserName(username);
+            target.ChangeUserName(newUserName);
+            var newName = new FullName(firstname, familyname);
+            target.ChangeName(newName);
+            uow.UserRepository.Save(target);
+            uow.Commit();
+        }
+        catch
+        {
+            uow.Rollback();
+            throw;
+        }
+    }
+
+    public void RemoveUser(string id)
+    {
+        try
+        {
+            var targetId = new UserId(id);
+            var target = uow.UserRepository.Find(targetId) ?? throw new Exception("not found. target id:" + id);
+            uow.UserRepository.Remove(target);
+            uow.Commit();
+        }
+        catch
+        {
+            uow.Rollback();
+            throw;
+        }
+    }
+
+    public UserModel GetUserInfo(string id)
+    {
+        var userId = new UserId(id);
+        var target = uow.UserRepository.Find(userId);
+        if (target == null)
+        {
+            return null;
+        }
+
+        return new UserModel(target);
+    }
+
+    public List<UserSummaryModel> GetUserList()
+    {
+        var users = uow.UserRepository.FindAll();
+        return users.Select(x => new UserSummaryModel(x)).ToList();
+    }
+}
+```
+
+CircleApplicationServiceの実装
+
+``` cs
+public class CircleApplicationService
+{
+    private readonly ICircleFactory circleFactory;
+    private readonly IUnitOfWork uow;
+
+    public CircleApplicationService(ICircleFactory circleFactory, IUnitOfWork uow)
+    {
+        this.circleFactory = circleFactory;
+        this.uow = uow;
+    }
+
+    public void CreateCircle(string userId, string circleName)
+    {
+        try
+        {
+            var ownerId = new UserId(userId);
+            var owner = uow.UserRepository.Find(ownerId) ?? throw new Exception("owner not found. userId: " + userId);
+
+            var circle = owner.CreateCircle(circleFactory, circleName);
+            uow.CircleRepository.Save(circle);
+            uow.Commit();
+        }
+        catch
+        {
+            uow.Rollback();
+            throw;
+        }
+    }
+
+    public void JoinUser(string circleId, string userId)
+    {
+        try
+        {
+            var targetCircleId = new CircleId(circleId);
+            var targetCircle = uow.CircleRepository.Find(targetCircleId) ?? throw new Exception("circle not found. circleId: " + circleId);
+
+            var joinUserId = new UserId(userId);
+            var joinUser = uow.UserRepository.Find(joinUserId) ?? throw new Exception("user not found. userId: " + userId);
+            targetCircle.Join(joinUser); // targetCircle.Users.Add(joinUser); とは書けなくなりました
+            uow.CircleRepository.Save(targetCircle);
+            uow.Commit();
+        }
+        catch
+        {
+            uow.Rollback();
+            throw;
+        }
     }
 }
 ```
@@ -371,224 +564,16 @@ public class UnitOfWork : IUnitOfWork
 ``` cs
 public static void AddApplication(this IServiceCollection service)
 {
-    service.AddTransient<IBookRepository, BookRepository>();
-    service.AddTransient<ICatalogueRepository, CatalogueRepository>();
+    // 必要に応じて付け替える
+    service.AttTransient<IDbConnection,MySqlConnection>();
+
     service.AddTransient<IUnitOfWork, UnitOfWork>();
+    service.AddTransient<UserApplicationService>();
+    service.AddTransient<CircleApplicationService>();
 }
 ```
 
-Program.cs
-
-``` cs
-using (var unitOfWork = new UnitOfWork(new PlutoContext()))
-{
-    // Example1
-    var course = unitOfWork.Courses.Get(1);
-
-    // Example2
-    var courses = unitOfWork.Courses.GetCoursesWithAuthors(1,4);
-
-    // Example3
-    var author = unitOfWork.Authors.GetAuthorWithCourses(1);
-    unitOfWork.Courses.Removerange(author.Courses);
-    unitOfWork.Authors.Remove(aurhor);
-    unitOfWork.Complere();
-}
-```
-
-Dapperを使ってRepositoryPatternとUnitOfWorkPatternを実装してください。  
-接続情報にはIDbConnection、トランザクションにはIDbTransactionを使用してください。  
-EntityはBookとCatalogueとします。  
-C# 8.0以上の構文で記述してください。  
-IRepositoryとIUnitOfWorkの実装も提示してください。  
-BookとCatalogueにはIRepositoryを実装したIBookRepositoryとICatalogueRepositoryを実装してください。  
-
-
-C# 10、Dapperを使ってRepositoryPatternとUnitOfWorkPatternを実装してください。  
-接続情報にはIDbConnection、トランザクションにはIDbTransactionを使用してください。  
-EntityはBookとCatalogueとします。  
-IRepositoryとIUnitOfWorkの実装も提示してください。  
-BookとCatalogueにはIRepositoryを実装したIBookRepositoryとICatalogueRepositoryを実装してください。
-先にすべてのInterfaceから実装してください。
-IUnitOfWorkにはIBookRepository 、ICatalogueRepository を実装しないでください。
-WebAPIでのサンプルで記述してください。
-また、DIコンテナへの登録もお願いします。
-
-
-``` cs
-using System;
-using System.Data;
-using Dapper;
-
-public interface IRepository<TEntity>
-{
-    Task<IEnumerable<TEntity>> GetAllAsync();
-    Task<TEntity> GetByIdAsync(int id);
-    Task<int> AddAsync(TEntity entity);
-    Task<int> UpdateAsync(TEntity entity);
-    Task<int> DeleteAsync(int id);
-}
-
-public interface IUnitOfWork
-{
-    IBookRepository BookRepository { get; }
-    ICatalogueRepository CatalogueRepository { get; }
-
-    void BeginTransaction();
-    Task CommitAsync();
-}
-
-public class BookRepository : IRepository<Book>
-{
-    private readonly IDbConnection _connection;
-    private readonly IDbTransaction _transaction;
-
-    public BookRepository(IDbConnection connection, IDbTransaction transaction)
-    {
-        _connection = connection ?? throw new ArgumentNullException(nameof(connection));
-        _transaction = transaction ?? throw new ArgumentNullException(nameof(transaction));
-    }
-
-    public async Task<IEnumerable<Book>> GetAllAsync()
-    {
-        return await _connection.QueryAsync<Book>(
-            "SELECT * FROM Book",
-            transaction: _transaction
-        );
-    }
-
-    public async Task<Book> GetByIdAsync(int id)
-    {
-        return await _connection.QuerySingleOrDefaultAsync<Book>(
-            "SELECT * FROM Book WHERE Id = @Id",
-            param: new { Id = id },
-            transaction: _transaction
-        );
-    }
-
-    public async Task<int> AddAsync(Book book)
-    {
-        return await _connection.ExecuteAsync(
-            "INSERT INTO Book (Name, Author) VALUES (@Name, @Author)",
-            param: new { book.Name, book.Author },
-            transaction: _transaction
-        );
-    }
-
-    public async Task<int> UpdateAsync(Book book)
-    {
-        return await _connection.ExecuteAsync(
-            "UPDATE Book SET Name = @Name, Author = @Author WHERE Id = @Id",
-            param: new { book.Name, book.Author, book.Id },
-            transaction: _transaction
-        );
-    }
-
-    public async Task<int> DeleteAsync(int id)
-    {
-        return await _connection.ExecuteAsync(
-            "DELETE FROM Book WHERE Id = @Id",
-            param: new { Id = id },
-            transaction: _transaction
-        );
-    }
-}
-
-public class CatalogueRepository : IRepository<Catalogue>
-{
-    private readonly IDbConnection _connection;
-    private readonly IDbTransaction _transaction;
-
-    public CatalogueRepository(IDbConnection connection, IDbTransaction transaction)
-    {
-        _connection = connection ?? throw new ArgumentNullException(nameof(connection));
-        _transaction = transaction ?? throw new ArgumentNullException(nameof(transaction));
-    }
-
-    public async Task<IEnumerable<Catalogue>> GetAllAsync()
-    {
-        return await _connection.QueryAsync<Catalogue>(
-            "SELECT * FROM Catalogue",
-            transaction: _transaction
-        );
-    }
-
-    public async Task<Catalogue> GetByIdAsync(int id)
-    {
-        return await _connection.QuerySingleOrDefaultAsync<Catalogue>(
-            "SELECT * FROM Catalogue WHERE Id = @Id",
-            param: new { Id = id },
-            transaction: _transaction
-        );
-    }
-
-    public async Task<int> AddAsync(Catalogue catalogue)
-    {
-        return await _connection.ExecuteAsync(
-            "INSERT INTO Catalogue (Name, BookId) VALUES (@Name, @BookId)",
-            param: new { catalogue.Name, catalogue.BookId },
-            transaction: _transaction
-        );
-    }
-
-    public async Task<int> UpdateAsync(Catalogue catalogue)
-    {
-        return await _connection.ExecuteAsync(
-            "UPDATE Catalogue SET Name = @Name, BookId = @BookId WHERE Id = @Id",
-            param: new { catalogue.Name, catalogue.BookId, catalogue.Id },
-            transaction: _transaction
-        );
-    }
-
-    public async Task<int> DeleteAsync(int id)
-    {
-        return await _connection.ExecuteAsync(
-            "DELETE FROM Catalogue WHERE Id = @Id",
-            param: new { Id = id },
-            transaction: _transaction
-        );
-    }
-}
-
-public class UnitOfWork : IUnitOfWork
-{
-    private readonly IDbConnection _connection;
-    private IDbTransaction _transaction;
-
-    public UnitOfWork(IDbConnection connection)
-    {
-        _connection = connection ?? throw new ArgumentNullException(nameof(connection));
-    }
-
-    public IBookRepository BookRepository { get; }
-    public ICatalogueRepository CatalogueRepository { get; }
-
-    public void BeginTransaction()
-    {
-        _transaction = _connection.BeginTransaction();
-
-        BookRepository = new BookRepository(_connection, _transaction);
-        CatalogueRepository = new CatalogueRepository(_connection, _transaction);
-    }
-
-    public async Task CommitAsync()
-    {
-        try
-        {
-            await _transaction.CommitAsync();
-        }
-        catch
-        {
-            _transaction.Rollback();
-            throw;
-        }
-        finally
-        {
-            _transaction.Dispose();
-        }
-    }
-}
-```
+[ボトムアップドメイン駆動設計](https://github.com/nrslib/BottomUpDDDTheLaterPart)  
 
 ---
 
