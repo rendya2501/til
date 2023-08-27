@@ -109,3 +109,19 @@
 
 [markdownで2つのコードを横並びにして表示することはでき...](https://detail.chiebukuro.yahoo.co.jp/qa/question_detail/q14258031544)  
 [Markdownで2カラムの文書を作りたい - Qiita](https://qiita.com/ossyaritoori/items/9f38113847ee65e68e76)  
+
+---
+
+## 一般的なオープンソースプロジェクトで記載されている項目  
+
+●リポジトリ（プロダクト）の名前：Name  
+●概要：Overview  
+●デモ：Demo  
+●使い方：Usage  
+●環境：Requirement  
+●インストール方法：Install  
+●注意事項：Note  
+●文責：Author  
+●ライセンス：License  
+
+[https://zenn.dev/panyoriokome/scraps/019bb96166c26e]  
