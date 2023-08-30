@@ -155,4 +155,19 @@ WHERE rownum BETWEEN 1 AND 3
 
 ---
 
+2023/08/30 Wed 追記  
+
+上下にページングする方法はwindow関数のサンプルの方に置きました。  
+
+``` txt
+1-1
+1-2
+1-3 ← 前へボタンを押したら取得したい
+2-1 ← 現在地
+2-2 ← 次へボタンを押したら取得したい
+2-3
+```
+
+---
+
 [SQL Server - OFFSET 句と FETCH 句 - いちろぐ](https://ichiroku11.hatenablog.jp/entry/2014/03/03/003411)  
