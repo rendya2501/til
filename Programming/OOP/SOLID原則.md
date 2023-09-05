@@ -1,12 +1,6 @@
 # SOLID原則
 
-[イラストで理解するSOLID原則](https://qiita.com/baby-degu/items/d058a62f145235a0f007)  
-
----
-
 ## 概要
-
-[TypeScriptでSOLID原則〜単一責任の原則〜](https://www.membersedge.co.jp/blog/typescript-solid-single-responsibility-principle/#:~:text=SOLID%E5%8E%9F%E5%89%87%E3%81%A8%E3%81%AF%E3%80%81%E3%82%AA%E3%83%96%E3%82%B8%E3%82%A7%E3%82%AF%E3%83%88,%E3%81%AE%E5%8E%9F%E5%89%87%E3%81%AE%E3%81%93%E3%81%A8%E3%81%A7%E3%81%99%E3%80%82)  
 
 SOLID原則とは、オブジェクト指向プログラミングにおいて、変更しやすい・理解しやすい・再利用しやすいモジュール（クラスや関数などの、ソフトウェアのを構成する部品）を設計・開発するための原則のことです。  
 ソフトウェアエンジニアRobert C. Martinに提唱された多くの設計原則を5つにまとめたものの頭文字をとって命名されました。  
@@ -26,6 +20,8 @@ SOLID原則とは、オブジェクト指向プログラミングにおいて、
 - 既存コードが再利用しにくくなっており、機能の追加時に似たような処理を別の場所に書かなければならず、開発効率が悪い  
 
 SOLID原則を学ぶことで、ソフトウェアが上記のようなツラい状態になることを回避できる（もしくはツラい状態から回復できる）可能性があります。  
+
+[TypeScriptでSOLID原則〜単一責任の原則〜](https://www.membersedge.co.jp/blog/typescript-solid-single-responsibility-principle/#:~:text=SOLID%E5%8E%9F%E5%89%87%E3%81%A8%E3%81%AF%E3%80%81%E3%82%AA%E3%83%96%E3%82%B8%E3%82%A7%E3%82%AF%E3%83%88,%E3%81%AE%E5%8E%9F%E5%89%87%E3%81%AE%E3%81%93%E3%81%A8%E3%81%A7%E3%81%99%E3%80%82)  
 
 ---
 
@@ -102,3 +98,14 @@ SがTのサブタイプである場合、プログラム内のT型のオブジ�
 
 目的
 この原則は、インターフェイスを導入することにより、上位レベルのクラスが下位レベルのクラスに依存するのを減らすことを目的としています。
+
+---
+
+## 参考
+
+1番わかりやすい  
+[【C#】SOLID原則を学ぼう](https://annulusgames.com/blog/solid-principles/)  
+
+[イラストで理解するSOLID原則](https://qiita.com/baby-degu/items/d058a62f145235a0f007)  
+
+[TypeScriptでSOLID原則〜単一責任の原則〜](https://www.membersedge.co.jp/blog/typescript-solid-single-responsibility-principle/#:~:text=SOLID%E5%8E%9F%E5%89%87%E3%81%A8%E3%81%AF%E3%80%81%E3%82%AA%E3%83%96%E3%82%B8%E3%82%A7%E3%82%AF%E3%83%88,%E3%81%AE%E5%8E%9F%E5%89%87%E3%81%AE%E3%81%93%E3%81%A8%E3%81%A7%E3%81%99%E3%80%82)  
