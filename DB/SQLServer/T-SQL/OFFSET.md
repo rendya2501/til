@@ -168,6 +168,9 @@ WHERE rownum BETWEEN 1 AND 3
 2-3
 ```
 
+ちょっと違うけど、興味深い問題  
+[Xユーザーのサカモト@エンジニアキャリア論さん: 「テーブル定義が渡されSQLのクイズが出される面接形式もある。 昔データ系の外資ソフトウェアエンジニアのコンサルポジションを受けたが、この手のポジションでよく見られた。 例えば次のテーブルの3番目にscoreが高い生徒(students)をSELECTせよ。 大丈夫なように復習しておこう。 &gt;&gt; 答えは↓ https://t.co/PxVMpnaZhb」 / X](https://twitter.com/sakamoto_582/status/1647882827378352128)  
+
 ---
 
 [SQL Server - OFFSET 句と FETCH 句 - いちろぐ](https://ichiroku11.hatenablog.jp/entry/2014/03/03/003411)  
