@@ -577,6 +577,223 @@ public static void AddApplication(this IServiceCollection service)
 
 ---
 
+## メモ
+
+``` cs
+public interface IUnitOfWork : IDisposable
+{
+    IBookRepository BookRepository { get; }
+    ICatalogueRepository CatalogueRepository { get; }
+
+    Task CommitAsync();
+    Task RollbackAsync();
+}
+
+public class UnitOfWork : IUnitOfWork
+{
+    private readonly IDbConnection connection;
+    private readonly IDbTransaction transaction;
+    private bool disposed;
+
+    private BookRepository bookRepository;
+    public IBookRepository BookRepository => bookRepository ??= new BookRepository(connection);
+    
+    private CatalogueRepository catalogueRepository;
+    public ICatalogueRepository CatalogueRepository => catalogueRepository ??= new CatalogueRepository(connection);
+
+
+    public UnitOfWork(IDbConnection connection) {
+        this.connection = connection;
+        connection.Open();
+        transaction = connection.BeginTransaction();
+    }
+
+    ~UnitOfWork()
+    {
+        dispose(false);
+    }
+
+    public async Task CommitAsync()
+    {
+        try
+        {
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+        finally
+        {
+            transaction.Dispose();
+        }
+    }
+
+    public async Task Rollback() {
+        await transaction.Rollback();
+    }
+
+    public void Dispose() {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual Dispose(bool disposing)
+    {
+        if (disposed)
+        {
+            return;
+        }
+        if(disposing)
+        {
+            transaction?.Dispose();
+            connnection?.Dispose();
+        
+        }
+        disposed = true;
+    }
+}
+```
+
+``` cs
+public class Book
+{
+    public int Id { get; set; }
+    public string Title { get; set; }
+    public string Author { get; set; }
+    public string Publisher { get; set; }
+    public string Genre { get; set; }
+    public int Price { get; set; }
+}
+
+public interface IBookRepository {
+    Task<Book> GetByIdAsync(int id);
+    Task<IReadOnlyList<Book>> GetAllAsync();
+    Task<int> AddAsync(Book entity);
+    Task<int> UpdateAsync(Book entity);
+    Task<int> DeleteAsync(int id);
+}
+
+public class BookRepository : IBookRepository
+{
+    private readonly IDbConnection _connection;
+
+    public BookRepository(IDbConnection connection)
+    {
+        _connection = connection ?? throw new ArgumentNullException(nameof(connection));
+    }
+
+    public async Task<IEnumerable<Book>> GetAllAsync()
+    {
+        return await _connection.QueryAsync<Book>(
+            "SELECT * FROM Book"
+        );
+    }
+
+    public async Task<Book> GetByIdAsync(int id)
+    {
+        return await _connection.QuerySingleOrDefaultAsync<Book>(
+            "SELECT * FROM Book WHERE Id = @Id",
+            new { id }
+        );
+    }
+
+    public async Task<int> AddAsync(Book book)
+    {
+        return await _connection.ExecuteAsync(
+            "INSERT INTO Book (Name, Author) VALUES (@Name, @Author)",
+            new { book.Name, book.Author }
+        );
+    }
+
+    public async Task<int> UpdateAsync(Book book)
+    {
+        return await _connection.ExecuteAsync(
+            "UPDATE Book SET Name = @Name, Author = @Author WHERE Id = @Id",
+            new { book.Name, book.Author, book.Id }
+        );
+    }
+
+    public async Task<int> DeleteAsync(int id)
+    {
+        return await _connection.ExecuteAsync(
+            "DELETE FROM Book WHERE Id = @Id",
+            new { Id = id }
+        );
+    }
+}
+```
+
+``` cs
+public class Catalogue
+{
+    public int CatalogueId { get; set; }
+    public string Name { get; set; }
+    public List<Book> Books { get; set; }
+}
+
+public interface ICatalogueRepository
+{
+    Task<Catalogue> GetByIdAsync(int id);
+    Task<IReadOnlyList<Catalogue>> GetAllAsync();
+    Task<int> AddAsync(Catalogue entity);
+    Task<int> UpdateAsync(Catalogue entity);
+    Task<int> DeleteAsync(int id);
+}
+
+public class CatalogueRepository : ICatalogueRepository
+{
+    private readonly IDbConnection _connection;
+
+    public CatalogueRepository(IDbConnection connection)
+    {
+        _connection = connection ?? throw new ArgumentNullException(nameof(connection));
+    }
+
+    public async Task<IEnumerable<Catalogue>> GetAllAsync()
+    {
+        return await _connection.QueryAsync<Catalogue>(
+            "SELECT * FROM Catalogue"
+        );
+    }
+
+    public async Task<Catalogue> GetByIdAsync(int id)
+    {
+        return await _connection.QuerySingleOrDefaultAsync<Catalogue>(
+            "SELECT * FROM Catalogue WHERE Id = @Id",
+            new { id }
+        );
+    }
+
+    public async Task<int> AddAsync(Catalogue catalogue)
+    {
+        return await _connection.ExecuteAsync(
+            "INSERT INTO Catalogue (Name, BookId) VALUES (@Name, @BookId)",
+            new { catalogue.Name, catalogue.BookId }
+        );
+    }
+
+    public async Task<int> UpdateAsync(Catalogue catalogue)
+    {
+        return await _connection.ExecuteAsync(
+            "UPDATE Catalogue SET Name = @Name, BookId = @BookId WHERE Id = @Id",
+            new { catalogue.Name, catalogue.BookId, catalogue.Id }
+        );
+    }
+
+    public async Task<int> DeleteAsync(int id)
+    {
+        return await _connection.ExecuteAsync(
+            "DELETE FROM Catalogue WHERE Id = @Id",
+            new { Id = id }
+        );
+    }
+}
+```
+
+---
+
 ## 参考
 
 [Repositoryパターンを維持しながらN+1問題を起こさないようにする方法論について](https://speakerdeck.com/yamotuki/repositorypatanwowei-chi-sinagaran-plus-1wen-ti-woqi-kosanaiyounisurufang-fa-lun-nituite)  
