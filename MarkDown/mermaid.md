@@ -1,4 +1,4 @@
-# markdown_mermaid
+# mermaid
 
 ---
 
@@ -6,14 +6,6 @@
 
 - フローチャートやガントチャート、円グラフなどをMarkdownに描けるオープンソースのライブラリ  
 - テキストのみで手軽にきれいなダイアグラムを書くことができるツール  
-
----
-
-## VSCode + marmaid
-
-拡張機能 : Markdown Preview Mermaid Support をインストール  
-
-[VISUAL STUDIO CODE で MERMAID をプレビューする方法](https://usefuledge.com/vscodemermaidsupport.html)  
 
 ---
 
@@ -25,25 +17,23 @@
 
 ## mermaid + クラス図
 
-``` txt
-記号 | 意味                 | サンプル
------+----------------------+--------------------
-<|-- | Generalization(汎化) | ClassA <|-- ClassB
-<|.. | Realization(実現)    | ClassC <|.. ClassD
-<--  | Association(関連)    | ClassE <-- ClassF
-<..  | Dependency(依存)     | ClassG <.. ClassH
-*--  | Composition(合成)    | ClassI *-- ClassJ
-o--  | Aggregation(集約)    | ClassK o-- ClassL
---   | Link(線)             | ClassM -- ClassN
-..   | Link(破線)           | ClassO .. ClassP
------+----------------------+--------------------
-*    | Abstract             | foo*, foo()*
-$    | Static               | foo$, foo()$
-+    | Public               | +foo, +foo()
--    | Private              | -foo, -foo()
-#    | Protected            | #foo, #foo()
-~    | Package/Internal     | ~foo
-```
+|記号 | 意味                 | サンプル|
+|:-|:-|:-|
+|<|-- | Generalization(汎化) | ClassA <|-- ClassB|
+|<|.. | Realization(実現)    | ClassC <|.. ClassD|
+|<--  | Association(関連)    | ClassE <-- ClassF|
+|<..  | Dependency(依存)     | ClassG <.. ClassH|
+|*--  | Composition(合成)    | ClassI *-- ClassJ|
+|o--  | Aggregation(集約)    | ClassK o-- ClassL|
+|--   | Link(線)             | ClassM -- ClassN|
+|..   | Link(破線)           | ClassO .. ClassP|
+|-|-|-|
+|*    | Abstract             | foo*, foo()*|
+|$    | Static               | foo$, foo()$|
+|+    | Public               | +foo, +foo()|
+|-    | Private              | -foo, -foo()|
+|#    | Protected            | #foo, #foo()|
+|~    | Package/Internal     | ~foo|
 
 継承(inheritance) → 汎化(generalization)  
 実装(implemente) → 実現(realization)  
@@ -73,6 +63,41 @@ class Hoge{
 ```
 
 [mermaidのクラス図メモ](https://zenn.dev/tak_uchida/articles/da583cf960e854)  
+
+---
+
+## 改行
+
+``` mermaid
+flowchart
+  Node["Hoge\nFuga"]
+
+  API -- "HTTP\n(GET/POST/PUT/DELETE)" --> Controller
+```
+
+[Mermaidでフローチャートを描くなら「Mermaid Graphical Editor」！ | astah in 5 min](https://ja.astahblog.com/2022/11/30/mermaid_flowchart_on_vscode/)  
+
+---
+
+## クラス図 パッケージ
+
+いつの間にかパッケージが実装されていた。  
+
+``` mermaid
+classDiagram
+
+namespace BaseShapes {
+  class Triangle
+  class Rectangle
+}
+
+namespace Hoge {
+  class Huga
+}
+```
+
+[Implement `package` on class diagram by ksilverwall · Pull Request #4206 · mermaid-js/mermaid](https://github.com/mermaid-js/mermaid/pull/4206)  
+[Xユーザーのにゃんだーすわんさん: 「Mermaidのクラス図にpackage(namespace)が実装されてたことを知った。やったぜ！ https://t.co/12Ccz9ttqq」 / X](https://twitter.com/tadsan/status/1669720348391268353)  
 
 ---
 
