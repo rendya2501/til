@@ -11,5 +11,14 @@ public class App {
             System.out.println("obj1とobj2は同じインスタンスではありません。");
         }
         System.out.println("End.");
+        Fruit hoge = Fruit.Apple;
+        System.out.println(hoge.getJapanese());
     }
+}
+
+
+enum Hoge {
+    HOGE,
+    FUGA,
+    PIYO
 }
